@@ -1,0 +1,152 @@
+// ==========================================
+// Neumorphism Design Tokens
+// ==========================================
+
+// ---------- Light Mode (default) ----------
+:root {
+  // Background colors
+  --nm-bg-color: #ffffff;
+  --nm-surface-color: #f0f0f0;
+  --nm-surface-raised: #f5f5f5;
+
+  // Text colors
+  --nm-text-primary: #555555;
+  --nm-text-secondary: #888888;
+  --nm-text-disabled: #bbbbbb;
+  --nm-text-placeholder: #aaaaaa;
+
+  // Accent colors
+  --nm-primary-color: #6c7ae0;
+  --nm-primary-light: #8b9af0;
+  --nm-primary-dark: #5a68c0;
+
+  // Shadow system (light mode)
+  // Inset shadows: top-left dark, bottom-right light
+  --nm-shadow-dark: rgba(0, 0, 0, 0.12);
+  --nm-shadow-light: rgba(255, 255, 255, 0.95);
+  --nm-shadow-dark-strong: rgba(0, 0, 0, 0.18);
+  --nm-shadow-light-strong: rgba(255, 255, 255, 0.85);
+  --nm-shadow-dark-deep: rgba(0, 0, 0, 0.14);
+  --nm-shadow-light-deep: rgba(255, 255, 255, 0.92);
+
+  // Border radius
+  --nm-border-radius-sm: 8px;
+  --nm-border-radius-md: 16px;
+  --nm-border-radius-lg: 24px;
+  --nm-border-radius-xl: 32px;
+  --nm-border-radius-full: 9999px;
+
+  // Spacing
+  --nm-spacing-xs: 4px;
+  --nm-spacing-sm: 8px;
+  --nm-spacing-md: 16px;
+  --nm-spacing-lg: 24px;
+  --nm-spacing-xl: 32px;
+
+  // Transition
+  --nm-transition-fast: 0.2s ease;
+  --nm-transition-normal: 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  --nm-transition-slow: 0.5s ease;
+
+  // Depth levels for inset effect
+  --nm-depth-shallow: 3px;
+  --nm-depth-medium: 6px;
+  --nm-depth-deep: 10px;
+  --nm-depth-very-deep: 16px;
+}
+
+// ---------- Dark Mode ----------
+[data-theme="dark"],
+.nm-theme-dark {
+  --nm-bg-color: #1c1c1c;
+  --nm-surface-color: #1a1a1a;
+  --nm-surface-raised: #222222;
+
+  --nm-text-primary: #c0c0c0;
+  --nm-text-secondary: #888888;
+  --nm-text-disabled: #505050;
+  --nm-text-placeholder: #666666;
+
+  --nm-primary-color: #7b8cf0;
+  --nm-primary-light: #9aacff;
+  --nm-primary-dark: #6a7ad0;
+
+  --nm-shadow-dark: rgba(0, 0, 0, 0.5);
+  --nm-shadow-light: rgba(255, 255, 255, 0.08);
+  --nm-shadow-dark-strong: rgba(0, 0, 0, 0.6);
+  --nm-shadow-light-strong: rgba(255, 255, 255, 0.1);
+  --nm-shadow-dark-deep: rgba(0, 0, 0, 0.6);
+  --nm-shadow-light-deep: rgba(255, 255, 255, 0.12);
+}
+
+// ==========================================
+// SCSS Mixins
+// ==========================================
+
+/// Raised (convex) shadow effect
+/// Creates a soft凸起 appearance
+@mixin nm-raised($depth: 6px, $blur: 12px) {
+  box-shadow:
+    $depth $depth $blur var(--nm-shadow-dark),
+    calc(-1 * $depth) calc(-1 * $depth) $blur var(--nm-shadow-light);
+}
+
+/// Pressed (concave/inset) shadow effect
+/// Creates a soft凹陷 appearance
+@mixin nm-inset($depth: 6px, $blur: 12px) {
+  box-shadow:
+    inset $depth $depth $blur var(--nm-shadow-dark),
+    inset calc(-1 * $depth) calc(-1 * $depth) $blur var(--nm-shadow-light);
+}
+
+/// Strong raised effect for interactive elements
+@mixin nm-raised-strong($depth: 4px, $blur: 8px) {
+  box-shadow:
+    $depth $depth $blur var(--nm-shadow-dark-strong),
+    calc(-1 * $depth) calc(-1 * $depth) $blur var(--nm-shadow-light-strong);
+}
+
+/// Strong inset effect for pressed/selected states
+@mixin nm-inset-strong($depth: 4px, $blur: 8px) {
+  box-shadow:
+    inset $depth $depth $blur var(--nm-shadow-dark-strong),
+    inset calc(-1 * $depth) calc(-1 * $depth) $blur var(--nm-shadow-light-strong);
+}
+
+/// Deep inset effect for containers/cards
+@mixin nm-inset-deep($depth: 6px, $blur: 12px) {
+  box-shadow:
+    inset $depth $depth $blur var(--nm-shadow-dark-deep),
+    inset calc(-1 * $depth) calc(-1 * $depth) $blur var(--nm-shadow-light-deep);
+}
+
+/// Hover lift effect - slightly increases shadow
+@mixin nm-hover-lift {
+  transition: box-shadow var(--nm-transition-fast), transform var(--nm-transition-fast);
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow:
+      8px 8px 16px var(--nm-shadow-dark),
+      -8px -8px 16px var(--nm-shadow-light);
+  }
+}
+
+/// Active press effect
+@mixin nm-active-press {
+  transition: box-shadow var(--nm-transition-fast), transform var(--nm-transition-fast);
+
+  &:active {
+    transform: translateY(1px);
+    @include nm-inset(3px, 6px);
+  }
+}
+
+/// Smooth transition for theme switching
+@mixin nm-theme-transition {
+  transition:
+    background-color var(--nm-transition-slow),
+    box-shadow var(--nm-transition-slow),
+    color var(--nm-transition-slow),
+    border-color var(--nm-transition-slow);
+}

@@ -1,0 +1,33 @@
+// ==========================================
+// Neumorphism UI - Global Styles Entry
+// ==========================================
+
+@use './variables.scss' as *;
+
+// Base styles for neumorphism theme
+.nm-root,
+.nm-theme-default {
+  background-color: var(--nm-bg-color);
+  color: var(--nm-text-primary);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  @include nm-theme-transition;
+}
+
+// Ensure smooth transitions for all themed elements
+.nm-root *,
+.nm-root *::before,
+.nm-root *::after {
+  @include nm-theme-transition;
+}
+
+// Focus outline style
+.nm-focus-ring {
+  outline: none;
+
+  &:focus-visible {
+    box-shadow:
+      0 0 0 3px var(--nm-primary-color),
+      inset 2px 2px 4px var(--nm-shadow-dark),
+      inset -2px -2px 4px var(--nm-shadow-light);
+  }
+}
