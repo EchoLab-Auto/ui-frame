@@ -1,20 +1,20 @@
 # @echolab/ui-frame
 
-A Vue 3 UI component library featuring **Neumorphism (Soft UI)** design — soft, tactile shadows that create a realistic 3D embossed effect.
+基于 **新拟态（Neumorphism / Soft UI）** 设计风格的 Vue 3 UI 组件库 —— 通过柔和、可触知的阴影营造真实的 3D 浮雕效果。
 
-> Inspired by the elegant inset/convex shadow aesthetics of physical interfaces.
+> 灵感来源于物理界面优雅的 inset / 凸起阴影美学。
 
-## ✨ Features
+## 特性
 
-- 🎨 **Neumorphism Design** — Soft凸起 and 凹陷 shadow effects
-- 🌓 **Light / Dark Theme** — Built-in theme system with auto-detection
-- 📦 **Tree-shakable** — Import only what you need
-- 🔧 **TypeScript** — Full type definitions included
-- 🎯 **Vue 3 Composition API** — Modern Vue development
+- **新拟态设计** — 柔和的凸起与凹陷阴影效果
+- **亮色 / 暗色主题** — 内置主题系统，支持自动检测
+- **Tree-shaking** — 按需引入，只打包需要的组件
+- **TypeScript** — 完整的类型定义
+- **Vue 3 Composition API** — 现代化 Vue 开发体验
 
-## 📦 Installation
+## 安装
 
-### Install from npm registry (recommended)
+### 通过 npm 安装（推荐）
 
 ```bash
 npm install @echolab/ui-frame
@@ -28,15 +28,15 @@ yarn add @echolab/ui-frame
 pnpm add @echolab/ui-frame
 ```
 
-### Install from GitHub
+### 通过 GitHub 安装
 
-If the package is not published to npm yet, you can install directly from GitHub:
+如果包尚未发布到 npm，可以直接从 GitHub 安装：
 
 ```bash
-# Install from the main branch
+# 从 main 分支安装
 npm install EchoLab-Auto/ui-frame
 
-# Or install from a specific branch/tag
+# 或从指定分支/标签安装
 npm install EchoLab-Auto/ui-frame#main
 npm install EchoLab-Auto/ui-frame#v1.0.0
 ```
@@ -49,11 +49,9 @@ yarn add EchoLab-Auto/ui-frame
 pnpm add EchoLab-Auto/ui-frame
 ```
 
-**Note:** When installing from GitHub, the `prepare` script will automatically run the build process. Make sure you have a Node.js version ≥ 18 installed.
+**注意：** 从 GitHub 安装时，`prepare` 脚本会自动执行构建。请确保 Node.js 版本 >= 18。
 
-## 🚀 Usage
-
-### Full Import
+## 快速开始
 
 ```ts
 import { createApp } from 'vue'
@@ -66,180 +64,59 @@ app.use(NeumorphismUI)
 app.mount('#app')
 ```
 
-### On-Demand Import
+## 组件列表
 
-```vue
-<script setup>
-import { NeumorphismButton, NeumorphismCard } from '@echolab/ui-frame'
-import '@echolab/ui-frame/dist/style.css'
-</script>
+| 组件 | 说明 | 关键属性 |
+|-----------|-------------|-----------|
+| `NeumorphismButton` | 带有凸起/凹陷阴影效果的按钮 | `variant`, `size`, `shape`, `disabled`, `loading` |
+| `NeumorphismSwitch` | 带太阳/月亮图标的切换开关 | `v-model`, `active-text`, `inactive-text`, `size` |
+| `NeumorphismCard` | 带凸起或凹陷阴影深度的容器 | `variant`, `depth`, `radius`, `hoverable` |
+| `NeumorphismInput` | 带凹陷阴影效果的输入框 | `v-model`, `label`, `placeholder`, `size`, `error` |
+| `ThemeProvider` | 管理应用全局的亮色/暗色主题 | `default-theme`, `storage-key`, `follow-system` |
 
-<template>
-  <NeumorphismCard variant="raised">
-    <NeumorphismButton variant="raised" size="medium">
-      Click Me
-    </NeumorphismButton>
-  </NeumorphismCard>
-</template>
+详细的使用说明、组件属性及主题定制，请参阅 [文档](docs/documentation.md)。
+
+## 示例
+
+项目提供了组件展示页面，展示所有组件的交互效果，并支持亮/暗主题切换。
+
+### 方式一：开发服务器（热更新）
+
+```bash
+npm run example
 ```
 
-## 🧩 Components
+访问 http://localhost:5173/
 
-### NeumorphismButton
+### 方式二：静态预览
 
-A button with soft凸起 or 凹陷 shadow effects.
-
-```vue
-<NeumorphismButton
-  variant="raised"     <!-- 'raised' | 'flat' | 'pressed' -->
-  size="medium"        <!-- 'small' | 'medium' | 'large' -->
-  shape="rounded"      <!-- 'rounded' | 'pill' | 'circle' -->
-  :disabled="false"
-  :loading="false"
-  @click="handleClick"
->
-  Button Text
-</NeumorphismButton>
+```bash
+npm run example:build
+npm run example:preview
 ```
 
-### NeumorphismSwitch
+访问 http://localhost:5173/
 
-A theme toggle switch with sun/moon icons, inspired by ui-example.
+### 方式三：直接打开静态文件
 
-```vue
-<script setup>
-import { ref } from 'vue'
-const isDark = ref(false)
-</script>
-
-<template>
-  <NeumorphismSwitch
-    v-model="isDark"
-    active-text="Dark"
-    inactive-text="Light"
-    size="medium"        <!-- 'small' | 'medium' | 'large' -->
-  />
-</template>
+```bash
+npm run example:build
 ```
 
-### NeumorphismCard
+用浏览器直接打开 `dist-example/index.html`。
 
-A container with raised or pressed shadow depth levels.
+### 方式四：在线预览（GitHub Pages）
 
-```vue
-<NeumorphismCard
-  variant="raised"     <!-- 'raised' | 'pressed' -->
-  depth="medium"       <!-- 'shallow' | 'medium' | 'deep' | 'very-deep' -->
-  radius="large"       <!-- 'small' | 'medium' | 'large' | 'xl' -->
-  :hoverable="true"
->
-  <template #header>
-    Card Header
-  </template>
+每次推送到 `main` 分支时，GitHub Actions 会自动构建并部署示例页面。
 
-  Card content goes here...
+**在线地址：** https://echolab-auto.github.io/ui-frame/
 
-  <template #footer>
-    Card Footer
-  </template>
-</NeumorphismCard>
-```
+**手动触发部署：** 前往仓库的 Actions → Deploy Example to GitHub Pages → Run workflow
 
-### NeumorphismInput
-
-An input field with soft凹陷 shadow effect.
-
-```vue
-<script setup>
-import { ref } from 'vue'
-const value = ref('')
-</script>
-
-<template>
-  <NeumorphismInput
-    v-model="value"
-    label="Username"
-    placeholder="Enter your name"
-    size="medium"        <!-- 'small' | 'medium' | 'large' -->
-    :required="true"
-    error=""
-    @enter="handleSubmit"
-  >
-    <template #prefix>
-      <UserIcon />
-    </template>
-  </NeumorphismInput>
-</template>
-```
-
-### ThemeProvider
-
-Manages light/dark theme state across your application.
-
-```vue
-<template>
-  <ThemeProvider
-    default-theme="auto"        <!-- 'light' | 'dark' | 'auto' -->
-    storage-key="app-theme"
-    :follow-system="true"
-    v-slot="{ isDark, toggleTheme, setTheme }"
-  >
-    <div>
-      <NeumorphismButton @click="toggleTheme">
-        Toggle Theme
-      </NeumorphismButton>
-      <NeumorphismButton @click="setTheme('light')">
-        Light Mode
-      </NeumorphismButton>
-    </div>
-  </ThemeProvider>
-</template>
-```
-
-You can also use the `useTheme` composable in child components:
-
-```vue
-<script setup>
-import { useTheme } from '@echolab/ui-frame'
-
-const { isDark, toggleTheme, setTheme } = useTheme()
-</script>
-```
-
-## 🎨 Theme System
-
-The library uses CSS custom properties for theming. All components automatically respond to theme changes.
-
-### Available CSS Variables
-
-```css
-:root {
-  /* Background */
-  --nm-bg-color: #ffffff;
-  --nm-surface-color: #f0f0f0;
-
-  /* Text */
-  --nm-text-primary: #555555;
-  --nm-text-secondary: #888888;
-
-  /* Shadows */
-  --nm-shadow-dark: rgba(0, 0, 0, 0.12);
-  --nm-shadow-light: rgba(255, 255, 255, 0.95);
-}
-
-[data-theme="dark"] {
-  --nm-bg-color: #1c1c1c;
-  --nm-surface-color: #1a1a1a;
-  --nm-text-primary: #c0c0c0;
-  --nm-shadow-dark: rgba(0, 0, 0, 0.5);
-  --nm-shadow-light: rgba(255, 255, 255, 0.08);
-}
-```
-
-## 📄 License
+> 首次使用需前往仓库 Settings → Pages → Source 选择 "GitHub Actions"。
 
 MIT
 
-## 🔗 Repository
+## 仓库
 
 [https://github.com/EchoLab-Auto/ui-frame](https://github.com/EchoLab-Auto/ui-frame)

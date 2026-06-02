@@ -1,7 +1,7 @@
 {
   "name": "@echolab/ui-frame",
   "version": "1.0.0",
-  "description": "A Vue 3 UI component library with Neumorphism design",
+  "description": "Vue 3 新拟态 UI 组件库",
   "type": "module",
   "main": "./dist/ui-frame.umd.cjs",
   "module": "./dist/ui-frame.js",
@@ -23,6 +23,9 @@
   ],
   "scripts": {
     "dev": "vite",
+    "example": "vite --config examples/vite.config.ts --host",
+    "example:build": "vite build --config examples/vite-build.config.ts",
+    "example:preview": "vite preview --config examples/vite-build.config.ts --host",
     "build": "vue-tsc --noEmit && vite build",
     "build:types": "vue-tsc --declaration --emitDeclarationOnly",
     "preview": "vite preview",

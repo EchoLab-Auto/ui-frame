@@ -4,6 +4,7 @@ node_modules/
 
 # 构建输出
 dist/
+dist-example/
 dist-ssr/
 *.local
 
