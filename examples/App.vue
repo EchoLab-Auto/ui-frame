@@ -101,34 +101,60 @@ const inputValue3 = ref('')
       <!-- Card Section -->
       <section class="showcase-section">
         <h2 class="section-title">NeumorphismCard 卡片</h2>
-        <p class="section-desc">带有凸起或凹陷阴影深度层级的容器</p>
+        <p class="section-desc">统一台阶高度模型：elevation &gt; 0 凸起，&lt; 0 凹陷，0 平齐</p>
 
         <div class="subsection">
-          <h3 class="subsection-title">凸起变体 (raised)</h3>
+          <h3 class="subsection-title">凸起台阶 (elevation 1–4)</h3>
           <div class="demo-row demo-row--cards">
-            <NeumorphismCard variant="raised" radius="medium" style="width: 200px">
-              基础凸起卡片
+            <NeumorphismCard :elevation="1" style="width: 180px">elevation: 1</NeumorphismCard>
+            <NeumorphismCard :elevation="2" style="width: 180px">elevation: 2</NeumorphismCard>
+            <NeumorphismCard :elevation="3" style="width: 180px">elevation: 3</NeumorphismCard>
+            <NeumorphismCard :elevation="4" style="width: 180px">elevation: 4</NeumorphismCard>
+          </div>
+        </div>
+
+        <div class="subsection">
+          <h3 class="subsection-title">凹陷台阶 (elevation -1 至 -4)</h3>
+          <div class="demo-row demo-row--cards">
+            <NeumorphismCard :elevation="-1" style="width: 180px">elevation: -1</NeumorphismCard>
+            <NeumorphismCard :elevation="-2" style="width: 180px">elevation: -2</NeumorphismCard>
+            <NeumorphismCard :elevation="-3" style="width: 180px">elevation: -3</NeumorphismCard>
+            <NeumorphismCard :elevation="-4" style="width: 180px">elevation: -4</NeumorphismCard>
+          </div>
+        </div>
+
+        <div class="subsection">
+          <h3 class="subsection-title">悬停膨胀 (hoverable="bulge" — elevation += 2)</h3>
+          <div class="demo-row demo-row--cards">
+            <NeumorphismCard :elevation="1" hoverable="bulge" style="width: 180px">
+              1 → 3
             </NeumorphismCard>
-            <NeumorphismCard variant="raised" radius="large" :hoverable="true" style="width: 200px">
-              悬停可上浮
+            <NeumorphismCard :elevation="2" hoverable="bulge" style="width: 180px">
+              2 → 4
+            </NeumorphismCard>
+            <NeumorphismCard :elevation="-2" hoverable="bulge" style="width: 180px">
+              -2 → 0
+            </NeumorphismCard>
+            <NeumorphismCard :elevation="0" hoverable="bulge" style="width: 180px">
+              0 → 2
             </NeumorphismCard>
           </div>
         </div>
 
         <div class="subsection">
-          <h3 class="subsection-title">凹陷变体 (pressed)</h3>
+          <h3 class="subsection-title">悬停下沉 (hoverable="sink" — elevation -= 2)</h3>
           <div class="demo-row demo-row--cards">
-            <NeumorphismCard variant="pressed" depth="shallow" style="width: 200px">
-              浅凹陷
+            <NeumorphismCard :elevation="-1" hoverable="sink" style="width: 180px">
+              -1 → -3
             </NeumorphismCard>
-            <NeumorphismCard variant="pressed" depth="medium" style="width: 200px">
-              中凹陷
+            <NeumorphismCard :elevation="-2" hoverable="sink" style="width: 180px">
+              -2 → -4
             </NeumorphismCard>
-            <NeumorphismCard variant="pressed" depth="deep" style="width: 200px">
-              深凹陷
+            <NeumorphismCard :elevation="2" hoverable="sink" style="width: 180px">
+              2 → 0
             </NeumorphismCard>
-            <NeumorphismCard variant="pressed" depth="very-deep" style="width: 200px">
-              极深凹陷
+            <NeumorphismCard :elevation="0" hoverable="sink" style="width: 180px">
+              0 → -2
             </NeumorphismCard>
           </div>
         </div>
@@ -136,7 +162,7 @@ const inputValue3 = ref('')
         <div class="subsection">
           <h3 class="subsection-title">带头部和底部</h3>
           <div class="demo-row">
-            <NeumorphismCard variant="raised" style="width: 400px">
+            <NeumorphismCard :elevation="2" style="width: 400px">
               <template #header>
                 <strong>卡片标题</strong>
               </template>
@@ -221,7 +247,7 @@ const inputValue3 = ref('')
         <div class="subsection">
           <h3 class="subsection-title">当前主题</h3>
           <div class="demo-row">
-            <NeumorphismCard variant="raised" style="width: 300px">
+            <NeumorphismCard :elevation="2" style="width: 300px">
               <p>当前是否为暗色主题：<strong>{{ isDark ? '是' : '否' }}</strong></p>
               <div style="margin-top: 12px">
                 <NeumorphismButton variant="raised" size="small" @click="toggleTheme">

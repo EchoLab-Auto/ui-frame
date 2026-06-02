@@ -80,40 +80,11 @@ app.mount('#app')
 
 项目提供了组件展示页面，展示所有组件的交互效果，并支持亮/暗主题切换。
 
-### 方式一：开发服务器（热更新）
-
 ```bash
 npm run example
 ```
 
 访问 http://localhost:5173/
-
-### 方式二：静态预览
-
-```bash
-npm run example:build
-npm run example:preview
-```
-
-访问 http://localhost:5173/
-
-### 方式三：直接打开静态文件
-
-```bash
-npm run example:build
-```
-
-用浏览器直接打开 `dist-example/index.html`。
-
-### 方式四：在线预览（GitHub Pages）
-
-每次推送到 `main` 分支时，GitHub Actions 会自动构建并部署示例页面。
-
-**在线地址：** https://echolab-auto.github.io/ui-frame/
-
-**手动触发部署：** 前往仓库的 Actions → Deploy Example to GitHub Pages → Run workflow
-
-> 首次使用需前往仓库 Settings → Pages → Source 选择 "GitHub Actions"。
 
 MIT
 

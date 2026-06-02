@@ -181,14 +181,26 @@ function handleKeydown(event: KeyboardEvent): void {
   border-radius: var(--nm-border-radius-md);
   overflow: hidden;
   @include nm-inset(4px, 8px);
-  transition: box-shadow var(--nm-transition-fast);
+  transition:
+    box-shadow 0.3s ease,
+    background-color var(--nm-transition-slow);
 
-  // Focus state
+  // Hover — slightly deepen the inset
+  &:not(.nm-input--disabled):not(.nm-input--focused):hover {
+    box-shadow:
+      inset 5px 5px 10px var(--nm-shadow-dark),
+      inset -5px -5px 10px var(--nm-shadow-light);
+  }
+
+  // Focus state — inset deepens + colored ring
   &--focused {
     box-shadow:
       inset 5px 5px 10px var(--nm-shadow-dark),
       inset -5px -5px 10px var(--nm-shadow-light),
-      0 0 0 2px var(--nm-primary-color);
+      0 0 0 3px var(--nm-primary-color);
+    transition:
+      box-shadow 0.25s ease,
+      background-color var(--nm-transition-slow);
   }
 
   // Error state
@@ -202,7 +214,7 @@ function handleKeydown(event: KeyboardEvent): void {
       box-shadow:
         inset 5px 5px 10px var(--nm-shadow-dark),
         inset -5px -5px 10px var(--nm-shadow-light),
-        0 0 0 2px rgba(231, 76, 60, 0.5);
+        0 0 0 3px rgba(231, 76, 60, 0.5);
     }
   }
 

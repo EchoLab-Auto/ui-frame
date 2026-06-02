@@ -1,26 +1,98 @@
 // ==========================================
-// Neumorphism UI - Global Styles Entry
+// Neumorphism UI - Global Styles
 // ==========================================
 
-@use './variables.scss' as *;
+// ---------- Light Mode Tokens ----------
+:root {
+  --nm-bg-color: #e0e0e0;
+  --nm-surface-color: #e0e0e0;
+  --nm-surface-raised: #e5e5e5;
 
-// Base styles for neumorphism theme
+  --nm-text-primary: #555555;
+  --nm-text-secondary: #888888;
+  --nm-text-disabled: #bbbbbb;
+  --nm-text-placeholder: #aaaaaa;
+
+  --nm-primary-color: #6c7ae0;
+  --nm-primary-light: #8b9af0;
+  --nm-primary-dark: #5a68c0;
+
+  --nm-shadow-dark: rgba(0, 0, 0, 0.15);
+  --nm-shadow-light: rgba(255, 255, 255, 0.8);
+  --nm-shadow-dark-strong: rgba(0, 0, 0, 0.2);
+  --nm-shadow-light-strong: rgba(255, 255, 255, 0.9);
+  --nm-shadow-dark-deep: rgba(0, 0, 0, 0.18);
+  --nm-shadow-light-deep: rgba(255, 255, 255, 0.85);
+
+  --nm-border-radius-sm: 8px;
+  --nm-border-radius-md: 16px;
+  --nm-border-radius-lg: 24px;
+  --nm-border-radius-xl: 32px;
+  --nm-border-radius-full: 9999px;
+
+  --nm-spacing-xs: 4px;
+  --nm-spacing-sm: 8px;
+  --nm-spacing-md: 16px;
+  --nm-spacing-lg: 24px;
+  --nm-spacing-xl: 32px;
+
+  --nm-transition-fast: 0.2s ease;
+  --nm-transition-normal: 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  --nm-transition-slow: 0.5s ease;
+
+  --nm-depth-shallow: 3px;
+  --nm-depth-medium: 6px;
+  --nm-depth-deep: 10px;
+  --nm-depth-very-deep: 16px;
+}
+
+// ---------- Dark Mode Tokens ----------
+[data-theme="dark"],
+.nm-theme-dark {
+  --nm-bg-color: #1c1c1c;
+  --nm-surface-color: #1c1c1c;
+  --nm-surface-raised: #222222;
+
+  --nm-text-primary: #c0c0c0;
+  --nm-text-secondary: #888888;
+  --nm-text-disabled: #505050;
+  --nm-text-placeholder: #666666;
+
+  --nm-primary-color: #7b8cf0;
+  --nm-primary-light: #9aacff;
+  --nm-primary-dark: #6a7ad0;
+
+  --nm-shadow-dark: rgba(0, 0, 0, 0.5);
+  --nm-shadow-light: rgba(255, 255, 255, 0.06);
+  --nm-shadow-dark-strong: rgba(0, 0, 0, 0.6);
+  --nm-shadow-light-strong: rgba(255, 255, 255, 0.08);
+  --nm-shadow-dark-deep: rgba(0, 0, 0, 0.6);
+  --nm-shadow-light-deep: rgba(255, 255, 255, 0.1);
+}
+
+// ---------- Base Styles ----------
 .nm-root,
 .nm-theme-default {
   background-color: var(--nm-bg-color);
   color: var(--nm-text-primary);
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  @include nm-theme-transition;
+  transition:
+    background-color var(--nm-transition-slow),
+    box-shadow var(--nm-transition-slow),
+    color var(--nm-transition-slow),
+    border-color var(--nm-transition-slow);
 }
 
-// Ensure smooth transitions for all themed elements
 .nm-root *,
 .nm-root *::before,
 .nm-root *::after {
-  @include nm-theme-transition;
+  transition:
+    background-color var(--nm-transition-slow),
+    box-shadow var(--nm-transition-slow),
+    color var(--nm-transition-slow),
+    border-color var(--nm-transition-slow);
 }
 
-// Focus outline style
 .nm-focus-ring {
   outline: none;
 

@@ -178,53 +178,82 @@ function handleClick(event: MouseEvent): void {
 
 // ---------- Style variants ----------
 
-// Raised (default) - convex shadow
+// Raised (default) — convex shadow, lifts toward finger on hover
 .nm-button--raised {
-  @include nm-raised(4px, 8px);
-  transition: box-shadow var(--nm-transition-fast), transform var(--nm-transition-fast);
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.06),
+    4px 4px 8px var(--nm-shadow-dark),
+    -2px -2px 6px var(--nm-shadow-light);
+  transition:
+    box-shadow 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
+    transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
 
   &:not(.nm-button--disabled):hover {
     transform: translateY(-2px);
     box-shadow:
-      6px 6px 12px var(--nm-shadow-dark),
-      -6px -6px 12px var(--nm-shadow-light);
+      0 3px 6px rgba(0, 0, 0, 0.1),
+      6px 6px 14px var(--nm-shadow-dark),
+      -3px -3px 10px var(--nm-shadow-light);
   }
 
   &:not(.nm-button--disabled):active {
     transform: translateY(1px);
-    @include nm-inset(3px, 6px);
+    box-shadow:
+      inset 3px 3px 6px var(--nm-shadow-dark-deep),
+      inset -3px -3px 6px var(--nm-shadow-light-deep);
+    transition:
+      box-shadow 0.15s ease,
+      transform 0.15s ease;
   }
 }
 
-// Flat - subtle shadow
+// Flat — subtle shadow, firms up on hover
 .nm-button--flat {
   box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.04),
     2px 2px 4px var(--nm-shadow-dark),
-    -2px -2px 4px var(--nm-shadow-light);
-  transition: box-shadow var(--nm-transition-fast), transform var(--nm-transition-fast);
+    -1px -1px 3px var(--nm-shadow-light);
+  transition:
+    box-shadow 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+    transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  &:not(.nm-button--disabled):hover {
+    transform: translateY(-1px);
+    box-shadow:
+      0 2px 4px rgba(0, 0, 0, 0.06),
+      4px 4px 8px var(--nm-shadow-dark),
+      -2px -2px 6px var(--nm-shadow-light);
+  }
+
+  &:not(.nm-button--disabled):active {
+    transform: translateY(0);
+    box-shadow:
+      inset 2px 2px 4px var(--nm-shadow-dark-deep),
+      inset -2px -2px 4px var(--nm-shadow-light-deep);
+    transition:
+      box-shadow 0.1s ease,
+      transform 0.1s ease;
+  }
+}
+
+// Pressed — inset shadow, sinks deeper on press
+.nm-button--pressed {
+  box-shadow:
+    inset 3px 3px 6px var(--nm-shadow-dark-deep),
+    inset -3px -3px 6px var(--nm-shadow-light-deep);
+  transition: box-shadow 0.3s ease;
 
   &:not(.nm-button--disabled):hover {
     box-shadow:
-      4px 4px 8px var(--nm-shadow-dark),
-      -4px -4px 8px var(--nm-shadow-light);
+      inset 4px 4px 8px var(--nm-shadow-dark-deep),
+      inset -4px -4px 8px var(--nm-shadow-light-deep);
   }
 
   &:not(.nm-button--disabled):active {
-    @include nm-inset(2px, 4px);
-  }
-}
-
-// Pressed - inset shadow
-.nm-button--pressed {
-  @include nm-inset(3px, 6px);
-  transition: box-shadow var(--nm-transition-fast);
-
-  &:not(.nm-button--disabled):hover {
-    @include nm-inset(4px, 8px);
-  }
-
-  &:not(.nm-button--disabled):active {
-    @include nm-inset(5px, 10px);
+    box-shadow:
+      inset 5px 5px 10px var(--nm-shadow-dark-deep),
+      inset -5px -5px 10px var(--nm-shadow-light-deep);
+    transition: box-shadow 0.1s ease;
   }
 }
 

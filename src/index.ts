@@ -53,22 +53,19 @@ export type {
 // Utilities
 export { generateId, debounce, isEmpty } from './utils'
 
-// All components for install
-const components = [
+// Install function — registers all components globally
+const NAME_TO_COMPONENT = {
   NeumorphismButton,
   NeumorphismSwitch,
   NeumorphismCard,
   NeumorphismInput,
   ThemeProvider,
-]
+} as const
 
-// Install function
 export function install(app: App): void {
-  components.forEach((component) => {
-    if (component.name) {
-      app.component(component.name, component)
-    }
-  })
+  for (const [name, component] of Object.entries(NAME_TO_COMPONENT)) {
+    app.component(name, component)
+  }
 }
 
 // Default export (for app.use())

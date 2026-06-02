@@ -72,9 +72,7 @@ function handleChange(event: Event): void {
       >
       <span class="nm-switch__track">
         <span class="nm-switch__thumb">
-          <!-- Sun icon for light mode -->
           <svg
-            v-if="!isChecked"
             class="nm-switch__icon nm-switch__icon--sun"
             viewBox="0 0 24 24"
             fill="none"
@@ -88,9 +86,7 @@ function handleChange(event: Event): void {
               d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32 1.41 1.41M2 12h2m16 0h2M4.93 19.07l1.41-1.41m11.32-11.32 1.41-1.41"
             />
           </svg>
-          <!-- Moon icon for dark mode -->
           <svg
-            v-else
             class="nm-switch__icon nm-switch__icon--moon"
             viewBox="0 0 24 24"
             fill="none"
@@ -168,7 +164,7 @@ function handleChange(event: Event): void {
   @include nm-inset-strong(3px, 6px);
 }
 
-// Thumb - raised shadow
+// Thumb — raised shadow, slides with critically-damped motion (no overshoot)
 .nm-switch__thumb {
   position: absolute;
   top: 50%;
@@ -180,19 +176,43 @@ function handleChange(event: Event): void {
   align-items: center;
   justify-content: center;
   transition:
-    transform var(--nm-transition-normal),
+    left 0.35s cubic-bezier(0.4, 0.0, 0.2, 1.0),
+    transform 0.35s cubic-bezier(0.4, 0.0, 0.2, 1.0),
     background-color var(--nm-transition-slow),
-    box-shadow var(--nm-transition-slow),
-    left var(--nm-transition-normal);
-  @include nm-raised(2px, 4px);
+    box-shadow var(--nm-transition-slow);
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.08),
+    2px 2px 4px var(--nm-shadow-dark),
+    -1px -1px 3px var(--nm-shadow-light);
 }
 
-// Icon inside thumb
+// Icon inside thumb — both sun and moon are stacked and crossfade
 .nm-switch__icon {
+  position: absolute;
   width: 55%;
   height: 55%;
   color: var(--nm-text-secondary);
-  transition: color var(--nm-transition-slow), opacity var(--nm-transition-fast);
+  transition: opacity 0.3s ease, color var(--nm-transition-slow);
+}
+
+// Sun — visible when unchecked (light mode)
+.nm-switch__icon--sun {
+  color: #f5b642;
+  opacity: 1;
+
+  .nm-switch--checked & {
+    opacity: 0;
+  }
+}
+
+// Moon — visible when checked (dark mode)
+.nm-switch__icon--moon {
+  opacity: 0;
+
+  .nm-switch--checked & {
+    opacity: 1;
+    color: var(--nm-primary-color);
+  }
 }
 
 // ---------- Size variants ----------
@@ -209,7 +229,7 @@ function handleChange(event: Event): void {
     height: 16px;
   }
 
-  &--checked .nm-switch__thumb {
+  &.nm-switch--checked .nm-switch__thumb {
     left: calc(100% - 19px);
   }
 }
@@ -226,7 +246,7 @@ function handleChange(event: Event): void {
     height: 24px;
   }
 
-  &--checked .nm-switch__thumb {
+  &.nm-switch--checked .nm-switch__thumb {
     left: calc(100% - 27px);
   }
 }
@@ -243,7 +263,7 @@ function handleChange(event: Event): void {
     height: 32px;
   }
 
-  &--checked .nm-switch__thumb {
+  &.nm-switch--checked .nm-switch__thumb {
     left: calc(100% - 35px);
   }
 }
