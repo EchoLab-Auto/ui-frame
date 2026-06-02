@@ -1,55 +1,30 @@
 # @echolab/ui-frame
 
-基于 **新拟态（Neumorphism / Soft UI）** 设计风格的 Vue 3 UI 组件库 —— 通过柔和、可触知的阴影营造真实的 3D 浮雕效果。
-
-> 灵感来源于物理界面优雅的 inset / 凸起阴影美学。
+基于 **新拟态（Neumorphism / Soft UI）** 设计风格的 Vue 3 UI 组件库，通过多层柔和阴影和统一台阶高度模型营造真实的 3D 浮雕与凹陷效果。
 
 ## 特性
 
-- **新拟态设计** — 柔和的凸起与凹陷阴影效果
-- **亮色 / 暗色主题** — 内置主题系统，支持自动检测
+- **统一台阶高度模型** — 正数凸起、负数凹陷、零值平齐，阴影强度随 |elevation| 递增
+- **悬停动效** — bulge（膨胀凸起）/ sink（下沉凹陷），不跨越零点，背景色自动匹配
+- **亮色 / 暗色主题** — 内置 `ThemeProvider`，支持自动跟随系统偏好
+- **多层阴影** — 环境遮挡 + 定向阴影 + 边缘高光，模拟物理光照
+- **弹性缓动** — critically-damped 与 spring-like 过渡曲线，触感自然
 - **Tree-shaking** — 按需引入，只打包需要的组件
 - **TypeScript** — 完整的类型定义
-- **Vue 3 Composition API** — 现代化 Vue 开发体验
 
 ## 安装
 
-### 通过 npm 安装（推荐）
+### npm
 
 ```bash
 npm install @echolab/ui-frame
 ```
 
-```bash
-yarn add @echolab/ui-frame
-```
+### GitHub
 
 ```bash
-pnpm add @echolab/ui-frame
-```
-
-### 通过 GitHub 安装
-
-如果包尚未发布到 npm，可以直接从 GitHub 安装：
-
-```bash
-# 从 main 分支安装
 npm install EchoLab-Auto/ui-frame
-
-# 或从指定分支/标签安装
-npm install EchoLab-Auto/ui-frame#main
-npm install EchoLab-Auto/ui-frame#v1.0.0
 ```
-
-```bash
-yarn add EchoLab-Auto/ui-frame
-```
-
-```bash
-pnpm add EchoLab-Auto/ui-frame
-```
-
-**注意：** 从 GitHub 安装时，`prepare` 脚本会自动执行构建。请确保 Node.js 版本 >= 18。
 
 ## 快速开始
 
@@ -67,27 +42,34 @@ app.mount('#app')
 ## 组件列表
 
 | 组件 | 说明 | 关键属性 |
-|-----------|-------------|-----------|
-| `NeumorphismButton` | 带有凸起/凹陷阴影效果的按钮 | `variant`, `size`, `shape`, `disabled`, `loading` |
-| `NeumorphismSwitch` | 带太阳/月亮图标的切换开关 | `v-model`, `active-text`, `inactive-text`, `size` |
-| `NeumorphismCard` | 带凸起或凹陷阴影深度的容器 | `variant`, `depth`, `radius`, `hoverable` |
-| `NeumorphismInput` | 带凹陷阴影效果的输入框 | `v-model`, `label`, `placeholder`, `size`, `error` |
-| `ThemeProvider` | 管理应用全局的亮色/暗色主题 | `default-theme`, `storage-key`, `follow-system` |
+|------|------|----------|
+| `NeumorphismButton` | 凸起/扁平/凹陷按钮，多层阴影 + 弹性悬停 | `variant`, `size`, `shape`, `disabled`, `loading` |
+| `NeumorphismSwitch` | 日月图标切换开关，交叉淡入淡出 + 临界阻尼滑动 | `v-model`, `active-text`, `inactive-text`, `size` |
+| `NeumorphismCard` | 统一台阶高度容器，支持 bulge/sink 悬停动效 | `elevation`, `hoverable`, `radius`, `noPadding` |
+| `NeumorphismInput` | 凹陷输入框，支持悬停加深 + 聚焦光环 | `v-model`, `label`, `placeholder`, `size`, `error` |
+| `ThemeProvider` | 亮色/暗色主题管理，自动跟随系统 | `default-theme`, `storage-key`, `follow-system` |
 
-详细的使用说明、组件属性及主题定制，请参阅 [文档](docs/documentation.md)。
+详细文档：[docs/documentation.md](docs/documentation.md)
 
 ## 示例
-
-项目提供了组件展示页面，展示所有组件的交互效果，并支持亮/暗主题切换。
 
 ```bash
 npm run example
 ```
 
-访问 http://localhost:5173/
+访问 `http://localhost:5173/` 查看所有组件的交互展示。
+
+## 开发
+
+```bash
+# 构建库
+npm run build
+
+# 启动示例开发服务器
+npm run example
+
+# 构建示例（用于 GitHub Pages）
+npm run example:build
+```
 
 MIT
-
-## 仓库
-
-[https://github.com/EchoLab-Auto/ui-frame](https://github.com/EchoLab-Auto/ui-frame)
