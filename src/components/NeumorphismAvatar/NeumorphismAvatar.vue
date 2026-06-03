@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 
 export type AvatarSize = 'small' | 'medium' | 'large'
 
@@ -23,8 +23,6 @@ const emit = defineEmits<{
 
 const hasImage = computed(() => !!props.src)
 const showFallback = ref(false)
-
-import { ref } from 'vue'
 
 function onImageError() {
   showFallback.value = true

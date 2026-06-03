@@ -185,7 +185,7 @@ const classList = computed(() => [
 .nm-collapse-enter-from,
 .nm-collapse-leave-to { opacity: 0; max-height: 0; }
 .nm-collapse-enter-to,
-.nm-collapse-leave-from { opacity: 1; max-height: 500px; }
+.nm-collapse-leave-from { opacity: 1; max-height: 2000px; }
 
 // Sizes
 .nm-collapse--small  .nm-collapse__trigger { padding: 12px 16px; font-size: 13px; }

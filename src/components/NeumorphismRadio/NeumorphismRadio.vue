@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, inject } from 'vue'
-import { generateId } from '@/utils'
+import { useCheckable } from '@/composables/useCheckable'
+import { RadioGroupKey } from '@/composables/injectionKeys'
 
 export interface NeumorphismRadioProps {
   modelValue?: unknown
@@ -22,15 +23,7 @@ const emit = defineEmits<{
   (e: 'change', value: unknown): void
 }>()
 
-const radioGroup = inject<{
-  modelValue: unknown
-  name: string
-  disabled: boolean
-  size: 'small' | 'medium' | 'large'
-  setValue: (val: unknown) => void
-} | null>('nm-radio-group', null)
-
-const inputId = computed(() => props.id || generateId('nm-radio'))
+const radioGroup = inject(RadioGroupKey, null)
 
 const isChecked = computed(() => {
   if (radioGroup) return radioGroup.modelValue === props.value
@@ -38,7 +31,16 @@ const isChecked = computed(() => {
 })
 
 const isDisabled = computed(() => props.disabled || radioGroup?.disabled || false)
-const radioSize = computed(() => radioGroup?.size || props.size)
+const radioSize = computed<'small' | 'medium' | 'large'>(
+  () => (radioGroup?.size || props.size) as 'small' | 'medium' | 'large'
+)
+
+const { inputId, classList } = useCheckable(() => ({
+  prefix: 'radio',
+  isChecked: isChecked.value,
+  isDisabled: isDisabled.value,
+  size: radioSize.value,
+}))
 
 function handleChange(): void {
   if (isDisabled.value) return
@@ -49,15 +51,6 @@ function handleChange(): void {
     emit('change', props.value)
   }
 }
-
-const classList = computed(() => [
-  'nm-radio',
-  `nm-radio--${radioSize.value}`,
-  {
-    'nm-radio--checked': isChecked.value,
-    'nm-radio--disabled': isDisabled.value,
-  },
-])
 </script>
 
 <template>
@@ -85,41 +78,18 @@ const classList = computed(() => [
 
 <style scoped lang="scss">
 @use '@/styles/variables.scss' as *;
+@use '@/styles/_checkable.scss' as *;
 
-.nm-radio {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  cursor: pointer;
-  user-select: none;
-  color: var(--nm-text-primary);
+@include checkable-root('radio');
+@include checkable-input-wrapper('radio');
+@include checkable-hidden-input('radio');
+@include checkable-indicator-base('radio', 'circle');
+@include checkable-label('radio');
+@include checkable-focus-ring('radio', 'circle');
 
-  &--disabled {
-    cursor: not-allowed;
-    opacity: 0.5;
-  }
-}
-
-.nm-radio__input-wrapper {
-  position: relative;
-  display: inline-flex;
-}
-
-.nm-radio__input {
-  position: absolute;
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-
+// Radio-specific: circle + dot
 .nm-radio__circle {
-  display: flex;
-  align-items: center;
-  justify-content: center;
   border-radius: 50%;
-  background-color: var(--nm-surface-color);
-  @include nm-inset(2px, 4px);
-  transition: all var(--nm-transition-normal);
 }
 
 .nm-radio__dot {
@@ -134,20 +104,7 @@ const classList = computed(() => [
   transform: scale(1);
 }
 
-.nm-radio__label {
-  font-size: 14px;
-  color: var(--nm-text-primary);
-  transition: color var(--nm-transition-slow);
-}
-
-.nm-radio__input:focus-visible + .nm-radio__circle {
-  box-shadow:
-    inset 2px 2px 4px var(--nm-shadow-dark),
-    inset -2px -2px 4px var(--nm-shadow-light),
-    0 0 0 3px var(--nm-primary-color);
-}
-
-// Sizes
+// Sizes (with dot dimensions)
 .nm-radio--small {
   .nm-radio__circle { width: 18px; height: 18px; }
   .nm-radio__dot { width: 8px; height: 8px; }

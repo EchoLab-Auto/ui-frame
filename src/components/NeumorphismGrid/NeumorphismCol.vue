@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { computed, inject, type ComputedRef } from 'vue'
+import { computed, inject } from 'vue'
+import { RowGutterKey } from '@/composables/injectionKeys'
 
 export type ColSpan = number | string
 export type ColOffset = number | string
@@ -27,7 +28,7 @@ const props = withDefaults(defineProps<NeumorphismColProps>(), {
   span: 24,
 })
 
-const gutter = inject<{ x: ComputedRef<number>; y: ComputedRef<number> }>('nm-row-gutter', {
+const gutter = inject(RowGutterKey, {
   x: computed(() => 0),
   y: computed(() => 0),
 })

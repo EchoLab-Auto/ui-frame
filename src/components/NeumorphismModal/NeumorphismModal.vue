@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
+import { generateId } from '@/utils'
 
 export interface NeumorphismModalProps {
   modelValue?: boolean
@@ -34,11 +35,22 @@ const visible = ref(props.modelValue)
 const rendered = ref(props.modelValue)
 const dialogRef = ref<HTMLDivElement>()
 const previousActiveElement = ref<HTMLElement>()
+let destroyTimer: ReturnType<typeof setTimeout> | undefined
+const titleId = `nm-modal-title-${generateId()}`
+
+function lockBodyScroll() {
+  document.body.style.overflow = 'hidden'
+}
+
+function unlockBodyScroll() {
+  document.body.style.overflow = ''
+}
 
 watch(() => props.modelValue, (val) => {
   if (val) {
     rendered.value = true
     previousActiveElement.value = document.activeElement as HTMLElement
+    lockBodyScroll()
     nextTick(() => {
       visible.value = true
       dialogRef.value?.focus()
@@ -46,9 +58,11 @@ watch(() => props.modelValue, (val) => {
     emit('open')
   } else {
     visible.value = false
+    clearTimeout(destroyTimer)
     if (props.destroyOnClose) {
-      setTimeout(() => { rendered.value = false }, 200)
+      destroyTimer = setTimeout(() => { rendered.value = false }, 200)
     }
+    unlockBodyScroll()
     previousActiveElement.value?.focus()
     emit('close')
   }
@@ -106,6 +120,8 @@ onMounted(() => {
 })
 
 onBeforeUnmount(() => {
+  clearTimeout(destroyTimer)
+  unlockBodyScroll()
   if (visible.value) {
     previousActiveElement.value?.focus()
   }
@@ -123,12 +139,12 @@ onBeforeUnmount(() => {
             :class="classList"
             role="dialog"
             aria-modal="true"
-            :aria-labelledby="title ? 'nm-modal-title' : undefined"
+            :aria-labelledby="title ? titleId : undefined"
             tabindex="-1"
             @keydown="handleKeydown"
           >
             <div class="nm-modal__header">
-              <h2 v-if="title" id="nm-modal-title" class="nm-modal__title">{{ title }}</h2>
+              <h2 v-if="title" :id="titleId" class="nm-modal__title">{{ title }}</h2>
               <slot name="header" />
               <button
                 v-if="showClose && closable"

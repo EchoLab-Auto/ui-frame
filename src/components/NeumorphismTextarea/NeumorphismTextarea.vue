@@ -1,6 +1,8 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
-import { generateId } from '@/utils'
+import { computed, ref, onMounted } from 'vue'
+import { useFormField } from '@/composables/useFormField'
+import NeumorphismFieldLabel from '@/components/NeumorphismField/NeumorphismFieldLabel.vue'
+import NeumorphismFieldError from '@/components/NeumorphismField/NeumorphismFieldError.vue'
 
 export interface NeumorphismTextareaProps {
   modelValue?: string
@@ -41,23 +43,25 @@ const emit = defineEmits<{
   (e: 'enter', value: string): void
 }>()
 
-const textareaId = computed(() => props.id || generateId('nm-textarea'))
-const isFocused = ref(false)
+const { fieldId, errorMessage, baseClassList, handleFocus, handleBlur } =
+  useFormField(() => ({
+    id: props.id,
+    size: props.size,
+    disabled: props.disabled,
+    error: props.error,
+    prefix: 'textarea',
+  }))
+
 const textareaRef = ref<HTMLTextAreaElement>()
+const charCount = computed(() => props.modelValue?.length || 0)
 
 const classList = computed(() => [
-  'nm-textarea',
-  `nm-textarea--${props.size}`,
+  ...baseClassList('nm-textarea').value,
   {
-    'nm-textarea--focused': isFocused.value,
-    'nm-textarea--disabled': props.disabled,
     'nm-textarea--readonly': props.readonly,
-    'nm-textarea--error': !!props.error,
     'nm-textarea--has-label': !!props.label,
   },
 ])
-
-const charCount = computed(() => props.modelValue?.length || 0)
 
 function adjustHeight() {
   if (!props.autoResize || !textareaRef.value) return
@@ -72,9 +76,9 @@ function handleInput(event: Event): void {
   adjustHeight()
 }
 
-function handleFocus(event: FocusEvent) { isFocused.value = true; emit('focus', event) }
-function handleBlur(event: FocusEvent) { isFocused.value = false; emit('blur', event) }
-function handleChange(event: Event) { emit('change', event) }
+function handleChange(event: Event): void {
+  emit('change', event)
+}
 
 function handleKeydown(event: KeyboardEvent): void {
   emit('keydown', event)
@@ -82,19 +86,21 @@ function handleKeydown(event: KeyboardEvent): void {
     emit('enter', props.modelValue)
   }
 }
+
+onMounted(() => {
+  adjustHeight()
+})
 </script>
 
 <template>
   <div class="nm-textarea__wrapper">
-    <label v-if="label" :for="textareaId" class="nm-textarea__label">
-      {{ label }}
-      <span v-if="required" class="nm-textarea__required">*</span>
-    </label>
+    <NeumorphismFieldLabel :label="label" :required="required" :for-id="fieldId" />
     <div :class="classList">
       <textarea
-        :id="textareaId"
+        :id="fieldId"
         ref="textareaRef"
         class="nm-textarea__field"
+        :class="{ 'nm-textarea__field--auto-resize': autoResize }"
         :value="modelValue"
         :placeholder="placeholder"
         :disabled="disabled"
@@ -105,18 +111,16 @@ function handleKeydown(event: KeyboardEvent): void {
         :rows="rows"
         :name="name"
         :aria-invalid="!!error"
-        :aria-errormessage="error && typeof error === 'string' ? `${textareaId}-error` : undefined"
+        :aria-errormessage="errorMessage ? `${fieldId}-error` : undefined"
         @input="handleInput"
         @change="handleChange"
-        @focus="handleFocus"
-        @blur="handleBlur"
+        @focus="(e: FocusEvent) => handleFocus(e, emit)"
+        @blur="(e: FocusEvent) => handleBlur(e, emit)"
         @keydown="handleKeydown"
       />
     </div>
     <div class="nm-textarea__footer">
-      <div v-if="error && typeof error === 'string'" :id="`${textareaId}-error`" class="nm-textarea__error">
-        {{ error }}
-      </div>
+      <NeumorphismFieldError :id="`${fieldId}-error`" :message="errorMessage" />
       <span v-if="showCount && maxlength" class="nm-textarea__count">
         {{ charCount }} / {{ maxlength }}
       </span>
@@ -132,17 +136,6 @@ function handleKeydown(event: KeyboardEvent): void {
   flex-direction: column;
   gap: var(--nm-spacing-sm);
   width: 100%;
-}
-
-.nm-textarea__label {
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--nm-text-primary);
-}
-
-.nm-textarea__required {
-  color: #e74c3c;
-  margin-left: 2px;
 }
 
 .nm-textarea {
@@ -170,12 +163,12 @@ function handleKeydown(event: KeyboardEvent): void {
     box-shadow:
       inset 4px 4px 8px var(--nm-shadow-dark),
       inset -4px -4px 8px var(--nm-shadow-light),
-      0 0 0 2px rgba(231, 76, 60, 0.3);
+      0 0 0 2px var(--nm-color-error);
     &.nm-textarea--focused {
       box-shadow:
         inset 5px 5px 10px var(--nm-shadow-dark),
         inset -5px -5px 10px var(--nm-shadow-light),
-        0 0 0 3px rgba(231, 76, 60, 0.5);
+        0 0 0 3px var(--nm-color-error);
     }
   }
 
@@ -199,17 +192,17 @@ function handleKeydown(event: KeyboardEvent): void {
 
   &::placeholder { color: var(--nm-text-placeholder); }
   &:disabled { cursor: not-allowed; }
+
+  &--auto-resize {
+    resize: none;
+    overflow: hidden;
+  }
 }
 
 .nm-textarea__footer {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-}
-
-.nm-textarea__error {
-  font-size: 12px;
-  color: #e74c3c;
 }
 
 .nm-textarea__count {

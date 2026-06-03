@@ -1,0 +1,75 @@
+@use './variables.scss' as *;
+
+// Shared SCSS mixins for Checkbox / Radio components
+
+@mixin checkable-root($name) {
+  .nm-#{$name} {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    user-select: none;
+    color: var(--nm-text-primary);
+
+    &--disabled {
+      cursor: not-allowed;
+      opacity: 0.5;
+    }
+  }
+}
+
+@mixin checkable-input-wrapper($name) {
+  .nm-#{$name}__input-wrapper {
+    position: relative;
+    display: inline-flex;
+  }
+}
+
+@mixin checkable-hidden-input($name) {
+  .nm-#{$name}__input {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+}
+
+@mixin checkable-indicator-base($name, $indicator-class) {
+  .nm-#{$name}__#{$indicator-class} {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--nm-surface-color);
+    @include nm-inset(2px, 4px);
+    transition: all var(--nm-transition-normal);
+  }
+}
+
+@mixin checkable-label($name) {
+  .nm-#{$name}__label {
+    font-size: 14px;
+    color: var(--nm-text-primary);
+    transition: color var(--nm-transition-slow);
+  }
+}
+
+@mixin checkable-focus-ring($name, $indicator-class) {
+  .nm-#{$name}__input:focus-visible + .nm-#{$name}__#{$indicator-class} {
+    box-shadow:
+      inset 2px 2px 4px var(--nm-shadow-dark),
+      inset -2px -2px 4px var(--nm-shadow-light),
+      0 0 0 3px var(--nm-primary-color);
+  }
+}
+
+@mixin checkable-sizes($name, $indicator-class) {
+  .nm-#{$name}--small .nm-#{$name}__#{$indicator-class} {
+    width: 18px; height: 18px;
+  }
+  .nm-#{$name}--medium .nm-#{$name}__#{$indicator-class} {
+    width: 24px; height: 24px;
+  }
+  .nm-#{$name}--large .nm-#{$name}__#{$indicator-class} {
+    width: 30px; height: 30px;
+  }
+}

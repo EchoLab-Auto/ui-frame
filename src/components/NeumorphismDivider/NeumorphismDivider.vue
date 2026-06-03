@@ -84,12 +84,24 @@ const classList = computed(() => [
 
 // Horizontal with text — line-text-line pattern
 .nm-divider--horizontal .nm-divider__text {
+  position: relative;
+  display: inline-block;
+
   &::before,
   &::after {
     content: '';
     position: absolute;
     top: 50%;
+    width: 120px;
     border-top: 1px solid rgba(128, 128, 128, 0.15);
+  }
+
+  &::before {
+    right: 100%;
+  }
+
+  &::after {
+    left: 100%;
   }
 }
 </style>

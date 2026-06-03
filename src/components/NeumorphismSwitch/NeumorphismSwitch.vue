@@ -73,6 +73,7 @@ function handleChange(event: Event): void {
       <span class="nm-switch__track" aria-hidden="true">
         <span class="nm-switch__thumb">
           <svg
+            v-once
             class="nm-switch__icon nm-switch__icon--sun"
             viewBox="0 0 24 24"
             fill="none"
@@ -87,6 +88,7 @@ function handleChange(event: Event): void {
             />
           </svg>
           <svg
+            v-once
             class="nm-switch__icon nm-switch__icon--moon"
             viewBox="0 0 24 24"
             fill="none"

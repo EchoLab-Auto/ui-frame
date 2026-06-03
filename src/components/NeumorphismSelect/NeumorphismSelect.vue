@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { generateId } from '@/utils'
+import { useFormField } from '@/composables/useFormField'
+import NeumorphismFieldLabel from '@/components/NeumorphismField/NeumorphismFieldLabel.vue'
+import NeumorphismFieldError from '@/components/NeumorphismField/NeumorphismFieldError.vue'
 
 export interface NeumorphismSelectOption {
   label: string
@@ -20,6 +22,7 @@ export interface NeumorphismSelectProps {
   name?: string
   id?: string
   clearable?: boolean
+  emptyText?: string
 }
 
 const props = withDefaults(defineProps<NeumorphismSelectProps>(), {
@@ -29,6 +32,7 @@ const props = withDefaults(defineProps<NeumorphismSelectProps>(), {
   disabled: false,
   size: 'medium',
   clearable: false,
+  emptyText: '暂无选项',
 })
 
 const emit = defineEmits<{
@@ -38,22 +42,25 @@ const emit = defineEmits<{
   (e: 'blur', event: FocusEvent): void
 }>()
 
-const selectId = computed(() => props.id || generateId('nm-select'))
+const { fieldId, errorMessage, baseClassList, handleFocus, handleBlur } =
+  useFormField(() => ({
+    id: props.id,
+    size: props.size,
+    disabled: props.disabled,
+    error: props.error,
+    prefix: 'select',
+  }))
+
 const isOpen = ref(false)
-const isFocused = ref(false)
 
 const selectedOption = computed(() =>
   props.options.find((o) => o.value === props.modelValue)
 )
 
 const classList = computed(() => [
-  'nm-select',
-  `nm-select--${props.size}`,
+  ...baseClassList('nm-select').value,
   {
     'nm-select--open': isOpen.value,
-    'nm-select--focused': isFocused.value,
-    'nm-select--disabled': props.disabled,
-    'nm-select--error': !!props.error,
     'nm-select--has-value': props.modelValue !== '' && props.modelValue !== undefined,
   },
 ])
@@ -74,11 +81,6 @@ function clearValue(event: Event) {
   event.stopPropagation()
   emit('update:modelValue', '')
   emit('change', '')
-}
-
-function handleFocus(event: FocusEvent) {
-  isFocused.value = true
-  emit('focus', event)
 }
 
 function handleKeydown(event: KeyboardEvent) {
@@ -110,26 +112,23 @@ function handleKeydown(event: KeyboardEvent) {
 function onBlurContainer(e: FocusEvent) {
   if (!(e.currentTarget as HTMLElement).contains(e.relatedTarget as Node)) {
     isOpen.value = false
-    isFocused.value = false
+    handleBlur(e, emit)
   }
 }
 </script>
 
 <template>
   <div class="nm-select__wrapper">
-    <label v-if="label" :for="selectId" class="nm-select__label">
-      {{ label }}
-      <span v-if="required" class="nm-select__required">*</span>
-    </label>
+    <NeumorphismFieldLabel :label="label" :required="required" :for-id="fieldId" />
     <div
       :class="classList"
       :tabindex="disabled ? -1 : 0"
       role="combobox"
       :aria-expanded="isOpen"
       :aria-haspopup="'listbox'"
-      :aria-labelledby="label ? selectId : undefined"
+      :aria-labelledby="label ? fieldId : undefined"
       @click="toggleOpen"
-      @focus="handleFocus"
+      @focus="(e: FocusEvent) => handleFocus(e, emit)"
       @blur="onBlurContainer"
       @keydown="handleKeydown"
     >
@@ -175,12 +174,12 @@ function onBlurContainer(e: FocusEvent) {
             {{ option.label }}
           </div>
           <div v-if="options.length === 0" class="nm-select__option nm-select__option--empty">
-            暂无选项
+            {{ emptyText }}
           </div>
         </div>
       </transition>
     </div>
-    <div v-if="error && typeof error === 'string'" class="nm-select__error">{{ error }}</div>
+    <NeumorphismFieldError :id="`${fieldId}-error`" :message="errorMessage" />
   </div>
 </template>
 
@@ -192,17 +191,6 @@ function onBlurContainer(e: FocusEvent) {
   flex-direction: column;
   gap: var(--nm-spacing-sm);
   width: 100%;
-}
-
-.nm-select__label {
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--nm-text-primary);
-}
-
-.nm-select__required {
-  color: #e74c3c;
-  margin-left: 2px;
 }
 
 .nm-select {
@@ -234,7 +222,7 @@ function onBlurContainer(e: FocusEvent) {
     box-shadow:
       inset 4px 4px 8px var(--nm-shadow-dark),
       inset -4px -4px 8px var(--nm-shadow-light),
-      0 0 0 2px rgba(231, 76, 60, 0.3);
+      0 0 0 2px var(--nm-color-error);
   }
 }
 
@@ -336,11 +324,6 @@ function onBlurContainer(e: FocusEvent) {
   min-height: 60px;
   padding: 14px 20px;
   .nm-select__value { font-size: 16px; }
-}
-
-.nm-select__error {
-  font-size: 12px;
-  color: #e74c3c;
 }
 
 // Dropdown transition

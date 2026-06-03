@@ -279,8 +279,4 @@ const siderStyle = computed(() => ({
   }
 }
 
-// ---- Theme transition helper ----
-.nm-layout {
-  transition: background-color var(--nm-transition-slow);
-}
 </style>

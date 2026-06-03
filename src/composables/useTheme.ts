@@ -1,4 +1,4 @@
-import { ref, computed, provide, inject, watch, type InjectionKey, type Ref } from 'vue'
+import { ref, computed, provide, inject, watch, onBeforeUnmount, type InjectionKey, type Ref } from 'vue'
 
 export type Theme = 'light' | 'dark' | 'auto'
 
@@ -14,6 +14,7 @@ export interface ThemeContext {
   isDark: Ref<boolean>
   setTheme: (theme: Theme) => void
   toggleTheme: () => void
+  dispose: () => void
 }
 
 const ThemeKey: InjectionKey<ThemeContext> = Symbol('neumorphism-theme')
@@ -99,14 +100,17 @@ export function createTheme(options: ThemeOptions = {}): ThemeContext {
   )
 
   // Listen for system theme changes when in auto mode
+  let mediaQuery: MediaQueryList | undefined
+  let mediaChangeHandler: (() => void) | undefined
+
   if (followSystem && typeof window !== 'undefined') {
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
-    mediaQuery.addEventListener('change', () => {
+    mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
+    mediaChangeHandler = () => {
       if (theme.value === 'auto') {
-        // Trigger re-computation
         applyThemeClass(getSystemTheme() === 'dark')
       }
-    })
+    }
+    mediaQuery.addEventListener('change', mediaChangeHandler)
   }
 
   const setTheme = (newTheme: Theme) => {
@@ -119,12 +123,19 @@ export function createTheme(options: ThemeOptions = {}): ThemeContext {
     setTheme(newTheme)
   }
 
+  const dispose = () => {
+    if (mediaQuery && mediaChangeHandler) {
+      mediaQuery.removeEventListener('change', mediaChangeHandler)
+    }
+  }
+
   return {
     theme,
     currentTheme,
     isDark,
     setTheme,
     toggleTheme,
+    dispose,
   }
 }
 
@@ -134,6 +145,9 @@ export function createTheme(options: ThemeOptions = {}): ThemeContext {
 export function provideTheme(options: ThemeOptions = {}): ThemeContext {
   const themeContext = createTheme(options)
   provide(ThemeKey, themeContext)
+  onBeforeUnmount(() => {
+    themeContext.dispose()
+  })
   return themeContext
 }
 
@@ -145,7 +159,11 @@ export function useTheme(): ThemeContext {
   if (!context) {
     // Return a default theme context if not provided
     console.warn('[NeumorphismUI] useTheme() called without ThemeProvider. Using default theme.')
-    return createTheme()
+    const fallback = createTheme()
+    onBeforeUnmount(() => {
+      fallback.dispose()
+    })
+    return fallback
   }
   return context
 }

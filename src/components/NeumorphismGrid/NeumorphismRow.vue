@@ -1,17 +1,14 @@
 <script setup lang="ts">
 import { computed, provide } from 'vue'
+import { RowGutterKey } from '@/composables/injectionKeys'
 
 export type RowAlign = 'start' | 'center' | 'end' | 'stretch' | 'baseline'
 export type RowJustify = 'start' | 'center' | 'end' | 'space-between' | 'space-around' | 'space-evenly'
 
 export interface NeumorphismRowProps {
-  /** 列间距（px） */
   gutter?: number | [number, number]
-  /** 水平方向子元素排列方式 */
   justify?: RowJustify
-  /** 垂直方向子元素对齐方式 */
   align?: RowAlign
-  /** 是否换行 */
   wrap?: boolean
 }
 
@@ -25,7 +22,7 @@ const props = withDefaults(defineProps<NeumorphismRowProps>(), {
 const gutterX = computed(() => Array.isArray(props.gutter) ? props.gutter[0] : props.gutter)
 const gutterY = computed(() => Array.isArray(props.gutter) ? props.gutter[1] : props.gutter)
 
-provide('nm-row-gutter', { x: gutterX, y: gutterY })
+provide(RowGutterKey, { x: gutterX, y: gutterY })
 
 const justifyMap: Record<RowJustify, string> = {
   'start': 'flex-start',

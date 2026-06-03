@@ -1,47 +1,41 @@
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 
 /**
- * 检测当前设备是否为触屏设备，并监听变化
+ * Detect touch-capable devices and mobile viewport
  */
 export function useTouchDevice() {
   const isTouch = ref(false)
   const isMobile = ref(false)
 
-  let mediaQuery: MediaQueryList | undefined
   let resizeTimer: ReturnType<typeof setTimeout> | undefined
 
-  function detect() {
-    isTouch.value = 'ontouchstart' in window || navigator.maxTouchPoints > 0
+  function updateMobile() {
     isMobile.value = window.innerWidth < 768
   }
 
   function handleResize() {
     clearTimeout(resizeTimer)
-    resizeTimer = setTimeout(() => {
-      isMobile.value = window.innerWidth < 768
-    }, 100)
+    resizeTimer = setTimeout(updateMobile, 100)
   }
 
   function handleTouchStart() {
-    if (!isTouch.value) {
-      isTouch.value = true
-      mediaQuery?.removeEventListener('change', () => {})
-    }
+    isTouch.value = true
   }
 
   onMounted(() => {
-    detect()
-
-    // Detect touch via pointer capability
+    // Primary detection via pointer capability
     if (window.matchMedia) {
-      mediaQuery = window.matchMedia('(pointer: coarse)')
-      if (mediaQuery.matches) {
+      const mq = window.matchMedia('(pointer: coarse)')
+      if (mq.matches) {
         isTouch.value = true
       }
     }
 
     // Fallback: detect first touch interaction
     window.addEventListener('touchstart', handleTouchStart, { once: true, passive: true })
+
+    // Initial mobile check
+    updateMobile()
     window.addEventListener('resize', handleResize, { passive: true })
   })
 

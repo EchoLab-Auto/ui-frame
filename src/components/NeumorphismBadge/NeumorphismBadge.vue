@@ -47,9 +47,9 @@ const classList = computed(() => [
       class="nm-badge__content"
       :class="{ 'nm-badge__content--dot': dot }"
       :style="color ? { backgroundColor: color } : undefined"
-      aria-hidden="true"
+      :aria-label="dot ? '在线' : `未读 ${displayValue}`"
     >
-      <span v-if="!dot" class="nm-badge__text">{{ displayValue }}</span>
+      <span v-if="!dot" class="nm-badge__text" aria-hidden="true">{{ displayValue }}</span>
     </sup>
   </div>
 </template>

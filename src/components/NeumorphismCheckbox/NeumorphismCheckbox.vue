@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { generateId } from '@/utils'
+import { useCheckable } from '@/composables/useCheckable'
 
 export interface NeumorphismCheckboxProps {
   modelValue?: boolean
@@ -24,8 +24,6 @@ const emit = defineEmits<{
   (e: 'change', value: boolean): void
 }>()
 
-const inputId = computed(() => props.id || generateId('nm-checkbox'))
-
 const isChecked = computed({
   get: () => props.modelValue,
   set: (value) => {
@@ -35,15 +33,13 @@ const isChecked = computed({
   },
 })
 
-const classList = computed(() => [
-  'nm-checkbox',
-  `nm-checkbox--${props.size}`,
-  {
-    'nm-checkbox--checked': isChecked.value,
-    'nm-checkbox--disabled': props.disabled,
-    'nm-checkbox--indeterminate': props.indeterminate,
-  },
-])
+const { inputId, classList } = useCheckable(() => ({
+  prefix: 'checkbox',
+  isChecked: isChecked.value,
+  isDisabled: props.disabled,
+  size: props.size,
+  extraClasses: { 'nm-checkbox--indeterminate': props.indeterminate },
+}))
 
 function handleChange(event: Event): void {
   if (props.disabled) { event.preventDefault(); return }
@@ -80,41 +76,19 @@ function handleChange(event: Event): void {
 
 <style scoped lang="scss">
 @use '@/styles/variables.scss' as *;
+@use '@/styles/_checkable.scss' as *;
 
-.nm-checkbox {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  cursor: pointer;
-  user-select: none;
-  color: var(--nm-text-primary);
+@include checkable-root('checkbox');
+@include checkable-input-wrapper('checkbox');
+@include checkable-hidden-input('checkbox');
+@include checkable-indicator-base('checkbox', 'box');
+@include checkable-label('checkbox');
+@include checkable-focus-ring('checkbox', 'box');
+@include checkable-sizes('checkbox', 'box');
 
-  &--disabled {
-    cursor: not-allowed;
-    opacity: 0.5;
-  }
-}
-
-.nm-checkbox__input-wrapper {
-  position: relative;
-  display: inline-flex;
-}
-
-.nm-checkbox__input {
-  position: absolute;
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-
+// Checkbox-specific
 .nm-checkbox__box {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: var(--nm-surface-color);
   border-radius: 6px;
-  @include nm-inset(2px, 4px);
-  transition: all var(--nm-transition-normal);
 }
 
 .nm-checkbox--checked .nm-checkbox__box,
@@ -131,22 +105,4 @@ function handleChange(event: Event): void {
   color: #fff;
   transition: opacity var(--nm-transition-fast);
 }
-
-.nm-checkbox__label {
-  font-size: 14px;
-  color: var(--nm-text-primary);
-  transition: color var(--nm-transition-slow);
-}
-
-.nm-checkbox__input:focus-visible + .nm-checkbox__box {
-  box-shadow:
-    inset 2px 2px 4px var(--nm-shadow-dark),
-    inset -2px -2px 4px var(--nm-shadow-light),
-    0 0 0 3px var(--nm-primary-color);
-}
-
-// Sizes
-.nm-checkbox--small .nm-checkbox__box { width: 18px; height: 18px; }
-.nm-checkbox--medium .nm-checkbox__box { width: 24px; height: 24px; }
-.nm-checkbox--large .nm-checkbox__box { width: 30px; height: 30px; }
 </style>

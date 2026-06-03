@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, onBeforeUnmount } from 'vue'
 
 export type TooltipPosition = 'top' | 'bottom' | 'left' | 'right'
 export type TooltipTrigger = 'hover' | 'click' | 'focus'
@@ -50,6 +50,11 @@ function toggle() {
 function handleKeydown(event: KeyboardEvent) {
   if (event.key === 'Escape') { isVisible.value = false }
 }
+
+onBeforeUnmount(() => {
+  if (showTimer) { clearTimeout(showTimer); showTimer = null }
+  if (hideTimer) { clearTimeout(hideTimer); hideTimer = null }
+})
 </script>
 
 <template>

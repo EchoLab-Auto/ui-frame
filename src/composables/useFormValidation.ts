@@ -7,6 +7,7 @@ export interface FormRule {
   minLength?: number
   maxLength?: number
   validator?: (value: unknown) => boolean | string
+  /** @internal Reserved for future per-rule trigger support. Not yet implemented. */
   trigger?: 'change' | 'blur' | 'input'
 }
 
@@ -15,9 +16,16 @@ export interface FormRule {
  */
 export function validateFieldValue(value: unknown, rules: FormRule[]): string {
   for (const rule of rules) {
+    // Required check — applies to null, undefined, and empty strings
     if (rule.required && (value == null || value === '')) {
       return rule.message || '必填字段'
     }
+
+    // Skip type-specific checks when value is null/undefined/empty
+    if (value == null || value === '') {
+      continue
+    }
+
     if (typeof value === 'string') {
       if (rule.minLength && value.length < rule.minLength) {
         return rule.message || `最少 ${rule.minLength} 个字符`

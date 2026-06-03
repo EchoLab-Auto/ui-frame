@@ -1,37 +1,25 @@
 <script setup lang="ts">
-import { computed, ref, useSlots } from 'vue'
-import { generateId } from '@/utils'
+import { computed, useSlots } from 'vue'
+import { useFormField } from '@/composables/useFormField'
+import NeumorphismFieldLabel from '@/components/NeumorphismField/NeumorphismFieldLabel.vue'
+import NeumorphismFieldError from '@/components/NeumorphismField/NeumorphismFieldError.vue'
 
 export type InputSize = 'small' | 'medium' | 'large'
 
 export interface NeumorphismInputProps {
-  /** v-model binding */
   modelValue?: string
-  /** Input type attribute */
   type?: string
-  /** Placeholder text */
   placeholder?: string
-  /** Whether the input is disabled */
   disabled?: boolean
-  /** Whether the input is readonly */
   readonly?: boolean
-  /** Whether the input is required */
   required?: boolean
-  /** Input size */
   size?: InputSize
-  /** Maximum length */
   maxlength?: number | string
-  /** Minimum length */
   minlength?: number | string
-  /** Native input name attribute */
   name?: string
-  /** Native input id (auto-generated if not provided) */
   id?: string
-  /** Native autocomplete attribute */
   autocomplete?: string
-  /** Error message or state */
   error?: string | boolean
-  /** Label text */
   label?: string
 }
 
@@ -56,19 +44,22 @@ const emit = defineEmits<{
 }>()
 
 const slots = useSlots()
-const inputId = computed(() => props.id || generateId('nm-input'))
-const isFocused = ref(false)
+
+const { fieldId, errorMessage, baseClassList, handleFocus, handleBlur } =
+  useFormField(() => ({
+    id: props.id,
+    size: props.size,
+    disabled: props.disabled,
+    error: props.error,
+    prefix: 'input',
+  }))
 
 const hasValue = computed(() => props.modelValue.length > 0)
 
 const classList = computed(() => [
-  'nm-input',
-  `nm-input--${props.size}`,
+  ...baseClassList('nm-input').value,
   {
-    'nm-input--focused': isFocused.value,
-    'nm-input--disabled': props.disabled,
     'nm-input--readonly': props.readonly,
-    'nm-input--error': !!props.error,
     'nm-input--has-prefix': !!slots.prefix,
     'nm-input--has-suffix': !!slots.suffix,
     'nm-input--has-label': !!props.label,
@@ -86,16 +77,6 @@ function handleChange(event: Event): void {
   emit('change', event)
 }
 
-function handleFocus(event: FocusEvent): void {
-  isFocused.value = true
-  emit('focus', event)
-}
-
-function handleBlur(event: FocusEvent): void {
-  isFocused.value = false
-  emit('blur', event)
-}
-
 function handleKeydown(event: KeyboardEvent): void {
   emit('keydown', event)
   if (event.key === 'Enter') {
@@ -106,14 +87,7 @@ function handleKeydown(event: KeyboardEvent): void {
 
 <template>
   <div class="nm-input__wrapper">
-    <label
-      v-if="label"
-      :for="inputId"
-      class="nm-input__label"
-    >
-      {{ label }}
-      <span v-if="required" class="nm-input__required">*</span>
-    </label>
+    <NeumorphismFieldLabel :label="label" :required="required" :for-id="fieldId" />
 
     <div :class="classList">
       <div v-if="$slots.prefix" class="nm-input__prefix">
@@ -121,7 +95,7 @@ function handleKeydown(event: KeyboardEvent): void {
       </div>
 
       <input
-        :id="inputId"
+        :id="fieldId"
         :type="type"
         :value="modelValue"
         :placeholder="placeholder"
@@ -133,13 +107,13 @@ function handleKeydown(event: KeyboardEvent): void {
         :name="name"
         :autocomplete="autocomplete"
         :aria-invalid="!!error"
-        :aria-errormessage="error && typeof error === 'string' ? `${inputId}-error` : undefined"
-        :aria-describedby="error && typeof error === 'string' ? `${inputId}-error` : undefined"
+        :aria-errormessage="errorMessage ? `${fieldId}-error` : undefined"
+        :aria-describedby="errorMessage ? `${fieldId}-error` : undefined"
         class="nm-input__field"
         @input="handleInput"
         @change="handleChange"
-        @focus="handleFocus"
-        @blur="handleBlur"
+        @focus="(e: FocusEvent) => handleFocus(e, emit)"
+        @blur="(e: FocusEvent) => handleBlur(e, emit)"
         @keydown="handleKeydown"
       >
 
@@ -148,9 +122,7 @@ function handleKeydown(event: KeyboardEvent): void {
       </div>
     </div>
 
-    <div v-if="error && typeof error === 'string'" :id="`${inputId}-error`" class="nm-input__error-text" role="alert">
-      {{ error }}
-    </div>
+    <NeumorphismFieldError :id="`${fieldId}-error`" :message="errorMessage" />
   </div>
 </template>
 
@@ -162,18 +134,6 @@ function handleKeydown(event: KeyboardEvent): void {
   flex-direction: column;
   gap: var(--nm-spacing-sm);
   width: 100%;
-}
-
-.nm-input__label {
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--nm-text-primary);
-  transition: color var(--nm-transition-slow);
-}
-
-.nm-input__required {
-  color: var(--nm-color-error);
-  margin-left: 2px;
 }
 
 .nm-input {
@@ -188,14 +148,12 @@ function handleKeydown(event: KeyboardEvent): void {
     box-shadow 0.3s ease,
     background-color var(--nm-transition-slow);
 
-  // Hover — slightly deepen the inset
   &:not(.nm-input--disabled):not(.nm-input--focused):hover {
     box-shadow:
       inset 5px 5px 10px var(--nm-shadow-dark),
       inset -5px -5px 10px var(--nm-shadow-light);
   }
 
-  // Focus state — inset deepens + colored ring
   &--focused {
     box-shadow:
       inset 5px 5px 10px var(--nm-shadow-dark),
@@ -206,7 +164,6 @@ function handleKeydown(event: KeyboardEvent): void {
       background-color var(--nm-transition-slow);
   }
 
-  // Error state
   &--error {
     box-shadow:
       inset 4px 4px 8px var(--nm-shadow-dark),
@@ -221,7 +178,6 @@ function handleKeydown(event: KeyboardEvent): void {
     }
   }
 
-  // Disabled state
   &--disabled {
     opacity: 0.6;
     cursor: not-allowed;
@@ -247,51 +203,25 @@ function handleKeydown(event: KeyboardEvent): void {
   }
 }
 
-// ---------- Size variants ----------
-
+// Size variants
 .nm-input--small {
   min-height: 36px;
-
-  .nm-input__field {
-    padding: 6px 12px;
-    font-size: 13px;
-  }
-
-  .nm-input__prefix,
-  .nm-input__suffix {
-    padding: 6px 10px;
-  }
+  .nm-input__field { padding: 6px 12px; font-size: 13px; }
+  .nm-input__prefix, .nm-input__suffix { padding: 6px 10px; }
 }
 
 .nm-input--medium {
   min-height: 48px;
-
-  .nm-input__field {
-    padding: 10px 16px;
-    font-size: 14px;
-  }
-
-  .nm-input__prefix,
-  .nm-input__suffix {
-    padding: 10px 14px;
-  }
+  .nm-input__field { padding: 10px 16px; font-size: 14px; }
+  .nm-input__prefix, .nm-input__suffix { padding: 10px 14px; }
 }
 
 .nm-input--large {
   min-height: 60px;
-
-  .nm-input__field {
-    padding: 14px 20px;
-    font-size: 16px;
-  }
-
-  .nm-input__prefix,
-  .nm-input__suffix {
-    padding: 14px 16px;
-  }
+  .nm-input__field { padding: 14px 20px; font-size: 16px; }
+  .nm-input__prefix, .nm-input__suffix { padding: 14px 16px; }
 }
 
-// Prefix / Suffix
 .nm-input__prefix,
 .nm-input__suffix {
   display: flex;
@@ -300,18 +230,6 @@ function handleKeydown(event: KeyboardEvent): void {
   flex-shrink: 0;
 }
 
-.nm-input__prefix {
-  padding-right: 0;
-}
-
-.nm-input__suffix {
-  padding-left: 0;
-}
-
-// Error text
-.nm-input__error-text {
-  font-size: 12px;
-  color: var(--nm-color-error);
-  margin-top: 2px;
-}
+.nm-input__prefix { padding-right: 0; }
+.nm-input__suffix { padding-left: 0; }
 </style>

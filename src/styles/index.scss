@@ -133,15 +133,9 @@ img, video {
   height: auto;
 }
 
-.nm-root *,
-.nm-root *::before,
-.nm-root *::after {
-  transition:
-    background-color var(--nm-transition-slow),
-    box-shadow var(--nm-transition-slow),
-    color var(--nm-transition-slow),
-    border-color var(--nm-transition-slow);
-}
+// Theme transitions are applied per-component via nm-theme-transition mixin.
+// A global wildcard (*) transition causes layout/paint thrashing on theme switch
+// because every element recalculates styles simultaneously.
 
 .nm-focus-ring {
   outline: none;

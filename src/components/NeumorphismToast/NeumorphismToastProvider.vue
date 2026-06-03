@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onBeforeUnmount } from 'vue'
 
 export type ToastType = 'info' | 'success' | 'warning' | 'error'
 export type ToastPosition = 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right' | 'top-center' | 'bottom-center'
@@ -33,6 +33,15 @@ const props = withDefaults(defineProps<NeumorphismToastProviderProps>(), {
 
 const toasts = ref<ToastItem[]>([])
 let idCounter = 0
+const timers = new Map<string, ReturnType<typeof setTimeout>>()
+
+function clearToastTimers(id: string) {
+  const timer = timers.get(id)
+  if (timer) {
+    clearTimeout(timer)
+    timers.delete(id)
+  }
+}
 
 function addToast(options: ToastOptions): string {
   const id = `nm-toast-${++idCounter}`
@@ -49,24 +58,37 @@ function addToast(options: ToastOptions): string {
   toasts.value = [...toasts.value.slice(Math.max(0, toasts.value.length - (props.maxCount - 1))), item]
 
   if (item.duration > 0) {
-    setTimeout(() => removeToast(id), item.duration)
+    clearToastTimers(id)
+    timers.set(id, setTimeout(() => removeToast(id), item.duration))
   }
 
   return id
 }
 
 function removeToast(id: string) {
+  clearToastTimers(id)
   const item = toasts.value.find((t) => t.id === id)
   if (item) item.leaving = true
-  setTimeout(() => {
+  timers.set(id, setTimeout(() => {
     toasts.value = toasts.value.filter((t) => t.id !== id)
-  }, 250)
+    timers.delete(id)
+  }, 250))
 }
 
 function clearAll() {
+  timers.forEach((t) => clearTimeout(t))
+  timers.clear()
   toasts.value.forEach((t) => { t.leaving = true })
-  setTimeout(() => { toasts.value = [] }, 250)
+  timers.set('__clearAll', setTimeout(() => {
+    toasts.value = []
+    timers.delete('__clearAll')
+  }, 250))
 }
+
+onBeforeUnmount(() => {
+  timers.forEach((t) => clearTimeout(t))
+  timers.clear()
+})
 
 defineExpose({ addToast, removeToast, clearAll, toasts })
 

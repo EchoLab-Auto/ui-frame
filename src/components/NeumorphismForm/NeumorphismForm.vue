@@ -2,6 +2,7 @@
 import { computed, provide, reactive } from 'vue'
 import { validateFieldValue } from '@/composables/useFormValidation'
 import type { FormRule } from '@/composables/useFormValidation'
+import { FormKey } from '@/composables/injectionKeys'
 
 export type { FormRule }
 
@@ -63,7 +64,7 @@ function clearErrors() {
   Object.keys(errors).forEach((k) => delete errors[k])
 }
 
-provide('nm-form', {
+provide(FormKey, {
   model: props.model,
   rules: props.rules,
   errors,

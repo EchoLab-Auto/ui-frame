@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, provide, toRef } from 'vue'
 import { generateId } from '@/utils'
+import { RadioGroupKey } from '@/composables/injectionKeys'
 
 export interface NeumorphismRadioGroupProps {
   modelValue?: unknown
@@ -28,7 +29,7 @@ function setValue(val: unknown) {
   emit('change', val)
 }
 
-provide('nm-radio-group', {
+provide(RadioGroupKey, {
   modelValue: toRef(props, 'modelValue'),
   name: groupName.value,
   disabled: props.disabled,
