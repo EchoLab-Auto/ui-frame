@@ -20,6 +20,8 @@ export interface NeumorphismButtonProps {
   type?: 'button' | 'submit' | 'reset'
   /** Native button form attribute */
   form?: string
+  /** Accessible label for the button */
+  ariaLabel?: string
 }
 
 const props = withDefaults(defineProps<NeumorphismButtonProps>(), {
@@ -60,6 +62,8 @@ function handleClick(event: MouseEvent): void {
     :type="type"
     :form="form"
     :disabled="isDisabled"
+    :aria-label="ariaLabel"
+    :aria-busy="loading ? true : undefined"
     @click="handleClick"
   >
     <span v-if="loading" class="nm-button__spinner">

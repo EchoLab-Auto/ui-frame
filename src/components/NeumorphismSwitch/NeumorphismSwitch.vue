@@ -70,7 +70,7 @@ function handleChange(event: Event): void {
         :disabled="disabled"
         @change="handleChange"
       >
-      <span class="nm-switch__track">
+      <span class="nm-switch__track" aria-hidden="true">
         <span class="nm-switch__thumb">
           <svg
             class="nm-switch__icon nm-switch__icon--sun"
