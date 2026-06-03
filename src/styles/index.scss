@@ -36,6 +36,11 @@
   --nm-spacing-lg: 24px;
   --nm-spacing-xl: 32px;
 
+  --nm-color-success: #27ae60;
+  --nm-color-error: #e74c3c;
+  --nm-color-warning: #f39c12;
+  --nm-color-info: #3498db;
+
   --nm-transition-fast: 0.2s ease;
   --nm-transition-normal: 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
   --nm-transition-slow: 0.5s ease;
@@ -68,6 +73,11 @@
   --nm-shadow-light-strong: rgba(255, 255, 255, 0.08);
   --nm-shadow-dark-deep: rgba(0, 0, 0, 0.6);
   --nm-shadow-light-deep: rgba(255, 255, 255, 0.1);
+
+  --nm-color-success: #2ecc71;
+  --nm-color-error: #e74c3c;
+  --nm-color-warning: #f39c12;
+  --nm-color-info: #3498db;
 }
 
 // ---------- Base Styles ----------

@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { computed, provide, reactive } from 'vue'
-import type { FormRule } from './NeumorphismFormItem.vue'
+import { validateFieldValue } from '@/composables/useFormValidation'
+import type { FormRule } from '@/composables/useFormValidation'
+
+export type { FormRule }
 
 export interface NeumorphismFormProps {
   model?: Record<string, unknown>
@@ -27,25 +30,10 @@ function validateField(name: string): boolean {
   const fieldRules = props.rules[name] || []
   const value = props.model[name]
 
-  for (const rule of fieldRules) {
-    if (rule.required && (value == null || value === '')) {
-      errors[name] = rule.message || '必填字段'
-      return false
-    }
-    if (typeof value === 'string') {
-      if (rule.minLength && value.length < rule.minLength) { errors[name] = rule.message || `最少 ${rule.minLength} 个字符`; return false }
-      if (rule.maxLength && value.length > rule.maxLength) { errors[name] = rule.message || `最多 ${rule.maxLength} 个字符`; return false }
-      if (rule.pattern && !rule.pattern.test(value)) { errors[name] = rule.message || '格式不正确'; return false }
-    }
-    if (typeof value === 'number') {
-      if (rule.min !== undefined && value < rule.min) { errors[name] = rule.message || `不能小于 ${rule.min}`; return false }
-      if (rule.max !== undefined && value > rule.max) { errors[name] = rule.message || `不能大于 ${rule.max}`; return false }
-    }
-    if (rule.validator) {
-      const result = rule.validator(value)
-      if (typeof result === 'string') { errors[name] = result; return false }
-      if (result === false) { errors[name] = rule.message || '验证失败'; return false }
-    }
+  const errorMsg = validateFieldValue(value, fieldRules)
+  if (errorMsg) {
+    errors[name] = errorMsg
+    return false
   }
 
   delete errors[name]

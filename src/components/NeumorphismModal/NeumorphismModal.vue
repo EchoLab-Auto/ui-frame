@@ -47,7 +47,7 @@ watch(() => props.modelValue, (val) => {
   } else {
     visible.value = false
     if (props.destroyOnClose) {
-      setTimeout(() => { rendered.value = false }, 300)
+      setTimeout(() => { rendered.value = false }, 200)
     }
     previousActiveElement.value?.focus()
     emit('close')
@@ -85,7 +85,7 @@ function handleKeydown(event: KeyboardEvent) {
     const dialog = dialogRef.value
     if (!dialog) return
     const focusable = dialog.querySelectorAll<HTMLElement>(
-      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      'button:not([disabled]), [href]:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"]):not([disabled]), [contenteditable]:not([contenteditable="false"])'
     )
     const first = focusable[0]
     const last = focusable[focusable.length - 1]

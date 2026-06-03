@@ -46,7 +46,7 @@ function addToast(options: ToastOptions): string {
     leaving: false,
   }
 
-  toasts.value = [...toasts.value.slice(-(props.maxCount - 1)), item]
+  toasts.value = [...toasts.value.slice(Math.max(0, toasts.value.length - (props.maxCount - 1))), item]
 
   if (item.duration > 0) {
     setTimeout(() => removeToast(id), item.duration)
@@ -144,9 +144,9 @@ const classList = computed(() => [
   @include nm-raised(4px, 12px);
   @include nm-theme-transition;
 
-  &--success .nm-toast__icon { color: #27ae60; }
-  &--error .nm-toast__icon { color: #e74c3c; }
-  &--warning .nm-toast__icon { color: #f39c12; }
+  &--success .nm-toast__icon { color: var(--nm-color-success); }
+  &--error .nm-toast__icon { color: var(--nm-color-error); }
+  &--warning .nm-toast__icon { color: var(--nm-color-warning); }
   &--info .nm-toast__icon { color: var(--nm-primary-color); }
 
   &--leaving {

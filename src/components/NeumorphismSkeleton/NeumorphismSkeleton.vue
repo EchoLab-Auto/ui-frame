@@ -15,7 +15,10 @@ const props = withDefaults(defineProps<NeumorphismSkeletonProps>(), {
   animation: 'pulse',
 })
 
-const items = computed(() => Array.from({ length: props.count }, (_, i) => i))
+const items = computed(() => {
+  const safeCount = Math.max(0, Math.floor(props.count))
+  return Array.from({ length: safeCount }, (_, i) => i)
+})
 
 const classList = computed(() => [
   'nm-skeleton',

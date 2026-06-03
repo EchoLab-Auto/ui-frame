@@ -44,10 +44,10 @@ const classList = computed(() => [
 const variantColors: Record<TagVariant, string> = {
   default: '',
   primary: 'var(--nm-primary-color)',
-  success: '#27ae60',
-  warning: '#f39c12',
-  error: '#e74c3c',
-  info: '#3498db',
+  success: 'var(--nm-color-success)',
+  warning: 'var(--nm-color-warning)',
+  error: 'var(--nm-color-error)',
+  info: 'var(--nm-color-info)',
 }
 </script>
 

@@ -73,7 +73,7 @@ const classList = computed(() => [
   height: 20px;
   padding: 0 6px;
   border-radius: 10px;
-  background-color: #e74c3c;
+  background-color: var(--nm-color-error);
   color: #fff;
   font-size: 11px;
   font-weight: 600;

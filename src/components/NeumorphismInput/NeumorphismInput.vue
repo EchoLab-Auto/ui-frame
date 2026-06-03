@@ -132,6 +132,9 @@ function handleKeydown(event: KeyboardEvent): void {
         :minlength="minlength"
         :name="name"
         :autocomplete="autocomplete"
+        :aria-invalid="!!error"
+        :aria-errormessage="error && typeof error === 'string' ? `${inputId}-error` : undefined"
+        :aria-describedby="error && typeof error === 'string' ? `${inputId}-error` : undefined"
         class="nm-input__field"
         @input="handleInput"
         @change="handleChange"
@@ -145,7 +148,7 @@ function handleKeydown(event: KeyboardEvent): void {
       </div>
     </div>
 
-    <div v-if="error && typeof error === 'string'" class="nm-input__error-text">
+    <div v-if="error && typeof error === 'string'" :id="`${inputId}-error`" class="nm-input__error-text" role="alert">
       {{ error }}
     </div>
   </div>
@@ -169,7 +172,7 @@ function handleKeydown(event: KeyboardEvent): void {
 }
 
 .nm-input__required {
-  color: #e74c3c;
+  color: var(--nm-color-error);
   margin-left: 2px;
 }
 
@@ -208,13 +211,13 @@ function handleKeydown(event: KeyboardEvent): void {
     box-shadow:
       inset 4px 4px 8px var(--nm-shadow-dark),
       inset -4px -4px 8px var(--nm-shadow-light),
-      0 0 0 2px rgba(231, 76, 60, 0.3);
+      0 0 0 2px var(--nm-color-error);
 
     &.nm-input--focused {
       box-shadow:
         inset 5px 5px 10px var(--nm-shadow-dark),
         inset -5px -5px 10px var(--nm-shadow-light),
-        0 0 0 3px rgba(231, 76, 60, 0.5);
+        0 0 0 3px var(--nm-color-error);
     }
   }
 
@@ -308,7 +311,7 @@ function handleKeydown(event: KeyboardEvent): void {
 // Error text
 .nm-input__error-text {
   font-size: 12px;
-  color: #e74c3c;
+  color: var(--nm-color-error);
   margin-top: 2px;
 }
 </style>

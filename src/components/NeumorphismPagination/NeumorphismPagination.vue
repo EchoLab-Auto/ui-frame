@@ -32,9 +32,11 @@ const totalPages = computed(() => Math.max(1, Math.ceil(props.total / props.page
 const currentPage = computed(() => Math.min(Math.max(1, props.modelValue), totalPages.value))
 
 function changePage(page: number) {
-  if (props.disabled || page < 1 || page > totalPages.value || page === currentPage.value) return
-  emit('update:modelValue', page)
-  emit('change', page)
+  if (isNaN(page) || !isFinite(page)) return
+  const p = Math.round(page)
+  if (props.disabled || p < 1 || p > totalPages.value || p === currentPage.value) return
+  emit('update:modelValue', p)
+  emit('change', p)
 }
 
 const visiblePages = computed(() => {

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watch, nextTick } from 'vue'
+import { computed, ref, nextTick } from 'vue'
 import { generateId } from '@/utils'
 
 export interface TabItem {
@@ -29,15 +29,11 @@ const emit = defineEmits<{
   (e: 'tabClick', tab: TabItem): void
 }>()
 
-const activeKey = ref(props.modelValue)
 const tabListId = generateId('nm-tabs')
 const tabRefs = ref<Map<string, HTMLElement>>(new Map())
 
-watch(() => props.modelValue, (val) => { activeKey.value = val })
-
 function activate(key: string) {
   if (props.tabs.find((t) => t.key === key)?.disabled) return
-  activeKey.value = key
   emit('update:modelValue', key)
   emit('change', key)
   const tab = props.tabs.find((t) => t.key === key)
@@ -88,13 +84,13 @@ const classList = computed(() => [
         :ref="(el) => setTabRef(tab.key, el)"
         class="nm-tabs__tab"
         :class="{
-          'nm-tabs__tab--active': activeKey === tab.key,
+          'nm-tabs__tab--active': modelValue === tab.key,
           'nm-tabs__tab--disabled': tab.disabled,
         }"
         role="tab"
-        :aria-selected="activeKey === tab.key"
+        :aria-selected="modelValue === tab.key"
         :aria-disabled="tab.disabled"
-        :tabindex="activeKey === tab.key ? 0 : -1"
+        :tabindex="modelValue === tab.key ? 0 : -1"
         :disabled="tab.disabled"
         @click="activate(tab.key)"
         @keydown="handleKeydown($event, tab.key)"

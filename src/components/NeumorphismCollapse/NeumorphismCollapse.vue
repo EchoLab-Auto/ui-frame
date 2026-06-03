@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed } from 'vue'
 import { generateId } from '@/utils'
 
 export interface CollapseItem {
@@ -27,31 +27,30 @@ const emit = defineEmits<{
   (e: 'change', value: string[]): void
 }>()
 
-const activeKeys = ref<string[]>([...props.modelValue])
 const collapseId = generateId('nm-collapse')
-
-watch(() => props.modelValue, (val) => { activeKeys.value = [...val] })
 
 function toggle(key: string) {
   const item = props.items.find((i) => i.key === key)
   if (item?.disabled) return
 
-  const idx = activeKeys.value.indexOf(key)
+  const keys = [...props.modelValue]
+  const idx = keys.indexOf(key)
   if (idx >= 0) {
-    activeKeys.value.splice(idx, 1)
+    keys.splice(idx, 1)
   } else {
     if (props.accordion) {
-      activeKeys.value = [key]
-    } else {
-      activeKeys.value.push(key)
+      emit('update:modelValue', [key])
+      emit('change', [key])
+      return
     }
+    keys.push(key)
   }
-  emit('update:modelValue', [...activeKeys.value])
-  emit('change', [...activeKeys.value])
+  emit('update:modelValue', keys)
+  emit('change', keys)
 }
 
 function isActive(key: string): boolean {
-  return activeKeys.value.includes(key)
+  return props.modelValue.includes(key)
 }
 
 const classList = computed(() => [
