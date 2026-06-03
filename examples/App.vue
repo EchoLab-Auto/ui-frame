@@ -1,24 +1,24 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 
-// ---- Theme state ----
+// ---- 主题状态 ----
 const isDark = ref(false)
 
-// ---- Switch demos ----
+// ---- 开关示例 ----
 const switch1 = ref(false)
 const switch2 = ref(true)
 
-// ---- Checkbox demos ----
+// ---- 复选框示例 ----
 const checkbox1 = ref(false)
 const checkbox2 = ref(true)
 const checkboxIndeterminate = ref(true)
 const checkboxGroup = ref<string[]>([])
 
-// ---- Radio demos ----
+// ---- 单选框示例 ----
 const radio1 = ref('a')
 const radio2 = ref('medium')
 
-// ---- Select demos ----
+// ---- 选择器示例 ----
 const select1 = ref('vue')
 const select2 = ref('')
 
@@ -31,67 +31,67 @@ const selectOptions = [
 ]
 
 const sizeOptions = [
-  { label: 'Small', value: 'small' },
-  { label: 'Medium', value: 'medium' },
-  { label: 'Large', value: 'large' },
+  { label: '小', value: 'small' },
+  { label: '中', value: 'medium' },
+  { label: '大', value: 'large' },
 ]
 
-// ---- Input & Textarea demos ----
+// ---- 输入框和文本域示例 ----
 const inputName = ref('')
 const inputEmail = ref('')
 const textareaValue = ref('')
 
-// ---- Modal demo ----
+// ---- 模态框示例 ----
 const modalVisible = ref(false)
 
-// ---- Tabs demo ----
+// ---- 选项卡示例 ----
 const activeTab = ref('tab1')
 const tabItems = [
-  { key: 'tab1', label: 'Tab 1' },
-  { key: 'tab2', label: 'Tab 2' },
-  { key: 'tab3', label: 'Tab 3' },
-  { key: 'tab4', label: 'Disabled', disabled: true },
+  { key: 'tab1', label: '标签页 1' },
+  { key: 'tab2', label: '标签页 2' },
+  { key: 'tab3', label: '标签页 3' },
+  { key: 'tab4', label: '已禁用', disabled: true },
 ]
 
-// ---- Breadcrumb demo ----
+// ---- 面包屑示例 ----
 const breadcrumbItems = [
-  { label: 'Home', to: '#' },
-  { label: 'Components', to: '#' },
-  { label: 'Button' },
+  { label: '首页', to: '#' },
+  { label: '组件列表', to: '#' },
+  { label: '按钮' },
 ]
 
-// ---- Pagination demo ----
+// ---- 分页示例 ----
 const page = ref(1)
 const page2 = ref(3)
 
-// ---- Collapse demo ----
+// ---- 折叠面板示例 ----
 const collapseActive = ref<string[]>(['item1'])
 const collapseItems = [
-  { key: 'item1', title: 'What is Neumorphism?' },
-  { key: 'item2', title: 'How to use this library?' },
-  { key: 'item3', title: 'Disabled item', disabled: true },
+  { key: 'item1', title: '什么是新拟态？' },
+  { key: 'item2', title: '如何使用这个组件库？' },
+  { key: 'item3', title: '已禁用项', disabled: true },
 ]
 
-// ---- Toast demo ----
+// ---- 消息提示示例 ----
 const toastContainer = ref<InstanceType<typeof import('../src/components/NeumorphismToast/NeumorphismToastProvider.vue')['default']>>()
 let toastCounter = 0
 function showToast(type: string) {
   toastCounter++
   toastContainer.value?.addToast({
-    message: `${type} notification #${toastCounter} - Neumorphism is beautiful!`,
+    message: `${type} 通知 #${toastCounter} — 新拟态设计真漂亮！`,
     type: type as any,
     duration: 3000,
   })
 }
 
-// ---- Progress demo ----
+// ---- 进度条示例 ----
 const progressVal = ref(60)
 const indeterminate = ref(false)
 
-// ---- Tag demo ----
+// ---- 标签示例 ----
 const tagVisible = ref(true)
 
-// ---- Form demo ----
+// ---- 表单示例 ----
 const formModel = ref({
   username: '',
   email: '',
@@ -101,25 +101,25 @@ const formRef = ref()
 
 const formRules = {
   username: [
-    { required: true, message: 'Username is required' },
-    { minLength: 3, message: 'At least 3 characters' },
+    { required: true, message: '请输入用户名' },
+    { minLength: 3, message: '至少 3 个字符' },
   ],
   email: [
-    { required: true, message: 'Email is required' },
-    { pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: 'Invalid email format' },
+    { required: true, message: '请输入邮箱' },
+    { pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: '邮箱格式不正确' },
   ],
   password: [
-    { required: true, message: 'Password is required' },
-    { minLength: 6, message: 'At least 6 characters' },
+    { required: true, message: '请输入密码' },
+    { minLength: 6, message: '至少 6 个字符' },
   ],
 }
 
 function handleFormSubmit(model: Record<string, unknown>) {
   showToast('success')
-  console.log('Form submitted:', model)
+  console.log('表单已提交：', model)
 }
 
-// ---- Skeleton demo ----
+// ---- 骨架屏示例 ----
 const skeletonLoading = ref(true)
 </script>
 
@@ -128,73 +128,73 @@ const skeletonLoading = ref(true)
     <!-- ===== HEADER ===== -->
     <header class="showcase-header">
       <h1 class="showcase-title">@echolab/ui-frame</h1>
-      <p class="showcase-subtitle">Vue 3 Neumorphism UI Component Library - {{ 23 }} Components</p>
+      <p class="showcase-subtitle">Vue 3 新拟态 UI 组件库 — 共 {{ 23 }} 个组件</p>
       <div class="showcase-theme-row">
         <NeumorphismSwitch v-model="isDark" size="medium" />
-        <span class="showcase-theme-label">{{ isDark ? 'Dark' : 'Light' }}</span>
+        <span class="showcase-theme-label">{{ isDark ? '暗色' : '亮色' }}</span>
       </div>
     </header>
 
-    <!-- ===== SIDEBAR NAV ===== -->
-    <nav class="showcase-nav" aria-label="Component navigation">
-      <a href="#buttons">Button</a>
-      <a href="#switch">Switch</a>
-      <a href="#checkbox">Checkbox</a>
-      <a href="#radio">Radio</a>
-      <a href="#input">Input</a>
-      <a href="#textarea">Textarea</a>
-      <a href="#select">Select</a>
-      <a href="#form">Form</a>
-      <a href="#card">Card</a>
-      <a href="#modal">Modal</a>
-      <a href="#toast">Toast</a>
-      <a href="#tooltip">Tooltip</a>
-      <a href="#tabs">Tabs</a>
-      <a href="#breadcrumb">Breadcrumb</a>
-      <a href="#pagination">Pagination</a>
-      <a href="#collapse">Collapse</a>
-      <a href="#avatar">Avatar</a>
-      <a href="#badge">Badge</a>
-      <a href="#tag">Tag</a>
-      <a href="#progress">Progress</a>
-      <a href="#skeleton">Skeleton</a>
-      <a href="#divider">Divider</a>
+    <!-- ===== 侧边导航 ===== -->
+    <nav class="showcase-nav" aria-label="组件导航">
+      <a href="#buttons">按钮</a>
+      <a href="#switch">开关</a>
+      <a href="#checkbox">复选框</a>
+      <a href="#radio">单选框</a>
+      <a href="#input">输入框</a>
+      <a href="#textarea">文本域</a>
+      <a href="#select">选择器</a>
+      <a href="#form">表单</a>
+      <a href="#card">卡片</a>
+      <a href="#modal">模态框</a>
+      <a href="#toast">消息提示</a>
+      <a href="#tooltip">文字提示</a>
+      <a href="#tabs">选项卡</a>
+      <a href="#breadcrumb">面包屑</a>
+      <a href="#pagination">分页</a>
+      <a href="#collapse">折叠面板</a>
+      <a href="#avatar">头像</a>
+      <a href="#badge">徽标</a>
+      <a href="#tag">标签</a>
+      <a href="#progress">进度条</a>
+      <a href="#skeleton">骨架屏</a>
+      <a href="#divider">分割线</a>
     </nav>
 
     <!-- ======================================================= -->
-    <!-- BUTTON -->
+    <!-- 按钮 -->
     <!-- ======================================================= -->
     <section id="buttons" class="showcase-section">
-      <h2 class="section-title">NeumorphismButton</h2>
-      <p class="section-desc">Soft shadow button with raised/flat/pressed variants, three sizes, and loading state.</p>
+      <h2 class="section-title">NeumorphismButton 按钮</h2>
+      <p class="section-desc">柔和阴影按钮，支持凸起/扁平/凹陷三种变体、三种尺寸和加载状态。</p>
 
       <div class="subsection">
-        <h3 class="subsection-title">Variants</h3>
+        <h3 class="subsection-title">变体类型</h3>
         <div class="demo-row">
-          <NeumorphismButton variant="raised">Raised</NeumorphismButton>
-          <NeumorphismButton variant="flat">Flat</NeumorphismButton>
-          <NeumorphismButton variant="pressed">Pressed</NeumorphismButton>
+          <NeumorphismButton variant="raised">凸起</NeumorphismButton>
+          <NeumorphismButton variant="flat">扁平</NeumorphismButton>
+          <NeumorphismButton variant="pressed">凹陷</NeumorphismButton>
         </div>
       </div>
 
       <div class="subsection">
-        <h3 class="subsection-title">Sizes & Shapes</h3>
+        <h3 class="subsection-title">尺寸与形状</h3>
         <div class="demo-row">
-          <NeumorphismButton size="small">Small</NeumorphismButton>
-          <NeumorphismButton size="medium">Medium</NeumorphismButton>
-          <NeumorphismButton size="large">Large</NeumorphismButton>
+          <NeumorphismButton size="small">小</NeumorphismButton>
+          <NeumorphismButton size="medium">中</NeumorphismButton>
+          <NeumorphismButton size="large">大</NeumorphismButton>
           <NeumorphismDivider direction="vertical" />
-          <NeumorphismButton shape="rounded">Rounded</NeumorphismButton>
-          <NeumorphismButton shape="pill">Pill</NeumorphismButton>
-          <NeumorphismButton shape="circle" size="medium" aria-label="Add">+</NeumorphismButton>
+          <NeumorphismButton shape="rounded">圆角</NeumorphismButton>
+          <NeumorphismButton shape="pill">胶囊</NeumorphismButton>
+          <NeumorphismButton shape="circle" size="medium" aria-label="添加">+</NeumorphismButton>
         </div>
       </div>
 
       <div class="subsection">
-        <h3 class="subsection-title">Loading & Disabled</h3>
+        <h3 class="subsection-title">加载与禁用</h3>
         <div class="demo-row">
-          <NeumorphismButton loading>Loading...</NeumorphismButton>
-          <NeumorphismButton disabled>Disabled</NeumorphismButton>
+          <NeumorphismButton loading>加载中...</NeumorphismButton>
+          <NeumorphismButton disabled>已禁用</NeumorphismButton>
         </div>
       </div>
     </section>
@@ -202,14 +202,14 @@ const skeletonLoading = ref(true)
     <NeumorphismDivider />
 
     <!-- ======================================================= -->
-    <!-- SWITCH -->
+    <!-- 开关 -->
     <!-- ======================================================= -->
     <section id="switch" class="showcase-section">
-      <h2 class="section-title">NeumorphismSwitch</h2>
-      <p class="section-desc">Toggle switch with sun/moon icons, cross-fade animation, and crisp critically-damped motion.</p>
+      <h2 class="section-title">NeumorphismSwitch 开关</h2>
+      <p class="section-desc">带太阳/月亮图标的切换开关，交叉淡入淡出动画，临界阻尼运动曲线。</p>
 
       <div class="subsection">
-        <h3 class="subsection-title">Sizes</h3>
+        <h3 class="subsection-title">尺寸</h3>
         <div class="demo-row demo-row--vertical">
           <div class="demo-row">
             <NeumorphismSwitch v-model="switch1" size="small" />
@@ -227,9 +227,9 @@ const skeletonLoading = ref(true)
       </div>
 
       <div class="subsection">
-        <h3 class="subsection-title">With labels & disabled</h3>
+        <h3 class="subsection-title">文本标签与禁用</h3>
         <div class="demo-row">
-          <NeumorphismSwitch v-model="switch2" active-text="On" inactive-text="Off" />
+          <NeumorphismSwitch v-model="switch2" active-text="开" inactive-text="关" />
           <NeumorphismSwitch :model-value="true" disabled />
           <NeumorphismSwitch :model-value="false" disabled />
         </div>
@@ -239,35 +239,35 @@ const skeletonLoading = ref(true)
     <NeumorphismDivider />
 
     <!-- ======================================================= -->
-    <!-- CHECKBOX -->
+    <!-- 复选框 -->
     <!-- ======================================================= -->
     <section id="checkbox" class="showcase-section">
-      <h2 class="section-title">NeumorphismCheckbox</h2>
-      <p class="section-desc">Checkbox with inset box style, check mark SVG, indeterminate state, and three sizes.</p>
+      <h2 class="section-title">NeumorphismCheckbox 复选框</h2>
+      <p class="section-desc">凹陷风格的复选框，带勾选 SVG 图标，支持半选状态和三种尺寸。</p>
 
       <div class="subsection">
-        <h3 class="subsection-title">Basic & Indeterminate</h3>
+        <h3 class="subsection-title">基本与半选状态</h3>
         <div class="demo-row">
-          <NeumorphismCheckbox v-model="checkbox1" label="Unchecked" />
-          <NeumorphismCheckbox v-model="checkbox2" label="Checked" />
-          <NeumorphismCheckbox v-model="checkboxIndeterminate" :indeterminate="true" label="Indeterminate" />
+          <NeumorphismCheckbox v-model="checkbox1" label="未选中" />
+          <NeumorphismCheckbox v-model="checkbox2" label="已选中" />
+          <NeumorphismCheckbox v-model="checkboxIndeterminate" :indeterminate="true" label="半选状态" />
         </div>
       </div>
 
       <div class="subsection">
-        <h3 class="subsection-title">Sizes</h3>
+        <h3 class="subsection-title">尺寸</h3>
         <div class="demo-row">
-          <NeumorphismCheckbox v-model="checkbox1" label="Small" size="small" />
-          <NeumorphismCheckbox v-model="checkbox1" label="Medium" size="medium" />
-          <NeumorphismCheckbox v-model="checkbox1" label="Large" size="large" />
+          <NeumorphismCheckbox v-model="checkbox1" label="小" size="small" />
+          <NeumorphismCheckbox v-model="checkbox1" label="中" size="medium" />
+          <NeumorphismCheckbox v-model="checkbox1" label="大" size="large" />
         </div>
       </div>
 
       <div class="subsection">
-        <h3 class="subsection-title">Disabled & Readonly</h3>
+        <h3 class="subsection-title">禁用状态</h3>
         <div class="demo-row">
-          <NeumorphismCheckbox :model-value="true" label="Disabled On" disabled />
-          <NeumorphismCheckbox :model-value="false" label="Disabled Off" disabled />
+          <NeumorphismCheckbox :model-value="true" label="已选中禁用" disabled />
+          <NeumorphismCheckbox :model-value="false" label="未选中禁用" disabled />
         </div>
       </div>
     </section>
@@ -275,30 +275,30 @@ const skeletonLoading = ref(true)
     <NeumorphismDivider />
 
     <!-- ======================================================= -->
-    <!-- RADIO -->
+    <!-- 单选框 -->
     <!-- ======================================================= -->
     <section id="radio" class="showcase-section">
-      <h2 class="section-title">NeumorphismRadio & RadioGroup</h2>
-      <p class="section-desc">Radio buttons with spring-scale dot animation and RadioGroup for managed state.</p>
+      <h2 class="section-title">NeumorphismRadio 单选框</h2>
+      <p class="section-desc">单选框，带弹簧缩放的圆点动画，RadioGroup 统一管理状态。</p>
 
       <div class="subsection">
-        <h3 class="subsection-title">RadioGroup (horizontal)</h3>
+        <h3 class="subsection-title">RadioGroup（水平排列）</h3>
         <NeumorphismRadioGroup v-model="radio1" direction="horizontal">
-          <NeumorphismRadio value="a" label="Option A" />
-          <NeumorphismRadio value="b" label="Option B" />
-          <NeumorphismRadio value="c" label="Option C (disabled)" :disabled="true" />
+          <NeumorphismRadio value="a" label="选项 A" />
+          <NeumorphismRadio value="b" label="选项 B" />
+          <NeumorphismRadio value="c" label="选项 C（已禁用）" :disabled="true" />
         </NeumorphismRadioGroup>
         <p style="margin-top: 8px; color: var(--nm-text-secondary); font-size: 13px;">
-          Selected: <strong>{{ radio1 }}</strong>
+          已选：<strong>{{ radio1 }}</strong>
         </p>
       </div>
 
       <div class="subsection">
-        <h3 class="subsection-title">RadioGroup (vertical), sizes</h3>
+        <h3 class="subsection-title">RadioGroup（垂直排列）、尺寸</h3>
         <NeumorphismRadioGroup v-model="radio2" direction="vertical" size="small">
-          <NeumorphismRadio value="small" label="Small" />
-          <NeumorphismRadio value="medium" label="Medium" />
-          <NeumorphismRadio value="large" label="Large" />
+          <NeumorphismRadio value="small" label="小" />
+          <NeumorphismRadio value="medium" label="中" />
+          <NeumorphismRadio value="large" label="大" />
         </NeumorphismRadioGroup>
       </div>
     </section>
@@ -306,26 +306,26 @@ const skeletonLoading = ref(true)
     <NeumorphismDivider />
 
     <!-- ======================================================= -->
-    <!-- INPUT -->
+    <!-- 输入框 -->
     <!-- ======================================================= -->
     <section id="input" class="showcase-section">
-      <h2 class="section-title">NeumorphismInput</h2>
-      <p class="section-desc">Text input with inset shadow, focus glow ring, error state, and prefix/suffix slots.</p>
+      <h2 class="section-title">NeumorphismInput 输入框</h2>
+      <p class="section-desc">带凹陷阴影的文字输入框，支持聚焦发光环、错误状态和前缀/后缀插槽。</p>
 
       <div class="subsection">
-        <h3 class="subsection-title">Sizes</h3>
+        <h3 class="subsection-title">尺寸</h3>
         <div class="demo-row demo-row--vertical form-demo-width">
-          <NeumorphismInput v-model="inputName" size="small" placeholder="Small input" />
-          <NeumorphismInput v-model="inputName" size="medium" placeholder="Medium input" />
-          <NeumorphismInput v-model="inputName" size="large" placeholder="Large input" />
+          <NeumorphismInput v-model="inputName" size="small" placeholder="小尺寸输入框" />
+          <NeumorphismInput v-model="inputName" size="medium" placeholder="中尺寸输入框" />
+          <NeumorphismInput v-model="inputName" size="large" placeholder="大尺寸输入框" />
         </div>
       </div>
 
       <div class="subsection">
-        <h3 class="subsection-title">With label, prefix & suffix</h3>
+        <h3 class="subsection-title">标签、前缀与后缀</h3>
         <div class="demo-row demo-row--vertical form-demo-width">
-          <NeumorphismInput v-model="inputName" label="Username" placeholder="Enter username" :required="true" />
-          <NeumorphismInput v-model="inputEmail" placeholder="Search...">
+          <NeumorphismInput v-model="inputName" label="用户名" placeholder="请输入用户名" :required="true" />
+          <NeumorphismInput v-model="inputEmail" placeholder="搜索...">
             <template #prefix>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
             </template>
@@ -337,11 +337,11 @@ const skeletonLoading = ref(true)
       </div>
 
       <div class="subsection">
-        <h3 class="subsection-title">Error, disabled & readonly</h3>
+        <h3 class="subsection-title">错误、禁用与只读</h3>
         <div class="demo-row demo-row--vertical form-demo-width">
-          <NeumorphismInput placeholder="Error state" error="Please enter a valid email address" />
-          <NeumorphismInput model-value="Disabled input" disabled />
-          <NeumorphismInput model-value="Readonly value" readonly />
+          <NeumorphismInput placeholder="错误状态" error="请输入有效的邮箱地址" />
+          <NeumorphismInput model-value="禁用的输入框" disabled />
+          <NeumorphismInput model-value="只读的内容" readonly />
         </div>
       </div>
     </section>
@@ -349,17 +349,17 @@ const skeletonLoading = ref(true)
     <NeumorphismDivider />
 
     <!-- ======================================================= -->
-    <!-- TEXTAREA -->
+    <!-- 文本域 -->
     <!-- ======================================================= -->
     <section id="textarea" class="showcase-section">
-      <h2 class="section-title">NeumorphismTextarea</h2>
-      <p class="section-desc">Multi-line text area with character counter, auto-resize, and error state.</p>
+      <h2 class="section-title">NeumorphismTextarea 文本域</h2>
+      <p class="section-desc">多行文本输入区域，支持字数统计、自动调整高度和错误状态。</p>
 
       <div class="demo-row demo-row--vertical form-demo-width">
         <NeumorphismTextarea
           v-model="textareaValue"
-          label="Description"
-          placeholder="Tell us about your project..."
+          label="项目描述"
+          placeholder="请描述您的项目..."
           :maxlength="200"
           :rows="3"
           :show-count="true"
@@ -370,49 +370,49 @@ const skeletonLoading = ref(true)
     <NeumorphismDivider />
 
     <!-- ======================================================= -->
-    <!-- SELECT -->
+    <!-- 选择器 -->
     <!-- ======================================================= -->
     <section id="select" class="showcase-section">
-      <h2 class="section-title">NeumorphismSelect</h2>
-      <p class="section-desc">Dropdown select with keyboard navigation (Arrow/Home/End/Escape), clearable, and error state.</p>
+      <h2 class="section-title">NeumorphismSelect 选择器</h2>
+      <p class="section-desc">下拉选择器，支持键盘导航（方向键/Home/End/Esc），可清空，带错误状态。</p>
 
       <div class="demo-row" style="gap: 24px; flex-wrap: wrap;">
         <div style="width: 280px;">
-          <h3 class="subsection-title">Basic select</h3>
+          <h3 class="subsection-title">基本选择器</h3>
           <NeumorphismSelect
             v-model="select1"
             :options="selectOptions"
-            placeholder="Choose a framework"
+            placeholder="请选择框架"
           />
           <p style="margin-top: 8px; font-size: 13px; color: var(--nm-text-secondary);">
-            Selected: <strong>{{ select1 || 'none' }}</strong>
+            已选：<strong>{{ select1 || '无' }}</strong>
           </p>
         </div>
         <div style="width: 280px;">
-          <h3 class="subsection-title">With label & clearable</h3>
+          <h3 class="subsection-title">带标签、可清空</h3>
           <NeumorphismSelect
             v-model="select2"
             :options="selectOptions"
-            label="Framework"
-            placeholder="Choose..."
+            label="框架"
+            placeholder="请选择..."
             :clearable="true"
           />
         </div>
         <div style="width: 280px;">
-          <h3 class="subsection-title">Disabled</h3>
+          <h3 class="subsection-title">禁用</h3>
           <NeumorphismSelect
             :options="selectOptions"
-            placeholder="Disabled"
+            placeholder="已禁用"
             :disabled="true"
           />
         </div>
         <div style="width: 280px;">
-          <h3 class="subsection-title">Error state</h3>
+          <h3 class="subsection-title">错误状态</h3>
           <NeumorphismSelect
             :options="selectOptions"
-            label="Required field"
-            placeholder="Choose..."
-            error="This field is required"
+            label="必填字段"
+            placeholder="请选择..."
+            error="此字段为必填项"
           />
         </div>
       </div>
@@ -421,29 +421,29 @@ const skeletonLoading = ref(true)
     <NeumorphismDivider />
 
     <!-- ======================================================= -->
-    <!-- FORM -->
+    <!-- 表单 -->
     <!-- ======================================================= -->
     <section id="form" class="showcase-section">
-      <h2 class="section-title">NeumorphismForm & FormItem</h2>
-      <p class="section-desc">Form container with built-in validation rules (required, pattern, minLength, custom validator).</p>
+      <h2 class="section-title">NeumorphismForm 表单与 FormItem</h2>
+      <p class="section-desc">表单容器，内置验证规则（必填、正则、最小长度、自定义校验器）。</p>
 
       <NeumorphismCard :elevation="2" style="max-width: 480px;">
         <NeumorphismForm ref="formRef" :model="formModel" :rules="formRules" @submit="handleFormSubmit">
-          <NeumorphismFormItem label="Username" name="username" :required="true" :rules="formRules.username">
-            <NeumorphismInput v-model="formModel.username" placeholder="At least 3 characters" />
+          <NeumorphismFormItem label="用户名" name="username" :required="true" :rules="formRules.username">
+            <NeumorphismInput v-model="formModel.username" placeholder="至少 3 个字符" />
           </NeumorphismFormItem>
 
-          <NeumorphismFormItem label="Email" name="email" :required="true" :rules="formRules.email">
-            <NeumorphismInput v-model="formModel.email" placeholder="e.g. user@example.com" />
+          <NeumorphismFormItem label="邮箱" name="email" :required="true" :rules="formRules.email">
+            <NeumorphismInput v-model="formModel.email" placeholder="例如 user@example.com" />
           </NeumorphismFormItem>
 
-          <NeumorphismFormItem label="Password" name="password" :required="true" :rules="formRules.password">
-            <NeumorphismInput v-model="formModel.password" type="password" placeholder="At least 6 characters" />
+          <NeumorphismFormItem label="密码" name="password" :required="true" :rules="formRules.password">
+            <NeumorphismInput v-model="formModel.password" type="password" placeholder="至少 6 个字符" />
           </NeumorphismFormItem>
 
           <div style="display: flex; gap: 12px; margin-top: 8px;">
-            <NeumorphismButton type="submit" variant="raised">Submit</NeumorphismButton>
-            <NeumorphismButton type="button" variant="flat" @click="formRef?.clearErrors()">Clear errors</NeumorphismButton>
+            <NeumorphismButton type="submit" variant="raised">提交</NeumorphismButton>
+            <NeumorphismButton type="button" variant="flat" @click="formRef?.clearErrors()">清除错误</NeumorphismButton>
           </div>
         </NeumorphismForm>
       </NeumorphismCard>
@@ -452,14 +452,14 @@ const skeletonLoading = ref(true)
     <NeumorphismDivider />
 
     <!-- ======================================================= -->
-    <!-- CARD -->
+    <!-- 卡片 -->
     <!-- ======================================================= -->
     <section id="card" class="showcase-section">
-      <h2 class="section-title">NeumorphismCard</h2>
-      <p class="section-desc">Unified step-height model: elevation &gt; 0 = raised, &lt; 0 = pressed, hover bulge/sink.</p>
+      <h2 class="section-title">NeumorphismCard 卡片</h2>
+      <p class="section-desc">统一台阶高度模型：elevation &gt; 0 = 凸起，&lt; 0 = 凹陷，悬停膨胀/下沉。</p>
 
       <div class="subsection">
-        <h3 class="subsection-title">Raised (1 to 4)</h3>
+        <h3 class="subsection-title">凸起（1 到 4 级）</h3>
         <div class="demo-row demo-row--cards">
           <NeumorphismCard v-for="e in 4" :key="e" :elevation="e" style="width: 160px">
             <strong>{{ e }}</strong>
@@ -468,7 +468,7 @@ const skeletonLoading = ref(true)
       </div>
 
       <div class="subsection">
-        <h3 class="subsection-title">Pressed (-1 to -4)</h3>
+        <h3 class="subsection-title">凹陷（-1 到 -4 级）</h3>
         <div class="demo-row demo-row--cards">
           <NeumorphismCard v-for="e in 4" :key="-e" :elevation="-e" style="width: 160px">
             <strong>{{ -e }}</strong>
@@ -477,7 +477,7 @@ const skeletonLoading = ref(true)
       </div>
 
       <div class="subsection">
-        <h3 class="subsection-title">Hover bulge (elevation += 2)</h3>
+        <h3 class="subsection-title">悬停膨胀（elevation += 2）</h3>
         <div class="demo-row demo-row--cards">
           <NeumorphismCard :elevation="1" hoverable="bulge" style="width: 160px">1 → 3</NeumorphismCard>
           <NeumorphismCard :elevation="-2" hoverable="bulge" style="width: 160px">-2 → 0</NeumorphismCard>
@@ -486,14 +486,14 @@ const skeletonLoading = ref(true)
       </div>
 
       <div class="subsection">
-        <h3 class="subsection-title">With header & footer</h3>
+        <h3 class="subsection-title">带头部和底部</h3>
         <NeumorphismCard :elevation="2" style="max-width: 480px;">
           <template #header>
-            <strong>Card Title</strong>
+            <strong>卡片标题</strong>
           </template>
-          <p>This is the main content area of the card. You can place any components or text here.</p>
+          <p>这是卡片的主要内容区域。您可以在这里放置任意组件或文字。</p>
           <template #footer>
-            <span style="color: var(--nm-text-secondary); font-size: 12px;">Footer information · 2024-01-01</span>
+            <span style="color: var(--nm-text-secondary); font-size: 12px;">底部信息 · 2024-01-01</span>
           </template>
         </NeumorphismCard>
       </div>
@@ -502,19 +502,19 @@ const skeletonLoading = ref(true)
     <NeumorphismDivider />
 
     <!-- ======================================================= -->
-    <!-- MODAL -->
+    <!-- 模态框 -->
     <!-- ======================================================= -->
     <section id="modal" class="showcase-section">
-      <h2 class="section-title">NeumorphismModal</h2>
-      <p class="section-desc">Dialog with backdrop blur, focus trap, Escape key support, and scale-in/out transitions.</p>
+      <h2 class="section-title">NeumorphismModal 模态框</h2>
+      <p class="section-desc">对话框，带背景模糊、焦点锁定、Esc 键关闭和缩放过渡动画。</p>
 
-      <NeumorphismButton @click="modalVisible = true">Open Modal</NeumorphismButton>
+      <NeumorphismButton @click="modalVisible = true">打开模态框</NeumorphismButton>
 
-      <NeumorphismModal v-model="modalVisible" title="Example Modal" size="small" @confirm="showToast('success')" @cancel="showToast('info')">
-        <p>This is a neumorphism-styled modal dialog.</p>
-        <p>It supports focus trap, Escape to close, and backdrop blur.</p>
+      <NeumorphismModal v-model="modalVisible" title="示例模态框" size="small" @confirm="showToast('success')" @cancel="showToast('info')">
+        <p>这是一个新拟态风格的模态对话框。</p>
+        <p>它支持焦点锁定、按 Esc 键关闭和背景模糊效果。</p>
         <div style="margin-top: 12px;">
-          <NeumorphismInput placeholder="Type something inside modal..." />
+          <NeumorphismInput placeholder="在模态框中输入内容..." />
         </div>
       </NeumorphismModal>
     </section>
@@ -522,17 +522,17 @@ const skeletonLoading = ref(true)
     <NeumorphismDivider />
 
     <!-- ======================================================= -->
-    <!-- TOAST -->
+    <!-- 消息提示 -->
     <!-- ======================================================= -->
     <section id="toast" class="showcase-section">
-      <h2 class="section-title">NeumorphismToast</h2>
-      <p class="section-desc">Stacked toast notifications with enter/leave transitions, positioned via prop.</p>
+      <h2 class="section-title">NeumorphismToast 消息提示</h2>
+      <p class="section-desc">层叠式消息通知，带进出场过渡动画，可通过 prop 设置位置。</p>
 
       <div class="demo-row">
-        <NeumorphismButton variant="flat" @click="showToast('info')">Info</NeumorphismButton>
-        <NeumorphismButton variant="flat" @click="showToast('success')">Success</NeumorphismButton>
-        <NeumorphismButton variant="flat" @click="showToast('warning')">Warning</NeumorphismButton>
-        <NeumorphismButton variant="flat" @click="showToast('error')">Error</NeumorphismButton>
+        <NeumorphismButton variant="flat" @click="showToast('info')">信息</NeumorphismButton>
+        <NeumorphismButton variant="flat" @click="showToast('success')">成功</NeumorphismButton>
+        <NeumorphismButton variant="flat" @click="showToast('warning')">警告</NeumorphismButton>
+        <NeumorphismButton variant="flat" @click="showToast('error')">错误</NeumorphismButton>
       </div>
 
       <NeumorphismToastProvider ref="toastContainer" position="top-right" :max-count="5" />
@@ -541,29 +541,29 @@ const skeletonLoading = ref(true)
     <NeumorphismDivider />
 
     <!-- ======================================================= -->
-    <!-- TOOLTIP -->
+    <!-- 文字提示 -->
     <!-- ======================================================= -->
     <section id="tooltip" class="showcase-section">
-      <h2 class="section-title">NeumorphismTooltip</h2>
-      <p class="section-desc">Tooltip with hover/click/focus triggers and 4-position placement (top/bottom/left/right).</p>
+      <h2 class="section-title">NeumorphismTooltip 文字提示</h2>
+      <p class="section-desc">文字提示气泡，支持悬停/点击/聚焦触发和四个方向（上/下/左/右）。</p>
 
       <div class="demo-row" style="padding: 32px 0;">
-        <NeumorphismTooltip content="Top tooltip" position="top">
-          <NeumorphismButton variant="pressed" size="small">Hover (top)</NeumorphismButton>
+        <NeumorphismTooltip content="上方提示" position="top">
+          <NeumorphismButton variant="pressed" size="small">悬停（上）</NeumorphismButton>
         </NeumorphismTooltip>
-        <NeumorphismTooltip content="Bottom tooltip" position="bottom">
-          <NeumorphismButton variant="pressed" size="small">Hover (bottom)</NeumorphismButton>
+        <NeumorphismTooltip content="下方提示" position="bottom">
+          <NeumorphismButton variant="pressed" size="small">悬停（下）</NeumorphismButton>
         </NeumorphismTooltip>
-        <NeumorphismTooltip content="Left tooltip" position="left">
-          <NeumorphismButton variant="pressed" size="small">Hover (left)</NeumorphismButton>
+        <NeumorphismTooltip content="左侧提示" position="left">
+          <NeumorphismButton variant="pressed" size="small">悬停（左）</NeumorphismButton>
         </NeumorphismTooltip>
-        <NeumorphismTooltip content="Right tooltip" position="right">
-          <NeumorphismButton variant="pressed" size="small">Hover (right)</NeumorphismButton>
+        <NeumorphismTooltip content="右侧提示" position="right">
+          <NeumorphismButton variant="pressed" size="small">悬停（右）</NeumorphismButton>
         </NeumorphismTooltip>
         <NeumorphismTooltip position="top" trigger="click">
-          <NeumorphismButton variant="flat" size="small">Click me</NeumorphismButton>
+          <NeumorphismButton variant="flat" size="small">点击触发</NeumorphismButton>
           <template #content>
-            <span>Custom <strong>rich</strong> content</span>
+            <span>自定义<strong>富文本</strong>内容</span>
           </template>
         </NeumorphismTooltip>
       </div>
@@ -572,19 +572,19 @@ const skeletonLoading = ref(true)
     <NeumorphismDivider />
 
     <!-- ======================================================= -->
-    <!-- TABS -->
+    <!-- 选项卡 -->
     <!-- ======================================================= -->
     <section id="tabs" class="showcase-section">
-      <h2 class="section-title">NeumorphismTabs</h2>
-      <p class="section-desc">Tab navigation with neumorphic active state, keyboard navigation (Arrow keys), and horizontal/vertical layout.</p>
+      <h2 class="section-title">NeumorphismTabs 选项卡</h2>
+      <p class="section-desc">选项卡导航，新拟态风格的选中状态，支持键盘导航（方向键）和水平/垂直布局。</p>
 
       <div class="subsection">
-        <h3 class="subsection-title">Top position (default)</h3>
+        <h3 class="subsection-title">顶部位置（默认）</h3>
         <NeumorphismTabs v-model="activeTab" :tabs="tabItems" position="top" />
       </div>
 
       <div class="subsection">
-        <h3 class="subsection-title">Left position</h3>
+        <h3 class="subsection-title">左侧位置</h3>
         <div style="max-width: 400px;">
           <NeumorphismTabs v-model="activeTab" :tabs="tabItems" position="left" />
         </div>
@@ -594,11 +594,11 @@ const skeletonLoading = ref(true)
     <NeumorphismDivider />
 
     <!-- ======================================================= -->
-    <!-- BREADCRUMB -->
+    <!-- 面包屑 -->
     <!-- ======================================================= -->
     <section id="breadcrumb" class="showcase-section">
-      <h2 class="section-title">NeumorphismBreadcrumb</h2>
-      <p class="section-desc">Breadcrumb navigation with link and text items, customizable separator, ARIA landmarks.</p>
+      <h2 class="section-title">NeumorphismBreadcrumb 面包屑</h2>
+      <p class="section-desc">面包屑导航，支持链接和纯文本项，可自定义分隔符，具备 ARIA 无障碍标记。</p>
 
       <NeumorphismBreadcrumb :items="breadcrumbItems" separator="/" />
         <div style="margin-top: 12px;">
@@ -609,22 +609,22 @@ const skeletonLoading = ref(true)
     <NeumorphismDivider />
 
     <!-- ======================================================= -->
-    <!-- PAGINATION -->
+    <!-- 分页 -->
     <!-- ======================================================= -->
     <section id="pagination" class="showcase-section">
-      <h2 class="section-title">NeumorphismPagination</h2>
-      <p class="section-desc">Pagination with ellipsis, total display, jumper input, and neumorphic page buttons.</p>
+      <h2 class="section-title">NeumorphismPagination 分页</h2>
+      <p class="section-desc">分页组件，支持省略号、总数显示、跳转输入和新拟态风格页码按钮。</p>
 
       <div class="subsection">
-        <h3 class="subsection-title">Basic (10 pages)</h3>
+        <h3 class="subsection-title">基本（共 10 页）</h3>
         <NeumorphismPagination v-model="page" :total="100" :page-size="10" />
         <p style="margin-top: 8px; font-size: 13px; color: var(--nm-text-secondary);">
-          Current page: <strong>{{ page }}</strong>
+          当前页：<strong>{{ page }}</strong>
         </p>
       </div>
 
       <div class="subsection">
-        <h3 class="subsection-title">With total & jumper</h3>
+        <h3 class="subsection-title">显示总数与跳转</h3>
         <NeumorphismPagination
           v-model="page2"
           :total="500"
@@ -635,7 +635,7 @@ const skeletonLoading = ref(true)
       </div>
 
       <div class="subsection">
-        <h3 class="subsection-title">Sizes</h3>
+        <h3 class="subsection-title">尺寸</h3>
         <div class="demo-row demo-row--vertical" style="gap: 16px;">
           <NeumorphismPagination v-model="page" :total="50" :page-size="10" size="small" />
           <NeumorphismPagination v-model="page" :total="50" :page-size="10" size="medium" />
@@ -647,27 +647,27 @@ const skeletonLoading = ref(true)
     <NeumorphismDivider />
 
     <!-- ======================================================= -->
-    <!-- COLLAPSE -->
+    <!-- 折叠面板 -->
     <!-- ======================================================= -->
     <section id="collapse" class="showcase-section">
-      <h2 class="section-title">NeumorphismCollapse</h2>
-      <p class="section-desc">Accordion/collapse with spring-like expand animation, accordion mode, keyboard support.</p>
+      <h2 class="section-title">NeumorphismCollapse 折叠面板</h2>
+      <p class="section-desc">手风琴式折叠面板，带弹簧般的展开动画、手风琴模式和键盘操作支持。</p>
 
       <NeumorphismCollapse v-model="collapseActive" :items="collapseItems">
         <template #item1>
-          <p>Neumorphism (Soft UI) is a design trend that uses shadows and highlights to create a soft, extruded plastic-like look. Elements appear to be protruding from or pressing into the background.</p>
+          <p>新拟态（Soft UI）是一种设计风格，通过阴影和高光营造柔和、挤压般的塑料质感。元素看起来像是从背景中凸起或凹陷下去。</p>
         </template>
         <template #item2>
-          <p>Install with <code>npm install @echolab/ui-frame</code>, then import components or use <code>app.use(NeumorphismUI)</code> for global registration.</p>
+          <p>通过 <code>npm install @echolab/ui-frame</code> 安装，然后按需引入组件或使用 <code>app.use(NeumorphismUI)</code> 全局注册。</p>
         </template>
         <template #item3>
-          <p>This item is disabled.</p>
+          <p>此项已被禁用。</p>
         </template>
       </NeumorphismCollapse>
 
       <div style="margin-top: 16px;">
         <NeumorphismButton size="small" variant="flat" @click="collapseActive = collapseActive.length ? [] : ['item1', 'item2']">
-          {{ collapseActive.length ? 'Collapse All' : 'Expand All' }}
+          {{ collapseActive.length ? '全部折叠' : '全部展开' }}
         </NeumorphismButton>
       </div>
     </section>
@@ -675,14 +675,14 @@ const skeletonLoading = ref(true)
     <NeumorphismDivider />
 
     <!-- ======================================================= -->
-    <!-- AVATAR -->
+    <!-- 头像 -->
     <!-- ======================================================= -->
     <section id="avatar" class="showcase-section">
-      <h2 class="section-title">NeumorphismAvatar</h2>
-      <p class="section-desc">Avatar component with image or initials fallback, circle/rounded shape, three sizes.</p>
+      <h2 class="section-title">NeumorphismAvatar 头像</h2>
+      <p class="section-desc">头像组件，支持图片或首字母回退、圆形/圆角形状和三种尺寸。</p>
 
       <div class="subsection">
-        <h3 class="subsection-title">Sizes & shape</h3>
+        <h3 class="subsection-title">尺寸与形状</h3>
         <div class="demo-row">
           <NeumorphismAvatar initials="JD" size="small" />
           <NeumorphismAvatar initials="JD" size="medium" />
@@ -692,10 +692,10 @@ const skeletonLoading = ref(true)
       </div>
 
       <div class="subsection">
-        <h3 class="subsection-title">With image (fallback on error)</h3>
+        <h3 class="subsection-title">图片模式（加载失败时回退）</h3>
         <div class="demo-row">
-          <NeumorphismAvatar src="https://i.pravatar.cc/64?img=1" alt="User" size="medium" />
-          <NeumorphismAvatar src="https://invalid.url/img.jpg" initials="ER" size="medium" alt="User" />
+          <NeumorphismAvatar src="https://i.pravatar.cc/64?img=1" alt="用户" size="medium" />
+          <NeumorphismAvatar src="https://invalid.url/img.jpg" initials="ER" size="medium" alt="用户" />
         </div>
       </div>
     </section>
@@ -703,20 +703,20 @@ const skeletonLoading = ref(true)
     <NeumorphismDivider />
 
     <!-- ======================================================= -->
-    <!-- BADGE -->
+    <!-- 徽标 -->
     <!-- ======================================================= -->
     <section id="badge" class="showcase-section">
-      <h2 class="section-title">NeumorphismBadge</h2>
-      <p class="section-desc">Badge for counts or dot indicators, positioned over a child element.</p>
+      <h2 class="section-title">NeumorphismBadge 徽标</h2>
+      <p class="section-desc">角标组件，用于显示数量或状态圆点，定位在子元素上方。</p>
 
       <div class="subsection">
-        <h3 class="subsection-title">Count badges & dot</h3>
+        <h3 class="subsection-title">数字徽标与圆点</h3>
         <div class="demo-row" style="gap: 32px;">
           <NeumorphismBadge :value="5">
-            <NeumorphismButton variant="pressed" size="small">Inbox</NeumorphismButton>
+            <NeumorphismButton variant="pressed" size="small">收件箱</NeumorphismButton>
           </NeumorphismBadge>
           <NeumorphismBadge :value="120" :max="99">
-            <NeumorphismButton variant="pressed" size="small">Messages</NeumorphismButton>
+            <NeumorphismButton variant="pressed" size="small">消息</NeumorphismButton>
           </NeumorphismBadge>
           <NeumorphismBadge dot>
             <NeumorphismAvatar initials="AB" size="medium" />
@@ -728,36 +728,36 @@ const skeletonLoading = ref(true)
     <NeumorphismDivider />
 
     <!-- ======================================================= -->
-    <!-- TAG -->
+    <!-- 标签 -->
     <!-- ======================================================= -->
     <section id="tag" class="showcase-section">
-      <h2 class="section-title">NeumorphismTag</h2>
-      <p class="section-desc">Tag/chip component with colored variants and optional close button.</p>
+      <h2 class="section-title">NeumorphismTag 标签</h2>
+      <p class="section-desc">标签/芯片组件，支持多种颜色变体和可选的关闭按钮。</p>
 
       <div class="subsection">
-        <h3 class="subsection-title">Variants</h3>
+        <h3 class="subsection-title">颜色变体</h3>
         <div class="demo-row">
-          <NeumorphismTag>Default</NeumorphismTag>
-          <NeumorphismTag variant="primary">Primary</NeumorphismTag>
-          <NeumorphismTag variant="success">Success</NeumorphismTag>
-          <NeumorphismTag variant="warning">Warning</NeumorphismTag>
-          <NeumorphismTag variant="error">Error</NeumorphismTag>
-          <NeumorphismTag variant="info">Info</NeumorphismTag>
+          <NeumorphismTag>默认</NeumorphismTag>
+          <NeumorphismTag variant="primary">主要</NeumorphismTag>
+          <NeumorphismTag variant="success">成功</NeumorphismTag>
+          <NeumorphismTag variant="warning">警告</NeumorphismTag>
+          <NeumorphismTag variant="error">错误</NeumorphismTag>
+          <NeumorphismTag variant="info">信息</NeumorphismTag>
         </div>
       </div>
 
       <div class="subsection">
-        <h3 class="subsection-title">Closable & sizes</h3>
+        <h3 class="subsection-title">可关闭与尺寸</h3>
         <div class="demo-row">
           <NeumorphismTag
             v-if="tagVisible"
             variant="primary"
             :closable="true"
             @close="tagVisible = false"
-          >Closable</NeumorphismTag>
-          <NeumorphismTag variant="success" size="small">Small</NeumorphismTag>
-          <NeumorphismTag variant="warning" size="large">Large</NeumorphismTag>
-          <NeumorphismTag variant="error" rounded>Rounded</NeumorphismTag>
+          >可关闭</NeumorphismTag>
+          <NeumorphismTag variant="success" size="small">小</NeumorphismTag>
+          <NeumorphismTag variant="warning" size="large">大</NeumorphismTag>
+          <NeumorphismTag variant="error" rounded>圆角</NeumorphismTag>
         </div>
       </div>
     </section>
@@ -765,14 +765,14 @@ const skeletonLoading = ref(true)
     <NeumorphismDivider />
 
     <!-- ======================================================= -->
-    <!-- PROGRESS -->
+    <!-- 进度条 -->
     <!-- ======================================================= -->
     <section id="progress" class="showcase-section">
-      <h2 class="section-title">NeumorphismProgress</h2>
-      <p class="section-desc">Progress bar with colored variants, label, indeterminate, striped, and spring easing.</p>
+      <h2 class="section-title">NeumorphismProgress 进度条</h2>
+      <p class="section-desc">进度条，支持多种颜色变体、标签显示、不确定模式、条纹样式和弹簧缓动。</p>
 
       <div class="subsection">
-        <h3 class="subsection-title">Variants & label</h3>
+        <h3 class="subsection-title">颜色变体与标签</h3>
         <div class="demo-row demo-row--vertical form-demo-width" style="gap: 16px;">
           <NeumorphismProgress :model-value="progressVal" variant="primary" :show-label="true" />
           <NeumorphismProgress :model-value="progressVal" variant="success" />
@@ -783,13 +783,13 @@ const skeletonLoading = ref(true)
           <NeumorphismButton size="small" variant="flat" @click="progressVal = Math.max(0, progressVal - 10)">-10%</NeumorphismButton>
           <NeumorphismButton size="small" variant="flat" @click="progressVal = Math.min(100, progressVal + 10)">+10%</NeumorphismButton>
           <NeumorphismButton size="small" variant="flat" @click="indeterminate = !indeterminate">
-            {{ indeterminate ? 'Stop' : 'Indeterminate' }}
+            {{ indeterminate ? '停止' : '不确定模式' }}
           </NeumorphismButton>
         </div>
       </div>
 
       <div class="subsection" style="margin-top: 16px;">
-        <h3 class="subsection-title">Indeterminate & Sizes</h3>
+        <h3 class="subsection-title">不确定模式与尺寸</h3>
         <div class="demo-row demo-row--vertical form-demo-width" style="gap: 16px;">
           <NeumorphismProgress v-if="indeterminate" :indeterminate="true" variant="primary" />
           <NeumorphismProgress :model-value="progressVal" size="small" />
@@ -802,15 +802,15 @@ const skeletonLoading = ref(true)
     <NeumorphismDivider />
 
     <!-- ======================================================= -->
-    <!-- SKELETON -->
+    <!-- 骨架屏 -->
     <!-- ======================================================= -->
     <section id="skeleton" class="showcase-section">
-      <h2 class="section-title">NeumorphismSkeleton</h2>
-      <p class="section-desc">Skeleton loading placeholder with text/circle/rect variants, pulse/wave animation.</p>
+      <h2 class="section-title">NeumorphismSkeleton 骨架屏</h2>
+      <p class="section-desc">骨架屏加载占位，支持文字/圆形/矩形变体和呼吸/波浪动画。</p>
 
       <div class="demo-row" style="gap: 12px;">
         <NeumorphismButton size="small" variant="flat" @click="skeletonLoading = !skeletonLoading">
-          {{ skeletonLoading ? 'Hide skeleton' : 'Show skeleton' }}
+          {{ skeletonLoading ? '隐藏骨架屏' : '显示骨架屏' }}
         </NeumorphismButton>
       </div>
 
@@ -829,45 +829,45 @@ const skeletonLoading = ref(true)
       </div>
 
       <NeumorphismCard v-else :elevation="1" style="max-width: 480px; margin-top: 16px;">
-        <p><strong>Content loaded!</strong></p>
-        <p style="color: var(--nm-text-secondary); font-size: 13px;">This replaces the skeleton placeholder above.</p>
+        <p><strong>内容已加载！</strong></p>
+        <p style="color: var(--nm-text-secondary); font-size: 13px;">此内容替代了上方的骨架屏占位。</p>
       </NeumorphismCard>
     </section>
 
     <NeumorphismDivider />
 
     <!-- ======================================================= -->
-    <!-- DIVIDER -->
+    <!-- 分割线 -->
     <!-- ======================================================= -->
     <section id="divider" class="showcase-section">
-      <h2 class="section-title">NeumorphismDivider</h2>
-      <p class="section-desc">Horizontal or vertical separator with optional text content and dashed style.</p>
+      <h2 class="section-title">NeumorphismDivider 分割线</h2>
+      <p class="section-desc">水平或垂直分隔线，支持可选的文字内容和虚线样式。</p>
 
       <div class="subsection">
-        <h3 class="subsection-title">Horizontal with text</h3>
-        <NeumorphismDivider>Section A</NeumorphismDivider>
-        <p style="color: var(--nm-text-secondary); font-size: 13px;">Content between dividers</p>
-        <NeumorphismDivider align="left">Left aligned</NeumorphismDivider>
-        <p style="color: var(--nm-text-secondary); font-size: 13px;">Content</p>
-        <NeumorphismDivider align="right" dashed>Right aligned (dashed)</NeumorphismDivider>
+        <h3 class="subsection-title">水平方向（带文字）</h3>
+        <NeumorphismDivider>分区 A</NeumorphismDivider>
+        <p style="color: var(--nm-text-secondary); font-size: 13px;">分割线之间的内容</p>
+        <NeumorphismDivider align="left">居左对齐</NeumorphismDivider>
+        <p style="color: var(--nm-text-secondary); font-size: 13px;">内容</p>
+        <NeumorphismDivider align="right" dashed>居右对齐（虚线）</NeumorphismDivider>
       </div>
 
       <div class="subsection">
-        <h3 class="subsection-title">Vertical</h3>
+        <h3 class="subsection-title">垂直方向</h3>
         <div class="demo-row">
-          <span>Left</span>
+          <span>左侧</span>
           <NeumorphismDivider direction="vertical" />
-          <span>Middle</span>
+          <span>中间</span>
           <NeumorphismDivider direction="vertical" dashed />
-          <span>Right</span>
+          <span>右侧</span>
         </div>
       </div>
     </section>
 
-    <!-- ===== FOOTER ===== -->
+    <!-- ===== 页脚 ===== -->
     <footer class="showcase-footer">
       <NeumorphismDivider />
-      <p>@echolab/ui-frame · MIT License · {{ 23 }} Components</p>
+      <p>@echolab/ui-frame · MIT 许可证 · 共 {{ 23 }} 个组件</p>
       <p style="margin-top: 4px;">
         <a href="https://github.com/EchoLab-Auto/ui-frame" target="_blank">GitHub</a> ·
         <a href="https://www.npmjs.com/package/@echolab/ui-frame" target="_blank">npm</a>
