@@ -172,9 +172,14 @@ onBeforeUnmount(() => {
   justify-content: center;
   background-color: rgba(0, 0, 0, 0.4);
   backdrop-filter: blur(4px);
+  opacity: 0;
+  pointer-events: none;
   transition: opacity var(--nm-transition-fast);
 
-  &--visible { opacity: 1; }
+  &--visible {
+    opacity: 1;
+    pointer-events: auto;
+  }
 }
 
 .nm-modal {
