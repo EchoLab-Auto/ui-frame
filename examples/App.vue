@@ -449,7 +449,7 @@ const skeletonLoading = ref(true)
             </NeumorphismCard>
 
             <!-- 选择器 -->
-            <NeumorphismCard id="select" :elevation="1" class="demo-card">
+            <NeumorphismCard id="select" :elevation="1" class="demo-card demo-card--full">
               <template #header>
                 <div class="demo-header">
                   <h3 class="demo-title">NeumorphismSelect 选择器</h3>
@@ -487,7 +487,7 @@ const skeletonLoading = ref(true)
             <h2 class="category-title">表单</h2>
             <p class="category-desc">表单容器与表单项，内置验证规则引擎，支持必填、正则、长度限制和自定义校验器。</p>
 
-            <NeumorphismCard id="form" :elevation="1" class="demo-card">
+            <NeumorphismCard id="form" :elevation="1" class="demo-card demo-card--full">
               <template #header>
                 <div class="demo-header">
                   <h3 class="demo-title">NeumorphismForm 表单与 FormItem</h3>
@@ -528,7 +528,7 @@ const skeletonLoading = ref(true)
             <p class="category-desc">用于展示数据和内容的组件，包括卡片、头像、徽标、标签、进度条、骨架屏和分割线。</p>
 
             <!-- 卡片 -->
-            <NeumorphismCard id="card" :elevation="1" class="demo-card">
+            <NeumorphismCard id="card" :elevation="1" class="demo-card demo-card--full">
               <template #header>
                 <div class="demo-header">
                   <h3 class="demo-title">NeumorphismCard 卡片</h3>
@@ -973,7 +973,7 @@ const skeletonLoading = ref(true)
             </NeumorphismCard>
 
             <!-- 栅格 -->
-            <NeumorphismCard id="grid" :elevation="1" class="demo-card">
+            <NeumorphismCard id="grid" :elevation="1" class="demo-card demo-card--full">
               <template #header>
                 <div class="demo-header">
                   <h3 class="demo-title">NeumorphismRow / NeumorphismCol 栅格</h3>
@@ -1021,7 +1021,7 @@ const skeletonLoading = ref(true)
             </NeumorphismCard>
 
             <!-- 布局 -->
-            <NeumorphismCard id="layout" :elevation="1" class="demo-card">
+            <NeumorphismCard id="layout" :elevation="1" class="demo-card demo-card--full">
               <template #header>
                 <div class="demo-header">
                   <h3 class="demo-title">NeumorphismLayout 页面布局</h3>
@@ -1146,31 +1146,59 @@ const skeletonLoading = ref(true)
   }
 }
 
-// ---- Content Area ----
+// ---- Content Area (fluid, no max-width) ----
 .content-inner {
-  max-width: 960px;
   margin: 0 auto;
-  padding: 36px 28px 64px;
+  padding: 24px 20px 64px;
+
+  @include nm-screen-sm {
+    padding: 28px 28px 64px;
+  }
+
+  @include nm-screen-lg {
+    padding: 36px 40px 72px;
+  }
+
+  @media (min-width: 1600px) {
+    padding: 40px 56px 80px;
+  }
 }
 
 // ---- Hero ----
 .hero {
-  padding: 20px 0 28px;
+  padding: 12px 0 24px;
+
+  @include nm-screen-lg {
+    padding: 20px 0 28px;
+  }
 }
 
 .hero-title {
-  font-size: 36px;
+  font-size: 28px;
   font-weight: 700;
   margin: 0 0 8px;
-  letter-spacing: -0.8px;
+  letter-spacing: -0.5px;
+
+  @include nm-screen-sm {
+    font-size: 32px;
+  }
+
+  @include nm-screen-lg {
+    font-size: 36px;
+    letter-spacing: -0.8px;
+  }
 }
 
 .hero-desc {
-  font-size: 15px;
+  font-size: 14px;
   color: var(--nm-text-secondary);
   line-height: 1.7;
   margin: 0 0 14px;
-  max-width: 600px;
+  max-width: 640px;
+
+  @include nm-screen-lg {
+    font-size: 15px;
+  }
 }
 
 .hero-links {
@@ -1191,20 +1219,42 @@ const skeletonLoading = ref(true)
 // ---- Category Section ----
 .category-section {
   padding: 8px 0 4px;
+
+  // Grid layout for demo cards on wider screens
+  @include nm-screen-lg {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  // 2-column card grid at 1400px+
+  @media (min-width: 1400px) {
+    grid-template-columns: 1fr 1fr;
+  }
+
 }
 
 .category-title {
-  font-size: 22px;
+  font-size: 20px;
   font-weight: 600;
   margin: 0 0 4px;
   padding-top: 8px;
+
+  @include nm-screen-sm {
+    font-size: 22px;
+  }
 }
 
 .category-desc {
   font-size: 13px;
   color: var(--nm-text-secondary);
   line-height: 1.6;
-  margin: 0 0 28px;
+  margin: 0 0 24px;
+  max-width: 640px;
+
+  @include nm-screen-lg {
+    margin-bottom: 28px;
+  }
 }
 
 // ---- Demo Card ----
@@ -1217,6 +1267,13 @@ const skeletonLoading = ref(true)
   }
 }
 
+// Full-width cards span all columns in grid
+.demo-card--full {
+  @include nm-screen-lg {
+    grid-column: 1 / -1;
+  }
+}
+
 .demo-header {
   display: flex;
   align-items: baseline;
@@ -1225,9 +1282,13 @@ const skeletonLoading = ref(true)
 }
 
 .demo-title {
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 600;
   margin: 0;
+
+  @include nm-screen-sm {
+    font-size: 16px;
+  }
 }
 
 .demo-badge {
