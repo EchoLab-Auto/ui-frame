@@ -30,6 +30,10 @@ import {
   NeumorphismRow,
   NeumorphismCol,
   NeumorphismLayout,
+  NeumorphismThemeToggle,
+  NeumorphismTree,
+  NeumorphismTreeNode,
+  NeumorphismCanvas,
 } from './components'
 
 import './styles/index.scss'
@@ -65,6 +69,10 @@ export {
   NeumorphismRow,
   NeumorphismCol,
   NeumorphismLayout,
+  NeumorphismThemeToggle,
+  NeumorphismTree,
+  NeumorphismTreeNode,
+  NeumorphismCanvas,
 }
 
 // Type exports
@@ -165,6 +173,11 @@ export type {
   ColSpan,
   ColOffset,
   NeumorphismLayoutProps,
+  NeumorphismThemeToggleProps,
+  NeumorphismTreeProps,
+  NeumorphismTreeNodeProps,
+  TreeNodeData,
+  NeumorphismCanvasProps,
 } from './components'
 
 // Composables
@@ -214,6 +227,10 @@ const NAME_TO_COMPONENT = {
   NeumorphismRow,
   NeumorphismCol,
   NeumorphismLayout,
+  NeumorphismThemeToggle,
+  NeumorphismTree,
+  NeumorphismTreeNode,
+  NeumorphismCanvas,
 } as const
 
 export function install(app: App): void {

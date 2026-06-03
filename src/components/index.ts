@@ -76,6 +76,15 @@ export type { NeumorphismColProps, ColSpan, ColOffset } from './NeumorphismGrid'
 export { default as NeumorphismLayout } from './NeumorphismLayout'
 export type { NeumorphismLayoutProps } from './NeumorphismLayout'
 
+export { default as NeumorphismThemeToggle } from './NeumorphismThemeToggle'
+export type { NeumorphismThemeToggleProps } from './NeumorphismThemeToggle'
+
+export { NeumorphismTree, NeumorphismTreeNode } from './NeumorphismTree'
+export type { NeumorphismTreeProps, NeumorphismTreeNodeProps, TreeNodeData } from './NeumorphismTree'
+
+export { default as NeumorphismCanvas } from './NeumorphismCanvas'
+export type { NeumorphismCanvasProps } from './NeumorphismCanvas'
+
 // Multi-component directories — direct .vue imports
 export { default as NeumorphismRadio } from './NeumorphismRadio/NeumorphismRadio.vue'
 export type { NeumorphismRadioProps } from './NeumorphismRadio/NeumorphismRadio.vue'

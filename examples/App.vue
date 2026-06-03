@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import type { Theme } from '../src/composables/useTheme'
 
 // ---- 主题状态 ----
 const isDark = ref(false)
+const themeValue = ref<Theme>('auto')
 
 // ---- 组件分类导航 ----
 const navCategories = [
@@ -59,6 +61,14 @@ const navCategories = [
       { id: 'container', label: '容器 Container' },
       { id: 'grid', label: '栅格 Grid' },
       { id: 'layout', label: '布局 Layout' },
+    ],
+  },
+  {
+    title: '扩展',
+    items: [
+      { id: 'themetoggle', label: '主题切换 ThemeToggle' },
+      { id: 'tree', label: '树形导航 Tree' },
+      { id: 'canvas', label: '画布 Canvas' },
     ],
   },
 ]
@@ -188,6 +198,121 @@ function handleFormSubmit(model: Record<string, unknown>) {
 
 // ---- 骨架屏示例 ----
 const skeletonLoading = ref(true)
+
+// ---- 主题切换组件示例 ----
+const themeToggleValue = ref<Theme>('auto')
+
+// ---- 树形导航示例 ----
+const treeSelectedKeys = ref<string[]>(['getting-started'])
+const treeExpandedKeys = ref<string[]>(['getting-started', 'components', 'components-basic'])
+const treeData = [
+  {
+    key: 'getting-started',
+    label: '快速开始',
+    children: [
+      { key: 'intro', label: '项目简介' },
+      { key: 'install', label: '安装指南' },
+      { key: 'usage', label: '基本用法' },
+    ],
+  },
+  {
+    key: 'components',
+    label: '组件列表',
+    children: [
+      {
+        key: 'components-basic',
+        label: '基础组件',
+        children: [
+          { key: 'comp-button', label: 'Button 按钮' },
+          { key: 'comp-input', label: 'Input 输入框' },
+          { key: 'comp-switch', label: 'Switch 开关' },
+        ],
+      },
+      {
+        key: 'components-form',
+        label: '表单组件',
+        children: [
+          { key: 'comp-form', label: 'Form 表单' },
+          { key: 'comp-select', label: 'Select 选择器' },
+        ],
+      },
+      {
+        key: 'components-layout',
+        label: '布局组件',
+        children: [
+          { key: 'comp-layout', label: 'Layout 布局' },
+          { key: 'comp-grid', label: 'Grid 栅格' },
+        ],
+        disabled: true,
+      },
+    ],
+  },
+  {
+    key: 'api',
+    label: 'API 参考',
+    children: [
+      { key: 'api-theme', label: 'useTheme' },
+      { key: 'api-props', label: 'Props 规范' },
+    ],
+  },
+]
+
+// ---- 画布示例 ----
+const canvasZoom = ref(1)
+const canvasShowGrid = ref(true)
+
+// 流程图示例节点
+const flowNodes = [
+  { id: 'start', x: 180, y: 30, w: 100, h: 36, label: '开始', type: 'rounded' },
+  { id: 'check', x: 180, y: 110, w: 100, h: 60, label: '条件判断?', type: 'diamond' },
+  { id: 'action1', x: 50, y: 220, w: 120, h: 36, label: '处理分支 A', type: 'rect' },
+  { id: 'action2', x: 260, y: 220, w: 120, h: 36, label: '处理分支 B', type: 'rect' },
+  { id: 'merge', x: 180, y: 310, w: 100, h: 36, label: '合并', type: 'rect' },
+  { id: 'end', x: 180, y: 400, w: 100, h: 36, label: '结束', type: 'rounded' },
+]
+const flowEdges = [
+  { from: 'start', to: 'check' },
+  { from: 'check', to: 'action1', label: '是' },
+  { from: 'check', to: 'action2', label: '否' },
+  { from: 'action1', to: 'merge' },
+  { from: 'action2', to: 'merge' },
+  { from: 'merge', to: 'end' },
+]
+
+function flowNodeStyle(node: typeof flowNodes[number]) {
+  const base = {
+    position: 'absolute' as const,
+    left: `${node.x}px`,
+    top: `${node.y}px`,
+    width: `${node.w}px`,
+    height: `${node.h}px`,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontSize: '12px',
+    color: 'var(--nm-text-primary)',
+    background: 'var(--nm-surface-raised)',
+    border: '2px solid var(--nm-primary-color)',
+    boxSizing: 'border-box' as const,
+  }
+  if (node.type === 'rounded') {
+    return { ...base, borderRadius: '18px' }
+  }
+  if (node.type === 'diamond') {
+    return { ...base, borderRadius: '8px', transform: 'rotate(0deg)' }
+  }
+  return { ...base, borderRadius: '8px' }
+}
+
+// Edge rendering helper
+function calcEdgePath(from: typeof flowNodes[number], to: typeof flowNodes[number], label?: string) {
+  const x1 = from.x + from.w / 2
+  const y1 = from.y + from.h
+  const x2 = to.x + to.w / 2
+  const y2 = to.y
+  const mx = (x1 + x2) / 2
+  return `M ${x1} ${y1} C ${mx} ${y1}, ${mx} ${y2}, ${x2} ${y2}`
+}
 </script>
 
 <template>
@@ -231,7 +356,7 @@ const skeletonLoading = ref(true)
             <h1 class="hero-title">@echolab/ui-frame</h1>
             <p class="hero-desc">
               Vue 3 新拟态（Soft UI）UI 组件库，共
-              <strong>{{ 27 }}</strong> 个组件。统一的台阶高度模型、完整的暗色模式支持、移动端与触屏适配。
+              <strong>{{ 30 }}</strong> 个组件。统一的台阶高度模型、完整的暗色模式支持、移动端与触屏适配。
             </p>
             <div class="hero-links">
               <a href="https://github.com/EchoLab-Auto/ui-frame" target="_blank">GitHub</a>
@@ -1066,10 +1191,215 @@ const skeletonLoading = ref(true)
             </NeumorphismCard>
           </section>
 
+          <NeumorphismDivider />
+
+          <!-- ============================================= -->
+          <!-- 分类：扩展                                       -->
+          <!-- ============================================= -->
+          <section class="category-section">
+            <h2 class="category-title">扩展</h2>
+            <p class="category-desc">补充组件，包括三态主题切换、树形导航和基础画布容器，用于满足文档和流程图等复杂交互场景。</p>
+
+            <!-- 主题切换 -->
+            <NeumorphismCard id="themetoggle" :elevation="1" class="demo-card">
+              <template #header>
+                <div class="demo-header">
+                  <h3 class="demo-title">NeumorphismThemeToggle 主题切换</h3>
+                  <span class="demo-badge">三态 · light / dark / auto</span>
+                </div>
+              </template>
+
+              <div class="demo-block">
+                <h4 class="demo-label">三态切换（默认 auto）</h4>
+                <div class="demo-row">
+                  <NeumorphismThemeToggle v-model="themeToggleValue" size="medium" />
+                  <code style="font-size: 13px;">当前值: {{ themeToggleValue }}</code>
+                </div>
+              </div>
+
+              <div class="demo-block">
+                <h4 class="demo-label">尺寸</h4>
+                <div class="demo-row demo-row--stacked">
+                  <div class="demo-row">
+                    <NeumorphismThemeToggle v-model="themeToggleValue" size="small" />
+                    <code>small</code>
+                  </div>
+                  <div class="demo-row">
+                    <NeumorphismThemeToggle v-model="themeToggleValue" size="medium" />
+                    <code>medium</code>
+                  </div>
+                  <div class="demo-row">
+                    <NeumorphismThemeToggle v-model="themeToggleValue" size="large" />
+                    <code>large</code>
+                  </div>
+                </div>
+              </div>
+
+              <div class="demo-block">
+                <h4 class="demo-label">禁用自动模式</h4>
+                <NeumorphismThemeToggle v-model="themeToggleValue" :disable-auto="true" />
+              </div>
+            </NeumorphismCard>
+
+            <!-- 树形导航 -->
+            <NeumorphismCard id="tree" :elevation="1" class="demo-card demo-card--full">
+              <template #header>
+                <div class="demo-header">
+                  <h3 class="demo-title">NeumorphismTree 树形导航</h3>
+                  <span class="demo-badge">展开/折叠 · 搜索高亮 · 选中高亮</span>
+                </div>
+              </template>
+
+              <div class="demo-row" style="gap: 32px; align-items: flex-start; flex-wrap: wrap;">
+                <div style="width: 280px;">
+                  <h4 class="demo-label">带搜索的树形导航</h4>
+                  <NeumorphismCard :elevation="-1" style="padding: 12px;">
+                    <NeumorphismTree
+                      v-model:selected-keys="treeSelectedKeys"
+                      v-model:expanded-keys="treeExpandedKeys"
+                      :data="treeData"
+                      :show-search="true"
+                      search-placeholder="搜索节点..."
+                      :multiple="false"
+                      @node-click="(node) => console.log('点击节点:', node.key, node.label)"
+                    />
+                  </NeumorphismCard>
+                  <p class="demo-hint">已选 Key：<strong>{{ treeSelectedKeys.join(', ') || '无' }}</strong></p>
+                </div>
+
+                <div style="flex: 1; min-width: 280px; max-width: 400px;">
+                  <h4 class="demo-label">数据结构预览</h4>
+                  <pre style="
+                    font-size: 11px;
+                    color: var(--nm-text-secondary);
+                    background: var(--nm-surface-color);
+                    padding: 12px;
+                    border-radius: var(--nm-border-radius-sm);
+                    box-shadow: inset 2px 2px 4px var(--nm-shadow-dark-strong), inset -2px -2px 4px var(--nm-shadow-light-strong);
+                    line-height: 1.7;
+                    margin: 0;
+                    overflow-x: auto;
+                  ">{{ JSON.stringify(treeData, null, 2) }}</pre>
+                </div>
+              </div>
+            </NeumorphismCard>
+
+            <!-- 画布 -->
+            <NeumorphismCard id="canvas" :elevation="1" class="demo-card demo-card--full">
+              <template #header>
+                <div class="demo-header">
+                  <h3 class="demo-title">NeumorphismCanvas 画布</h3>
+                  <span class="demo-badge">网格背景 · 缩放控制 · SVG 流程图</span>
+                </div>
+              </template>
+
+              <div class="demo-block">
+                <h4 class="demo-label">SVG 流程图示例（缩放与网格可切换）</h4>
+                <div class="demo-row" style="margin-bottom: 10px;">
+                  <NeumorphismButton size="small" variant="flat" @click="canvasShowGrid = !canvasShowGrid">
+                    {{ canvasShowGrid ? '隐藏网格' : '显示网格' }}
+                  </NeumorphismButton>
+                  <NeumorphismButton size="small" variant="flat" @click="canvasZoom = 1">
+                    重置缩放
+                  </NeumorphismButton>
+                </div>
+
+                <NeumorphismCanvas
+                  v-model="canvasZoom"
+                  :show-grid="canvasShowGrid"
+                  :grid-size="20"
+                  :min-zoom="0.25"
+                  :max-zoom="3"
+                  :zoom-step="0.1"
+                  height="480px"
+                >
+                  <!-- Simple SVG flowchart rendered inside canvas -->
+                  <svg
+                    :width="440"
+                    :height="460"
+                    style="display: block;"
+                  >
+                    <!-- Edges -->
+                    <path
+                      v-for="edge in flowEdges"
+                      :key="`${edge.from}-${edge.to}`"
+                      :d="calcEdgePath(
+                        flowNodes.find(n => n.id === edge.from)!,
+                        flowNodes.find(n => n.id === edge.to)!,
+                        edge.label
+                      )"
+                      fill="none"
+                      stroke="var(--nm-text-secondary)"
+                      stroke-width="1.5"
+                      marker-end="url(#arrowhead)"
+                    />
+                    <!-- Edge labels -->
+                    <text
+                      v-for="edge in flowEdges.filter(e => e.label)"
+                      :key="`label-${edge.from}-${edge.to}`"
+                      :x="(flowNodes.find(n => n.id === edge.from)!.x + flowNodes.find(n => n.id === edge.from)!.w/2 + flowNodes.find(n => n.id === edge.to)!.x + flowNodes.find(n => n.id === edge.to)!.w/2) / 2 + 14"
+                      :y="(flowNodes.find(n => n.id === edge.from)!.y + flowNodes.find(n => n.id === edge.from)!.h + flowNodes.find(n => n.id === edge.to)!.y) / 2"
+                      fill="var(--nm-primary-color)"
+                      font-size="11"
+                    >{{ edge.label }}</text>
+
+                    <!-- Arrow marker -->
+                    <defs>
+                      <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+                        <polygon points="0 0, 8 3, 0 6" fill="var(--nm-text-secondary)" />
+                      </marker>
+                    </defs>
+
+                    <!-- Nodes -->
+                    <g v-for="node in flowNodes" :key="node.id">
+                      <rect
+                        :x="node.x"
+                        :y="node.y"
+                        :width="node.w"
+                        :height="node.h"
+                        :rx="node.type === 'rounded' ? 18 : 8"
+                        fill="var(--nm-surface-raised)"
+                        stroke="var(--nm-primary-color)"
+                        stroke-width="2"
+                        filter="url(#nm-shadow)"
+                      />
+                      <text
+                        :x="node.x + node.w / 2"
+                        :y="node.y + node.h / 2"
+                        text-anchor="middle"
+                        dominant-baseline="central"
+                        fill="var(--nm-text-primary)"
+                        font-size="12"
+                      >{{ node.label }}</text>
+                    </g>
+
+                    <!-- Drop shadow filter -->
+                    <filter id="nm-shadow" x="-10%" y="-10%" width="130%" height="130%">
+                      <feDropShadow dx="2" dy="2" stdDeviation="3" flood-color="var(--nm-shadow-dark)" />
+                    </filter>
+                  </svg>
+                </NeumorphismCanvas>
+              </div>
+
+              <div class="demo-block">
+                <h4 class="demo-label">空画布（展示网格）</h4>
+                <NeumorphismCanvas
+                  v-model="canvasZoom"
+                  :show-grid="true"
+                  height="250px"
+                >
+                  <div style="padding: 24px; color: var(--nm-text-placeholder); font-size: 13px; white-space: nowrap;">
+                    在此区域放置任意 SVG / HTML 内容
+                  </div>
+                </NeumorphismCanvas>
+              </div>
+            </NeumorphismCard>
+          </section>
+
           <!-- ===== 页脚 ===== -->
           <footer class="doc-footer">
             <NeumorphismDivider />
-            <p>@echolab/ui-frame · MIT 许可证 · 共 {{ 27 }} 个组件</p>
+            <p>@echolab/ui-frame · MIT 许可证 · 共 {{ 30 }} 个组件</p>
             <p style="margin-top: 4px;">
               <a href="https://github.com/EchoLab-Auto/ui-frame" target="_blank">GitHub</a> ·
               <a href="https://www.npmjs.com/package/@echolab/ui-frame" target="_blank">npm</a>
