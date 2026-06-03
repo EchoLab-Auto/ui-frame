@@ -128,7 +128,7 @@ const skeletonLoading = ref(true)
     <!-- ===== HEADER ===== -->
     <header class="showcase-header">
       <h1 class="showcase-title">@echolab/ui-frame</h1>
-      <p class="showcase-subtitle">Vue 3 新拟态 UI 组件库 — 共 {{ 23 }} 个组件</p>
+      <p class="showcase-subtitle">Vue 3 新拟态 UI 组件库 — 共 {{ 27 }} 个组件</p>
       <div class="showcase-theme-row">
         <NeumorphismSwitch v-model="isDark" size="medium" />
         <span class="showcase-theme-label">{{ isDark ? '暗色' : '亮色' }}</span>
@@ -159,6 +159,9 @@ const skeletonLoading = ref(true)
       <a href="#progress">进度条</a>
       <a href="#skeleton">骨架屏</a>
       <a href="#divider">分割线</a>
+      <a href="#container">容器</a>
+      <a href="#grid">栅格</a>
+      <a href="#layout">布局</a>
     </nav>
 
     <!-- ======================================================= -->
@@ -864,10 +867,143 @@ const skeletonLoading = ref(true)
       </div>
     </section>
 
+    <NeumorphismDivider />
+
+    <!-- ======================================================= -->
+    <!-- CONTAINER -->
+    <!-- ======================================================= -->
+    <section id="container" class="showcase-section">
+      <h2 class="section-title">NeumorphismContainer 容器</h2>
+      <p class="section-desc">响应式页面容器，fixed 模式根据断点限制最大宽度并居中，fluid 模式全宽。</p>
+
+      <div class="subsection">
+        <h3 class="subsection-title">Fixed 模式（默认）</h3>
+        <div style="border: 1px dashed var(--nm-text-placeholder); border-radius: var(--nm-border-radius-md); overflow: hidden;">
+          <NeumorphismCard :elevation="0" style="text-align: center; padding: 32px; border-radius: 0;">
+            <p style="margin: 0; color: var(--nm-text-secondary);">内容自动居中，随断点变化最大宽度</p>
+          </NeumorphismCard>
+        </div>
+      </div>
+    </section>
+
+    <NeumorphismDivider />
+
+    <!-- ======================================================= -->
+    <!-- GRID -->
+    <!-- ======================================================= -->
+    <section id="grid" class="showcase-section">
+      <h2 class="section-title">NeumorphismRow / NeumorphismCol 栅格</h2>
+      <p class="section-desc">24 栅格系统，支持 gutter 间距、flex 对齐和 6 个响应式断点。</p>
+
+      <div class="subsection">
+        <h3 class="subsection-title">基本栅格</h3>
+        <NeumorphismRow :gutter="12">
+          <NeumorphismCol v-for="i in 4" :key="i" :span="6">
+            <NeumorphismCard :elevation="1">
+              <div style="text-align:center;padding:12px;font-size:13px;color:var(--nm-text-secondary)">col-6</div>
+            </NeumorphismCard>
+          </NeumorphismCol>
+        </NeumorphismRow>
+      </div>
+
+      <div class="subsection">
+        <h3 class="subsection-title">混合栅格与偏移</h3>
+        <NeumorphismRow :gutter="12">
+          <NeumorphismCol :span="8">
+            <NeumorphismCard :elevation="1">
+              <div style="text-align:center;padding:12px;font-size:13px;color:var(--nm-text-secondary)">col-8</div>
+            </NeumorphismCard>
+          </NeumorphismCol>
+          <NeumorphismCol :span="8" :offset="8">
+            <NeumorphismCard :elevation="1">
+              <div style="text-align:center;padding:12px;font-size:13px;color:var(--nm-text-secondary)">col-8 offset-8</div>
+            </NeumorphismCard>
+          </NeumorphismCol>
+        </NeumorphismRow>
+      </div>
+
+      <div class="subsection">
+        <h3 class="subsection-title">响应式栅格（调整浏览器宽度查看效果）</h3>
+        <NeumorphismRow :gutter="12">
+          <NeumorphismCol :xs="24" :sm="12" :md="8" :lg="6">
+            <NeumorphismCard :elevation="1">
+              <div style="text-align:center;padding:12px;font-size:12px;color:var(--nm-text-secondary)">
+                手机:24 / 平板:8 / 桌面:6
+              </div>
+            </NeumorphismCard>
+          </NeumorphismCol>
+          <NeumorphismCol :xs="24" :sm="12" :md="8" :lg="6">
+            <NeumorphismCard :elevation="1">
+              <div style="text-align:center;padding:12px;font-size:12px;color:var(--nm-text-secondary)">
+                手机:24 / 平板:8 / 桌面:6
+              </div>
+            </NeumorphismCard>
+          </NeumorphismCol>
+          <NeumorphismCol :xs="24" :sm="12" :md="8" :lg="6">
+            <NeumorphismCard :elevation="1">
+              <div style="text-align:center;padding:12px;font-size:12px;color:var(--nm-text-secondary)">
+                手机:24 / 平板:8 / 桌面:6
+              </div>
+            </NeumorphismCard>
+          </NeumorphismCol>
+          <NeumorphismCol :xs="24" :sm="24" :md="0" :lg="6">
+            <NeumorphismCard :elevation="1">
+              <div style="text-align:center;padding:12px;font-size:12px;color:var(--nm-text-secondary)">
+                手机:24 / 平板:隐藏 / 桌面:6
+              </div>
+            </NeumorphismCard>
+          </NeumorphismCol>
+        </NeumorphismRow>
+      </div>
+    </section>
+
+    <NeumorphismDivider />
+
+    <!-- ======================================================= -->
+    <!-- LAYOUT -->
+    <!-- ======================================================= -->
+    <section id="layout" class="showcase-section">
+      <h2 class="section-title">NeumorphismLayout 页面布局</h2>
+      <p class="section-desc">经典页面框架，支持 Header + Sider + Content + Footer 布局，移动端自动折叠侧边栏。</p>
+
+      <div style="border: 1px solid rgba(128,128,128,0.1); border-radius: var(--nm-border-radius-lg); overflow: hidden; height: 400px;">
+        <NeumorphismLayout show-header show-sider :sider-width="200" collapsible>
+          <template #header-left>
+            <strong style="font-size:15px">My App</strong>
+          </template>
+
+          <template #header-right>
+            <NeumorphismAvatar initials="U" size="small" />
+          </template>
+
+          <template #sider="{ collapsed }">
+            <div style="padding:12px">
+              <p v-if="!collapsed" style="font-size:12px;color:var(--nm-text-secondary)">导航菜单</p>
+              <p v-if="!collapsed" style="font-size:12px;color:var(--nm-text-placeholder);margin-left:12px">首页</p>
+              <p v-if="!collapsed" style="font-size:12px;color:var(--nm-text-placeholder);margin-left:12px">组件</p>
+              <p v-if="!collapsed" style="font-size:12px;color:var(--nm-text-placeholder);margin-left:12px">设置</p>
+              <p v-else style="text-align:center">📋</p>
+            </div>
+          </template>
+
+          <template #default>
+            <div style="padding:24px">
+              <h3 style="margin:0 0 8px;font-size:16px">欢迎使用新拟态 UI</h3>
+              <p style="font-size:13px;color:var(--nm-text-secondary);margin:0">这是主内容区域，侧边栏可折叠，移动端自动变为抽屉式导航。</p>
+            </div>
+          </template>
+
+          <template #footer>
+            <span style="font-size:12px">© 2024 · MIT</span>
+          </template>
+        </NeumorphismLayout>
+      </div>
+    </section>
+
     <!-- ===== 页脚 ===== -->
     <footer class="showcase-footer">
       <NeumorphismDivider />
-      <p>@echolab/ui-frame · MIT 许可证 · 共 {{ 23 }} 个组件</p>
+      <p>@echolab/ui-frame · MIT 许可证 · 共 {{ 27 }} 个组件</p>
       <p style="margin-top: 4px;">
         <a href="https://github.com/EchoLab-Auto/ui-frame" target="_blank">GitHub</a> ·
         <a href="https://www.npmjs.com/package/@echolab/ui-frame" target="_blank">npm</a>

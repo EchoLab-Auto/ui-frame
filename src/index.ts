@@ -26,6 +26,10 @@ import {
   NeumorphismSkeleton,
   NeumorphismDivider,
   NeumorphismCollapse,
+  NeumorphismContainer,
+  NeumorphismRow,
+  NeumorphismCol,
+  NeumorphismLayout,
 } from './components'
 
 import './styles/index.scss'
@@ -57,6 +61,10 @@ export {
   NeumorphismSkeleton,
   NeumorphismDivider,
   NeumorphismCollapse,
+  NeumorphismContainer,
+  NeumorphismRow,
+  NeumorphismCol,
+  NeumorphismLayout,
 }
 
 // Type exports
@@ -148,6 +156,17 @@ export type {
   CollapseItem,
 } from './components'
 
+export type {
+  NeumorphismContainerProps,
+  NeumorphismRowProps,
+  RowAlign,
+  RowJustify,
+  NeumorphismColProps,
+  ColSpan,
+  ColOffset,
+  NeumorphismLayoutProps,
+} from './components'
+
 // Composables
 export {
   useTheme,
@@ -191,6 +210,10 @@ const NAME_TO_COMPONENT = {
   NeumorphismSkeleton,
   NeumorphismDivider,
   NeumorphismCollapse,
+  NeumorphismContainer,
+  NeumorphismRow,
+  NeumorphismCol,
+  NeumorphismLayout,
 } as const
 
 export function install(app: App): void {

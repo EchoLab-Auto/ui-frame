@@ -86,11 +86,51 @@
   background-color: var(--nm-bg-color);
   color: var(--nm-text-primary);
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-tap-highlight-color: transparent;
   transition:
     background-color var(--nm-transition-slow),
     box-shadow var(--nm-transition-slow),
     color var(--nm-transition-slow),
     border-color var(--nm-transition-slow);
+}
+
+// ---- Mobile-friendly global defaults ----
+.nm-root {
+  // Prevent iOS text size adjust on orientation change
+  -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+
+  // Smooth scrolling (disabled for users who prefer reduced motion)
+  @media (prefers-reduced-motion: no-preference) {
+    scroll-behavior: smooth;
+  }
+
+  // Ensure minimum touch target size
+  button, a, input, select, textarea, [role="button"], [role="tab"] {
+    @media (pointer: coarse) {
+      min-height: 44px;
+    }
+  }
+
+  // Improve tap response on mobile
+  a, button, [role="button"] {
+    touch-action: manipulation;
+  }
+
+  // Remove default iOS styling for inputs
+  input, textarea, select {
+    -webkit-appearance: none;
+    appearance: none;
+    border-radius: 0;
+  }
+}
+
+// Global responsive image behavior
+img, video {
+  max-width: 100%;
+  height: auto;
 }
 
 .nm-root *,

@@ -66,6 +66,16 @@ export type { NeumorphismDividerProps, DividerDirection, DividerAlign } from './
 export { default as NeumorphismCollapse } from './NeumorphismCollapse'
 export type { NeumorphismCollapseProps, CollapseItem } from './NeumorphismCollapse'
 
+export { default as NeumorphismContainer } from './NeumorphismContainer'
+export type { NeumorphismContainerProps } from './NeumorphismContainer'
+
+export { NeumorphismRow, NeumorphismCol } from './NeumorphismGrid'
+export type { NeumorphismRowProps, RowAlign, RowJustify } from './NeumorphismGrid'
+export type { NeumorphismColProps, ColSpan, ColOffset } from './NeumorphismGrid'
+
+export { default as NeumorphismLayout } from './NeumorphismLayout'
+export type { NeumorphismLayoutProps } from './NeumorphismLayout'
+
 // Multi-component directories — direct .vue imports
 export { default as NeumorphismRadio } from './NeumorphismRadio/NeumorphismRadio.vue'
 export type { NeumorphismRadioProps } from './NeumorphismRadio/NeumorphismRadio.vue'
