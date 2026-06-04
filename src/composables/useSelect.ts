@@ -60,6 +60,7 @@ export function useSelect(opts: UseSelectOptions): UseSelectReturn {
   }
 
   function clearValue(value?: string | number) {
+    if (disabled?.value) return
     modelValue.value = (value ?? undefined) as string | number
     isOpen.value = false
   }

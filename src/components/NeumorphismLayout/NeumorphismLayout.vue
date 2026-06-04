@@ -56,6 +56,12 @@ function closeMobileDrawer() {
   mobileDrawerOpen.value = false
 }
 
+function handleContentClick() {
+  if (isMobile.value && mobileDrawerOpen.value) {
+    closeMobileDrawer()
+  }
+}
+
 const classList = computed(() => [
   'nm-layout',
   {
@@ -122,7 +128,7 @@ const siderStyle = computed(() => ({
       </aside>
 
       <!-- Content -->
-      <main class="nm-layout__content" @click="isMobile && mobileDrawerOpen ? closeMobileDrawer() : undefined">
+      <main class="nm-layout__content" @click="handleContentClick">
         <slot />
       </main>
     </div>
@@ -258,7 +264,7 @@ const siderStyle = computed(() => ({
   height: 100%;
   overflow-y: auto;
   overflow-x: hidden;
-  -webkit-overflow-scrolling: touch;
+
 
   // Subtle inner scrolling shadow hint
   background:
@@ -293,7 +299,7 @@ const siderStyle = computed(() => ({
   flex: 1;
   min-width: 0;
   overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
+
 
   .nm-layout--mobile & {
     overflow-y: visible;

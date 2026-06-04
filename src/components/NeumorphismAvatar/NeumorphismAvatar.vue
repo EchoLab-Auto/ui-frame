@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 
 export type AvatarSize = 'small' | 'medium' | 'large'
 
@@ -23,6 +23,10 @@ const emit = defineEmits<{
 
 const hasImage = computed(() => !!props.src)
 const showFallback = ref(false)
+
+watch(() => props.src, () => {
+  showFallback.value = false
+})
 
 function onImageError() {
   showFallback.value = true
@@ -50,11 +54,12 @@ const fallbackContent = computed(() => {
       class="nm-avatar__img"
       @error="onImageError"
     >
-    <span v-else class="nm-avatar__fallback">
+    <span v-else-if="icon || $slots.fallback" class="nm-avatar__fallback nm-avatar__icon">
       <slot name="fallback">
         {{ fallbackContent }}
       </slot>
     </span>
+    <span v-else class="nm-avatar__fallback">{{ fallbackContent }}</span>
   </div>
 </template>
 
@@ -91,7 +96,7 @@ const fallbackContent = computed(() => {
 }
 
 // Sizes
-.nm-avatar--small  { width: 32px; height: 32px; font-size: 12px; }
-.nm-avatar--medium { width: 44px; height: 44px; font-size: 16px; }
-.nm-avatar--large  { width: 64px; height: 64px; font-size: 22px; }
+.nm-avatar--small  { width: var(--nm-avatar-size-sm); height: var(--nm-avatar-size-sm); font-size: var(--nm-avatar-font-sm); }
+.nm-avatar--medium { width: var(--nm-avatar-size-md); height: var(--nm-avatar-size-md); font-size: var(--nm-avatar-font-md); }
+.nm-avatar--large  { width: var(--nm-avatar-size-lg); height: var(--nm-avatar-size-lg); font-size: var(--nm-avatar-font-lg); }
 </style>

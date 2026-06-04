@@ -22,13 +22,18 @@ export function useTouchDevice() {
     isTouch.value = true
   }
 
+  let mq: MediaQueryList | undefined
+  let mqHandler: ((e: MediaQueryListEvent) => void) | undefined
+
   onMounted(() => {
-    // Primary detection via pointer capability
+    // Primary detection via pointer capability + live updates
     if (window.matchMedia) {
-      const mq = window.matchMedia('(pointer: coarse)')
-      if (mq.matches) {
-        isTouch.value = true
+      mq = window.matchMedia('(pointer: coarse)')
+      isTouch.value = mq.matches
+      mqHandler = (e: MediaQueryListEvent) => {
+        isTouch.value = e.matches
       }
+      mq.addEventListener('change', mqHandler)
     }
 
     // Fallback: detect first touch interaction
@@ -40,6 +45,7 @@ export function useTouchDevice() {
   })
 
   onBeforeUnmount(() => {
+    if (mq && mqHandler) mq.removeEventListener('change', mqHandler)
     window.removeEventListener('touchstart', handleTouchStart)
     window.removeEventListener('resize', handleResize)
     clearTimeout(resizeTimer)

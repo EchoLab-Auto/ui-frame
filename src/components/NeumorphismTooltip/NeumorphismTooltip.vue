@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, watch, nextTick } from 'vue'
 import { useTooltip } from '@/composables/useTooltip'
 import type { TooltipPosition, TooltipTrigger } from '@/composables/useTooltip'
 
@@ -30,15 +30,55 @@ const { isVisible, show, hide, toggle, handleKeydown: onKeydown } =
     trigger: computed(() => props.trigger),
   })
 
+const offsetPx = computed(() => `${props.offset}px`)
+
+const triggerRef = ref<HTMLElement>()
+const actualPosition = ref<TooltipPosition>(props.position)
+
+function checkBoundary(): TooltipPosition {
+  const el = triggerRef.value
+  if (!el) return props.position
+
+  const rect = el.getBoundingClientRect()
+
+  // Check if tooltip would overflow in the preferred direction
+  switch (props.position) {
+    case 'top':
+      if (rect.top < 60) return 'bottom'
+      break
+    case 'bottom':
+      if (rect.bottom > window.innerHeight - 60) return 'top'
+      break
+    case 'left':
+      if (rect.left < 100) return 'right'
+      break
+    case 'right':
+      if (rect.right > window.innerWidth - 100) return 'left'
+      break
+  }
+  return props.position
+}
+
+watch(isVisible, (visible) => {
+  if (visible) {
+    nextTick(() => {
+      actualPosition.value = checkBoundary()
+    })
+  } else {
+    actualPosition.value = props.position
+  }
+})
+
 const classList = computed(() => [
   'nm-tooltip',
-  `nm-tooltip--${props.position}`,
+  `nm-tooltip--${actualPosition.value}`,
   { 'nm-tooltip--visible': isVisible.value },
 ])
 </script>
 
 <template>
   <div
+    ref="triggerRef"
     class="nm-tooltip-wrapper"
     :class="{ 'nm-tooltip-wrapper--disabled': disabled }"
     @mouseenter="trigger === 'hover' ? show() : undefined"
@@ -104,7 +144,7 @@ const classList = computed(() => [
   }
 
   &--top {
-    bottom: calc(100% + v-bind('`${offset}px`'));
+    bottom: calc(100% + v-bind(offsetPx));
     left: 50%;
     transform: translateX(-50%);
 
@@ -116,7 +156,7 @@ const classList = computed(() => [
   }
 
   &--bottom {
-    top: calc(100% + v-bind('`${offset}px`'));
+    top: calc(100% + v-bind(offsetPx));
     left: 50%;
     transform: translateX(-50%);
 
@@ -128,7 +168,7 @@ const classList = computed(() => [
   }
 
   &--left {
-    right: calc(100% + v-bind('`${offset}px`'));
+    right: calc(100% + v-bind(offsetPx));
     top: 50%;
     transform: translateY(-50%);
 
@@ -140,7 +180,7 @@ const classList = computed(() => [
   }
 
   &--right {
-    left: calc(100% + v-bind('`${offset}px`'));
+    left: calc(100% + v-bind(offsetPx));
     top: 50%;
     transform: translateY(-50%);
 
@@ -152,9 +192,22 @@ const classList = computed(() => [
   }
 }
 
-// Transition
+// Transition — base
 .nm-tooltip-fade-enter-active { transition: opacity 0.2s ease, transform 0.2s ease; }
 .nm-tooltip-fade-leave-active { transition: opacity 0.15s ease, transform 0.15s ease; }
 .nm-tooltip-fade-enter-from,
-.nm-tooltip-fade-leave-to { opacity: 0; transform: translateX(-50%) translateY(4px); }
+.nm-tooltip-fade-leave-to { opacity: 0; }
+
+// Position-specific enter/leave offsets
+.nm-tooltip--top.nm-tooltip-fade-enter-from,
+.nm-tooltip--top.nm-tooltip-fade-leave-to { transform: translateX(-50%) translateY(4px); }
+
+.nm-tooltip--bottom.nm-tooltip-fade-enter-from,
+.nm-tooltip--bottom.nm-tooltip-fade-leave-to { transform: translateX(-50%) translateY(-4px); }
+
+.nm-tooltip--left.nm-tooltip-fade-enter-from,
+.nm-tooltip--left.nm-tooltip-fade-leave-to { transform: translateY(-50%) translateX(4px); }
+
+.nm-tooltip--right.nm-tooltip-fade-enter-from,
+.nm-tooltip--right.nm-tooltip-fade-leave-to { transform: translateY(-50%) translateX(-4px); }
 </style>

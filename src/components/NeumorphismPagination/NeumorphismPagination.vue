@@ -124,7 +124,7 @@ function onJumperChange(event: Event) {
         <button
           class="nm-pagination__btn"
           :disabled="isNextDisabled"
-          :aria-label="'下一页'"
+          :aria-label="nextLabel"
           @click="nextPage"
           type="button"
         >

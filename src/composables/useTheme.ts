@@ -151,19 +151,30 @@ export function provideTheme(options: ThemeOptions = {}): ThemeContext {
   return themeContext
 }
 
+// Module-level fallback to avoid creating multiple listeners
+let fallbackTheme: ThemeContext | null = null
+let fallbackRefCount = 0
+
 /**
  * Inject theme context from parent
  */
 export function useTheme(): ThemeContext {
   const context = inject(ThemeKey)
   if (!context) {
-    // Return a default theme context if not provided
-    console.warn('[NeumorphismUI] useTheme() called without ThemeProvider. Using default theme.')
-    const fallback = createTheme()
+    // Return a shared default theme context if not provided
+    if (!fallbackTheme) {
+      fallbackTheme = createTheme()
+    }
+    fallbackRefCount++
     onBeforeUnmount(() => {
-      fallback.dispose()
+      fallbackRefCount--
+      if (fallbackRefCount <= 0 && fallbackTheme) {
+        fallbackTheme.dispose()
+        fallbackTheme = null
+        fallbackRefCount = 0
+      }
     })
-    return fallback
+    return fallbackTheme
   }
   return context
 }

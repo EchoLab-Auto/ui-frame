@@ -1,7 +1,9 @@
 <script setup lang="ts">
-import { computed, inject } from 'vue'
+import { computed, inject, useAttrs } from 'vue'
 import { useCheckable } from '@/composables/useCheckable'
 import { RadioGroupKey } from '@/composables/injectionKeys'
+
+defineOptions({ inheritAttrs: false })
 
 export interface NeumorphismRadioProps {
   modelValue?: unknown
@@ -23,16 +25,28 @@ const emit = defineEmits<{
   (e: 'change', value: unknown): void
 }>()
 
+const attrs = useAttrs()
+
+const inputAttrs = computed(() => {
+  const result: Record<string, unknown> = {}
+  for (const key of Object.keys(attrs)) {
+    if (key !== 'class' && key !== 'style') {
+      result[key] = attrs[key]
+    }
+  }
+  return result
+})
+
 const radioGroup = inject(RadioGroupKey, null)
 
 const isChecked = computed(() => {
-  if (radioGroup) return radioGroup.modelValue === props.value
+  if (radioGroup) return radioGroup.modelValue.value === props.value
   return props.modelValue === props.value
 })
 
-const isDisabled = computed(() => props.disabled || radioGroup?.disabled || false)
+const isDisabled = computed(() => props.disabled || radioGroup?.disabled.value || false)
 const radioSize = computed<'small' | 'medium' | 'large'>(
-  () => (radioGroup?.size || props.size) as 'small' | 'medium' | 'large'
+  () => (radioGroup?.size.value || props.size) as 'small' | 'medium' | 'large'
 )
 
 const { inputId, classList } = useCheckable(() => ({
@@ -54,7 +68,7 @@ function handleChange(): void {
 </script>
 
 <template>
-  <label :class="classList" :for="inputId">
+  <label :class="[classList, attrs.class]" :style="attrs.style" :for="inputId">
     <span class="nm-radio__input-wrapper">
       <input
         :id="inputId"
@@ -62,8 +76,9 @@ function handleChange(): void {
         class="nm-radio__input"
         :checked="isChecked"
         :disabled="isDisabled"
-        :name="radioGroup?.name || name"
+        :name="radioGroup?.name.value || name"
         :value="value"
+        v-bind="inputAttrs"
         @change="handleChange"
       >
       <span class="nm-radio__circle" aria-hidden="true">

@@ -27,9 +27,9 @@ const themeContext = provideTheme(options.value)
 
 // Watch for prop changes and update
 watch(
-  () => options.value,
-  (newOptions) => {
-    themeContext.setTheme(newOptions.defaultTheme || 'auto')
+  () => props.defaultTheme,
+  (theme) => {
+    themeContext.setTheme(theme || 'auto')
   }
 )
 </script>

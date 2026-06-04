@@ -1,5 +1,8 @@
 import { ref, watch, onMounted, onBeforeUnmount, nextTick, type Ref } from 'vue'
 
+// Module-level scroll lock counter to handle nested modals
+let scrollLockCount = 0
+
 export interface UseModalOptions {
   /** v-model visibility */
   modelValue: Ref<boolean>
@@ -41,11 +44,16 @@ export function useModal(opts: UseModalOptions): UseModalReturn {
   let destroyTimer: ReturnType<typeof setTimeout> | undefined
 
   function lockBodyScroll() {
-    document.body.style.overflow = 'hidden'
+    if (scrollLockCount++ === 0) {
+      document.body.style.overflow = 'hidden'
+    }
   }
 
   function unlockBodyScroll() {
-    document.body.style.overflow = ''
+    if (--scrollLockCount <= 0) {
+      scrollLockCount = 0
+      document.body.style.overflow = ''
+    }
   }
 
   watch(

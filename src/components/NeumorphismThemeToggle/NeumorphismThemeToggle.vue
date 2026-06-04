@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, watch } from 'vue'
+import { useTheme } from '@/composables/useTheme'
 import type { Theme } from '@/composables/useTheme'
 
 export interface NeumorphismThemeToggleProps {
@@ -37,6 +38,19 @@ const options = computed<{ value: Theme; label: string }[]>(() => {
   return items
 })
 
+const themeContext = useTheme()
+
+// Sync external modelValue changes to the global theme system
+watch(
+  () => props.modelValue,
+  (value) => {
+    if (value !== themeContext.theme.value) {
+      themeContext.setTheme(value)
+    }
+  },
+  { immediate: true },
+)
+
 const classList = computed(() => [
   'nm-theme-toggle',
   `nm-theme-toggle--${props.size}`,
@@ -48,6 +62,7 @@ const classList = computed(() => [
 function selectTheme(value: Theme) {
   if (props.disabled) return
   if (value === props.modelValue) return
+  themeContext.setTheme(value)
   emit('update:modelValue', value)
   emit('change', value)
 }

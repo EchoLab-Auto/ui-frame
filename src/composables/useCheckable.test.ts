@@ -9,7 +9,7 @@ describe('useCheckable', () => {
       isDisabled: false,
       size: 'medium',
     }))
-    expect(inputId.value).toMatch(/^nm-checkbox-[a-z0-9]+$/)
+    expect(inputId).toMatch(/^nm-checkbox-[a-z0-9]+$/)
   })
 
   it('should generate id with radio prefix', () => {
@@ -19,7 +19,7 @@ describe('useCheckable', () => {
       isDisabled: false,
       size: 'medium',
     }))
-    expect(inputId.value).toMatch(/^nm-radio-[a-z0-9]+$/)
+    expect(inputId).toMatch(/^nm-radio-[a-z0-9]+$/)
   })
 
   it('should include prefix and size in classList', () => {

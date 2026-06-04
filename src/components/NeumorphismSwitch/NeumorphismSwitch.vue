@@ -46,6 +46,11 @@ const classList = computed(() => [
   },
 ])
 
+const trackStyle = computed(() => {
+  const color = isChecked.value ? props.activeColor : props.inactiveColor
+  return color ? { backgroundColor: color } : undefined
+})
+
 function handleChange(event: Event): void {
   if (props.disabled) {
     event.preventDefault()
@@ -70,35 +75,11 @@ function handleChange(event: Event): void {
         :disabled="disabled"
         @change="handleChange"
       >
-      <span class="nm-switch__track" aria-hidden="true">
+      <span class="nm-switch__track" aria-hidden="true" :style="trackStyle">
         <span class="nm-switch__thumb">
-          <svg
-            v-once
-            class="nm-switch__icon nm-switch__icon--sun"
-            viewBox="0 0 24 24"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <circle cx="12" cy="12" r="4" fill="currentColor" />
-            <path
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32 1.41 1.41M2 12h2m16 0h2M4.93 19.07l1.41-1.41m11.32-11.32 1.41-1.41"
-            />
-          </svg>
-          <svg
-            v-once
-            class="nm-switch__icon nm-switch__icon--moon"
-            viewBox="0 0 24 24"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              fill="currentColor"
-              d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"
-            />
-          </svg>
+          <slot name="thumb" :checked="isChecked">
+            <span class="nm-switch__thumb-dot" />
+          </slot>
         </span>
       </span>
     </span>
@@ -168,17 +149,19 @@ function handleChange(event: Event): void {
 
 // Thumb — raised shadow, slides with critically-damped motion (no overshoot)
 .nm-switch__thumb {
+  --nm-switch-gap: 3px;
+  --nm-switch-shift: 0px;
+
   position: absolute;
   top: 50%;
-  left: 3px;
-  transform: translateY(-50%);
+  inset-inline-start: var(--nm-switch-gap);
+  transform: translateY(-50%) translateX(var(--nm-switch-shift));
   background-color: var(--nm-bg-color);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   transition:
-    left 0.35s cubic-bezier(0.4, 0.0, 0.2, 1.0),
     transform 0.35s cubic-bezier(0.4, 0.0, 0.2, 1.0),
     background-color var(--nm-transition-slow),
     box-shadow var(--nm-transition-slow);
@@ -188,33 +171,17 @@ function handleChange(event: Event): void {
     -1px -1px 3px var(--nm-shadow-light);
 }
 
-// Icon inside thumb — both sun and moon are stacked and crossfade
-.nm-switch__icon {
-  position: absolute;
-  width: 55%;
-  height: 55%;
-  color: var(--nm-text-secondary);
-  transition: opacity 0.3s ease, color var(--nm-transition-slow);
+// Default thumb dot — visible when unchecked
+.nm-switch__thumb-dot {
+  width: 40%;
+  height: 40%;
+  border-radius: 50%;
+  background-color: var(--nm-text-placeholder);
+  transition: background-color var(--nm-transition-slow);
 }
 
-// Sun — visible when unchecked (light mode)
-.nm-switch__icon--sun {
-  color: #f5b642;
-  opacity: 1;
-
-  .nm-switch--checked & {
-    opacity: 0;
-  }
-}
-
-// Moon — visible when checked (dark mode)
-.nm-switch__icon--moon {
-  opacity: 0;
-
-  .nm-switch--checked & {
-    opacity: 1;
-    color: var(--nm-primary-color);
-  }
+.nm-switch--checked .nm-switch__thumb-dot {
+  background-color: var(--nm-primary-color);
 }
 
 // ---------- Size variants ----------
@@ -232,7 +199,7 @@ function handleChange(event: Event): void {
   }
 
   &.nm-switch--checked .nm-switch__thumb {
-    left: calc(100% - 19px);
+    --nm-switch-shift: 18px; // track(40) - thumb(16) - 2 * gap(3)
   }
 }
 
@@ -249,7 +216,7 @@ function handleChange(event: Event): void {
   }
 
   &.nm-switch--checked .nm-switch__thumb {
-    left: calc(100% - 27px);
+    --nm-switch-shift: 26px; // track(56) - thumb(24) - 2 * gap(3)
   }
 }
 
@@ -266,7 +233,7 @@ function handleChange(event: Event): void {
   }
 
   &.nm-switch--checked .nm-switch__thumb {
-    left: calc(100% - 35px);
+    --nm-switch-shift: 34px; // track(72) - thumb(32) - 2 * gap(3)
   }
 }
 
@@ -274,10 +241,6 @@ function handleChange(event: Event): void {
 .nm-switch--checked {
   .nm-switch__thumb {
     background-color: var(--nm-surface-raised);
-
-    .nm-switch__icon--moon {
-      color: var(--nm-primary-color);
-    }
   }
 }
 

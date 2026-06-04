@@ -25,16 +25,16 @@ const displayValue = computed(() => {
 })
 
 const isHidden = computed(() => {
-  if (props.dot && !props.value) return false
+  if (props.dot) return props.value == null || props.value === ''
   const num = Number(props.value)
-  return !props.dot && (isNaN(num) || num <= 0) && !props.showZero
+  return (isNaN(num) || num <= 0) && !props.showZero
 })
 
 const classList = computed(() => [
   'nm-badge',
   {
     'nm-badge--dot': props.dot,
-    'nm-badge--hidden': isHidden,
+    'nm-badge--hidden': isHidden.value,
   },
 ])
 </script>

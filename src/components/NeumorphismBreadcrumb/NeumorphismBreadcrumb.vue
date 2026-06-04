@@ -47,18 +47,10 @@ function handleClick(item: BreadcrumbItem, index: number) {
         }"
         :aria-current="index === items.length - 1 ? 'page' : undefined"
       >
-        <a
-          v-if="item.to && index !== items.length - 1"
-          :href="item.to"
-          class="nm-breadcrumb__link"
-          @click.prevent="handleClick(item, index)"
-        >
-          {{ item.label }}
-        </a>
         <span
-          v-else
           class="nm-breadcrumb__text"
-          role="button"
+          :class="{ 'nm-breadcrumb__text--link': index !== items.length - 1 && !item.disabled }"
+          :role="index !== items.length - 1 ? 'link' : undefined"
           :tabindex="index !== items.length - 1 && !item.disabled ? 0 : -1"
           @click="handleClick(item, index)"
           @keydown.enter="handleClick(item, index)"
@@ -106,28 +98,9 @@ function handleClick(item: BreadcrumbItem, index: number) {
     color: var(--nm-text-primary);
   }
 
-  &--disabled .nm-breadcrumb__link,
   &--disabled .nm-breadcrumb__text {
     opacity: 0.5;
     cursor: not-allowed;
-  }
-}
-
-.nm-breadcrumb__link {
-  color: var(--nm-text-secondary);
-  text-decoration: none;
-  padding: 4px 8px;
-  border-radius: var(--nm-border-radius-sm);
-  transition: all var(--nm-transition-fast);
-
-  &:hover {
-    color: var(--nm-primary-color);
-    background-color: var(--nm-surface-raised);
-  }
-
-  &:focus-visible {
-    outline: none;
-    box-shadow: 0 0 0 2px var(--nm-primary-color);
   }
 }
 
@@ -136,10 +109,15 @@ function handleClick(item: BreadcrumbItem, index: number) {
   border-radius: var(--nm-border-radius-sm);
   cursor: default;
 
-  &[role="button"] {
+  &--link {
     cursor: pointer;
     color: var(--nm-text-secondary);
-    &:hover { color: var(--nm-primary-color); }
+
+    &:hover {
+      color: var(--nm-primary-color);
+      background-color: var(--nm-surface-raised);
+    }
+
     &:focus-visible {
       outline: none;
       box-shadow: 0 0 0 2px var(--nm-primary-color);

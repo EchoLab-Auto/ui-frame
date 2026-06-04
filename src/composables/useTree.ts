@@ -101,14 +101,14 @@ export function useTree(opts: UseTreeOptions): UseTreeReturn {
 
   // Sync local state back to parent v-model refs
   if (opts.selectedKeys) {
-    watch(localSelectedKeys, (val) => {
-      opts.selectedKeys!.value = [...val]
-    }, { deep: false })
+    watch(() => [...localSelectedKeys.value], (val) => {
+      opts.selectedKeys!.value = val
+    })
   }
   if (opts.expandedKeys) {
-    watch(localExpandedKeys, (val) => {
-      opts.expandedKeys!.value = [...val]
-    }, { deep: false })
+    watch(() => [...localExpandedKeys.value], (val) => {
+      opts.expandedKeys!.value = val
+    })
   }
 
   const allKeys = computed(() => collectAllKeys(data.value))

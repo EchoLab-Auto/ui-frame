@@ -57,7 +57,8 @@ watch(
   (newName, oldName) => {
     if (oldName && form) form.unregisterField(oldName)
     if (newName && form) form.registerField(newName, validate)
-  }
+  },
+  { immediate: true }
 )
 
 onBeforeUnmount(() => {

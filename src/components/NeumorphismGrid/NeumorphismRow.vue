@@ -54,8 +54,6 @@ const style = computed(() => {
 
 const classList = computed(() => [
   'nm-row',
-  `nm-row--justify-${props.justify}`,
-  `nm-row--align-${props.align}`,
   { 'nm-row--nowrap': !props.wrap },
 ])
 </script>

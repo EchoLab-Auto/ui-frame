@@ -58,10 +58,8 @@ const {
   multiple: computed(() => props.multiple),
 })
 
-const searchText = computed({
-  get: () => searchTextRef.value,
-  set: (val) => { searchTextRef.value = val },
-})
+// Expose searchText ref directly for template binding
+const searchText = searchTextRef
 
 // Wrap select to emit events
 function handleSelect(key: string) {

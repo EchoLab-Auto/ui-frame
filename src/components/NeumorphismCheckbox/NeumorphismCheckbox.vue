@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, watch, useAttrs } from 'vue'
 import { useCheckable } from '@/composables/useCheckable'
 
 export interface NeumorphismCheckboxProps {
@@ -33,6 +33,21 @@ const isChecked = computed({
   },
 })
 
+defineOptions({ inheritAttrs: false })
+
+const attrs = useAttrs()
+const inputRef = ref<HTMLInputElement>()
+
+const inputAttrs = computed(() => {
+  const result: Record<string, unknown> = {}
+  for (const key of Object.keys(attrs)) {
+    if (key !== 'class' && key !== 'style') {
+      result[key] = attrs[key]
+    }
+  }
+  return result
+})
+
 const { inputId, classList } = useCheckable(() => ({
   prefix: 'checkbox',
   isChecked: isChecked.value,
@@ -41,6 +56,11 @@ const { inputId, classList } = useCheckable(() => ({
   extraClasses: { 'nm-checkbox--indeterminate': props.indeterminate },
 }))
 
+// Sync native indeterminate property for accessibility
+watch(() => props.indeterminate, (val) => {
+  if (inputRef.value) inputRef.value.indeterminate = val
+}, { immediate: true })
+
 function handleChange(event: Event): void {
   if (props.disabled) { event.preventDefault(); return }
   isChecked.value = (event.target as HTMLInputElement).checked
@@ -48,15 +68,17 @@ function handleChange(event: Event): void {
 </script>
 
 <template>
-  <label :class="classList" :for="inputId">
+  <label :class="[classList, attrs.class]" :style="attrs.style" :for="inputId">
     <span class="nm-checkbox__input-wrapper">
       <input
         :id="inputId"
+        ref="inputRef"
         type="checkbox"
         class="nm-checkbox__input"
         :checked="isChecked"
         :disabled="disabled"
         :name="name"
+        v-bind="inputAttrs"
         @change="handleChange"
       >
       <span class="nm-checkbox__box" aria-hidden="true">

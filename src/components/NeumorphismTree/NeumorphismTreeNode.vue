@@ -2,14 +2,7 @@
 import { computed } from 'vue'
 // Self-import for recursive component reference in <script setup>
 import NeumorphismTreeNode from './NeumorphismTreeNode.vue'
-
-export interface TreeNodeData {
-  key: string
-  label: string
-  children?: TreeNodeData[]
-  disabled?: boolean
-  icon?: string
-}
+import type { TreeNodeData } from '@/composables/useTree'
 
 export interface NeumorphismTreeNodeProps {
   node: TreeNodeData
@@ -32,18 +25,25 @@ const isExpanded = computed(() => props.expandedKeys.includes(props.node.key))
 const isSelected = computed(() => props.selectedKeys.includes(props.node.key))
 const hasChildren = computed(() => !!props.node.children?.length)
 
-const matchesSearch = computed(() => {
-  if (!props.searchText.trim()) return true
-  const lower = props.searchText.toLowerCase()
-  if (props.node.label.toLowerCase().includes(lower)) return true
-  if (props.node.children?.some((c) => matchesNodeSearch(c, lower))) return true
-  return false
-})
+const searchLower = computed(() => props.searchText.toLowerCase().trim())
 
 function matchesNodeSearch(node: TreeNodeData, search: string): boolean {
   if (node.label.toLowerCase().includes(search)) return true
   return node.children?.some((c) => matchesNodeSearch(c, search)) ?? false
 }
+
+const matchesSearch = computed(() => {
+  if (!searchLower.value) return true
+  if (props.node.label.toLowerCase().includes(searchLower.value)) return true
+  return props.node.children?.some((c) => matchesNodeSearch(c, searchLower.value)) ?? false
+})
+
+const labelParts = computed(() => {
+  if (!props.searchText.trim()) return null
+  const escaped = props.searchText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  const parts = props.node.label.split(new RegExp(`(${escaped})`, 'gi'))
+  return parts.filter(Boolean)
+})
 
 function handleToggle() {
   if (hasChildren.value) {
@@ -57,12 +57,6 @@ function handleSelect() {
   }
 }
 
-const collapseStyle = computed(() => {
-  if (!isExpanded.value) {
-    return { maxHeight: '0px', opacity: '0', overflow: 'hidden' }
-  }
-  return { maxHeight: '5000px', opacity: '1', overflow: 'hidden' }
-})
 </script>
 
 <template>
@@ -111,21 +105,23 @@ const collapseStyle = computed(() => {
       <!-- Icon -->
       <span v-if="node.icon" class="nm-tree-node__icon">{{ node.icon }}</span>
 
-      <!-- @slot Custom node label rendering. Bind: node, selected, expanded, level -->
+      <!-- @slot Custom node label rendering. Bind: node, selected, expanded, level, select, toggle -->
       <slot
         name="node-label"
         :node="node"
         :selected="isSelected"
         :expanded="isExpanded"
         :level="level"
+        :select="handleSelect"
+        :toggle="handleToggle"
       >
         <!-- Label with search highlight -->
         <span class="nm-tree-node__label">
-          <template v-if="searchText.trim()">
+          <template v-if="labelParts">
             <span
-              v-for="(part, i) in node.label.split(new RegExp(`(${searchText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi'))"
+              v-for="(part, i) in labelParts"
               :key="i"
-              :class="{ 'nm-tree-node__label--highlight': part.toLowerCase() === searchText.toLowerCase() }"
+              :class="{ 'nm-tree-node__label--highlight': part.toLowerCase() === searchLower }"
             >{{ part }}</span>
           </template>
           <template v-else>{{ node.label }}</template>
@@ -134,7 +130,7 @@ const collapseStyle = computed(() => {
     </div>
 
     <!-- Children -->
-    <ul v-if="hasChildren" class="nm-tree-node__children" :style="collapseStyle">
+    <ul v-if="hasChildren" class="nm-tree-node__children" :class="{ 'nm-tree-node__children--collapsed': !isExpanded }">
       <NeumorphismTreeNode
         v-for="child in node.children"
         :key="child.key"
@@ -253,6 +249,13 @@ const collapseStyle = computed(() => {
   margin: 0;
   padding: 0;
   overflow: hidden;
-  transition: max-height 0.3s cubic-bezier(0.4, 0.0, 0.2, 1.0), opacity 0.3s ease;
+  display: grid;
+  grid-template-rows: 1fr;
+  transition: grid-template-rows 0.3s cubic-bezier(0.4, 0.0, 0.2, 1.0), opacity 0.3s ease;
+
+  &--collapsed {
+    grid-template-rows: 0fr;
+    opacity: 0;
+  }
 }
 </style>

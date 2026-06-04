@@ -286,12 +286,14 @@ $elevation-shadows: (
     background-color var(--nm-transition-slow);
 }
 
-.nm-card--hover-bulge:hover {
-  transform: scale(1.015);
-}
+@media (hover: hover) {
+  .nm-card--hover-bulge:hover {
+    transform: scale(1.015);
+  }
 
-.nm-card--hover-sink:hover {
-  transform: scale(0.985);
-  background-color: var(--nm-surface-raised);
+  .nm-card--hover-sink:hover {
+    transform: scale(0.985);
+    background-color: var(--nm-surface-raised);
+  }
 }
 </style>

@@ -31,9 +31,9 @@ function setValue(val: unknown) {
 
 provide(RadioGroupKey, {
   modelValue: toRef(props, 'modelValue'),
-  name: groupName.value,
-  disabled: props.disabled,
-  size: props.size,
+  name: groupName,
+  disabled: toRef(props, 'disabled'),
+  size: toRef(props, 'size'),
   setValue,
 })
 

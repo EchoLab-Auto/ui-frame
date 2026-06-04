@@ -45,6 +45,8 @@ const { activate, handleKeydown: onKeydown, panelId, orientation } =
     position: computed(() => props.position),
   })
 
+const activeTabs = computed(() => props.tabs.filter((t) => !t.disabled))
+
 const tabRefs = ref<Map<string, HTMLElement>>(new Map())
 
 function setTabRef(key: string, el: unknown) {
@@ -54,8 +56,7 @@ function setTabRef(key: string, el: unknown) {
 function handleKeydown(event: KeyboardEvent, key: string) {
   onKeydown(event, key)
   // Focus the newly activated tab after keyboard navigation
-  const activeTabs = props.tabs.filter((t) => !t.disabled)
-  const activeT = activeTabs.find((t) => t.key === activeKey.value)
+  const activeT = activeTabs.value.find((t) => t.key === activeKey.value)
   if (activeT) {
     nextTick(() => tabRefs.value.get(activeT.key)?.focus())
   }
@@ -76,7 +77,7 @@ const classList = computed(() => [
       :aria-orientation="orientation"
       :aria-label="navLabel"
     >
-      <!-- @slot Custom tab rendering. Bind: tab, active, index -->
+      <!-- @slot Custom tab rendering. Bind: tab, active, index, activate -->
       <slot
         v-for="(tab, index) in tabs"
         :key="tab.key"
@@ -84,6 +85,7 @@ const classList = computed(() => [
         :tab="tab"
         :active="modelValue === tab.key"
         :index="index"
+        :activate="activate"
       >
         <button
           :id="`${panelId}-tab-${tab.key}`"

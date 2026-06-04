@@ -82,14 +82,14 @@ const classList = computed(() => [
       <div
         :id="`${collapseId}-${item.key}-panel`"
         class="nm-collapse__panel"
+        :class="{ 'nm-collapse__panel--collapsed': !isActive(item.key) }"
         role="region"
         :aria-labelledby="`${collapseId}-${item.key}-header`"
       >
-        <div
-          class="nm-collapse__content"
-          :class="{ 'nm-collapse__content--collapsed': !isActive(item.key) }"
-        >
-          <slot :name="item.key" />
+        <div class="nm-collapse__content">
+          <div class="nm-collapse__content-inner">
+            <slot :name="item.key" />
+          </div>
         </div>
       </div>
     </div>
@@ -161,27 +161,34 @@ const classList = computed(() => [
 }
 
 .nm-collapse__panel {
-  overflow: hidden;
+  display: grid;
+  grid-template-rows: 1fr;
+  transition: grid-template-rows 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  &--collapsed {
+    grid-template-rows: 0fr;
+  }
 }
 
 .nm-collapse__content {
+  overflow: hidden;
+  opacity: 1;
+  transition: opacity 0.25s ease;
+}
+
+.nm-collapse__panel--collapsed .nm-collapse__content {
+  opacity: 0;
+}
+
+.nm-collapse__content-inner {
   padding: 16px 20px;
   color: var(--nm-text-primary);
   font-size: 14px;
   line-height: 1.6;
-  max-height: 2000px;
-  opacity: 1;
-  transition: max-height 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.25s ease, padding 0.25s ease;
-
-  &--collapsed {
-    max-height: 0;
-    opacity: 0;
-    padding-top: 0;
-    padding-bottom: 0;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .nm-collapse__panel,
   .nm-collapse__content {
     transition: none;
   }

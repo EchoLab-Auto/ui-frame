@@ -1,8 +1,10 @@
 <script setup lang="ts">
-import { computed, ref, onMounted } from 'vue'
+import { computed, ref, onMounted, watch, nextTick, useAttrs } from 'vue'
 import { useFormField } from '@/composables/useFormField'
 import NeumorphismFieldLabel from '@/components/NeumorphismField/NeumorphismFieldLabel.vue'
 import NeumorphismFieldError from '@/components/NeumorphismField/NeumorphismFieldError.vue'
+
+defineOptions({ inheritAttrs: false })
 
 export interface NeumorphismTextareaProps {
   modelValue?: string
@@ -17,6 +19,7 @@ export interface NeumorphismTextareaProps {
   error?: string | boolean
   name?: string
   id?: string
+  inputmode?: 'none' | 'text' | 'search'
   rows?: number | string
   autoResize?: boolean
   showCount?: boolean
@@ -42,6 +45,18 @@ const emit = defineEmits<{
   (e: 'keydown', event: KeyboardEvent): void
   (e: 'enter', value: string): void
 }>()
+
+const attrs = useAttrs()
+
+const textareaAttrs = computed(() => {
+  const result: Record<string, unknown> = {}
+  for (const key of Object.keys(attrs)) {
+    if (key !== 'class' && key !== 'style') {
+      result[key] = attrs[key]
+    }
+  }
+  return result
+})
 
 const { fieldId, errorMessage, baseClassList, handleFocus, handleBlur } =
   useFormField(() => ({
@@ -90,10 +105,16 @@ function handleKeydown(event: KeyboardEvent): void {
 onMounted(() => {
   adjustHeight()
 })
+
+watch(() => props.modelValue, () => {
+  if (props.autoResize) {
+    nextTick(adjustHeight)
+  }
+})
 </script>
 
 <template>
-  <div class="nm-textarea__wrapper">
+  <div class="nm-textarea__wrapper" :class="attrs.class" :style="attrs.style">
     <NeumorphismFieldLabel :label="label" :required="required" :for-id="fieldId" />
     <div :class="classList">
       <textarea
@@ -110,8 +131,10 @@ onMounted(() => {
         :minlength="minlength"
         :rows="rows"
         :name="name"
+        :inputmode="inputmode"
         :aria-invalid="!!error"
         :aria-errormessage="errorMessage ? `${fieldId}-error` : undefined"
+        v-bind="textareaAttrs"
         @input="handleInput"
         @change="handleChange"
         @focus="(e: FocusEvent) => handleFocus(e, emit)"

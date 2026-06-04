@@ -74,7 +74,7 @@ function handleClick(event: MouseEvent): void {
     @click="handleClick"
   >
     <span v-if="loading" class="nm-button__spinner">
-      <svg v-once viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <svg v-once class="nm-button__spinner-svg" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
         <circle
           cx="12"
           cy="12"
@@ -84,16 +84,7 @@ function handleClick(event: MouseEvent): void {
           stroke-linecap="round"
           stroke-dasharray="31.42"
           stroke-dashoffset="10"
-        >
-          <animateTransform
-            attributeName="transform"
-            type="rotate"
-            from="0 12 12"
-            to="360 12 12"
-            dur="1s"
-            repeatCount="indefinite"
-          />
-        </circle>
+        />
       </svg>
     </span>
     <span class="nm-button__content" :class="{ 'nm-button__content--hidden': loading }">
@@ -141,21 +132,21 @@ function handleClick(event: MouseEvent): void {
 
 // ---------- Size variants ----------
 .nm-button--small {
-  padding: 8px 16px;
-  font-size: 13px;
-  min-height: 32px;
+  padding: var(--nm-button-padding-y-sm) var(--nm-button-padding-x-sm);
+  font-size: var(--nm-button-font-sm);
+  min-height: var(--nm-button-min-height-sm);
 }
 
 .nm-button--medium {
-  padding: 12px 24px;
-  font-size: 14px;
-  min-height: 44px;
+  padding: var(--nm-button-padding-y-md) var(--nm-button-padding-x-md);
+  font-size: var(--nm-button-font-md);
+  min-height: var(--nm-button-min-height-md);
 }
 
 .nm-button--large {
-  padding: 16px 32px;
-  font-size: 16px;
-  min-height: 56px;
+  padding: var(--nm-button-padding-y-lg) var(--nm-button-padding-x-lg);
+  font-size: var(--nm-button-font-lg);
+  min-height: var(--nm-button-min-height-lg);
 }
 
 // ---------- Shape variants ----------
@@ -282,6 +273,15 @@ function handleClick(event: MouseEvent): void {
     width: 100%;
     height: 100%;
   }
+}
+
+.nm-button__spinner-svg {
+  animation: nm-spin 1s linear infinite;
+}
+
+@keyframes nm-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
 .nm-button__content {

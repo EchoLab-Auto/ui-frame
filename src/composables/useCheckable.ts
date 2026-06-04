@@ -16,9 +16,9 @@ export interface UseCheckableOptions {
 export function useCheckable(options: () => UseCheckableOptions) {
   const opts = computed(options)
 
-  const inputId = computed(() =>
-    generateId(`nm-${opts.value.prefix}`)
-  )
+  // Generate ID once — must be stable across the component's lifetime
+  const initialCfg = options()
+  const inputId = generateId(`nm-${initialCfg.prefix}`)
 
   const classList = computed(() => [
     `nm-${opts.value.prefix}`,

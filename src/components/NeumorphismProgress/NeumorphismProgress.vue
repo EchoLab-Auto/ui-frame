@@ -94,7 +94,7 @@ const variantColors: Record<ProgressVariant, string> = {
   animation: nm-progress-indeterminate 1.5s ease-in-out infinite;
 }
 
-.nm-progress--striped .nm-progress__bar:not(.nm-progress--indeterminate) {
+.nm-progress--striped:not(.nm-progress--indeterminate) .nm-progress__bar {
   background-image: linear-gradient(
     -45deg,
     rgba(255, 255, 255, 0.2) 25%,

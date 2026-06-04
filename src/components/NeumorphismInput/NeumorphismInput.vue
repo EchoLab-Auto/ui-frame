@@ -1,9 +1,11 @@
 <script setup lang="ts">
-import { computed, useSlots } from 'vue'
+import { computed, useSlots, useAttrs } from 'vue'
 import { useFormField } from '@/composables/useFormField'
 import { useConfig } from '@/composables/useConfig'
 import NeumorphismFieldLabel from '@/components/NeumorphismField/NeumorphismFieldLabel.vue'
 import NeumorphismFieldError from '@/components/NeumorphismField/NeumorphismFieldError.vue'
+
+defineOptions({ inheritAttrs: false })
 
 export type InputSize = 'small' | 'medium' | 'large'
 
@@ -20,6 +22,7 @@ export interface NeumorphismInputProps {
   name?: string
   id?: string
   autocomplete?: string
+  inputmode?: 'none' | 'text' | 'tel' | 'url' | 'email' | 'numeric' | 'decimal' | 'search'
   error?: string | boolean
   label?: string
 }
@@ -48,6 +51,17 @@ const emit = defineEmits<{
 }>()
 
 const slots = useSlots()
+const attrs = useAttrs()
+
+const inputAttrs = computed(() => {
+  const result: Record<string, unknown> = {}
+  for (const key of Object.keys(attrs)) {
+    if (key !== 'class' && key !== 'style') {
+      result[key] = attrs[key]
+    }
+  }
+  return result
+})
 
 const { fieldId, errorMessage, baseClassList, handleFocus, handleBlur } =
   useFormField(() => ({
@@ -90,7 +104,7 @@ function handleKeydown(event: KeyboardEvent): void {
 </script>
 
 <template>
-  <div class="nm-input__wrapper">
+  <div class="nm-input__wrapper" :class="attrs.class" :style="attrs.style">
     <NeumorphismFieldLabel :label="label" :required="required" :for-id="fieldId" />
 
     <div :class="classList">
@@ -110,10 +124,12 @@ function handleKeydown(event: KeyboardEvent): void {
         :minlength="minlength"
         :name="name"
         :autocomplete="autocomplete"
+        :inputmode="inputmode"
         :aria-invalid="!!error"
         :aria-errormessage="errorMessage ? `${fieldId}-error` : undefined"
         :aria-describedby="errorMessage ? `${fieldId}-error` : undefined"
         class="nm-input__field"
+        v-bind="inputAttrs"
         @input="handleInput"
         @change="handleChange"
         @focus="(e: FocusEvent) => handleFocus(e, emit)"

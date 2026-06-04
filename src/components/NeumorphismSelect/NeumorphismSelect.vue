@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, watch, nextTick } from 'vue'
 import { useSelect } from '@/composables/useSelect'
 import type { SelectOption } from '@/composables/useSelect'
 import { useFormField } from '@/composables/useFormField'
@@ -57,7 +57,7 @@ const modelRef = computed({
   },
 })
 
-const { isOpen, selectedOption, toggleOpen, clearValue, handleKeydown, handleBlur: onSelectBlur } =
+const { isOpen, selectedOption, toggleOpen, selectOption, clearValue, handleKeydown, handleBlur: onSelectBlur } =
   useSelect({
     modelValue: modelRef,
     options: computed(() => props.options),
@@ -86,7 +86,44 @@ function onClear(event: Event) {
   clearValue()
 }
 
+const triggerRef = ref<HTMLElement>()
+const dropdownRef = ref<HTMLElement>()
+const dropdownPosition = ref({ top: 0, left: 0, width: 0 })
+
+function updateDropdownPosition() {
+  if (!triggerRef.value) return
+  const rect = triggerRef.value.getBoundingClientRect()
+  dropdownPosition.value = {
+    top: rect.bottom + window.scrollY + 6,
+    left: rect.left + window.scrollX,
+    width: rect.width,
+  }
+}
+
+watch(isOpen, (open) => {
+  if (open) {
+    nextTick(updateDropdownPosition)
+    window.addEventListener('scroll', updateDropdownPosition, true)
+    window.addEventListener('resize', updateDropdownPosition)
+  } else {
+    window.removeEventListener('scroll', updateDropdownPosition, true)
+    window.removeEventListener('resize', updateDropdownPosition)
+  }
+})
+
+const dropdownStyle = computed(() => ({
+  position: 'fixed' as const,
+  top: `${dropdownPosition.value.top}px`,
+  left: `${dropdownPosition.value.left}px`,
+  width: `${dropdownPosition.value.width}px`,
+}))
+
 function onContainerBlur(e: FocusEvent) {
+  // When dropdown is teleported to body, focus may move to dropdown items.
+  // Don't close in that case — let the click handler do its work.
+  if (dropdownRef.value?.contains(e.relatedTarget as Node)) {
+    return
+  }
   onSelectBlur(e.relatedTarget, e.currentTarget as HTMLElement)
   handleBlur(e, emit)
 }
@@ -96,6 +133,7 @@ function onContainerBlur(e: FocusEvent) {
   <div class="nm-select__wrapper">
     <NeumorphismFieldLabel :label="label" :required="required" :for-id="fieldId" />
     <div
+      ref="triggerRef"
       :class="classList"
       :tabindex="disabled ? -1 : 0"
       role="combobox"
@@ -134,36 +172,39 @@ function onContainerBlur(e: FocusEvent) {
         </svg>
       </span>
 
-      <transition name="nm-select-dropdown">
-        <div v-if="isOpen" class="nm-select__dropdown" role="listbox" :aria-label="label || '选项列表'">
-          <!-- @slot Custom option rendering. Bind: option, selected, index -->
-          <slot
-            v-for="(option, index) in options"
-            :key="option.value"
-            name="option"
-            :option="option"
-            :selected="option.value === modelValue"
-            :index="index"
-          >
-            <div
-              class="nm-select__option"
-              :class="{
-                'nm-select__option--selected': option.value === modelValue,
-                'nm-select__option--disabled': option.disabled,
-              }"
-              role="option"
-              :aria-selected="option.value === modelValue"
-              :aria-disabled="option.disabled"
-              @click.stop="modelRef = option.value"
+      <teleport to="body">
+        <transition name="nm-select-dropdown">
+          <div v-if="isOpen" ref="dropdownRef" class="nm-select__dropdown" role="listbox" :aria-label="label || '选项列表'" :style="dropdownStyle">
+            <!-- @slot Custom option rendering. Bind: option, selected, index, select -->
+            <slot
+              v-for="(option, index) in options"
+              :key="option.value"
+              name="option"
+              :option="option"
+              :selected="option.value === modelValue"
+              :index="index"
+              :select="selectOption"
             >
-              {{ option.label }}
+              <div
+                class="nm-select__option"
+                :class="{
+                  'nm-select__option--selected': option.value === modelValue,
+                  'nm-select__option--disabled': option.disabled,
+                }"
+                role="option"
+                :aria-selected="option.value === modelValue"
+                :aria-disabled="option.disabled"
+                @click.stop="selectOption(option)"
+              >
+                {{ option.label }}
+              </div>
+            </slot>
+            <div v-if="options.length === 0" class="nm-select__option nm-select__option--empty">
+              {{ emptyText }}
             </div>
-          </slot>
-          <div v-if="options.length === 0" class="nm-select__option nm-select__option--empty">
-            {{ emptyText }}
           </div>
-        </div>
-      </transition>
+        </transition>
+      </teleport>
     </div>
     <NeumorphismFieldError :id="`${fieldId}-error`" :message="errorMessage" />
   </div>

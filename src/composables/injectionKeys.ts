@@ -2,10 +2,10 @@ import type { InjectionKey, Ref } from 'vue'
 import type { FormRule } from './useFormValidation'
 
 export interface RadioGroupContext {
-  modelValue: unknown
-  name: string
-  disabled: boolean
-  size: string
+  modelValue: Ref<unknown>
+  name: Ref<string>
+  disabled: Ref<boolean>
+  size: Ref<string>
   setValue: (val: unknown) => void
 }
 

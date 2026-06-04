@@ -21,9 +21,9 @@ export function useFormField(config: () => FormFieldConfig) {
 
   const cfg = computed(config)
 
-  const fieldId = computed(() =>
-    cfg.value.id || generateId(`nm-${cfg.value.prefix}`)
-  )
+  // Generate ID once — if no explicit id is provided, the auto-generated one stays stable
+  const initialCfg = config()
+  const fieldId = initialCfg.id || generateId(`nm-${initialCfg.prefix}`)
 
   const errorMessage = computed(() =>
     typeof cfg.value.error === 'string' ? cfg.value.error : ''

@@ -21,7 +21,7 @@ const props = withDefaults(defineProps<NeumorphismDividerProps>(), {
 const classList = computed(() => [
   'nm-divider',
   `nm-divider--${props.direction}`,
-  `nm-divider--${props.align}`,
+  ...(props.direction === 'horizontal' ? [`nm-divider--${props.align}`] : []),
   {
     'nm-divider--dashed': props.dashed,
     'nm-divider--inset': props.inset,
@@ -67,12 +67,17 @@ const classList = computed(() => [
 
   &--dashed {
     border-top-style: dashed;
-    .nm-divider--vertical & { border-left-style: dashed; }
+
+    &.nm-divider--vertical {
+      border-left-style: dashed;
+    }
   }
 
-  &--left   { &::before { content: none; } }
-  &--right  { &::after  { content: none; } }
-  &--center { }
+  &--left,
+  &--right,
+  &--center {
+    // Alignment is handled via pseudo-elements on .nm-divider__text
+  }
 }
 
 .nm-divider__text {
@@ -103,5 +108,11 @@ const classList = computed(() => [
   &::after {
     left: 100%;
   }
+}
+
+// Align: hide the relevant pseudo-element
+.nm-divider--left.nm-divider--horizontal .nm-divider__text::before,
+.nm-divider--right.nm-divider--horizontal .nm-divider__text::after {
+  content: none;
 }
 </style>
