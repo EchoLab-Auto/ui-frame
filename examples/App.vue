@@ -3,8 +3,28 @@ import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import type { Theme } from '../src/composables/useTheme'
 
 // ---- 主题状态 ----
-const isDark = ref(false)
 const themeValue = ref<Theme>('auto')
+const systemDark = ref(window.matchMedia('(prefers-color-scheme: dark)').matches)
+
+const isDark = computed(() => {
+  if (themeValue.value === 'auto') return systemDark.value
+  return themeValue.value === 'dark'
+})
+
+let mediaQuery: MediaQueryList | undefined
+let systemThemeHandler: ((e: MediaQueryListEvent) => void) | undefined
+
+onMounted(() => {
+  mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
+  systemThemeHandler = (e: MediaQueryListEvent) => { systemDark.value = e.matches }
+  mediaQuery.addEventListener('change', systemThemeHandler)
+})
+
+onBeforeUnmount(() => {
+  if (mediaQuery && systemThemeHandler) {
+    mediaQuery.removeEventListener('change', systemThemeHandler)
+  }
+})
 
 // ---- 组件分类导航 ----
 const navCategories = [
@@ -365,8 +385,7 @@ function calcEdgePath(from: typeof flowNodes[number], to: typeof flowNodes[numbe
       </template>
 
       <template #header-right>
-        <NeumorphismSwitch v-model="isDark" size="small" />
-        <span class="theme-label">{{ isDark ? '暗色' : '亮色' }}</span>
+        <NeumorphismThemeToggle v-model="themeValue" size="small" />
       </template>
 
       <!-- ===== SIDER NAVIGATION ===== -->
@@ -1470,13 +1489,6 @@ function calcEdgePath(from: typeof flowNodes[number], to: typeof flowNodes[numbe
   font-size: 17px;
   font-weight: 700;
   letter-spacing: -0.3px;
-}
-
-.theme-label {
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--nm-text-secondary);
-  min-width: 28px;
 }
 
 // ---- Sider Navigation ----
