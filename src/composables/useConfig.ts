@@ -98,6 +98,8 @@ export interface NeumorphismGlobalConfig {
   }
   /** Whether to use RTL (right-to-left) direction */
   rtl?: boolean
+  /** Extension: consumers can add custom component config sections. */
+  [configSection: string]: unknown
 }
 
 export const ConfigKey: InjectionKey<ComputedRef<NeumorphismGlobalConfig>> =

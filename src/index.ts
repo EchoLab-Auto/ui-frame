@@ -2,6 +2,7 @@ import type { App } from 'vue'
 import { computed } from 'vue'
 import type { NeumorphismGlobalConfig } from './composables/useConfig'
 import { ConfigKey } from './composables/useConfig'
+import type { NeumorphismPluginOptions, ComponentOverrides } from './extensions/types'
 
 import {
   NeumorphismButton,
@@ -236,6 +237,16 @@ export { generateId, debounce, isEmpty } from './utils'
 export { useConfig, ConfigKey } from './composables/useConfig'
 export type { NeumorphismGlobalConfig } from './composables/useConfig'
 
+// Extension system
+export { ComponentRegistry } from './extensions/componentRegistry'
+export { useNeumorphismSetup } from './extensions/createComponent'
+export type { NeumorphismSetupContext } from './extensions/createComponent'
+export type { ComponentOverrides, NeumorphismPluginOptions, ExtendedConfig } from './extensions/types'
+
+// Public injection keys — for building custom components that participate in protocols
+export { RadioGroupKey, FormKey, RowGutterKey } from './composables/injectionKeys'
+export type { RadioGroupContext, FormContext, RowGutterContext } from './composables/injectionKeys'
+
 // Install function — registers all components globally
 const NAME_TO_COMPONENT = {
   NeumorphismButton,
@@ -273,14 +284,42 @@ const NAME_TO_COMPONENT = {
   NeumorphismCanvas,
 } as const
 
-export function install(app: App, options?: NeumorphismGlobalConfig): void {
+/**
+ * Register all built-in components plus any consumer-provided overrides.
+ *
+ * Supports both legacy and new plugin option formats:
+ * - `app.use(NeumorphismUI, { button: { size: 'large' } })`   (legacy, unchanged)
+ * - `app.use(NeumorphismUI, { config: {...}, components: {...}, prefix: 'X' })`   (new)
+ */
+export function install(app: App, options?: NeumorphismGlobalConfig | NeumorphismPluginOptions): void {
+  const raw = (options ?? {}) as Record<string, unknown>
+  const isNew = 'config' in raw || 'components' in raw || 'prefix' in raw
+
+  const pluginConfig: NeumorphismGlobalConfig | undefined = isNew
+    ? (raw.config as NeumorphismGlobalConfig | undefined)
+    : (options as NeumorphismGlobalConfig | undefined)
+
+  const overrides: ComponentOverrides = isNew
+    ? ((raw.components ?? {}) as ComponentOverrides)
+    : {}
+
+  const prefix: string = isNew ? ((raw.prefix ?? '') as string) : ''
+
   // Provide global config for all components to use as defaults
-  if (options) {
-    app.provide(ConfigKey, computed(() => options))
+  if (pluginConfig) {
+    app.provide(ConfigKey, computed(() => pluginConfig))
   }
 
-  for (const [name, component] of Object.entries(NAME_TO_COMPONENT)) {
-    app.component(name, component)
+  // Register default components, applying overrides where they exist
+  for (const [name, defaultComponent] of Object.entries(NAME_TO_COMPONENT)) {
+    app.component(`${prefix}${name}`, overrides[name] ?? defaultComponent)
+  }
+
+  // Register any additional components not in the default set
+  for (const [name, component] of Object.entries(overrides)) {
+    if (!(name in NAME_TO_COMPONENT)) {
+      app.component(`${prefix}${name}`, component)
+    }
   }
 }
 

@@ -18,6 +18,10 @@
       "import": "./dist/composables/*",
       "types": "./dist/composables/*.d.ts"
     },
+    "./extensions": {
+      "import": "./dist/extensions/index.js",
+      "types": "./dist/extensions/index.d.ts"
+    },
     "./utils": {
       "import": "./dist/utils/index.js",
       "types": "./dist/utils/index.d.ts"
