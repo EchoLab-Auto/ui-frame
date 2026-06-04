@@ -93,6 +93,18 @@ function handleChange(event: Event): void {
 <style scoped lang="scss">
 @use '@/styles/variables.scss' as *;
 
+// ==========================================
+// Physics Constants
+// ==========================================
+// Spring curve with overshoot: peak velocity → slight overshoot → settle
+$switch-spring: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
+// Quick compression for active state
+$switch-compress: cubic-bezier(0.4, 0, 0.2, 1);
+
+// Smooth color/shadow transition
+$switch-ambient: cubic-bezier(0.4, 0, 0.2, 1);
+
 .nm-switch {
   display: inline-flex;
   align-items: center;
@@ -109,7 +121,7 @@ function handleChange(event: Event): void {
 .nm-switch__label {
   font-size: 14px;
   color: var(--nm-text-secondary);
-  transition: color var(--nm-transition-slow);
+  transition: color 0.4s $switch-ambient;
 
   &--active {
     color: var(--nm-text-primary);
@@ -137,69 +149,161 @@ function handleChange(event: Event): void {
   height: 0;
 }
 
-// Track - inset shadow
+// ==========================================
+// Track — concave surface with breathing shadow
+// ==========================================
 .nm-switch__track {
   position: relative;
   display: block;
   background-color: var(--nm-surface-color);
   cursor: pointer;
-  transition: background-color var(--nm-transition-slow), box-shadow var(--nm-transition-slow);
+  transition:
+    background-color 0.45s $switch-ambient,
+    box-shadow 0.45s $switch-ambient;
   @include nm-inset-strong(3px, 6px);
 }
 
-// Thumb — raised shadow, slides with critically-damped motion (no overshoot)
+// Unchecked: subtle inner glow hint on the left
+.nm-switch__track::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  opacity: 0;
+  transition: opacity 0.45s $switch-ambient;
+  background: radial-gradient(
+    ellipse 80% 80% at 20% 50%,
+    rgba(108, 122, 224, 0) 0%,
+    rgba(108, 122, 224, 0) 100%
+  );
+}
+
+// Checked: deeper inset + ambient glow
+.nm-switch--checked .nm-switch__track {
+  background-color: var(--nm-surface-raised);
+  box-shadow:
+    inset 4px 4px 8px var(--nm-shadow-dark-strong),
+    inset -4px -4px 8px var(--nm-shadow-light-strong);
+}
+
+.nm-switch--checked .nm-switch__track::before {
+  opacity: 0.08;
+  background: radial-gradient(
+    ellipse 70% 90% at 80% 50%,
+    rgba(108, 122, 224, 0.4) 0%,
+    transparent 70%
+  );
+}
+
+// ==========================================
+// Thumb — physical toggle with spring physics
+// ==========================================
 .nm-switch__thumb {
   --nm-switch-gap: 3px;
   --nm-switch-shift: 0px;
+  --nm-switch-stretch: 0px;
 
   position: absolute;
   top: 50%;
   inset-inline-start: var(--nm-switch-gap);
-  transform: translateY(-50%) translateX(var(--nm-switch-shift));
-  background-color: var(--nm-bg-color);
+  // translateX gets animated; scaleX/Y adds squash-and-stretch
+  transform:
+    translateY(-50%)
+    translateX(var(--nm-switch-shift))
+    scaleX(calc(1 + var(--nm-switch-stretch)))
+    scaleY(calc(1 - var(--nm-switch-stretch) * 0.5));
+  transform-origin: center center;
+  background: linear-gradient(145deg, var(--nm-bg-color) 0%, var(--nm-surface-raised) 100%);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   transition:
-    transform 0.35s cubic-bezier(0.4, 0.0, 0.2, 1.0),
-    background-color var(--nm-transition-slow),
-    box-shadow var(--nm-transition-slow);
+    transform       0.5s $switch-spring,
+    background      0.4s $switch-ambient,
+    box-shadow      0.4s $switch-ambient,
+    width           0.25s $switch-compress,
+    height          0.25s $switch-compress;
   box-shadow:
-    0 1px 2px rgba(0, 0, 0, 0.08),
-    2px 2px 4px var(--nm-shadow-dark),
-    -1px -1px 3px var(--nm-shadow-light);
+    1px 2px 4px rgba(0, 0, 0, 0.12),
+    2px 2px 6px var(--nm-shadow-dark),
+    -1px -1px 4px var(--nm-shadow-light);
 }
 
-// Default thumb dot — visible when unchecked
+// Default thumb dot
 .nm-switch__thumb-dot {
-  width: 40%;
-  height: 40%;
+  width: 36%;
+  height: 36%;
   border-radius: 50%;
   background-color: var(--nm-text-placeholder);
-  transition: background-color var(--nm-transition-slow);
+  transition:
+    background-color 0.4s $switch-ambient,
+    transform        0.3s $switch-compress;
 }
 
 .nm-switch--checked .nm-switch__thumb-dot {
   background-color: var(--nm-primary-color);
 }
 
-// ---------- Size variants ----------
+// ==========================================
+// Active / click feedback — squash & stretch
+// ==========================================
 
+// Pressing the track (unchecked side) → thumb compresses
+.nm-switch:active:not(.nm-switch--disabled):not(.nm-switch--checked) .nm-switch__thumb {
+  --nm-switch-stretch: 0.18;
+  transition-duration: 0.12s;
+  transition-timing-function: ease-out;
+}
+
+// Pressing the track (checked side) → thumb compresses toward left
+.nm-switch:active:not(.nm-switch--disabled).nm-switch--checked .nm-switch__thumb {
+  --nm-switch-stretch: 0.18;
+  transition-duration: 0.12s;
+  transition-timing-function: ease-out;
+}
+
+// Also trigger via the hidden checkbox for keyboard users
+.nm-switch__input:active + .nm-switch__track .nm-switch__thumb {
+  --nm-switch-stretch: 0.18;
+  transition-duration: 0.12s;
+}
+
+// ==========================================
+// Checked state — glow + shadow follow
+// ==========================================
+.nm-switch--checked .nm-switch__thumb {
+  background: linear-gradient(145deg, var(--nm-surface-raised) 0%, var(--nm-bg-color) 100%);
+  box-shadow:
+    2px 2px 6px rgba(0, 0, 0, 0.1),
+    3px 3px 8px var(--nm-shadow-dark),
+    -1px -1px 4px var(--nm-shadow-light),
+    0 0 14px rgba(108, 122, 224, 0.22),
+    0 0 4px rgba(108, 122, 224, 0.35);
+}
+
+// Thumb dot pulse on checked
+.nm-switch--checked .nm-switch__thumb-dot {
+  transform: scale(1.15);
+}
+
+// ==========================================
+// Size variants
+// ==========================================
 .nm-switch--small {
   .nm-switch__track {
-    width: 40px;
-    height: 22px;
-    border-radius: 11px;
+    width: 44px;
+    height: 24px;
+    border-radius: 12px;
   }
 
   .nm-switch__thumb {
-    width: 16px;
-    height: 16px;
+    width: 18px;
+    height: 18px;
   }
 
   &.nm-switch--checked .nm-switch__thumb {
-    --nm-switch-shift: 18px; // track(40) - thumb(16) - 2 * gap(3)
+    --nm-switch-shift: 20px; // track(44) - thumb(18) - 2 * gap(3)
   }
 }
 
@@ -237,14 +341,9 @@ function handleChange(event: Event): void {
   }
 }
 
-// ---------- Checked state ----------
-.nm-switch--checked {
-  .nm-switch__thumb {
-    background-color: var(--nm-surface-raised);
-  }
-}
-
-// ---------- Focus ----------
+// ==========================================
+// Focus
+// ==========================================
 .nm-switch__input:focus-visible + .nm-switch__track {
   box-shadow:
     0 0 0 2px var(--nm-primary-color),
@@ -252,8 +351,23 @@ function handleChange(event: Event): void {
     inset -3px -3px 6px var(--nm-shadow-light-strong);
 }
 
-// ---------- Disabled ----------
+// ==========================================
+// Disabled
+// ==========================================
 .nm-switch--disabled .nm-switch__track {
   cursor: not-allowed;
+}
+
+// ==========================================
+// Reduced motion
+// ==========================================
+@media (prefers-reduced-motion: reduce) {
+  .nm-switch__track,
+  .nm-switch__thumb,
+  .nm-switch__thumb-dot,
+  .nm-switch__label,
+  .nm-switch__track::before {
+    transition: none !important;
+  }
 }
 </style>
