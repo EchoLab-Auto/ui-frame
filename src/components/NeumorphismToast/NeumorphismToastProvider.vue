@@ -1,25 +1,9 @@
 <script setup lang="ts">
-import { ref, computed, onBeforeUnmount } from 'vue'
+import { computed } from 'vue'
+import { useToast } from '@/composables/useToast'
+import type { ToastType, ToastPosition, ToastItem, ToastOptions } from '@/composables/useToast'
 
-export type ToastType = 'info' | 'success' | 'warning' | 'error'
-export type ToastPosition = 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right' | 'top-center' | 'bottom-center'
-
-export interface ToastItem {
-  id: string
-  message: string
-  type: ToastType
-  duration: number
-  closable: boolean
-  timestamp: number
-  leaving: boolean
-}
-
-export interface ToastOptions {
-  message: string
-  type?: ToastType
-  duration?: number
-  closable?: boolean
-}
+export type { ToastType, ToastPosition, ToastItem, ToastOptions }
 
 export interface NeumorphismToastProviderProps {
   position?: ToastPosition
@@ -31,63 +15,9 @@ const props = withDefaults(defineProps<NeumorphismToastProviderProps>(), {
   maxCount: 5,
 })
 
-const toasts = ref<ToastItem[]>([])
-let idCounter = 0
-const timers = new Map<string, ReturnType<typeof setTimeout>>()
-
-function clearToastTimers(id: string) {
-  const timer = timers.get(id)
-  if (timer) {
-    clearTimeout(timer)
-    timers.delete(id)
-  }
-}
-
-function addToast(options: ToastOptions): string {
-  const id = `nm-toast-${++idCounter}`
-  const item: ToastItem = {
-    id,
-    message: options.message,
-    type: options.type || 'info',
-    duration: options.duration ?? 3000,
-    closable: options.closable ?? true,
-    timestamp: Date.now(),
-    leaving: false,
-  }
-
-  toasts.value = [...toasts.value.slice(Math.max(0, toasts.value.length - (props.maxCount - 1))), item]
-
-  if (item.duration > 0) {
-    clearToastTimers(id)
-    timers.set(id, setTimeout(() => removeToast(id), item.duration))
-  }
-
-  return id
-}
-
-function removeToast(id: string) {
-  clearToastTimers(id)
-  const item = toasts.value.find((t) => t.id === id)
-  if (item) item.leaving = true
-  timers.set(id, setTimeout(() => {
-    toasts.value = toasts.value.filter((t) => t.id !== id)
-    timers.delete(id)
-  }, 250))
-}
-
-function clearAll() {
-  timers.forEach((t) => clearTimeout(t))
-  timers.clear()
-  toasts.value.forEach((t) => { t.leaving = true })
-  timers.set('__clearAll', setTimeout(() => {
-    toasts.value = []
-    timers.delete('__clearAll')
-  }, 250))
-}
-
-onBeforeUnmount(() => {
-  timers.forEach((t) => clearTimeout(t))
-  timers.clear()
+// Use headless toast composable for all behavioral logic
+const { toasts, addToast, removeToast, clearAll } = useToast({
+  maxCount: props.maxCount,
 })
 
 defineExpose({ addToast, removeToast, clearAll, toasts })
@@ -102,32 +32,39 @@ const classList = computed(() => [
   <teleport to="body">
     <div :class="classList" aria-live="polite" aria-atomic="false">
       <transition-group name="nm-toast-list">
-        <div
+        <!-- @slot Custom toast item rendering. Bind: toast -->
+        <slot
           v-for="toast in toasts"
           :key="toast.id"
-          class="nm-toast"
-          :class="[`nm-toast--${toast.type}`, { 'nm-toast--leaving': toast.leaving }]"
-          role="status"
+          name="toast-item"
+          :toast="toast"
+          :remove="() => removeToast(toast.id)"
         >
-          <span class="nm-toast__icon">
-            <svg v-if="toast.type === 'success'" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 13l4 4L19 7"/></svg>
-            <svg v-else-if="toast.type === 'error'" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></svg>
-            <svg v-else-if="toast.type === 'warning'" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 22h20L12 2zM12 9v4M12 17v1"/></svg>
-            <svg v-else width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8v-1"/></svg>
-          </span>
-          <span class="nm-toast__message">{{ toast.message }}</span>
-          <button
-            v-if="toast.closable"
-            class="nm-toast__close"
-            @click="removeToast(toast.id)"
-            :aria-label="'关闭通知'"
-            type="button"
+          <div
+            class="nm-toast"
+            :class="[`nm-toast--${toast.type}`, { 'nm-toast--leaving': toast.leaving }]"
+            role="status"
           >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M18 6L6 18M6 6l12 12"/>
-            </svg>
-          </button>
-        </div>
+            <span class="nm-toast__icon">
+              <svg v-if="toast.type === 'success'" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 13l4 4L19 7"/></svg>
+              <svg v-else-if="toast.type === 'error'" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></svg>
+              <svg v-else-if="toast.type === 'warning'" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 22h20L12 2zM12 9v4M12 17v1"/></svg>
+              <svg v-else width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8v-1"/></svg>
+            </span>
+            <span class="nm-toast__message">{{ toast.message }}</span>
+            <button
+              v-if="toast.closable"
+              class="nm-toast__close"
+              @click="removeToast(toast.id)"
+              :aria-label="'关闭通知'"
+              type="button"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M18 6L6 18M6 6l12 12"/>
+              </svg>
+            </button>
+          </div>
+        </slot>
       </transition-group>
     </div>
   </teleport>

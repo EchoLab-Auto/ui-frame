@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import type { Theme } from '../src/composables/useTheme'
+import { useSelect } from '../src/composables/useSelect'
+import { usePagination } from '../src/composables/usePagination'
+import { useToast } from '../src/composables/useToast'
 
 // ---- 主题状态 ----
 const themeValue = ref<Theme>('auto')
@@ -26,8 +29,84 @@ onBeforeUnmount(() => {
   }
 })
 
+// ==========================================
+// 解耦能力演示 — Headless Composables
+// ==========================================
+
+// --- useSelect demo: 自定义 UI 选择器 ---
+const headlessSelectValue = ref('vue')
+const headlessSelectOptions = computed(() => [
+  { label: 'Vue 3', value: 'vue' },
+  { label: 'React 18', value: 'react' },
+  { label: 'Angular 16', value: 'angular' },
+  { label: 'Svelte 4（已禁用）', value: 'svelte', disabled: true },
+  { label: 'Solid.js', value: 'solid' },
+])
+
+const {
+  isOpen: hsOpen,
+  selectedOption: hsSelected,
+  toggleOpen: hsToggle,
+  selectOption: hsSelect,
+  handleKeydown: hsKeydown,
+  handleBlur: hsBlur,
+} = useSelect({
+  modelValue: headlessSelectValue,
+  options: headlessSelectOptions,
+  disabled: ref(false),
+})
+
+// --- usePagination demo: 自定义分页 ---
+const headlessPage = ref(1)
+const {
+  totalPages: hsTotalPages,
+  currentPage: hsCurrentPage,
+  visiblePages: hsVisiblePages,
+  changePage: hsChangePage,
+  prevPage: hsPrevPage,
+  nextPage: hsNextPage,
+  isPrevDisabled: hsPrevDisabled,
+  isNextDisabled: hsNextDisabled,
+} = usePagination({
+  modelValue: headlessPage,
+  total: computed(() => 100),
+  pageSize: computed(() => 10),
+})
+
+// --- useToast demo: 自定义 Toast ---
+const {
+  toasts: hsToasts,
+  addToast: hsAddToast,
+  removeToast: hsRemoveToast,
+} = useToast({ maxCount: 5 })
+
+let hsToastCounter = 0
+function showHeadlessToast(type: string) {
+  hsToastCounter++
+  hsAddToast({
+    message: `Headless toast #${hsToastCounter} — ${type}`,
+    type: type as any,
+    duration: 3000,
+  })
+}
+
+// ---- headlessSelect 的 blur 包装 ----
+function onHsBlur(e: FocusEvent) {
+  hsBlur(e.relatedTarget, e.currentTarget as HTMLElement)
+}
+
 // ---- 组件分类导航 ----
 const navCategories = [
+  {
+    title: '解耦能力',
+    items: [
+      { id: 'headless-select', label: 'Headless Select' },
+      { id: 'headless-pagination', label: 'Headless 分页' },
+      { id: 'headless-toast', label: 'Headless Toast' },
+      { id: 'slot-demo', label: 'Slot 自定义' },
+      { id: 'config-demo', label: '全局配置' },
+    ],
+  },
   {
     title: '基础输入',
     items: [
@@ -417,13 +496,325 @@ function calcEdgePath(from: typeof flowNodes[number], to: typeof flowNodes[numbe
             <h1 class="hero-title">@echolab/ui-frame</h1>
             <p class="hero-desc">
               Vue 3 新拟态（Soft UI）UI 组件库，共
-              <strong>{{ 30 }}</strong> 个组件。统一的台阶高度模型、完整的暗色模式支持、移动端与触屏适配。
+              <strong>30</strong> 个组件。<strong>8 个 Headless Composables</strong> 支持业务逻辑与 UI 完全解耦，
+              120+ CSS 设计 Token、全局配置、命名插槽，统一的台阶高度模型、暗色模式、移动端适配。
             </p>
             <div class="hero-links">
               <a href="https://github.com/EchoLab-Auto/ui-frame" target="_blank">GitHub</a>
               <span class="hero-links-sep">·</span>
               <a href="https://www.npmjs.com/package/@echolab/ui-frame" target="_blank">npm</a>
             </div>
+          </section>
+
+          <NeumorphismDivider />
+
+          <!-- ============================================= -->
+          <!-- 分类：解耦能力 — Headless Composables & Slots   -->
+          <!-- ============================================= -->
+          <section class="category-section">
+            <h2 class="category-title">解耦能力</h2>
+            <p class="category-desc">
+              以下示例展示如何将<strong>业务逻辑与 UI 完全解耦</strong>。Headless composables 封装所有行为（键盘导航、ARIA、状态管理），
+              开发者只需关心 UI 渲染。Named slots 允许替换组件的任意视觉部分。全局配置一键修改所有组件默认值。
+            </p>
+
+            <!-- ===== Headless Select Demo ===== -->
+            <NeumorphismCard id="headless-select" :elevation="1" class="demo-card demo-card--full">
+              <template #header>
+                <div class="demo-header">
+                  <h3 class="demo-title">Headless Select — 用 useSelect 构建自定义选择器</h3>
+                  <span class="demo-badge">自定义 UI + 完整键盘导航</span>
+                </div>
+              </template>
+
+              <div class="demo-row" style="gap: 32px; align-items: flex-start; flex-wrap: wrap;">
+                <!-- 自定义 UI 选择器 -->
+                <div style="width: 280px;">
+                  <h4 class="demo-label">自定义渲染的选择器（非 Neumorphism 样式）</h4>
+                  <div
+                    class="headless-select"
+                    :class="{ 'headless-select--open': hsOpen }"
+                    tabindex="0"
+                    role="combobox"
+                    :aria-expanded="hsOpen"
+                    @click="hsToggle"
+                    @keydown="hsKeydown"
+                    @blur="onHsBlur"
+                  >
+                    <span class="headless-select__value">
+                      {{ hsSelected?.label || '请选择...' }}
+                    </span>
+                    <span class="headless-select__arrow">▼</span>
+                    <div v-if="hsOpen" class="headless-select__dropdown" role="listbox">
+                      <div
+                        v-for="opt in headlessSelectOptions"
+                        :key="opt.value"
+                        class="headless-select__option"
+                        :class="{
+                          'headless-select__option--selected': opt.value === headlessSelectValue,
+                          'headless-select__option--disabled': opt.disabled,
+                        }"
+                        role="option"
+                        :aria-selected="opt.value === headlessSelectValue"
+                        @click.stop="hsSelect(opt)"
+                      >
+                        <span class="headless-select__dot" v-if="opt.value === headlessSelectValue">●</span>
+                        {{ opt.label }}
+                      </div>
+                    </div>
+                  </div>
+                  <p class="demo-hint">已选：<strong>{{ headlessSelectValue }}</strong> — 完全自定义的 UI，键盘操作完整</p>
+                </div>
+
+                <!-- 对比：标准 NeumorphismSelect -->
+                <div style="width: 260px;">
+                  <h4 class="demo-label">标准 NeumorphismSelect（同逻辑）</h4>
+                  <NeumorphismSelect v-model="headlessSelectValue" :options="headlessSelectOptions" placeholder="请选择..." />
+                  <p class="demo-hint">同一套 useSelect 逻辑驱动</p>
+                </div>
+
+                <!-- 代码示意 -->
+                <div style="flex: 1; min-width: 280px;">
+                  <h4 class="demo-label">使用方式</h4>
+                  <pre class="code-block"><code>import { useSelect } from '@echolab/ui-frame'
+
+const { isOpen, selectedOption, toggleOpen,
+  selectOption, handleKeydown } = useSelect({
+  modelValue: myValue,
+  options: myOptions,
+})
+
+// 用你自己的 UI 渲染！
+// &lt;div @click="toggleOpen" @keydown="handleKeydown"&gt;
+//   &lt;span&gt;{{ selectedOption?.label }}&lt;/span&gt;
+//   &lt;div v-if="isOpen"&gt;...options...&lt;/div&gt;
+// &lt;/div&gt;</code></pre>
+                </div>
+              </div>
+            </NeumorphismCard>
+
+            <!-- ===== Headless Pagination Demo ===== -->
+            <NeumorphismCard id="headless-pagination" :elevation="1" class="demo-card">
+              <template #header>
+                <div class="demo-header">
+                  <h3 class="demo-title">Headless 分页 — 用 usePagination 构建自定义分页器</h3>
+                  <span class="demo-badge">页码计算 + 省略号逻辑完全复用</span>
+                </div>
+              </template>
+
+              <div class="demo-row" style="gap: 32px; align-items: flex-start; flex-wrap: wrap;">
+                <!-- 自定义分页 UI -->
+                <div>
+                  <h4 class="demo-label">自定义简洁分页器</h4>
+                  <div class="headless-pagination">
+                    <button
+                      class="headless-pagination__btn"
+                      :disabled="hsPrevDisabled"
+                      @click="hsPrevPage"
+                    >← 上一页</button>
+
+                    <button
+                      v-for="p in hsVisiblePages"
+                      :key="String(p)"
+                      class="headless-pagination__btn"
+                      :class="{
+                        'headless-pagination__btn--active': p === hsCurrentPage,
+                        'headless-pagination__btn--dots': typeof p === 'string',
+                      }"
+                      :disabled="typeof p === 'string'"
+                      @click="typeof p === 'number' && hsChangePage(p)"
+                    >
+                      {{ typeof p === 'string' ? '…' : p }}
+                    </button>
+
+                    <button
+                      class="headless-pagination__btn"
+                      :disabled="hsNextDisabled"
+                      @click="hsNextPage"
+                    >下一页 →</button>
+                  </div>
+                  <p class="demo-hint">
+                    当前第 <strong>{{ hsCurrentPage }}</strong> / {{ hsTotalPages }} 页
+                  </p>
+                </div>
+
+                <!-- 代码示意 -->
+                <div style="flex: 1; min-width: 260px;">
+                  <h4 class="demo-label">使用方式</h4>
+                  <pre class="code-block"><code>import { usePagination } from '@echolab/ui-frame'
+
+const {
+  currentPage, totalPages, visiblePages,
+  changePage, prevPage, nextPage,
+  isPrevDisabled, isNextDisabled,
+} = usePagination({
+  modelValue: page,
+  total: computed(() => 100),
+  pageSize: computed(() => 10),
+})
+
+// 完全自定义 UI，省略号逻辑自动处理</code></pre>
+                </div>
+              </div>
+            </NeumorphismCard>
+
+            <!-- ===== Headless Toast Demo ===== -->
+            <NeumorphismCard id="headless-toast" :elevation="1" class="demo-card">
+              <template #header>
+                <div class="demo-header">
+                  <h3 class="demo-title">Headless Toast — 用 useToast 管理通知队列</h3>
+                  <span class="demo-badge">队列管理 + 自动关闭 + 完全自定义外观</span>
+                </div>
+              </template>
+
+              <div class="demo-row" style="margin-bottom: 14px;">
+                <NeumorphismButton size="small" variant="flat" @click="showHeadlessToast('success')">成功</NeumorphismButton>
+                <NeumorphismButton size="small" variant="flat" @click="showHeadlessToast('error')">错误</NeumorphismButton>
+                <NeumorphismButton size="small" variant="flat" @click="showHeadlessToast('info')">信息</NeumorphismButton>
+                <NeumorphismButton size="small" variant="flat" @click="showHeadlessToast('warning')">警告</NeumorphismButton>
+              </div>
+
+              <!-- 自定义 Toast 渲染 -->
+              <div class="headless-toast-area">
+                <transition-group name="headless-toast">
+                  <div
+                    v-for="toast in hsToasts"
+                    :key="toast.id"
+                    class="headless-toast"
+                    :class="[`headless-toast--${toast.type}`, { 'headless-toast--leaving': toast.leaving }]"
+                  >
+                    <span class="headless-toast__emoji">
+                      {{ toast.type === 'success' ? '✅' : toast.type === 'error' ? '❌' : toast.type === 'warning' ? '⚠️' : 'ℹ️' }}
+                    </span>
+                    <span class="headless-toast__msg">{{ toast.message }}</span>
+                    <button class="headless-toast__close" @click="hsRemoveToast(toast.id)">✕</button>
+                  </div>
+                </transition-group>
+              </div>
+
+              <pre class="code-block" style="margin-top: 14px;"><code>import { useToast } from '@echolab/ui-frame'
+
+const { toasts, addToast, removeToast } = useToast({ maxCount: 5 })
+
+addToast({ message: '已保存!', type: 'success', duration: 3000 })
+
+// 完全自定义 Toast 外观 — emoji、颜色、动画都由你决定</code></pre>
+            </NeumorphismCard>
+
+            <!-- ===== Named Slot Demo ===== -->
+            <NeumorphismCard id="slot-demo" :elevation="1" class="demo-card demo-card--full">
+              <template #header>
+                <div class="demo-header">
+                  <h3 class="demo-title">Slot 自定义 — 替换组件内部视觉元素</h3>
+                  <span class="demo-badge">#option · #tab · #page-item · #node-label</span>
+                </div>
+              </template>
+
+              <div class="demo-row" style="gap: 32px; align-items: flex-start; flex-wrap: wrap;">
+                <!-- Select with custom option slots -->
+                <div style="width: 280px;">
+                  <h4 class="demo-label">Select #option 插槽：图标 + 描述</h4>
+                  <NeumorphismSelect v-model="headlessSelectValue" :options="headlessSelectOptions" placeholder="选择框架...">
+                    <template #option="{ option, selected }">
+                      <div style="display: flex; align-items: center; gap: 10px; width: 100%;">
+                        <span style="font-size: 18px;">
+                          {{ option.value === 'vue' ? '💚' : option.value === 'react' ? '💙' : option.value === 'angular' ? '❤️' : option.value === 'svelte' ? '🧡' : '💜' }}
+                        </span>
+                        <span :style="{ fontWeight: selected ? 600 : 400 }">{{ option.label }}</span>
+                        <span v-if="selected" style="margin-left: auto;">✓</span>
+                      </div>
+                    </template>
+                  </NeumorphismSelect>
+                </div>
+
+                <!-- Pagination with custom page items -->
+                <div>
+                  <h4 class="demo-label">分页 #page-item 插槽：圆形按钮</h4>
+                  <NeumorphismPagination v-model="headlessPage" :total="60" :page-size="10">
+                    <template #page-item="{ page, active }">
+                      <button
+                        v-if="typeof page === 'number'"
+                        class="headless-pagination__btn"
+                        :class="{ 'headless-pagination__btn--active': active }"
+                        :style="{ borderRadius: '50%', minWidth: '36px', width: '36px', height: '36px', padding: 0 }"
+                        @click="hsChangePage(page)"
+                      >{{ page }}</button>
+                      <span v-else style="padding: 0 4px; color: var(--nm-text-placeholder);">…</span>
+                    </template>
+                  </NeumorphismPagination>
+                </div>
+
+                <!-- Tree with custom node labels -->
+                <div style="width: 260px;">
+                  <h4 class="demo-label">Tree #node-label 插槽</h4>
+                  <NeumorphismCard :elevation="-1" style="padding: 12px;">
+                    <NeumorphismTree
+                      v-model:selected-keys="treeSelectedKeys"
+                      v-model:expanded-keys="treeExpandedKeys"
+                      :data="treeData.slice(0, 2)"
+                      :multiple="false"
+                    >
+                      <!-- Node slot is handled by NeumorphismTreeNode internally -->
+                    </NeumorphismTree>
+                  </NeumorphismCard>
+                </div>
+              </div>
+            </NeumorphismCard>
+
+            <!-- ===== Global Config Demo ===== -->
+            <NeumorphismCard id="config-demo" :elevation="1" class="demo-card demo-card--full">
+              <template #header>
+                <div class="demo-header">
+                  <h3 class="demo-title">全局配置 — 一键修改所有组件默认值</h3>
+                  <span class="demo-badge">app.use(NeumorphismUI, options)</span>
+                </div>
+              </template>
+
+              <div class="demo-row" style="gap: 32px; align-items: flex-start; flex-wrap: wrap;">
+                <div style="flex: 1; min-width: 300px;">
+                  <h4 class="demo-label">配置示例（examples/main.ts）</h4>
+                  <pre class="code-block"><code>app.use(NeumorphismUI, {
+  button: { size: 'medium' },
+  input: { size: 'medium' },
+  select: { size: 'medium', clearable: true },
+  modal: { maskClosable: true },
+  toast: { position: 'top-right', maxCount: 5 },
+  pagination: { showTotal: false },
+})</code></pre>
+                  <p class="demo-hint" style="margin-top: 10px;">
+                    所有通过 <code>app.use</code> 传入的配置将作为全局默认值。组件自身的 props 仍可覆盖。
+                  </p>
+                </div>
+
+                <div style="flex: 1; min-width: 280px;">
+                  <h4 class="demo-label">CSS 设计 Token 覆盖示例</h4>
+                  <pre class="code-block"><code>/* 在项目中覆盖任意 Token */
+:root {
+  --nm-button-padding-y-md: 16px;
+  --nm-button-font-md: 16px;
+  --nm-border-radius-md: 20px;
+  --nm-modal-max-width-md: 640px;
+  --nm-toast-min-width: 320px;
+  --nm-pagination-btn-height-md: 44px;
+}</code></pre>
+                  <p class="demo-hint" style="margin-top: 10px;">
+                    120+ CSS 自定义属性覆盖组件每个尺寸细节，无需修改组件源码。
+                  </p>
+                </div>
+              </div>
+
+              <div style="margin-top: 20px;">
+                <h4 class="demo-label">Headless Composables 完整导出列表</h4>
+                <div class="headless-export-grid">
+                  <code v-for="name in [
+                    'useSelect', 'useTabs', 'usePagination',
+                    'useTree', 'useCollapse', 'useModal',
+                    'useToast', 'useTooltip', 'useTouchDevice',
+                    'useCheckable', 'useFormField', 'validateFieldValue',
+                  ]" :key="name" class="headless-export-tag">{{ name }}</code>
+                </div>
+              </div>
+            </NeumorphismCard>
           </section>
 
           <NeumorphismDivider />
@@ -1755,5 +2146,234 @@ function calcEdgePath(from: typeof flowNodes[number], to: typeof flowNodes[numbe
     text-decoration: none;
     &:hover { text-decoration: underline; }
   }
+}
+
+// ==========================================
+// Headless Composables Demo Styles
+// ==========================================
+
+// ---- Code block ----
+.code-block {
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--nm-text-secondary);
+  background: var(--nm-surface-color);
+  padding: 14px 16px;
+  border-radius: var(--nm-border-radius-sm);
+  box-shadow: inset 2px 2px 4px var(--nm-shadow-dark-strong), inset -2px -2px 4px var(--nm-shadow-light-strong);
+  margin: 0;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+
+  code {
+    font-family: 'SF Mono', 'Fira Code', 'Fira Mono', Menlo, Consolas, monospace;
+    font-size: 12px;
+  }
+}
+
+// ---- Headless Select (custom UI demo) ----
+.headless-select {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  border: 2px solid var(--nm-primary-color);
+  border-radius: 8px;
+  cursor: pointer;
+  user-select: none;
+  outline: none;
+  background: var(--nm-bg-color);
+  color: var(--nm-text-primary);
+  font-size: 14px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+
+  &:focus {
+    border-color: var(--nm-primary-light);
+    box-shadow: 0 0 0 3px rgba(108, 122, 224, 0.25);
+  }
+
+  &--open {
+    border-radius: 8px 8px 0 0;
+    border-color: var(--nm-primary-light);
+  }
+}
+
+.headless-select__value {
+  flex: 1;
+}
+
+.headless-select__arrow {
+  font-size: 10px;
+  color: var(--nm-text-placeholder);
+  transition: transform 0.2s;
+  margin-left: 8px;
+
+  .headless-select--open & {
+    transform: rotate(180deg);
+  }
+}
+
+.headless-select__dropdown {
+  position: absolute;
+  top: 100%;
+  left: -2px;
+  right: -2px;
+  z-index: 100;
+  background: var(--nm-bg-color);
+  border: 2px solid var(--nm-primary-color);
+  border-top: none;
+  border-radius: 0 0 8px 8px;
+  max-height: 200px;
+  overflow-y: auto;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+}
+
+.headless-select__option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 16px;
+  font-size: 14px;
+  cursor: pointer;
+  color: var(--nm-text-primary);
+  transition: background 0.15s;
+
+  &:hover:not(&--disabled) {
+    background: var(--nm-surface-raised);
+  }
+
+  &--selected {
+    color: var(--nm-primary-color);
+    font-weight: 600;
+  }
+
+  &--disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+}
+
+.headless-select__dot {
+  font-size: 8px;
+}
+
+// ---- Headless Pagination (custom UI demo) ----
+.headless-pagination {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.headless-pagination__btn {
+  padding: 6px 12px;
+  border: 2px solid var(--nm-primary-color);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--nm-primary-color);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+
+  &:hover:not(:disabled):not(&--active):not(&--dots) {
+    background: var(--nm-primary-color);
+    color: #fff;
+  }
+
+  &--active {
+    background: var(--nm-primary-color);
+    color: #fff;
+  }
+
+  &--dots {
+    border-color: transparent;
+    cursor: default;
+    color: var(--nm-text-placeholder);
+    padding: 6px 4px;
+  }
+
+  &:disabled:not(&--dots) {
+    opacity: 0.35;
+    cursor: not-allowed;
+  }
+}
+
+// ---- Headless Toast (custom UI demo) ----
+.headless-toast-area {
+  position: relative;
+  min-height: 60px;
+}
+
+.headless-toast {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  margin-bottom: 8px;
+  border-radius: 8px;
+  border-left: 4px solid;
+  background: var(--nm-surface-color);
+  box-shadow: 2px 2px 8px var(--nm-shadow-dark), -2px -2px 8px var(--nm-shadow-light);
+
+  &--success { border-color: var(--nm-color-success); }
+  &--error { border-color: var(--nm-color-error); }
+  &--warning { border-color: var(--nm-color-warning); }
+  &--info { border-color: var(--nm-primary-color); }
+
+  &--leaving {
+    opacity: 0;
+    transform: translateX(30px);
+    transition: all 0.2s ease;
+  }
+}
+
+.headless-toast__emoji {
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.headless-toast__msg {
+  flex: 1;
+  font-size: 13px;
+  color: var(--nm-text-primary);
+}
+
+.headless-toast__close {
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: var(--nm-text-placeholder);
+  font-size: 14px;
+  padding: 2px 6px;
+  border-radius: 4px;
+
+  &:hover { color: var(--nm-text-primary); }
+}
+
+// Toast transition
+.headless-toast-enter-active { transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
+.headless-toast-leave-active { transition: all 0.2s ease; position: absolute; right: 0; left: 0; }
+.headless-toast-enter-from { opacity: 0; transform: translateX(30px); }
+.headless-toast-leave-to { opacity: 0; transform: translateX(30px); }
+
+// ---- Headless export tags ----
+.headless-export-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.headless-export-tag {
+  display: inline-block;
+  padding: 5px 12px;
+  font-size: 12px;
+  color: var(--nm-primary-color);
+  background: rgba(108, 122, 224, 0.08);
+  border: 1px solid rgba(108, 122, 224, 0.2);
+  border-radius: var(--nm-border-radius-sm);
+  font-family: 'SF Mono', 'Fira Code', Menlo, Consolas, monospace;
 }
 </style>

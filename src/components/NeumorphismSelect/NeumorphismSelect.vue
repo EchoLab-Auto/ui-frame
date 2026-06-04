@@ -1,18 +1,17 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
+import { useSelect } from '@/composables/useSelect'
+import type { SelectOption } from '@/composables/useSelect'
 import { useFormField } from '@/composables/useFormField'
+import { useConfig } from '@/composables/useConfig'
 import NeumorphismFieldLabel from '@/components/NeumorphismField/NeumorphismFieldLabel.vue'
 import NeumorphismFieldError from '@/components/NeumorphismField/NeumorphismFieldError.vue'
 
-export interface NeumorphismSelectOption {
-  label: string
-  value: string | number
-  disabled?: boolean
-}
+export type { SelectOption as NeumorphismSelectOption }
 
 export interface NeumorphismSelectProps {
   modelValue?: string | number
-  options?: NeumorphismSelectOption[]
+  options?: SelectOption[]
   placeholder?: string
   disabled?: boolean
   size?: 'small' | 'medium' | 'large'
@@ -35,6 +34,9 @@ const props = withDefaults(defineProps<NeumorphismSelectProps>(), {
   emptyText: '暂无选项',
 })
 
+const config = useConfig()
+const resolvedSize = computed(() => props.size ?? config.value.select?.size ?? 'medium')
+
 const emit = defineEmits<{
   (e: 'update:modelValue', value: string | number): void
   (e: 'change', value: string | number): void
@@ -42,20 +44,30 @@ const emit = defineEmits<{
   (e: 'blur', event: FocusEvent): void
 }>()
 
+// Use headless select composable for all behavioral logic
+const modelRef = computed({
+  get: () => props.modelValue,
+  set: (val) => {
+    emit('update:modelValue', val)
+    emit('change', val)
+  },
+})
+
+const { isOpen, selectedOption, toggleOpen, close, clearValue, handleKeydown } =
+  useSelect({
+    modelValue: modelRef,
+    options: computed(() => props.options),
+    disabled: computed(() => props.disabled),
+  })
+
 const { fieldId, errorMessage, baseClassList, handleFocus, handleBlur } =
   useFormField(() => ({
     id: props.id,
-    size: props.size,
+    size: resolvedSize.value,
     disabled: props.disabled,
     error: props.error,
     prefix: 'select',
   }))
-
-const isOpen = ref(false)
-
-const selectedOption = computed(() =>
-  props.options.find((o) => o.value === props.modelValue)
-)
 
 const classList = computed(() => [
   ...baseClassList('nm-select').value,
@@ -65,53 +77,15 @@ const classList = computed(() => [
   },
 ])
 
-function toggleOpen() {
-  if (props.disabled) return
-  isOpen.value = !isOpen.value
-}
-
-function selectOption(option: NeumorphismSelectOption) {
-  if (option.disabled || props.disabled) return
-  emit('update:modelValue', option.value)
-  emit('change', option.value)
-  isOpen.value = false
-}
-
-function clearValue(event: Event) {
+function onClear(event: Event) {
   event.stopPropagation()
-  emit('update:modelValue', '')
-  emit('change', '')
+  clearValue()
 }
 
-function handleKeydown(event: KeyboardEvent) {
-  if (props.disabled) return
-  if (event.key === 'Escape') { isOpen.value = false; return }
-  if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); toggleOpen(); return }
-  if (event.key === 'ArrowDown' && !isOpen.value) { event.preventDefault(); isOpen.value = true; return }
-  if (!isOpen.value) return
-
-  const opts = props.options.filter((o) => !o.disabled)
-  const idx = opts.findIndex((o) => o.value === props.modelValue)
-  if (event.key === 'ArrowDown') {
-    event.preventDefault()
-    const next = idx + 1 < opts.length ? opts[idx + 1] : opts[0]
-    if (next) selectOption(next)
-  } else if (event.key === 'ArrowUp') {
-    event.preventDefault()
-    const prev = idx - 1 >= 0 ? opts[idx - 1] : opts[opts.length - 1]
-    if (prev) selectOption(prev)
-  } else if (event.key === 'Home') {
-    event.preventDefault()
-    if (opts[0]) selectOption(opts[0])
-  } else if (event.key === 'End') {
-    event.preventDefault()
-    if (opts[opts.length - 1]) selectOption(opts[opts.length - 1])
-  }
-}
-
-function onBlurContainer(e: FocusEvent) {
+function onContainerBlur(e: FocusEvent) {
+  // Use the composable's blur handling
   if (!(e.currentTarget as HTMLElement).contains(e.relatedTarget as Node)) {
-    isOpen.value = false
+    close()
     handleBlur(e, emit)
   }
 }
@@ -129,18 +103,21 @@ function onBlurContainer(e: FocusEvent) {
       :aria-labelledby="label ? fieldId : undefined"
       @click="toggleOpen"
       @focus="(e: FocusEvent) => handleFocus(e, emit)"
-      @blur="onBlurContainer"
+      @blur="onContainerBlur"
       @keydown="handleKeydown"
     >
       <span class="nm-select__value" :class="{ 'nm-select__value--placeholder': !selectedOption }">
-        {{ selectedOption?.label || placeholder }}
+        <!-- @slot Custom selected value display -->
+        <slot name="value" :option="selectedOption">
+          {{ selectedOption?.label || placeholder }}
+        </slot>
       </span>
       <span class="nm-select__actions">
         <button
           v-if="clearable && selectedOption"
           class="nm-select__clear"
           type="button"
-          @click="clearValue"
+          @click="onClear"
           :aria-label="'清除选择'"
         >
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -158,21 +135,29 @@ function onBlurContainer(e: FocusEvent) {
 
       <transition name="nm-select-dropdown">
         <div v-if="isOpen" class="nm-select__dropdown" role="listbox" :aria-label="label || '选项列表'">
-          <div
-            v-for="option in options"
+          <!-- @slot Custom option rendering. Bind: option, selected, index -->
+          <slot
+            v-for="(option, index) in options"
             :key="option.value"
-            class="nm-select__option"
-            :class="{
-              'nm-select__option--selected': option.value === modelValue,
-              'nm-select__option--disabled': option.disabled,
-            }"
-            role="option"
-            :aria-selected="option.value === modelValue"
-            :aria-disabled="option.disabled"
-            @click.stop="selectOption(option)"
+            name="option"
+            :option="option"
+            :selected="option.value === modelValue"
+            :index="index"
           >
-            {{ option.label }}
-          </div>
+            <div
+              class="nm-select__option"
+              :class="{
+                'nm-select__option--selected': option.value === modelValue,
+                'nm-select__option--disabled': option.disabled,
+              }"
+              role="option"
+              :aria-selected="option.value === modelValue"
+              :aria-disabled="option.disabled"
+              @click.stop="modelRef = option.value"
+            >
+              {{ option.label }}
+            </div>
+          </slot>
           <div v-if="options.length === 0" class="nm-select__option nm-select__option--empty">
             {{ emptyText }}
           </div>

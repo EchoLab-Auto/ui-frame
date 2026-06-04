@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, useSlots } from 'vue'
 import { useFormField } from '@/composables/useFormField'
+import { useConfig } from '@/composables/useConfig'
 import NeumorphismFieldLabel from '@/components/NeumorphismField/NeumorphismFieldLabel.vue'
 import NeumorphismFieldError from '@/components/NeumorphismField/NeumorphismFieldError.vue'
 
@@ -33,6 +34,9 @@ const props = withDefaults(defineProps<NeumorphismInputProps>(), {
   autocomplete: 'off',
 })
 
+const config = useConfig()
+const resolvedSize = computed(() => props.size ?? config.value.input?.size ?? 'medium')
+
 const emit = defineEmits<{
   (e: 'update:modelValue', value: string): void
   (e: 'focus', event: FocusEvent): void
@@ -48,7 +52,7 @@ const slots = useSlots()
 const { fieldId, errorMessage, baseClassList, handleFocus, handleBlur } =
   useFormField(() => ({
     id: props.id,
-    size: props.size,
+    size: resolvedSize.value,
     disabled: props.disabled,
     error: props.error,
     prefix: 'input',

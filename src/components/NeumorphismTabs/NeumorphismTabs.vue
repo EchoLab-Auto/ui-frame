@@ -1,13 +1,9 @@
 <script setup lang="ts">
 import { computed, ref, nextTick } from 'vue'
-import { generateId } from '@/utils'
+import { useTabs } from '@/composables/useTabs'
+import type { TabItem } from '@/composables/useTabs'
 
-export interface TabItem {
-  key: string
-  label: string
-  disabled?: boolean
-  icon?: string
-}
+export type { TabItem }
 
 export interface NeumorphismTabsProps {
   modelValue?: string
@@ -29,44 +25,39 @@ const emit = defineEmits<{
   (e: 'tabClick', tab: TabItem): void
 }>()
 
-const tabListId = generateId('nm-tabs')
-const tabRefs = ref<Map<string, HTMLElement>>(new Map())
+// Use headless tabs composable for all behavioral logic
+const activeKey = computed({
+  get: () => props.modelValue,
+  set: (val) => {
+    emit('update:modelValue', val)
+    emit('change', val)
+    const tab = props.tabs.find((t) => t.key === val)
+    if (tab) emit('tabClick', tab)
+  },
+})
 
-function activate(key: string) {
-  if (props.tabs.find((t) => t.key === key)?.disabled) return
-  emit('update:modelValue', key)
-  emit('change', key)
-  const tab = props.tabs.find((t) => t.key === key)
-  if (tab) emit('tabClick', tab)
-}
+const { activate, handleKeydown: onKeydown, panelId, orientation } =
+  useTabs({
+    modelValue: activeKey,
+    tabs: computed(() => props.tabs),
+    position: computed(() => props.position),
+  })
+
+const tabRefs = ref<Map<string, HTMLElement>>(new Map())
 
 function setTabRef(key: string, el: unknown) {
   if (el instanceof HTMLElement) tabRefs.value.set(key, el)
 }
 
 function handleKeydown(event: KeyboardEvent, key: string) {
+  onKeydown(event, key)
+  // Focus the newly activated tab after keyboard navigation
   const activeTabs = props.tabs.filter((t) => !t.disabled)
-  const idx = activeTabs.findIndex((t) => t.key === key)
-  let nextIdx: number
-
-  if (props.position === 'left' || props.position === 'right') {
-    if (event.key === 'ArrowDown') { event.preventDefault(); nextIdx = idx + 1 < activeTabs.length ? idx + 1 : 0 }
-    else if (event.key === 'ArrowUp') { event.preventDefault(); nextIdx = idx - 1 >= 0 ? idx - 1 : activeTabs.length - 1 }
-    else return
-  } else {
-    if (event.key === 'ArrowRight') { event.preventDefault(); nextIdx = idx + 1 < activeTabs.length ? idx + 1 : 0 }
-    else if (event.key === 'ArrowLeft') { event.preventDefault(); nextIdx = idx - 1 >= 0 ? idx - 1 : activeTabs.length - 1 }
-    else return
-  }
-
-  const nextTab = activeTabs[nextIdx]
-  if (nextTab) {
-    activate(nextTab.key)
-    nextTick(() => tabRefs.value.get(nextTab.key)?.focus())
+  const activeT = activeTabs.find((t) => t.key === activeKey.value)
+  if (activeT) {
+    nextTick(() => tabRefs.value.get(activeT.key)?.focus())
   }
 }
-
-const panelId = computed(() => `${tabListId}-panel`)
 
 const classList = computed(() => [
   'nm-tabs',
@@ -77,26 +68,39 @@ const classList = computed(() => [
 
 <template>
   <div :class="classList">
-    <div class="nm-tabs__nav" role="tablist" :aria-orientation="position === 'left' || position === 'right' ? 'vertical' : 'horizontal'" :aria-label="'标签导航'">
-      <button
-        v-for="tab in tabs"
+    <div
+      class="nm-tabs__nav"
+      role="tablist"
+      :aria-orientation="orientation"
+      :aria-label="'标签导航'"
+    >
+      <!-- @slot Custom tab rendering. Bind: tab, active, index -->
+      <slot
+        v-for="(tab, index) in tabs"
         :key="tab.key"
-        :ref="(el) => setTabRef(tab.key, el)"
-        class="nm-tabs__tab"
-        :class="{
-          'nm-tabs__tab--active': modelValue === tab.key,
-          'nm-tabs__tab--disabled': tab.disabled,
-        }"
-        role="tab"
-        :aria-selected="modelValue === tab.key"
-        :aria-disabled="tab.disabled"
-        :tabindex="modelValue === tab.key ? 0 : -1"
-        :disabled="tab.disabled"
-        @click="activate(tab.key)"
-        @keydown="handleKeydown($event, tab.key)"
+        name="tab"
+        :tab="tab"
+        :active="modelValue === tab.key"
+        :index="index"
       >
-        <span class="nm-tabs__tab-label">{{ tab.label }}</span>
-      </button>
+        <button
+          :ref="(el) => setTabRef(tab.key, el)"
+          class="nm-tabs__tab"
+          :class="{
+            'nm-tabs__tab--active': modelValue === tab.key,
+            'nm-tabs__tab--disabled': tab.disabled,
+          }"
+          role="tab"
+          :aria-selected="modelValue === tab.key"
+          :aria-disabled="tab.disabled"
+          :tabindex="modelValue === tab.key ? 0 : -1"
+          :disabled="tab.disabled"
+          @click="activate(tab.key)"
+          @keydown="handleKeydown($event, tab.key)"
+        >
+          <span class="nm-tabs__tab-label">{{ tab.label }}</span>
+        </button>
+      </slot>
     </div>
 
     <div

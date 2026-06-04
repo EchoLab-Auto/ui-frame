@@ -49,6 +49,176 @@
   --nm-depth-medium: 6px;
   --nm-depth-deep: 10px;
   --nm-depth-very-deep: 16px;
+
+  // ==========================================
+  // Component Design Tokens
+  // Override any of these CSS variables to
+  // customize component appearance without
+  // touching component source code.
+  // ==========================================
+
+  // -- Button --
+  --nm-button-padding-y-sm: 8px;
+  --nm-button-padding-x-sm: 16px;
+  --nm-button-font-sm: 13px;
+  --nm-button-min-height-sm: 32px;
+  --nm-button-padding-y-md: 12px;
+  --nm-button-padding-x-md: 24px;
+  --nm-button-font-md: 14px;
+  --nm-button-min-height-md: 44px;
+  --nm-button-padding-y-lg: 16px;
+  --nm-button-padding-x-lg: 32px;
+  --nm-button-font-lg: 16px;
+  --nm-button-min-height-lg: 56px;
+  --nm-button-font-weight: 500;
+
+  // -- Input / Textarea --
+  --nm-field-padding-y-sm: 6px;
+  --nm-field-padding-x-sm: 12px;
+  --nm-field-font-sm: 13px;
+  --nm-field-min-height-sm: 36px;
+  --nm-field-padding-y-md: 10px;
+  --nm-field-padding-x-md: 16px;
+  --nm-field-font-md: 14px;
+  --nm-field-min-height-md: 48px;
+  --nm-field-padding-y-lg: 14px;
+  --nm-field-padding-x-lg: 20px;
+  --nm-field-font-lg: 16px;
+  --nm-field-min-height-lg: 60px;
+
+  // -- Select --
+  --nm-select-option-padding-y: 10px;
+  --nm-select-option-padding-x: 14px;
+  --nm-select-option-font: 14px;
+  --nm-select-option-hover-bg: var(--nm-surface-raised);
+  --nm-select-dropdown-max-height: 240px;
+
+  // -- Card --
+  --nm-card-padding: 20px;
+  --nm-card-header-padding: 16px 20px;
+  --nm-card-footer-padding: 12px 20px;
+
+  // -- Modal --
+  --nm-modal-padding: 24px;
+  --nm-modal-header-padding: 20px 24px 0;
+  --nm-modal-footer-padding: 0 24px 20px;
+  --nm-modal-max-width-sm: 400px;
+  --nm-modal-max-width-md: 560px;
+  --nm-modal-max-width-lg: 720px;
+  --nm-modal-title-font: 18px;
+  --nm-modal-mask-bg: rgba(0, 0, 0, 0.4);
+
+  // -- Tabs --
+  --nm-tabs-tab-padding-y-sm: 6px;
+  --nm-tabs-tab-padding-x-sm: 14px;
+  --nm-tabs-tab-font-sm: 12px;
+  --nm-tabs-tab-padding-y-md: 10px;
+  --nm-tabs-tab-padding-x-md: 20px;
+  --nm-tabs-tab-font-md: 14px;
+  --nm-tabs-tab-padding-y-lg: 14px;
+  --nm-tabs-tab-padding-x-lg: 28px;
+  --nm-tabs-tab-font-lg: 16px;
+  --nm-tabs-nav-gap: 4px;
+
+  // -- Pagination --
+  --nm-pagination-btn-min-width-sm: 30px;
+  --nm-pagination-btn-height-sm: 30px;
+  --nm-pagination-btn-font-sm: 12px;
+  --nm-pagination-btn-min-width-md: 38px;
+  --nm-pagination-btn-height-md: 38px;
+  --nm-pagination-btn-font-md: 14px;
+  --nm-pagination-btn-min-width-lg: 46px;
+  --nm-pagination-btn-height-lg: 46px;
+  --nm-pagination-btn-font-lg: 16px;
+  --nm-pagination-gap: 12px;
+
+  // -- Collapse --
+  --nm-collapse-trigger-padding-y-sm: 12px;
+  --nm-collapse-trigger-padding-x-sm: 16px;
+  --nm-collapse-trigger-font-sm: 13px;
+  --nm-collapse-trigger-padding-y-md: 16px;
+  --nm-collapse-trigger-padding-x-md: 20px;
+  --nm-collapse-trigger-font-md: 15px;
+  --nm-collapse-trigger-padding-y-lg: 20px;
+  --nm-collapse-trigger-padding-x-lg: 28px;
+  --nm-collapse-trigger-font-lg: 16px;
+  --nm-collapse-content-padding-y: 16px;
+  --nm-collapse-content-padding-x: 20px;
+  --nm-collapse-item-gap: 4px;
+
+  // -- Tree --
+  --nm-tree-node-padding-y: 5px;
+  --nm-tree-node-padding-x: 8px;
+  --nm-tree-node-font: 13px;
+  --nm-tree-node-indent: 20px;
+  --nm-tree-toggle-size: 20px;
+
+  // -- Toast --
+  --nm-toast-min-width: 280px;
+  --nm-toast-max-width: 420px;
+  --nm-toast-padding-y: 14px;
+  --nm-toast-padding-x: 18px;
+  --nm-toast-font: 14px;
+  --nm-toast-gap: 10px;
+
+  // -- Tooltip --
+  --nm-tooltip-padding-y: 8px;
+  --nm-tooltip-padding-x: 14px;
+  --nm-tooltip-font: 13px;
+  --nm-tooltip-arrow-size: 8px;
+
+  // -- Form --
+  --nm-form-item-gap: 16px;
+  --nm-form-label-font: 14px;
+  --nm-form-error-font: 12px;
+  --nm-form-label-width: 100px;
+
+  // -- Badge --
+  --nm-badge-font: 11px;
+  --nm-badge-size: 18px;
+  --nm-badge-dot-size: 8px;
+
+  // -- Tag --
+  --nm-tag-padding-y-sm: 2px;
+  --nm-tag-padding-x-sm: 8px;
+  --nm-tag-font-sm: 11px;
+  --nm-tag-padding-y-md: 4px;
+  --nm-tag-padding-x-md: 12px;
+  --nm-tag-font-md: 12px;
+  --nm-tag-padding-y-lg: 6px;
+  --nm-tag-padding-x-lg: 16px;
+  --nm-tag-font-lg: 14px;
+
+  // -- Progress --
+  --nm-progress-height-sm: 4px;
+  --nm-progress-height-md: 8px;
+  --nm-progress-height-lg: 12px;
+  --nm-progress-border-radius: 9999px;
+
+  // -- Avatar --
+  --nm-avatar-size-sm: 32px;
+  --nm-avatar-size-md: 44px;
+  --nm-avatar-size-lg: 64px;
+  --nm-avatar-font-sm: 14px;
+  --nm-avatar-font-md: 18px;
+  --nm-avatar-font-lg: 24px;
+
+  // -- Skeleton --
+  --nm-skeleton-animation-duration: 1.5s;
+
+  // -- Switch --
+  --nm-switch-width-sm: 44px;
+  --nm-switch-height-sm: 24px;
+  --nm-switch-width-md: 56px;
+  --nm-switch-height-md: 30px;
+  --nm-switch-width-lg: 68px;
+  --nm-switch-height-lg: 36px;
+
+  // -- Breadcrumb --
+  --nm-breadcrumb-font-sm: 12px;
+  --nm-breadcrumb-font-md: 14px;
+  --nm-breadcrumb-font-lg: 16px;
+  --nm-breadcrumb-separator-margin: 6px;
 }
 
 // ---------- Dark Mode Tokens ----------
@@ -98,28 +268,23 @@
 
 // ---- Mobile-friendly global defaults ----
 .nm-root {
-  // Prevent iOS text size adjust on orientation change
   -webkit-text-size-adjust: 100%;
   -ms-text-size-adjust: 100%;
 
-  // Smooth scrolling (disabled for users who prefer reduced motion)
   @media (prefers-reduced-motion: no-preference) {
     scroll-behavior: smooth;
   }
 
-  // Ensure minimum touch target size
   button, a, input, select, textarea, [role="button"], [role="tab"] {
     @media (pointer: coarse) {
       min-height: 44px;
     }
   }
 
-  // Improve tap response on mobile
   a, button, [role="button"] {
     touch-action: manipulation;
   }
 
-  // Remove default iOS styling for inputs
   input, textarea, select {
     -webkit-appearance: none;
     appearance: none;
@@ -127,15 +292,10 @@
   }
 }
 
-// Global responsive image behavior
 img, video {
   max-width: 100%;
   height: auto;
 }
-
-// Theme transitions are applied per-component via nm-theme-transition mixin.
-// A global wildcard (*) transition causes layout/paint thrashing on theme switch
-// because every element recalculates styles simultaneously.
 
 .nm-focus-ring {
   outline: none;

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { usePagination } from '@/composables/usePagination'
 
 export interface NeumorphismPaginationProps {
   modelValue?: number
@@ -28,44 +29,29 @@ const emit = defineEmits<{
   (e: 'change', value: number): void
 }>()
 
-const totalPages = computed(() => Math.max(1, Math.ceil(props.total / props.pageSize)))
-const currentPage = computed(() => Math.min(Math.max(1, props.modelValue), totalPages.value))
+// Use headless pagination composable for all behavioral logic
+const currentPage = computed({
+  get: () => props.modelValue,
+  set: (val) => {
+    emit('update:modelValue', val)
+    emit('change', val)
+  },
+})
 
-function changePage(page: number) {
-  if (isNaN(page) || !isFinite(page)) return
-  const p = Math.round(page)
-  if (props.disabled || p < 1 || p > totalPages.value || p === currentPage.value) return
-  emit('update:modelValue', p)
-  emit('change', p)
-}
-
-const visiblePages = computed(() => {
-  const max = props.maxVisiblePages
-  const total = totalPages.value
-  const current = currentPage.value
-
-  if (total <= max) {
-    return Array.from({ length: total }, (_, i) => i + 1)
-  }
-
-  const half = Math.floor(max / 2)
-  let start = current - half
-  let end = current + half
-
-  if (start < 1) { end += (1 - start); start = 1 }
-  if (end > total) { start -= (end - total); end = total }
-
-  start = Math.max(1, start)
-  end = Math.min(total, end)
-
-  const pages: (number | string)[] = []
-  if (start > 1) pages.push(1)
-  if (start > 2) pages.push('prev-ellipsis')
-  for (let i = start; i <= end; i++) pages.push(i)
-  if (end < total - 1) pages.push('next-ellipsis')
-  if (end < total) pages.push(total)
-
-  return pages
+const {
+  totalPages,
+  visiblePages,
+  changePage,
+  prevPage,
+  nextPage,
+  isPrevDisabled,
+  isNextDisabled,
+} = usePagination({
+  modelValue: currentPage,
+  total: computed(() => props.total),
+  pageSize: computed(() => props.pageSize),
+  maxVisiblePages: computed(() => props.maxVisiblePages),
+  disabled: computed(() => props.disabled),
 })
 
 const classList = computed(() => [
@@ -73,6 +59,10 @@ const classList = computed(() => [
   `nm-pagination--${props.size}`,
   { 'nm-pagination--disabled': props.disabled },
 ])
+
+function onJumperChange(event: Event) {
+  changePage(Number((event.target as HTMLInputElement).value))
+}
 </script>
 
 <template>
@@ -85,9 +75,9 @@ const classList = computed(() => [
       <li>
         <button
           class="nm-pagination__btn"
-          :disabled="currentPage <= 1 || disabled"
+          :disabled="isPrevDisabled"
           :aria-label="'上一页'"
-          @click="changePage(currentPage - 1)"
+          @click="prevPage"
           type="button"
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -96,34 +86,40 @@ const classList = computed(() => [
         </button>
       </li>
 
-      <li
+      <!-- @slot Custom page item rendering. Bind: page, active -->
+      <slot
         v-for="page in visiblePages"
         :key="String(page)"
+        name="page-item"
+        :page="page"
+        :active="page === modelValue"
       >
-        <span
-          v-if="typeof page === 'string'"
-          class="nm-pagination__ellipsis"
-          aria-hidden="true"
-        >...</span>
-        <button
-          v-else
-          class="nm-pagination__btn"
-          :class="{ 'nm-pagination__btn--active': page === currentPage }"
-          :aria-label="`第 ${page} 页`"
-          :aria-current="page === currentPage ? 'page' : undefined"
-          @click="changePage(page)"
-          type="button"
-        >
-          {{ page }}
-        </button>
-      </li>
+        <li>
+          <span
+            v-if="typeof page === 'string'"
+            class="nm-pagination__ellipsis"
+            aria-hidden="true"
+          >...</span>
+          <button
+            v-else
+            class="nm-pagination__btn"
+            :class="{ 'nm-pagination__btn--active': page === modelValue }"
+            :aria-label="`第 ${page} 页`"
+            :aria-current="page === modelValue ? 'page' : undefined"
+            @click="changePage(page)"
+            type="button"
+          >
+            {{ page }}
+          </button>
+        </li>
+      </slot>
 
       <li>
         <button
           class="nm-pagination__btn"
-          :disabled="currentPage >= totalPages || disabled"
+          :disabled="isNextDisabled"
           :aria-label="'下一页'"
-          @click="changePage(currentPage + 1)"
+          @click="nextPage"
           type="button"
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -140,8 +136,8 @@ const classList = computed(() => [
         type="number"
         :min="1"
         :max="totalPages"
-        :value="currentPage"
-        @change="changePage(Number(($event.target as HTMLInputElement).value))"
+        :value="modelValue"
+        @change="onJumperChange"
         :disabled="disabled"
       >
       页

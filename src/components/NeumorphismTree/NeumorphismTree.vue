@@ -1,22 +1,17 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { computed } from 'vue'
+import { useTree } from '@/composables/useTree'
+import type { TreeNodeData } from '@/composables/useTree'
 import NeumorphismTreeNode from './NeumorphismTreeNode.vue'
-import type { TreeNodeData } from './NeumorphismTreeNode.vue'
 
 export type { TreeNodeData }
 
 export interface NeumorphismTreeProps {
-  /** Tree data array */
   data: TreeNodeData[]
-  /** Currently selected keys (v-model) */
   selectedKeys?: string[]
-  /** Currently expanded keys (v-model) */
   expandedKeys?: string[]
-  /** Placeholder text for search input */
   searchPlaceholder?: string
-  /** Whether to show the search input */
   showSearch?: boolean
-  /** Whether multiple selection is allowed */
   multiple?: boolean
 }
 
@@ -35,108 +30,65 @@ const emit = defineEmits<{
   (e: 'node-select', key: string): void
 }>()
 
-const searchText = ref('')
-const localExpandedKeys = ref<string[]>([...props.expandedKeys])
-const localSelectedKeys = ref<string[]>([...props.selectedKeys])
+// Use headless tree composable for all behavioral logic
+const selectedKeysRef = computed({
+  get: () => props.selectedKeys,
+  set: (val) => emit('update:selectedKeys', val),
+})
 
-// Collect all node keys for expand-all / collapse-all
-function collectAllKeys(nodes: TreeNodeData[]): string[] {
-  const keys: string[] = []
-  function walk(list: TreeNodeData[]) {
-    for (const n of list) {
-      keys.push(n.key)
-      if (n.children?.length) walk(n.children)
-    }
-  }
-  walk(nodes)
-  return keys
-}
+const expandedKeysRef = computed({
+  get: () => props.expandedKeys,
+  set: (val) => emit('update:expandedKeys', val),
+})
 
-const allKeys = computed(() => collectAllKeys(props.data))
+const {
+  localExpandedKeys,
+  localSelectedKeys,
+  searchText: searchTextRef,
+  toggleExpand,
+  select,
+  findNode,
+  expandAll,
+  collapseAll,
+  onSearchInput,
+} = useTree({
+  data: computed(() => props.data),
+  selectedKeys: selectedKeysRef,
+  expandedKeys: expandedKeysRef,
+  multiple: computed(() => props.multiple),
+})
 
-// Auto-expand nodes that match search
-function expandMatching(nodes: TreeNodeData[], search: string): string[] {
-  const keys: string[] = []
-  function walk(list: TreeNodeData[]) {
-    for (const n of list) {
-      if (n.label.toLowerCase().includes(search.toLowerCase()) || n.children?.some((c) => matchesAny(c, search))) {
-        keys.push(n.key)
-      }
-      if (n.children?.length) walk(n.children)
-    }
-  }
-  walk(nodes)
-  return keys
-}
+const searchText = computed({
+  get: () => searchTextRef.value,
+  set: (val) => { searchTextRef.value = val },
+})
 
-function matchesAny(node: TreeNodeData, search: string): boolean {
-  if (node.label.toLowerCase().includes(search)) return true
-  return node.children?.some((c) => matchesAny(c, search)) ?? false
-}
-
-function handleToggleExpand(key: string) {
-  const idx = localExpandedKeys.value.indexOf(key)
-  if (idx === -1) {
-    localExpandedKeys.value.push(key)
-  } else {
-    localExpandedKeys.value.splice(idx, 1)
-  }
-  emit('update:expandedKeys', [...localExpandedKeys.value])
-}
-
+// Wrap select to emit events
 function handleSelect(key: string) {
-  if (props.multiple) {
-    const idx = localSelectedKeys.value.indexOf(key)
-    if (idx === -1) {
-      localSelectedKeys.value.push(key)
-    } else {
-      localSelectedKeys.value.splice(idx, 1)
-    }
-    emit('update:selectedKeys', [...localSelectedKeys.value])
-  } else {
-    localSelectedKeys.value = [key]
-    emit('update:selectedKeys', [key])
-  }
+  select(key)
   emit('node-select', key)
-
-  // Find and emit node-click
   const node = findNode(props.data, key)
   if (node) emit('node-click', node)
 }
 
-function findNode(nodes: TreeNodeData[], key: string): TreeNodeData | null {
-  for (const n of nodes) {
-    if (n.key === key) return n
-    if (n.children?.length) {
-      const found = findNode(n.children, key)
-      if (found) return found
-    }
-  }
-  return null
+// Wrap toggle to sync
+function handleToggleExpand(key: string) {
+  toggleExpand(key)
+  emit('update:expandedKeys', [...localExpandedKeys.value])
 }
 
-function expandAll() {
-  localExpandedKeys.value = [...allKeys.value]
-  emit('update:expandedKeys', [...allKeys.value])
+// Sync expanded on expand/collapse all
+function handleExpandAll() {
+  expandAll()
+  emit('update:expandedKeys', [...localExpandedKeys.value])
 }
 
-function collapseAll() {
-  localExpandedKeys.value = []
+function handleCollapseAll() {
+  collapseAll()
   emit('update:expandedKeys', [])
 }
 
-// When search text changes, auto-expand matches
-function onSearchInput(val: string) {
-  searchText.value = val
-  if (val.trim()) {
-    const matching = expandMatching(props.data, val)
-    localExpandedKeys.value = [...new Set([...localExpandedKeys.value, ...matching])]
-  }
-}
-
-const classList = computed(() => [
-  'nm-tree',
-])
+const classList = computed(() => ['nm-tree'])
 </script>
 
 <template>
@@ -169,11 +121,12 @@ const classList = computed(() => [
 
     <!-- Expand/Collapse all -->
     <div v-if="data.length > 0" class="nm-tree__actions">
-      <button type="button" class="nm-tree__action-btn" @click="expandAll">全部展开</button>
-      <button type="button" class="nm-tree__action-btn" @click="collapseAll">全部折叠</button>
+      <button type="button" class="nm-tree__action-btn" @click="handleExpandAll">全部展开</button>
+      <button type="button" class="nm-tree__action-btn" @click="handleCollapseAll">全部折叠</button>
     </div>
 
     <!-- Tree nodes -->
+    <!-- @slot Custom node rendering via NeumorphismTreeNode's node slot -->
     <ul class="nm-tree__list" role="group">
       <NeumorphismTreeNode
         v-for="node in data"

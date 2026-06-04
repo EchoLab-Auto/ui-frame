@@ -111,17 +111,26 @@ const collapseStyle = computed(() => {
       <!-- Icon -->
       <span v-if="node.icon" class="nm-tree-node__icon">{{ node.icon }}</span>
 
-      <!-- Label with search highlight -->
-      <span class="nm-tree-node__label">
-        <template v-if="searchText.trim()">
-          <span
-            v-for="(part, i) in node.label.split(new RegExp(`(${searchText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi'))"
-            :key="i"
-            :class="{ 'nm-tree-node__label--highlight': part.toLowerCase() === searchText.toLowerCase() }"
-          >{{ part }}</span>
-        </template>
-        <template v-else>{{ node.label }}</template>
-      </span>
+      <!-- @slot Custom node label rendering. Bind: node, selected, expanded, level -->
+      <slot
+        name="node-label"
+        :node="node"
+        :selected="isSelected"
+        :expanded="isExpanded"
+        :level="level"
+      >
+        <!-- Label with search highlight -->
+        <span class="nm-tree-node__label">
+          <template v-if="searchText.trim()">
+            <span
+              v-for="(part, i) in node.label.split(new RegExp(`(${searchText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi'))"
+              :key="i"
+              :class="{ 'nm-tree-node__label--highlight': part.toLowerCase() === searchText.toLowerCase() }"
+            >{{ part }}</span>
+          </template>
+          <template v-else>{{ node.label }}</template>
+        </span>
+      </slot>
     </div>
 
     <!-- Children -->

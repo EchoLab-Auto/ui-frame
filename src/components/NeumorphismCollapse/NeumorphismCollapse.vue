@@ -1,12 +1,10 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useCollapse } from '@/composables/useCollapse'
+import type { CollapseItem } from '@/composables/useCollapse'
 import { generateId } from '@/utils'
 
-export interface CollapseItem {
-  key: string
-  title: string
-  disabled?: boolean
-}
+export type { CollapseItem }
 
 export interface NeumorphismCollapseProps {
   modelValue?: string[]
@@ -27,31 +25,22 @@ const emit = defineEmits<{
   (e: 'change', value: string[]): void
 }>()
 
+const activeKeys = computed({
+  get: () => props.modelValue,
+  set: (val) => {
+    emit('update:modelValue', val)
+    emit('change', val)
+  },
+})
+
+// Use headless collapse composable for all behavioral logic
+const { toggle, isActive } = useCollapse({
+  modelValue: activeKeys,
+  items: computed(() => props.items),
+  accordion: computed(() => props.accordion),
+})
+
 const collapseId = generateId('nm-collapse')
-
-function toggle(key: string) {
-  const item = props.items.find((i) => i.key === key)
-  if (item?.disabled) return
-
-  const keys = [...props.modelValue]
-  const idx = keys.indexOf(key)
-  if (idx >= 0) {
-    keys.splice(idx, 1)
-  } else {
-    if (props.accordion) {
-      emit('update:modelValue', [key])
-      emit('change', [key])
-      return
-    }
-    keys.push(key)
-  }
-  emit('update:modelValue', keys)
-  emit('change', keys)
-}
-
-function isActive(key: string): boolean {
-  return props.modelValue.includes(key)
-}
 
 const classList = computed(() => [
   'nm-collapse',
@@ -78,7 +67,10 @@ const classList = computed(() => [
           :disabled="item.disabled"
           @click="toggle(item.key)"
         >
-          <span class="nm-collapse__title">{{ item.title }}</span>
+          <!-- @slot Custom header rendering. Bind: item, active -->
+          <slot :name="`header-${item.key}`" :item="item" :active="isActive(item.key)">
+            <span class="nm-collapse__title">{{ item.title }}</span>
+          </slot>
           <span class="nm-collapse__icon" :class="{ 'nm-collapse__icon--active': isActive(item.key) }">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M6 9l6 6 6-6"/>

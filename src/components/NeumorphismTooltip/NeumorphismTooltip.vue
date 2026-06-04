@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { computed, ref, onBeforeUnmount } from 'vue'
+import { computed } from 'vue'
+import { useTooltip } from '@/composables/useTooltip'
+import type { TooltipPosition, TooltipTrigger } from '@/composables/useTooltip'
 
-export type TooltipPosition = 'top' | 'bottom' | 'left' | 'right'
-export type TooltipTrigger = 'hover' | 'click' | 'focus'
+export type { TooltipPosition, TooltipTrigger }
 
 export interface NeumorphismTooltipProps {
   content?: string
@@ -21,40 +22,19 @@ const props = withDefaults(defineProps<NeumorphismTooltipProps>(), {
   delay: 150,
 })
 
-const isVisible = ref(false)
-let showTimer: ReturnType<typeof setTimeout> | null = null
-let hideTimer: ReturnType<typeof setTimeout> | null = null
+// Use headless tooltip composable for all behavioral logic
+const { isVisible, show, hide, toggle, handleKeydown: onKeydown } =
+  useTooltip({
+    disabled: computed(() => props.disabled),
+    delay: props.delay,
+    trigger: computed(() => props.trigger),
+  })
 
 const classList = computed(() => [
   'nm-tooltip',
   `nm-tooltip--${props.position}`,
   { 'nm-tooltip--visible': isVisible.value },
 ])
-
-function show() {
-  if (props.disabled) return
-  if (hideTimer) { clearTimeout(hideTimer); hideTimer = null }
-  showTimer = setTimeout(() => { isVisible.value = true }, props.delay)
-}
-
-function hide() {
-  if (showTimer) { clearTimeout(showTimer); showTimer = null }
-  hideTimer = setTimeout(() => { isVisible.value = false }, 100)
-}
-
-function toggle() {
-  if (props.disabled) return
-  isVisible.value ? hide() : show()
-}
-
-function handleKeydown(event: KeyboardEvent) {
-  if (event.key === 'Escape') { isVisible.value = false }
-}
-
-onBeforeUnmount(() => {
-  if (showTimer) { clearTimeout(showTimer); showTimer = null }
-  if (hideTimer) { clearTimeout(hideTimer); hideTimer = null }
-})
 </script>
 
 <template>
@@ -66,7 +46,7 @@ onBeforeUnmount(() => {
     @click="trigger === 'click' ? toggle() : undefined"
     @focusin="trigger === 'focus' ? show() : undefined"
     @focusout="trigger === 'focus' ? hide() : undefined"
-    @keydown="handleKeydown"
+    @keydown="onKeydown"
   >
     <slot />
 
@@ -81,6 +61,7 @@ onBeforeUnmount(() => {
       >
         <span class="nm-tooltip__arrow" />
         <span class="nm-tooltip__content">
+          <!-- @slot Custom tooltip content -->
           <slot name="content">{{ content }}</slot>
         </span>
       </div>
@@ -101,7 +82,6 @@ onBeforeUnmount(() => {
   z-index: 9998;
   cursor: default;
 
-  // Tooltip box
   .nm-tooltip__content {
     display: block;
     padding: 8px 14px;
@@ -114,7 +94,6 @@ onBeforeUnmount(() => {
     @include nm-raised(3px, 8px);
   }
 
-  // Arrow
   .nm-tooltip__arrow {
     position: absolute;
     width: 8px;
@@ -124,7 +103,6 @@ onBeforeUnmount(() => {
     box-shadow: 1px 1px 3px var(--nm-shadow-dark);
   }
 
-  // Positions
   &--top {
     bottom: calc(100% + v-bind('`${offset}px`'));
     left: 50%;

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useConfig } from '@/composables/useConfig'
 
 export type ButtonVariant = 'raised' | 'flat' | 'pressed'
 export type ButtonSize = 'small' | 'medium' | 'large'
@@ -33,6 +34,12 @@ const props = withDefaults(defineProps<NeumorphismButtonProps>(), {
   type: 'button',
 })
 
+// Global config overrides defaults (explicit props still take precedence)
+const config = useConfig()
+const resolvedVariant = computed(() => props.variant ?? config.value.button?.variant ?? 'raised')
+const resolvedSize = computed(() => props.size ?? config.value.button?.size ?? 'medium')
+const resolvedShape = computed(() => props.shape ?? config.value.button?.shape ?? 'rounded')
+
 const emit = defineEmits<{
   (e: 'click', event: MouseEvent): void
 }>()
@@ -41,9 +48,9 @@ const isDisabled = computed(() => props.disabled || props.loading)
 
 const classList = computed(() => [
   'nm-button',
-  `nm-button--${props.variant}`,
-  `nm-button--${props.size}`,
-  `nm-button--${props.shape}`,
+  `nm-button--${resolvedVariant.value}`,
+  `nm-button--${resolvedSize.value}`,
+  `nm-button--${resolvedShape.value}`,
   {
     'nm-button--disabled': isDisabled.value,
     'nm-button--loading': props.loading,

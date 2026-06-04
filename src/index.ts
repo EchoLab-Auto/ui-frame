@@ -1,4 +1,7 @@
 import type { App } from 'vue'
+import { computed } from 'vue'
+import type { NeumorphismGlobalConfig } from './composables/useConfig'
+import { ConfigKey } from './composables/useConfig'
 
 import {
   NeumorphismButton,
@@ -180,7 +183,7 @@ export type {
   NeumorphismCanvasProps,
 } from './components'
 
-// Composables
+// Composables — theme
 export {
   useTheme,
   provideTheme,
@@ -193,8 +196,45 @@ export type {
   ThemeContext,
 } from './composables/useTheme'
 
+// Composables — headless behavior (business logic without UI)
+export { useSelect } from './composables/useSelect'
+export type { UseSelectOptions, UseSelectReturn, SelectOption } from './composables/useSelect'
+
+export { useTabs } from './composables/useTabs'
+export type { UseTabsOptions, UseTabsReturn, TabItem as HeadlessTabItem } from './composables/useTabs'
+
+export { usePagination } from './composables/usePagination'
+export type { UsePaginationOptions, UsePaginationReturn } from './composables/usePagination'
+
+export { useTree } from './composables/useTree'
+export type { UseTreeOptions, UseTreeReturn, TreeNodeData as HeadlessTreeNodeData } from './composables/useTree'
+
+export { useCollapse } from './composables/useCollapse'
+export type { UseCollapseOptions, UseCollapseReturn, CollapseItem as HeadlessCollapseItem } from './composables/useCollapse'
+
+export { useModal } from './composables/useModal'
+export type { UseModalOptions, UseModalReturn } from './composables/useModal'
+
+export { useToast } from './composables/useToast'
+export type { UseToastOptions, UseToastReturn, ToastOptions as HeadlessToastOptions, ToastItem as HeadlessToastItem, ToastType as HeadlessToastType, ToastPosition as HeadlessToastPosition } from './composables/useToast'
+
+export { useTooltip } from './composables/useTooltip'
+export type { UseTooltipOptions, UseTooltipReturn, TooltipPosition as HeadlessTooltipPosition, TooltipTrigger as HeadlessTooltipTrigger } from './composables/useTooltip'
+
+export { useTouchDevice } from './composables/useTouchDevice'
+export { useCheckable } from './composables/useCheckable'
+export type { UseCheckableOptions } from './composables/useCheckable'
+export { useFormField } from './composables/useFormField'
+export type { FormFieldConfig, FieldSize } from './composables/useFormField'
+export { validateFieldValue } from './composables/useFormValidation'
+export type { FormRule as HeadlessFormRule } from './composables/useFormValidation'
+
 // Utilities
 export { generateId, debounce, isEmpty } from './utils'
+
+// Config exports
+export { useConfig, ConfigKey } from './composables/useConfig'
+export type { NeumorphismGlobalConfig } from './composables/useConfig'
 
 // Install function — registers all components globally
 const NAME_TO_COMPONENT = {
@@ -233,7 +273,12 @@ const NAME_TO_COMPONENT = {
   NeumorphismCanvas,
 } as const
 
-export function install(app: App): void {
+export function install(app: App, options?: NeumorphismGlobalConfig): void {
+  // Provide global config for all components to use as defaults
+  if (options) {
+    app.provide(ConfigKey, computed(() => options))
+  }
+
   for (const [name, component] of Object.entries(NAME_TO_COMPONENT)) {
     app.component(name, component)
   }

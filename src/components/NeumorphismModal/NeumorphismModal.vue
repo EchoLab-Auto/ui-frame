@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import { computed, ref, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
+import { computed, ref } from 'vue'
+import { useModal } from '@/composables/useModal'
+import { useConfig } from '@/composables/useConfig'
 import { generateId } from '@/utils'
 
 export interface NeumorphismModalProps {
@@ -23,6 +25,9 @@ const props = withDefaults(defineProps<NeumorphismModalProps>(), {
   footer: true,
 })
 
+const config = useConfig()
+const resolvedSize = computed(() => props.size ?? config.value.modal?.size ?? 'medium')
+
 const emit = defineEmits<{
   (e: 'update:modelValue', value: boolean): void
   (e: 'open'): void
@@ -31,101 +36,48 @@ const emit = defineEmits<{
   (e: 'cancel'): void
 }>()
 
-const visible = ref(props.modelValue)
-const rendered = ref(props.modelValue)
-const dialogRef = ref<HTMLDivElement>()
-const previousActiveElement = ref<HTMLElement>()
-let destroyTimer: ReturnType<typeof setTimeout> | undefined
-const titleId = `nm-modal-title-${generateId()}`
-
-function lockBodyScroll() {
-  document.body.style.overflow = 'hidden'
-}
-
-function unlockBodyScroll() {
-  document.body.style.overflow = ''
-}
-
-watch(() => props.modelValue, (val) => {
-  if (val) {
-    rendered.value = true
-    previousActiveElement.value = document.activeElement as HTMLElement
-    lockBodyScroll()
-    nextTick(() => {
-      visible.value = true
-      dialogRef.value?.focus()
-    })
-    emit('open')
-  } else {
-    visible.value = false
-    clearTimeout(destroyTimer)
-    if (props.destroyOnClose) {
-      destroyTimer = setTimeout(() => { rendered.value = false }, 200)
-    }
-    unlockBodyScroll()
-    previousActiveElement.value?.focus()
-    emit('close')
-  }
+const modelRef = computed({
+  get: () => props.modelValue,
+  set: (val) => emit('update:modelValue', val),
 })
 
-const classList = computed(() => [
-  'nm-modal',
-  `nm-modal--${props.size}`,
-])
+// Use headless modal composable for all behavioral logic
+const { visible, rendered, close, confirm, handleKeydown: onKeydown } =
+  useModal({
+    modelValue: modelRef,
+    maskClosable: computed(() => props.maskClosable),
+    closable: computed(() => props.closable),
+    destroyOnClose: computed(() => props.destroyOnClose),
+  })
+
+const dialogRef = ref<HTMLDivElement>()
+const titleId = `nm-modal-title-${generateId()}`
 
 function handleMaskClick() {
   if (props.maskClosable && props.closable) {
     close()
+    emit('cancel')
   }
 }
 
-function close() {
-  if (!props.closable) return
-  emit('update:modelValue', false)
+function handleClose() {
+  close()
   emit('cancel')
 }
 
-function confirm() {
+function handleConfirm() {
   emit('confirm')
-  emit('update:modelValue', false)
+  confirm()
 }
 
 function handleKeydown(event: KeyboardEvent) {
-  if (event.key === 'Escape' && props.closable) {
-    close()
-    return
-  }
-  if (event.key === 'Tab') {
-    const dialog = dialogRef.value
-    if (!dialog) return
-    const focusable = dialog.querySelectorAll<HTMLElement>(
-      'button:not([disabled]), [href]:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"]):not([disabled]), [contenteditable]:not([contenteditable="false"])'
-    )
-    const first = focusable[0]
-    const last = focusable[focusable.length - 1]
-
-    if (event.shiftKey) {
-      if (document.activeElement === first) { event.preventDefault(); last?.focus() }
-    } else {
-      if (document.activeElement === last) { event.preventDefault(); first?.focus() }
-    }
-  }
+  onKeydown(event, dialogRef.value)
 }
 
-onMounted(() => {
-  if (props.modelValue) {
-    rendered.value = true
-    nextTick(() => { visible.value = true; dialogRef.value?.focus() })
-  }
-})
-
-onBeforeUnmount(() => {
-  clearTimeout(destroyTimer)
-  unlockBodyScroll()
-  if (visible.value) {
-    previousActiveElement.value?.focus()
-  }
-})
+const classList = computed(() => [
+  'nm-modal',
+  `nm-modal--${resolvedSize.value}`,
+])
 </script>
 
 <template>
@@ -149,7 +101,7 @@ onBeforeUnmount(() => {
               <button
                 v-if="showClose && closable"
                 class="nm-modal__close"
-                @click="close"
+                @click="handleClose"
                 :aria-label="'关闭'"
                 type="button"
               >
@@ -165,8 +117,8 @@ onBeforeUnmount(() => {
 
             <div v-if="footer" class="nm-modal__footer">
               <slot name="footer">
-                <button class="nm-modal__btn nm-modal__btn--cancel" type="button" @click="close">取消</button>
-                <button class="nm-modal__btn nm-modal__btn--confirm" type="button" @click="confirm">确认</button>
+                <button class="nm-modal__btn nm-modal__btn--cancel" type="button" @click="handleClose">取消</button>
+                <button class="nm-modal__btn nm-modal__btn--confirm" type="button" @click="handleConfirm">确认</button>
               </slot>
             </div>
           </div>
