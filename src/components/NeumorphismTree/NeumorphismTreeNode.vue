@@ -59,9 +59,9 @@ function handleSelect() {
 
 const collapseStyle = computed(() => {
   if (!isExpanded.value) {
-    return { height: '0px', opacity: '0' }
+    return { maxHeight: '0px', opacity: '0', overflow: 'hidden' }
   }
-  return {}
+  return { maxHeight: '5000px', opacity: '1', overflow: 'hidden' }
 })
 </script>
 
@@ -75,7 +75,7 @@ const collapseStyle = computed(() => {
       'nm-tree-node--leaf': !hasChildren,
       'nm-tree-node--expanded': isExpanded,
     }"
-    :style="{ paddingLeft: `${level * 20 + 4}px` }"
+    :style="{ paddingLeft: `calc(${level} * var(--nm-tree-node-indent, 20px) + 4px)` }"
     role="treeitem"
     :aria-expanded="hasChildren ? isExpanded : undefined"
     :aria-selected="isSelected"
@@ -250,7 +250,9 @@ const collapseStyle = computed(() => {
 }
 
 .nm-tree-node__children {
+  margin: 0;
+  padding: 0;
   overflow: hidden;
-  transition: height 0.3s cubic-bezier(0.4, 0.0, 0.2, 1.0), opacity 0.3s ease;
+  transition: max-height 0.3s cubic-bezier(0.4, 0.0, 0.2, 1.0), opacity 0.3s ease;
 }
 </style>
