@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import type { Theme } from '../src/composables/useTheme'
 
 // ---- 主题状态 ----
@@ -80,6 +80,47 @@ function scrollToSection(id: string) {
     el.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }
 }
+
+// ---- 滚动监听（scroll-spy） ----
+const activeSection = ref('buttons')
+const allSectionIds = computed(() =>
+  navCategories.flatMap((c) => c.items.map((i) => i.id))
+)
+
+function updateActiveSection() {
+  const content = document.querySelector('.nm-layout__content')
+  if (!content) return
+  const scrollTop = content.scrollTop
+  const contentTop = content.getBoundingClientRect().top
+
+  let current = allSectionIds.value[0]
+  for (const id of allSectionIds.value) {
+    const el = document.getElementById(id)
+    if (!el) continue
+    const rect = el.getBoundingClientRect()
+    // Section top relative to content viewport
+    if (rect.top <= contentTop + 120) {
+      current = id
+    }
+  }
+  activeSection.value = current
+}
+
+let scrollContainer: HTMLElement | null = null
+
+onMounted(() => {
+  scrollContainer = document.querySelector('.nm-layout__content')
+  if (scrollContainer) {
+    scrollContainer.addEventListener('scroll', updateActiveSection, { passive: true })
+    updateActiveSection()
+  }
+})
+
+onBeforeUnmount(() => {
+  if (scrollContainer) {
+    scrollContainer.removeEventListener('scroll', updateActiveSection)
+  }
+})
 
 // ---- 开关示例 ----
 const switch1 = ref(false)
@@ -342,6 +383,7 @@ function calcEdgePath(from: typeof flowNodes[number], to: typeof flowNodes[numbe
               :key="item.id"
               :href="`#${item.id}`"
               class="nav-link"
+              :class="{ 'nav-link--active': activeSection === item.id }"
               @click.prevent="scrollToSection(item.id)"
             >{{ item.label }}</a>
           </div>
@@ -1439,11 +1481,11 @@ function calcEdgePath(from: typeof flowNodes[number], to: typeof flowNodes[numbe
 
 // ---- Sider Navigation ----
 .sider-nav {
-  padding: 16px 12px 24px;
+  padding: 12px 10px 24px;
 }
 
 .nav-group {
-  margin-bottom: 20px;
+  margin-bottom: 18px;
 
   &:last-child {
     margin-bottom: 0;
@@ -1452,27 +1494,37 @@ function calcEdgePath(from: typeof flowNodes[number], to: typeof flowNodes[numbe
 
 .nav-group-title {
   display: block;
-  padding: 6px 10px 4px;
+  padding: 8px 10px 6px;
   font-size: 10px;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 1.2px;
   color: var(--nm-text-placeholder);
 }
 
 .nav-link {
   display: block;
-  padding: 5px 10px;
+  padding: 6px 10px 6px 12px;
   font-size: 13px;
   color: var(--nm-text-secondary);
   text-decoration: none;
   border-radius: var(--nm-border-radius-sm);
   transition: all var(--nm-transition-fast);
   margin-bottom: 1px;
+  position: relative;
+  border-left: 2px solid transparent;
 
   &:hover {
     color: var(--nm-primary-color);
     background-color: var(--nm-surface-raised);
+  }
+
+  &--active {
+    color: var(--nm-primary-color);
+    font-weight: 600;
+    background-color: var(--nm-surface-raised);
+    border-left-color: var(--nm-primary-color);
+    border-radius: 0 var(--nm-border-radius-sm) var(--nm-border-radius-sm) 0;
   }
 }
 

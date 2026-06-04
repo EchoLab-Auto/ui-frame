@@ -141,9 +141,17 @@ const siderStyle = computed(() => ({
 .nm-layout {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
   background-color: var(--nm-bg-color);
   @include nm-theme-transition;
+
+  // On mobile, allow full page scroll (drawer mode)
+  &--mobile {
+    height: auto;
+    min-height: 100vh;
+    overflow: visible;
+  }
 }
 
 // ---- Header ----
@@ -201,7 +209,14 @@ const siderStyle = computed(() => ({
 .nm-layout__body {
   display: flex;
   flex: 1;
+  min-height: 0;
   position: relative;
+  overflow: hidden;
+
+  .nm-layout--mobile & {
+    overflow: visible;
+    min-height: auto;
+  }
 }
 
 // ---- Sider ----
@@ -211,9 +226,13 @@ const siderStyle = computed(() => ({
   transition: width var(--nm-transition-normal);
   overflow: hidden;
   z-index: 90;
+  height: 100%;
 
   &:not(&--drawer) {
-    border-right: 1px solid rgba(128, 128, 128, 0.1);
+    border-right: 1px solid rgba(128, 128, 128, 0.08);
+    box-shadow:
+      2px 0 8px var(--nm-shadow-dark),
+      -1px 0 4px var(--nm-shadow-light);
   }
 
   &--drawer {
@@ -224,6 +243,7 @@ const siderStyle = computed(() => ({
     width: 280px;
     max-width: 85vw;
     z-index: 200;
+    height: 100%;
     transform: translateX(-100%);
     transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
     box-shadow: 8px 0 24px var(--nm-shadow-dark);
@@ -239,6 +259,16 @@ const siderStyle = computed(() => ({
   overflow-y: auto;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
+
+  // Subtle inner scrolling shadow hint
+  background:
+    linear-gradient(var(--nm-surface-color) 30%, rgba(255, 255, 255, 0)),
+    linear-gradient(rgba(255, 255, 255, 0), var(--nm-surface-color) 70%) 0 100%,
+    radial-gradient(farthest-side at 50% 0, var(--nm-shadow-dark-strong), transparent),
+    radial-gradient(farthest-side at 50% 100%, var(--nm-shadow-dark-strong), transparent) 0 100%;
+  background-repeat: no-repeat;
+  background-size: 100% 24px, 100% 24px, 100% 8px, 100% 8px;
+  background-attachment: local, local, scroll, scroll;
 }
 
 // ---- Drawer overlay ----
@@ -264,6 +294,10 @@ const siderStyle = computed(() => ({
   min-width: 0;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
+
+  .nm-layout--mobile & {
+    overflow-y: visible;
+  }
 }
 
 // ---- Footer ----
@@ -278,5 +312,4 @@ const siderStyle = computed(() => ({
     padding: 20px 24px;
   }
 }
-
 </style>
