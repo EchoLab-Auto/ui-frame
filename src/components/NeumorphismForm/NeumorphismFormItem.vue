@@ -1,7 +1,9 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, inject, onMounted, onBeforeUnmount, watch } from 'vue'
 import { validateFieldValue } from '@/composables/useFormValidation'
 import type { FormRule } from '@/composables/useFormValidation'
+import { FormKey } from '@/composables/injectionKeys'
+import { generateId } from '@/utils'
 
 export type { FormRule }
 
@@ -17,9 +19,13 @@ const props = withDefaults(defineProps<NeumorphismFormItemProps>(), {
   rules: () => [],
 })
 
-const localError = ref('')
+const form = inject(FormKey, null)
 
-const displayError = computed(() => props.error || localError.value)
+const localError = ref('')
+const formError = computed(() => (props.name ? form?.errors[props.name] : undefined))
+const displayError = computed(() => props.error || formError.value || localError.value)
+
+const fieldId = computed(() => props.name ? `nm-field-${props.name}` : generateId('nm-field'))
 
 function validate(value: unknown): boolean {
   const fieldRules = props.rules
@@ -39,17 +45,46 @@ function clearError() {
   localError.value = ''
 }
 
-defineExpose({ validate, clearError })
+// Register with parent form when name is provided
+onMounted(() => {
+  if (props.name && form) {
+    form.registerField(props.name, validate)
+  }
+})
+
+watch(
+  () => props.name,
+  (newName, oldName) => {
+    if (oldName && form) form.unregisterField(oldName)
+    if (newName && form) form.registerField(newName, validate)
+  }
+)
+
+onBeforeUnmount(() => {
+  if (props.name && form) {
+    form.unregisterField(props.name)
+  }
+})
+
+defineExpose({ validate, clearError, fieldId })
 </script>
 
 <template>
-  <div class="nm-form-item" :class="{ 'nm-form-item--error': !!displayError }">
-    <label v-if="label" class="nm-form-item__label">
+  <div
+    class="nm-form-item"
+    :class="{ 'nm-form-item--error': !!displayError }"
+  >
+    <label
+      v-if="label"
+      :for="name ? fieldId : undefined"
+      class="nm-form-item__label"
+      :style="form?.labelWidth ? { width: form.labelWidth } : undefined"
+    >
       {{ label }}
       <span v-if="required" class="nm-form-item__required">*</span>
     </label>
     <div class="nm-form-item__content">
-      <slot :error="displayError" :validate="validate" />
+      <slot :error="displayError" :validate="validate" :field-id="fieldId" />
     </div>
     <div v-if="displayError" class="nm-form-item__error" role="alert">
       {{ displayError }}

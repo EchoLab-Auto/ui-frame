@@ -30,8 +30,7 @@ watch(
   () => options.value,
   (newOptions) => {
     themeContext.setTheme(newOptions.defaultTheme || 'auto')
-  },
-  { deep: true }
+  }
 )
 </script>
 

@@ -11,6 +11,9 @@ export interface NeumorphismPaginationProps {
   showJumper?: boolean
   maxVisiblePages?: number
   disabled?: boolean
+  prevLabel?: string
+  nextLabel?: string
+  totalLabel?: string
 }
 
 const props = withDefaults(defineProps<NeumorphismPaginationProps>(), {
@@ -22,6 +25,9 @@ const props = withDefaults(defineProps<NeumorphismPaginationProps>(), {
   showJumper: false,
   maxVisiblePages: 7,
   disabled: false,
+  prevLabel: '上一页',
+  nextLabel: '下一页',
+  totalLabel: '共',
 })
 
 const emit = defineEmits<{
@@ -76,7 +82,7 @@ function onJumperChange(event: Event) {
         <button
           class="nm-pagination__btn"
           :disabled="isPrevDisabled"
-          :aria-label="'上一页'"
+          :aria-label="prevLabel"
           @click="prevPage"
           type="button"
         >

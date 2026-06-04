@@ -266,6 +266,19 @@
     border-color var(--nm-transition-slow);
 }
 
+// ---- Reduced motion global override ----
+@media (prefers-reduced-motion: reduce) {
+  .nm-root,
+  .nm-theme-default,
+  .nm-root *,
+  .nm-theme-default * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 // ---- Mobile-friendly global defaults ----
 .nm-root {
   -webkit-text-size-adjust: 100%;

@@ -1,4 +1,4 @@
-import { ref, computed, type Ref, type ComputedRef } from 'vue'
+import { ref, computed, watch, type Ref, type ComputedRef } from 'vue'
 
 export interface TreeNodeData {
   key: string
@@ -98,6 +98,18 @@ export function useTree(opts: UseTreeOptions): UseTreeReturn {
   const localExpandedKeys = ref<string[]>([...(opts.expandedKeys?.value ?? [])])
   const localSelectedKeys = ref<string[]>([...(opts.selectedKeys?.value ?? [])])
   const searchText = ref('')
+
+  // Sync local state back to parent v-model refs
+  if (opts.selectedKeys) {
+    watch(localSelectedKeys, (val) => {
+      opts.selectedKeys!.value = [...val]
+    }, { deep: false })
+  }
+  if (opts.expandedKeys) {
+    watch(localExpandedKeys, (val) => {
+      opts.expandedKeys!.value = [...val]
+    }, { deep: false })
+  }
 
   const allKeys = computed(() => collectAllKeys(data.value))
 

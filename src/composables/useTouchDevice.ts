@@ -7,7 +7,7 @@ export function useTouchDevice() {
   const isTouch = ref(false)
   const isMobile = ref(false)
 
-  let resizeTimer: ReturnType<typeof setTimeout> | undefined
+  let resizeTimer: ReturnType<typeof globalThis.setTimeout> | undefined
 
   function updateMobile() {
     isMobile.value = window.innerWidth < 768

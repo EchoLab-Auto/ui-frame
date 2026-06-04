@@ -22,6 +22,8 @@ export interface UseModalReturn {
   confirm: () => void
   /** Handle keydown for Escape and focus trap */
   handleKeydown: (event: KeyboardEvent, dialogEl: HTMLElement | undefined) => void
+  /** Focus the first focusable element inside the dialog (call after dialog mounts) */
+  focusDialog: (dialogEl: HTMLElement | undefined) => void
 }
 
 /**
@@ -51,7 +53,8 @@ export function useModal(opts: UseModalOptions): UseModalReturn {
     (val) => {
       if (val) {
         rendered.value = true
-        previousActiveElement.value = document.activeElement as HTMLElement
+        const ae = document.activeElement
+    previousActiveElement.value = ae instanceof HTMLElement ? ae : null
         lockBodyScroll()
         nextTick(() => {
           visible.value = true
@@ -79,15 +82,33 @@ export function useModal(opts: UseModalOptions): UseModalReturn {
     modelValue.value = false
   }
 
+  function getFocusableElements(dialogEl: HTMLElement | undefined): HTMLElement[] {
+    if (!dialogEl) return []
+    return Array.from(
+      dialogEl.querySelectorAll<HTMLElement>(
+        'button:not([disabled]), [href]:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"]):not([disabled]), [contenteditable]:not([contenteditable="false"])'
+      )
+    )
+  }
+
+  function focusDialog(dialogEl: HTMLElement | undefined) {
+    if (!dialogEl) return
+    // Focus dialog itself first (it has tabindex="-1")
+    dialogEl.focus()
+    // Then try to focus the first interactive element
+    const focusable = getFocusableElements(dialogEl)
+    if (focusable.length > 0) {
+      focusable[0].focus()
+    }
+  }
+
   function handleKeydown(event: KeyboardEvent, dialogEl: HTMLElement | undefined) {
     if (event.key === 'Escape' && closable.value) {
       close()
       return
     }
     if (event.key === 'Tab' && dialogEl) {
-      const focusable = dialogEl.querySelectorAll<HTMLElement>(
-        'button:not([disabled]), [href]:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"]):not([disabled]), [contenteditable]:not([contenteditable="false"])'
-      )
+      const focusable = getFocusableElements(dialogEl)
       if (focusable.length === 0) return
       const first = focusable[0]
       const last = focusable[focusable.length - 1]
@@ -129,5 +150,6 @@ export function useModal(opts: UseModalOptions): UseModalReturn {
     close,
     confirm,
     handleKeydown,
+    focusDialog,
   }
 }

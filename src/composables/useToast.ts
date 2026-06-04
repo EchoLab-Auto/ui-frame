@@ -52,6 +52,7 @@ export function useToast(opts: UseToastOptions = {}): UseToastReturn {
   const toasts = ref<ToastItem[]>([])
   let idCounter = 0
   const timers = new Map<string, ReturnType<typeof setTimeout>>()
+  let clearing = false
 
   function clearToastTimers(id: string) {
     const timer = timers.get(id)
@@ -77,6 +78,15 @@ export function useToast(opts: UseToastOptions = {}): UseToastReturn {
       ...toasts.value.slice(Math.max(0, toasts.value.length - (maxCount - 1))),
       item,
     ]
+
+    // Cancel any in-flight clearAll since a new toast was added
+    if (clearing) {
+      const t = timers.get('__clearAll')
+      if (t) { clearTimeout(t); timers.delete('__clearAll') }
+      clearing = false
+      // Remove toasts that were already in leaving state from the canceled clearAll
+      toasts.value = toasts.value.filter((t) => !t.leaving)
+    }
 
     if (item.duration > 0) {
       clearToastTimers(id)
@@ -105,6 +115,7 @@ export function useToast(opts: UseToastOptions = {}): UseToastReturn {
   function clearAll() {
     timers.forEach((t) => clearTimeout(t))
     timers.clear()
+    clearing = true
     toasts.value.forEach((t) => {
       t.leaving = true
     })
@@ -113,6 +124,7 @@ export function useToast(opts: UseToastOptions = {}): UseToastReturn {
       setTimeout(() => {
         toasts.value = []
         timers.delete('__clearAll')
+        clearing = false
       }, 250)
     )
   }

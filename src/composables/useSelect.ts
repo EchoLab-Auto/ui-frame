@@ -21,7 +21,7 @@ export interface UseSelectReturn {
   toggleOpen: () => void
   close: () => void
   selectOption: (option: SelectOption) => void
-  clearValue: () => void
+  clearValue: (value?: string | number) => void
   handleKeydown: (event: KeyboardEvent) => void
   handleBlur: (relatedTarget: EventTarget | null, currentTarget: HTMLElement) => void
 }
@@ -48,14 +48,19 @@ export function useSelect(opts: UseSelectOptions): UseSelectReturn {
     isOpen.value = false
   }
 
+  function navigateToOption(option: SelectOption) {
+    if (option.disabled || disabled?.value) return
+    modelValue.value = option.value
+  }
+
   function selectOption(option: SelectOption) {
     if (option.disabled || disabled?.value) return
     modelValue.value = option.value
     isOpen.value = false
   }
 
-  function clearValue() {
-    modelValue.value = ''
+  function clearValue(value?: string | number) {
+    modelValue.value = (value ?? undefined) as string | number
     isOpen.value = false
   }
 
@@ -86,17 +91,17 @@ export function useSelect(opts: UseSelectOptions): UseSelectReturn {
     if (event.key === 'ArrowDown') {
       event.preventDefault()
       const next = idx + 1 < enabledOpts.length ? enabledOpts[idx + 1] : enabledOpts[0]
-      if (next) selectOption(next)
+      if (next) navigateToOption(next)
     } else if (event.key === 'ArrowUp') {
       event.preventDefault()
       const prev = idx - 1 >= 0 ? enabledOpts[idx - 1] : enabledOpts[enabledOpts.length - 1]
-      if (prev) selectOption(prev)
+      if (prev) navigateToOption(prev)
     } else if (event.key === 'Home') {
       event.preventDefault()
-      if (enabledOpts[0]) selectOption(enabledOpts[0])
+      if (enabledOpts[0]) navigateToOption(enabledOpts[0])
     } else if (event.key === 'End') {
       event.preventDefault()
-      if (enabledOpts[enabledOpts.length - 1]) selectOption(enabledOpts[enabledOpts.length - 1])
+      if (enabledOpts[enabledOpts.length - 1]) navigateToOption(enabledOpts[enabledOpts.length - 1])
     }
   }
 

@@ -119,17 +119,3 @@ export function useConfig(): ComputedRef<NeumorphismGlobalConfig> {
   const config = inject(ConfigKey, computed(() => DEFAULT_CONFIG))
   return config
 }
-
-/**
- * Merges global config defaults with component-specific props.
- * Global config values act as fallbacks — explicit props always win.
- */
-export function mergeConfig<T extends Record<string, unknown>>(
-  globalDefaults: Record<string, unknown> | undefined,
-  props: T,
-  propDefaults: Partial<T>
-): T {
-  if (!globalDefaults) return { ...propDefaults, ...props } as T
-  const result = { ...propDefaults, ...globalDefaults, ...props } as Record<string, unknown>
-  return result as T
-}

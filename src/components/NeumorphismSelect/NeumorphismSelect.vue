@@ -22,6 +22,8 @@ export interface NeumorphismSelectProps {
   id?: string
   clearable?: boolean
   emptyText?: string
+  clearLabel?: string
+  listLabel?: string
 }
 
 const props = withDefaults(defineProps<NeumorphismSelectProps>(), {
@@ -32,6 +34,8 @@ const props = withDefaults(defineProps<NeumorphismSelectProps>(), {
   size: 'medium',
   clearable: false,
   emptyText: '暂无选项',
+  clearLabel: '清除选择',
+  listLabel: '选项列表',
 })
 
 const config = useConfig()
@@ -53,7 +57,7 @@ const modelRef = computed({
   },
 })
 
-const { isOpen, selectedOption, toggleOpen, close, clearValue, handleKeydown } =
+const { isOpen, selectedOption, toggleOpen, clearValue, handleKeydown, handleBlur: onSelectBlur } =
   useSelect({
     modelValue: modelRef,
     options: computed(() => props.options),
@@ -73,7 +77,7 @@ const classList = computed(() => [
   ...baseClassList('nm-select').value,
   {
     'nm-select--open': isOpen.value,
-    'nm-select--has-value': props.modelValue !== '' && props.modelValue !== undefined,
+    'nm-select--has-value': props.modelValue !== '' && props.modelValue !== undefined && props.modelValue !== null,
   },
 ])
 
@@ -83,11 +87,8 @@ function onClear(event: Event) {
 }
 
 function onContainerBlur(e: FocusEvent) {
-  // Use the composable's blur handling
-  if (!(e.currentTarget as HTMLElement).contains(e.relatedTarget as Node)) {
-    close()
-    handleBlur(e, emit)
-  }
+  onSelectBlur(e.relatedTarget, e.currentTarget as HTMLElement)
+  handleBlur(e, emit)
 }
 </script>
 
@@ -118,7 +119,7 @@ function onContainerBlur(e: FocusEvent) {
           class="nm-select__clear"
           type="button"
           @click="onClear"
-          :aria-label="'清除选择'"
+          :aria-label="clearLabel"
         >
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M18 6L6 18M6 6l12 12"/>

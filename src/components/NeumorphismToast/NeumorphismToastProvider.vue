@@ -8,11 +8,13 @@ export type { ToastType, ToastPosition, ToastItem, ToastOptions }
 export interface NeumorphismToastProviderProps {
   position?: ToastPosition
   maxCount?: number
+  closeLabel?: string
 }
 
 const props = withDefaults(defineProps<NeumorphismToastProviderProps>(), {
   position: 'top-right',
   maxCount: 5,
+  closeLabel: '关闭通知',
 })
 
 // Use headless toast composable for all behavioral logic
@@ -56,7 +58,7 @@ const classList = computed(() => [
               v-if="toast.closable"
               class="nm-toast__close"
               @click="removeToast(toast.id)"
-              :aria-label="'关闭通知'"
+              :aria-label="closeLabel"
               type="button"
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">

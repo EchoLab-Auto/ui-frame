@@ -79,19 +79,19 @@ const classList = computed(() => [
         </button>
       </h3>
 
-      <transition name="nm-collapse">
+      <div
+        :id="`${collapseId}-${item.key}-panel`"
+        class="nm-collapse__panel"
+        role="region"
+        :aria-labelledby="`${collapseId}-${item.key}-header`"
+      >
         <div
-          v-if="isActive(item.key)"
-          :id="`${collapseId}-${item.key}-panel`"
-          class="nm-collapse__panel"
-          role="region"
-          :aria-labelledby="`${collapseId}-${item.key}-header`"
+          class="nm-collapse__content"
+          :class="{ 'nm-collapse__content--collapsed': !isActive(item.key) }"
         >
-          <div class="nm-collapse__content">
-            <slot :name="item.key" />
-          </div>
+          <slot :name="item.key" />
         </div>
-      </transition>
+      </div>
     </div>
   </div>
 </template>
@@ -169,15 +169,23 @@ const classList = computed(() => [
   color: var(--nm-text-primary);
   font-size: 14px;
   line-height: 1.6;
+  max-height: 2000px;
+  opacity: 1;
+  transition: max-height 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.25s ease, padding 0.25s ease;
+
+  &--collapsed {
+    max-height: 0;
+    opacity: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+  }
 }
 
-// Panel transition
-.nm-collapse-enter-active { transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
-.nm-collapse-leave-active { transition: all 0.2s ease; }
-.nm-collapse-enter-from,
-.nm-collapse-leave-to { opacity: 0; max-height: 0; }
-.nm-collapse-enter-to,
-.nm-collapse-leave-from { opacity: 1; max-height: 2000px; }
+@media (prefers-reduced-motion: reduce) {
+  .nm-collapse__content {
+    transition: none;
+  }
+}
 
 // Sizes
 .nm-collapse--small  .nm-collapse__trigger { padding: 12px 16px; font-size: 13px; }

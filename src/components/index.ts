@@ -85,13 +85,9 @@ export type { NeumorphismTreeProps, NeumorphismTreeNodeProps, TreeNodeData } fro
 export { default as NeumorphismCanvas } from './NeumorphismCanvas'
 export type { NeumorphismCanvasProps } from './NeumorphismCanvas'
 
-// Multi-component directories — direct .vue imports
-export { default as NeumorphismRadio } from './NeumorphismRadio/NeumorphismRadio.vue'
-export type { NeumorphismRadioProps } from './NeumorphismRadio/NeumorphismRadio.vue'
-export { default as NeumorphismRadioGroup } from './NeumorphismRadio/NeumorphismRadioGroup.vue'
-export type { NeumorphismRadioGroupProps } from './NeumorphismRadio/NeumorphismRadioGroup.vue'
+// Multi-component directories
+export { NeumorphismRadio, NeumorphismRadioGroup } from './NeumorphismRadio'
+export type { NeumorphismRadioProps, NeumorphismRadioGroupProps } from './NeumorphismRadio'
 
-export { default as NeumorphismForm } from './NeumorphismForm/NeumorphismForm.vue'
-export type { NeumorphismFormProps } from './NeumorphismForm/NeumorphismForm.vue'
-export { default as NeumorphismFormItem } from './NeumorphismForm/NeumorphismFormItem.vue'
-export type { NeumorphismFormItemProps, FormRule } from './NeumorphismForm/NeumorphismFormItem.vue'
+export { NeumorphismForm, NeumorphismFormItem } from './NeumorphismForm'
+export type { NeumorphismFormProps, NeumorphismFormItemProps, FormRule } from './NeumorphismForm'

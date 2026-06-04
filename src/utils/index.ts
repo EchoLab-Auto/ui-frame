@@ -6,17 +6,21 @@ export function generateId(prefix = 'nm'): string {
 }
 
 /**
- * Debounce function
+ * Debounce function with a cancel method
  */
 export function debounce<T extends (...args: unknown[]) => void>(
   fn: T,
   delay: number
-): (...args: Parameters<T>) => void {
+): ((...args: Parameters<T>) => void) & { cancel: () => void } {
   let timer: ReturnType<typeof setTimeout> | null = null
-  return (...args: Parameters<T>) => {
+  const debounced = (...args: Parameters<T>) => {
     if (timer) clearTimeout(timer)
     timer = setTimeout(() => fn(...args), delay)
   }
+  debounced.cancel = () => {
+    if (timer) { clearTimeout(timer); timer = null }
+  }
+  return debounced
 }
 
 /**

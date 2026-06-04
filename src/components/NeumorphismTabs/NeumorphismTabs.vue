@@ -10,6 +10,7 @@ export interface NeumorphismTabsProps {
   tabs?: TabItem[]
   position?: 'top' | 'left' | 'right'
   size?: 'small' | 'medium' | 'large'
+  navLabel?: string
 }
 
 const props = withDefaults(defineProps<NeumorphismTabsProps>(), {
@@ -17,6 +18,7 @@ const props = withDefaults(defineProps<NeumorphismTabsProps>(), {
   tabs: () => [],
   position: 'top',
   size: 'medium',
+  navLabel: '标签导航',
 })
 
 const emit = defineEmits<{
@@ -72,7 +74,7 @@ const classList = computed(() => [
       class="nm-tabs__nav"
       role="tablist"
       :aria-orientation="orientation"
-      :aria-label="'标签导航'"
+      :aria-label="navLabel"
     >
       <!-- @slot Custom tab rendering. Bind: tab, active, index -->
       <slot
@@ -84,6 +86,7 @@ const classList = computed(() => [
         :index="index"
       >
         <button
+          :id="`${panelId}-tab-${tab.key}`"
           :ref="(el) => setTabRef(tab.key, el)"
           class="nm-tabs__tab"
           :class="{
@@ -107,6 +110,7 @@ const classList = computed(() => [
       :id="panelId"
       class="nm-tabs__panel"
       role="tabpanel"
+      :aria-labelledby="`${panelId}-tab-${modelValue}`"
     >
       <slot />
     </div>

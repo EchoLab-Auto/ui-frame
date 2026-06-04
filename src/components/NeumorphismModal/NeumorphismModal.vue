@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch, nextTick } from 'vue'
 import { useModal } from '@/composables/useModal'
 import { useConfig } from '@/composables/useConfig'
 import { generateId } from '@/utils'
@@ -13,6 +13,9 @@ export interface NeumorphismModalProps {
   showClose?: boolean
   destroyOnClose?: boolean
   footer?: boolean
+  closeLabel?: string
+  cancelLabel?: string
+  confirmLabel?: string
 }
 
 const props = withDefaults(defineProps<NeumorphismModalProps>(), {
@@ -23,6 +26,9 @@ const props = withDefaults(defineProps<NeumorphismModalProps>(), {
   showClose: true,
   destroyOnClose: false,
   footer: true,
+  closeLabel: '关闭',
+  cancelLabel: '取消',
+  confirmLabel: '确认',
 })
 
 const config = useConfig()
@@ -42,7 +48,7 @@ const modelRef = computed({
 })
 
 // Use headless modal composable for all behavioral logic
-const { visible, rendered, close, confirm, handleKeydown: onKeydown } =
+const { visible, rendered, close, confirm, handleKeydown: onKeydown, focusDialog } =
   useModal({
     modelValue: modelRef,
     maskClosable: computed(() => props.maskClosable),
@@ -52,6 +58,14 @@ const { visible, rendered, close, confirm, handleKeydown: onKeydown } =
 
 const dialogRef = ref<HTMLDivElement>()
 const titleId = `nm-modal-title-${generateId()}`
+
+// Auto-focus when modal becomes visible
+watch(visible, async (v) => {
+  if (v) {
+    await nextTick()
+    focusDialog(dialogRef.value)
+  }
+})
 
 function handleMaskClick() {
   if (props.maskClosable && props.closable) {
@@ -102,7 +116,7 @@ const classList = computed(() => [
                 v-if="showClose && closable"
                 class="nm-modal__close"
                 @click="handleClose"
-                :aria-label="'关闭'"
+                :aria-label="closeLabel"
                 type="button"
               >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -117,8 +131,8 @@ const classList = computed(() => [
 
             <div v-if="footer" class="nm-modal__footer">
               <slot name="footer">
-                <button class="nm-modal__btn nm-modal__btn--cancel" type="button" @click="handleClose">取消</button>
-                <button class="nm-modal__btn nm-modal__btn--confirm" type="button" @click="handleConfirm">确认</button>
+                <button class="nm-modal__btn nm-modal__btn--cancel" type="button" @click="handleClose">{{ cancelLabel }}</button>
+                <button class="nm-modal__btn nm-modal__btn--confirm" type="button" @click="handleConfirm">{{ confirmLabel }}</button>
               </slot>
             </div>
           </div>

@@ -13,7 +13,11 @@ export interface FormContext {
   model: Record<string, unknown>
   rules: Record<string, FormRule[]>
   errors: Record<string, string>
+  labelWidth?: string
+  size?: string
   validateField: (name: string) => boolean
+  registerField: (name: string, validateFn: (value: unknown) => boolean) => void
+  unregisterField: (name: string) => void
 }
 
 export interface RowGutterContext {
