@@ -208,6 +208,18 @@ function onJumperChange(event: Event) {
     color: #fff;
     background-color: var(--nm-primary-color);
     @include nm-inset(1px, 3px);
+    animation: nm-pagination-active 0.4s $nm-ease-bounce;
+    position: relative;
+  }
+
+  &--active::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: radial-gradient(circle at center, rgba(255, 255, 255, 0.15) 0%, transparent 70%);
+    opacity: 0;
+    animation: nm-pagination-glow 0.5s $nm-ease-decelerate;
   }
 
   &:disabled {
@@ -265,5 +277,28 @@ function onJumperChange(event: Event) {
 }
 .nm-pagination--large {
   .nm-pagination__btn { min-width: 46px; height: 46px; font-size: 16px; }
+}
+
+@keyframes nm-pagination-active {
+  0% { transform: scale(0.9); }
+  60% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+@keyframes nm-pagination-glow {
+  0% { opacity: 0.5; transform: scale(0.5); }
+  100% { opacity: 0; transform: scale(2); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nm-pagination__btn {
+    transition: none;
+  }
+  .nm-pagination__btn--active {
+    animation: none;
+  }
+  .nm-pagination__btn--active::after {
+    animation: none;
+  }
 }
 </style>

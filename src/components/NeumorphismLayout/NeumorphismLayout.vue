@@ -204,10 +204,33 @@ const siderStyle = computed(() => ({
   cursor: pointer;
   color: var(--nm-text-secondary);
   background: none;
+  transition:
+    color 0.25s $nm-ease-ambient,
+    background-color 0.25s $nm-ease-ambient,
+    box-shadow 0.3s $nm-ease-spring,
+    transform 0.25s $nm-ease-spring;
+  @include nm-raised(1px, 2px);
 
-  &:hover {
-    color: var(--nm-text-primary);
-    background-color: var(--nm-surface-raised);
+  @media (hover: hover) {
+    &:hover {
+      color: var(--nm-text-primary);
+      background-color: var(--nm-surface-raised);
+      transform: translateY(-1px);
+      box-shadow:
+        3px 3px 8px var(--nm-shadow-dark),
+        -2px -2px 4px var(--nm-shadow-light);
+    }
+  }
+
+  &:active {
+    @include nm-inset(1px, 2px);
+    transform: translateY(0);
+    transition: box-shadow 0.1s $nm-ease-compress, transform 0.1s $nm-ease-compress;
+  }
+
+  // Icon rotation on collapse state change
+  svg {
+    transition: transform 0.3s $nm-ease-spring;
   }
 }
 
@@ -229,7 +252,7 @@ const siderStyle = computed(() => ({
 .nm-layout__sider {
   flex-shrink: 0;
   background-color: var(--nm-surface-color);
-  transition: width var(--nm-transition-normal);
+  transition: width 0.4s $nm-ease-spring;
   overflow: hidden;
   z-index: 90;
   height: 100%;
@@ -251,7 +274,7 @@ const siderStyle = computed(() => ({
     z-index: 200;
     height: 100%;
     transform: translateX(-100%);
-    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    transition: transform 0.4s $nm-ease-spring;
     box-shadow: 8px 0 24px var(--nm-shadow-dark);
 
     &.nm-layout__sider--open {
@@ -285,13 +308,21 @@ const siderStyle = computed(() => ({
   z-index: 150;
 }
 
-.nm-layout-fade-enter-active,
-.nm-layout-fade-leave-active {
-  transition: opacity 0.25s ease;
-}
+.nm-layout-fade-enter-active { transition: opacity 0.3s $nm-ease-decelerate; }
+.nm-layout-fade-leave-active { transition: opacity 0.2s $nm-ease-accelerate; }
 .nm-layout-fade-enter-from,
-.nm-layout-fade-leave-to {
-  opacity: 0;
+.nm-layout-fade-leave-to { opacity: 0; }
+
+@media (prefers-reduced-motion: reduce) {
+  .nm-layout__sider {
+    transition: none;
+  }
+  .nm-layout__collapse-btn {
+    transition: none;
+  }
+  .nm-layout__collapse-btn svg {
+    transition: none;
+  }
 }
 
 // ---- Content ----

@@ -168,11 +168,15 @@ watch(() => props.modelValue, () => {
   border-radius: var(--nm-border-radius-md);
   @include nm-inset(4px, 8px);
   @include nm-theme-transition;
+  transition:
+    box-shadow 0.35s $nm-ease-spring,
+    transform 0.3s $nm-ease-spring;
 
   &:not(.nm-textarea--disabled):not(.nm-textarea--focused):hover {
     box-shadow:
       inset 5px 5px 10px var(--nm-shadow-dark),
       inset -5px -5px 10px var(--nm-shadow-light);
+    transform: translateY(-1px);
   }
 
   &--focused {
@@ -180,6 +184,7 @@ watch(() => props.modelValue, () => {
       inset 5px 5px 10px var(--nm-shadow-dark),
       inset -5px -5px 10px var(--nm-shadow-light),
       0 0 0 3px var(--nm-primary-color);
+    transform: translateY(-1px);
   }
 
   &--error {
@@ -198,6 +203,28 @@ watch(() => props.modelValue, () => {
   &--disabled {
     opacity: 0.6;
     cursor: not-allowed;
+  }
+
+  // Error shake
+  &--error-shake {
+    animation: nm-textarea-shake 0.4s $nm-ease-compress;
+  }
+}
+
+@keyframes nm-textarea-shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-5px); }
+  40% { transform: translateX(5px); }
+  60% { transform: translateX(-3px); }
+  80% { transform: translateX(3px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nm-textarea {
+    transition: none;
+  }
+  .nm-textarea--error-shake {
+    animation: none;
   }
 }
 

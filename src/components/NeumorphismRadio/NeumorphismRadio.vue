@@ -105,6 +105,24 @@ function handleChange(): void {
 // Radio-specific: circle + dot
 .nm-radio__circle {
   border-radius: 50%;
+  position: relative;
+  overflow: hidden;
+}
+
+// Ripple burst on select
+.nm-radio__circle::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(circle at center, rgba(108, 122, 224, 0.3) 0%, transparent 70%);
+  opacity: 0;
+  transform: scale(0);
+  transition: none;
+}
+
+.nm-radio--checked .nm-radio__circle::after {
+  animation: nm-radio-ripple 0.45s $nm-ease-decelerate;
 }
 
 .nm-radio__dot {
@@ -112,11 +130,54 @@ function handleChange(): void {
   background-color: var(--nm-primary-color);
   transform: scale(0);
   @include nm-raised(1px, 2px);
-  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: transform 0.4s $nm-ease-bounce;
 }
 
 .nm-radio--checked .nm-radio__dot {
   transform: scale(1);
+}
+
+// Glow ring on checked
+.nm-radio--checked .nm-radio__circle {
+  box-shadow:
+    inset 2px 2px 4px var(--nm-shadow-dark),
+    inset -2px -2px 4px var(--nm-shadow-light),
+    0 0 0 2px rgba(108, 122, 224, 0.15);
+}
+
+// Hover physics
+.nm-radio:not(.nm-radio--disabled):hover .nm-radio__circle {
+  box-shadow:
+    inset 3px 3px 6px var(--nm-shadow-dark),
+    inset -3px -3px 6px var(--nm-shadow-light);
+}
+
+.nm-radio:not(.nm-radio--disabled):hover .nm-radio__dot {
+  filter: brightness(1.1);
+}
+
+// Active press feedback
+.nm-radio:not(.nm-radio--disabled):active .nm-radio__circle {
+  transform: scale(0.94);
+  transition: transform 0.1s $nm-ease-compress;
+}
+
+@keyframes nm-radio-ripple {
+  0% { opacity: 0.5; transform: scale(0); }
+  100% { opacity: 0; transform: scale(2.5); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nm-radio__dot {
+    transition: none;
+    transform: scale(1);
+  }
+  .nm-radio--checked .nm-radio__circle::after {
+    animation: none;
+  }
+  .nm-radio:not(.nm-radio--disabled):active .nm-radio__circle {
+    transform: none;
+  }
 }
 
 // Sizes (with dot dimensions)

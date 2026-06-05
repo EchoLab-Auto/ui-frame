@@ -193,21 +193,31 @@ const classList = computed(() => [
   cursor: pointer;
   @include nm-raised-strong(2px, 4px);
   transition:
-    background-color var(--nm-transition-fast),
-    box-shadow var(--nm-transition-fast),
-    color var(--nm-transition-fast);
+    background-color 0.25s $nm-ease-ambient,
+    box-shadow 0.3s $nm-ease-spring,
+    color 0.25s $nm-ease-ambient,
+    transform 0.25s $nm-ease-spring;
 
   svg {
     width: 16px;
     height: 16px;
+    transition: transform 0.3s $nm-ease-spring;
   }
 
-  &:hover:not(:disabled) {
-    color: var(--nm-primary-color);
+  @media (hover: hover) {
+    &:hover:not(:disabled) {
+      color: var(--nm-primary-color);
+      transform: translateY(-1px);
+      box-shadow:
+        4px 4px 8px var(--nm-shadow-dark-strong),
+        -2px -2px 4px var(--nm-shadow-light-strong);
+    }
   }
 
   &:active:not(:disabled) {
     @include nm-inset-strong(2px, 4px);
+    transform: translateY(0);
+    transition: box-shadow 0.1s $nm-ease-compress, transform 0.1s $nm-ease-compress;
   }
 
   &:disabled {
@@ -217,6 +227,16 @@ const classList = computed(() => [
 
   &--reset {
     margin-left: 4px;
+
+    svg {
+      transition: transform 0.4s $nm-ease-spring;
+    }
+
+    @media (hover: hover) {
+      &:hover:not(:disabled) svg {
+        transform: rotate(-180deg);
+      }
+    }
   }
 }
 
@@ -245,6 +265,18 @@ const classList = computed(() => [
 .nm-canvas__content {
   display: inline-block;
   min-width: 100%;
-  transition: transform 0.15s ease-out;
+  transition: transform 0.35s $nm-ease-spring;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nm-canvas__content {
+    transition: none;
+  }
+  .nm-canvas__btn {
+    transition: none;
+  }
+  .nm-canvas__btn svg {
+    transition: none;
+  }
 }
 </style>

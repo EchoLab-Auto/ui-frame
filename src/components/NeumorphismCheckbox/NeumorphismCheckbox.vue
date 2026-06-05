@@ -111,6 +111,25 @@ function handleChange(event: Event): void {
 // Checkbox-specific
 .nm-checkbox__box {
   border-radius: 6px;
+  position: relative;
+  overflow: hidden;
+}
+
+// Ripple burst on check
+.nm-checkbox__box::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(circle at center, rgba(255, 255, 255, 0.4) 0%, transparent 70%);
+  opacity: 0;
+  transform: scale(0);
+  transition: none;
+}
+
+.nm-checkbox--checked .nm-checkbox__box::after,
+.nm-checkbox--indeterminate .nm-checkbox__box::after {
+  animation: nm-checkbox-ripple 0.4s $nm-ease-decelerate;
 }
 
 .nm-checkbox--checked .nm-checkbox__box,
@@ -125,6 +144,44 @@ function handleChange(event: Event): void {
   width: 65%;
   height: 65%;
   color: #fff;
-  transition: opacity var(--nm-transition-fast);
+  transform: scale(0);
+  transition: transform 0.35s $nm-ease-bounce;
+}
+
+.nm-checkbox--checked .nm-checkbox__icon,
+.nm-checkbox--indeterminate .nm-checkbox__icon {
+  transform: scale(1);
+}
+
+// Hover physics on the label area
+.nm-checkbox:not(.nm-checkbox--disabled):hover .nm-checkbox__box {
+  box-shadow:
+    inset 3px 3px 6px var(--nm-shadow-dark),
+    inset -3px -3px 6px var(--nm-shadow-light);
+}
+
+// Active press feedback
+.nm-checkbox:not(.nm-checkbox--disabled):active .nm-checkbox__box {
+  transform: scale(0.92);
+  transition: transform 0.1s $nm-ease-compress;
+}
+
+@keyframes nm-checkbox-ripple {
+  0% { opacity: 0.6; transform: scale(0); }
+  100% { opacity: 0; transform: scale(2); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nm-checkbox__icon {
+    transition: none;
+    transform: scale(1);
+  }
+  .nm-checkbox--checked .nm-checkbox__box::after,
+  .nm-checkbox--indeterminate .nm-checkbox__box::after {
+    animation: none;
+  }
+  .nm-checkbox:not(.nm-checkbox--disabled):active .nm-checkbox__box {
+    transform: none;
+  }
 }
 </style>

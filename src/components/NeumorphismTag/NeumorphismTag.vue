@@ -85,7 +85,10 @@ const variantColors: Record<TagVariant, string> = {
   background-color: var(--nm-surface-color);
   border-radius: var(--nm-border-radius-sm);
   @include nm-raised(1px, 3px);
-  transition: all var(--nm-transition-fast);
+  transition:
+    box-shadow 0.3s $nm-ease-spring,
+    transform 0.3s $nm-ease-spring,
+    background-color 0.3s $nm-ease-ambient;
   user-select: none;
   white-space: nowrap;
 
@@ -102,6 +105,20 @@ const variantColors: Record<TagVariant, string> = {
     cursor: default;
   }
 
+  @media (hover: hover) {
+    &:hover:not(.nm-tag--disabled) {
+      transform: translateY(-1px);
+      box-shadow:
+        3px 3px 8px var(--nm-shadow-dark),
+        -2px -2px 6px var(--nm-shadow-light);
+    }
+  }
+
+  &:active:not(.nm-tag--disabled) {
+    transform: translateY(0);
+    transition: transform 0.1s $nm-ease-compress, box-shadow 0.1s $nm-ease-compress;
+  }
+
   // Colored variants
   &--primary,
   &--success,
@@ -116,6 +133,15 @@ const variantColors: Record<TagVariant, string> = {
 
     .nm-tag__close { color: rgba(255, 255, 255, 0.7); }
     .nm-tag__close:hover { color: #fff; }
+
+    @media (hover: hover) {
+      &:hover:not(.nm-tag--disabled) {
+        box-shadow:
+          3px 3px 8px rgba(0, 0, 0, 0.25),
+          -2px -2px 6px rgba(255, 255, 255, 0.15);
+        filter: brightness(1.05);
+      }
+    }
   }
 }
 
@@ -134,10 +160,28 @@ const variantColors: Record<TagVariant, string> = {
   background: none;
   cursor: pointer;
   color: var(--nm-text-placeholder);
-  transition: color var(--nm-transition-fast);
+  transition:
+    color 0.2s ease,
+    transform 0.25s $nm-ease-spring;
   border-radius: 50%;
 
-  &:hover { color: var(--nm-text-primary); }
+  &:hover {
+    color: var(--nm-text-primary);
+    transform: rotate(90deg);
+  }
+
+  &:active {
+    transform: rotate(90deg) scale(0.85);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nm-tag {
+    transition: none;
+  }
+  .nm-tag__close {
+    transition: none;
+  }
 }
 
 // Sizes

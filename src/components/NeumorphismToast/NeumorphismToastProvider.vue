@@ -139,12 +139,64 @@ const classList = computed(() => [
   color: var(--nm-text-placeholder);
   cursor: pointer;
   border-radius: 4px;
-  &:hover { color: var(--nm-text-primary); }
+  transition:
+    color 0.2s ease,
+    transform 0.25s $nm-ease-spring,
+    background-color 0.2s ease;
+
+  &:hover {
+    color: var(--nm-text-primary);
+    background-color: var(--nm-surface-raised);
+    transform: rotate(90deg);
+  }
+
+  &:active {
+    transform: rotate(90deg) scale(0.85);
+  }
 }
 
-// Toast list transitions
-.nm-toast-list-enter-active { transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
-.nm-toast-list-leave-active { transition: all 0.2s ease; }
-.nm-toast-list-enter-from { opacity: 0; transform: translateX(30px); }
-.nm-toast-list-leave-to { opacity: 0; transform: translateX(30px); }
+// Toast list transitions — position-aware elastic entrance
+.nm-toast-list-enter-active { transition: all 0.35s $nm-ease-spring; }
+.nm-toast-list-leave-active { transition: all 0.2s $nm-ease-accelerate; }
+
+.nm-toast-container--top-right .nm-toast-list-enter-from,
+.nm-toast-container--bottom-right .nm-toast-list-enter-from {
+  opacity: 0;
+  transform: translateX(40px) scale(0.95);
+}
+
+.nm-toast-container--top-left .nm-toast-list-enter-from,
+.nm-toast-container--bottom-left .nm-toast-list-enter-from {
+  opacity: 0;
+  transform: translateX(-40px) scale(0.95);
+}
+
+.nm-toast-container--top-center .nm-toast-list-enter-from,
+.nm-toast-container--bottom-center .nm-toast-list-enter-from {
+  opacity: 0;
+  transform: translateY(-20px) scale(0.95);
+}
+
+.nm-toast-list-leave-to {
+  opacity: 0;
+  transform: translateX(30px) scale(0.95);
+}
+
+@keyframes nm-toast-icon-pop {
+  0% { transform: scale(0) rotate(-30deg); }
+  60% { transform: scale(1.2) rotate(5deg); }
+  100% { transform: scale(1) rotate(0deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nm-toast {
+    transition: none;
+  }
+  .nm-toast .nm-toast__icon svg {
+    animation: none;
+  }
+  .nm-toast__close {
+    transition: none;
+  }
+}
 </style>

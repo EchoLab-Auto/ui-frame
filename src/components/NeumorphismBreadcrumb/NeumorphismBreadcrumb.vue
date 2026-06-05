@@ -108,14 +108,30 @@ function handleClick(item: BreadcrumbItem, index: number) {
   padding: 4px 8px;
   border-radius: var(--nm-border-radius-sm);
   cursor: default;
+  transition:
+    color 0.25s $nm-ease-ambient,
+    background-color 0.25s $nm-ease-ambient,
+    box-shadow 0.25s $nm-ease-ambient,
+    transform 0.2s $nm-ease-spring;
 
   &--link {
     cursor: pointer;
     color: var(--nm-text-secondary);
+    @include nm-raised(1px, 2px);
 
     &:hover {
       color: var(--nm-primary-color);
       background-color: var(--nm-surface-raised);
+      transform: translateY(-1px);
+      box-shadow:
+        3px 3px 6px var(--nm-shadow-dark),
+        -2px -2px 4px var(--nm-shadow-light);
+    }
+
+    &:active {
+      transform: translateY(0);
+      @include nm-inset(1px, 2px);
+      transition: transform 0.1s $nm-ease-compress, box-shadow 0.1s $nm-ease-compress;
     }
 
     &:focus-visible {
@@ -129,10 +145,17 @@ function handleClick(item: BreadcrumbItem, index: number) {
   color: var(--nm-text-placeholder);
   font-size: 13px;
   user-select: none;
+  transition: color 0.3s ease;
 }
 
 // Sizes
 .nm-breadcrumb--small { font-size: 12px; }
 .nm-breadcrumb--medium { font-size: 14px; }
 .nm-breadcrumb--large { font-size: 16px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .nm-breadcrumb__text {
+    transition: none;
+  }
+}
 </style>

@@ -313,15 +313,35 @@ function onContainerBlur(e: FocusEvent) {
   color: var(--nm-text-primary);
   border-radius: var(--nm-border-radius-sm);
   cursor: pointer;
-  transition: background-color var(--nm-transition-fast);
+  transition:
+    background-color 0.25s $nm-ease-ambient,
+    transform 0.2s $nm-ease-spring,
+    box-shadow 0.25s $nm-ease-ambient;
+  position: relative;
 
   &:hover:not(&--disabled):not(&--empty) {
     background-color: var(--nm-surface-raised);
+    transform: translateX(3px);
+    box-shadow:
+      inset 1px 1px 2px var(--nm-shadow-dark),
+      inset -1px -1px 2px var(--nm-shadow-light);
   }
 
   &--selected {
     color: var(--nm-primary-color);
     font-weight: 600;
+  }
+
+  &--selected::after {
+    content: '';
+    position: absolute;
+    right: 12px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: var(--nm-primary-color);
+    box-shadow: 0 0 6px rgba(108, 122, 224, 0.4);
+    animation: nm-select-dot-pop 0.35s $nm-ease-bounce;
   }
 
   &--disabled {
@@ -354,8 +374,23 @@ function onContainerBlur(e: FocusEvent) {
 }
 
 // Dropdown transition
-.nm-select-dropdown-enter-active { transition: opacity 0.2s ease, transform 0.2s ease; }
-.nm-select-dropdown-leave-active { transition: opacity 0.15s ease, transform 0.15s ease; }
-.nm-select-dropdown-enter-from { opacity: 0; transform: translateY(-6px); }
-.nm-select-dropdown-leave-to { opacity: 0; transform: translateY(-4px); }
+.nm-select-dropdown-enter-active { transition: opacity 0.25s $nm-ease-decelerate, transform 0.25s $nm-ease-spring; }
+.nm-select-dropdown-leave-active { transition: opacity 0.15s $nm-ease-accelerate, transform 0.15s $nm-ease-accelerate; }
+.nm-select-dropdown-enter-from { opacity: 0; transform: translateY(-8px) scale(0.98); }
+.nm-select-dropdown-leave-to { opacity: 0; transform: translateY(-4px) scale(0.98); }
+
+@keyframes nm-select-dot-pop {
+  0% { transform: scale(0); }
+  70% { transform: scale(1.4); }
+  100% { transform: scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nm-select__option {
+    transition: none;
+  }
+  .nm-select__option--selected::after {
+    animation: none;
+  }
+}
 </style>

@@ -240,10 +240,25 @@ const classList = computed(() => [
   font-weight: 500;
   cursor: pointer;
   @include nm-raised(2px, 6px);
-  transition: all var(--nm-transition-fast);
+  transition:
+    box-shadow 0.3s $nm-ease-spring,
+    transform 0.3s $nm-ease-spring,
+    background-color 0.25s $nm-ease-ambient,
+    filter 0.25s $nm-ease-ambient;
 
-  &:active {
+  @media (hover: hover) {
+    &:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow:
+        4px 4px 10px var(--nm-shadow-dark),
+        -2px -2px 6px var(--nm-shadow-light);
+    }
+  }
+
+  &:active:not(:disabled) {
     @include nm-inset(2px, 4px);
+    transform: translateY(0);
+    transition: box-shadow 0.1s $nm-ease-compress, transform 0.1s $nm-ease-compress;
   }
 
   &--cancel {
@@ -260,14 +275,23 @@ const classList = computed(() => [
   }
 }
 
-// Transitions
-.nm-modal-fade-enter-active { transition: opacity 0.25s ease; }
-.nm-modal-fade-leave-active { transition: opacity 0.2s ease; }
+// Transitions — enhanced with spring physics and backdrop blur progression
+.nm-modal-fade-enter-active { transition: opacity 0.35s $nm-ease-decelerate, backdrop-filter 0.35s $nm-ease-decelerate; }
+.nm-modal-fade-leave-active { transition: opacity 0.2s $nm-ease-accelerate, backdrop-filter 0.2s $nm-ease-accelerate; }
 .nm-modal-fade-enter-from,
 .nm-modal-fade-leave-to { opacity: 0; }
 
-.nm-modal-scale-enter-active { transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.25s ease; }
-.nm-modal-scale-leave-active { transition: transform 0.2s ease, opacity 0.15s ease; }
-.nm-modal-scale-enter-from { transform: scale(0.92); opacity: 0; }
-.nm-modal-scale-leave-to { transform: scale(0.92); opacity: 0; }
+.nm-modal-scale-enter-active { transition: transform 0.4s $nm-ease-spring, opacity 0.3s $nm-ease-decelerate; }
+.nm-modal-scale-leave-active { transition: transform 0.2s $nm-ease-accelerate, opacity 0.15s $nm-ease-accelerate; }
+.nm-modal-scale-enter-from { transform: scale(0.88) translateY(12px); opacity: 0; }
+.nm-modal-scale-leave-to { transform: scale(0.92) translateY(-4px); opacity: 0; }
+
+@media (prefers-reduced-motion: reduce) {
+  .nm-modal-fade-enter-active,
+  .nm-modal-fade-leave-active,
+  .nm-modal-scale-enter-active,
+  .nm-modal-scale-leave-active {
+    transition: none;
+  }
+}
 </style>

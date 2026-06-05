@@ -165,14 +165,29 @@ function handleSelect() {
   gap: 4px;
   padding: 5px 8px;
   border-radius: var(--nm-border-radius-sm);
-  transition: background-color var(--nm-transition-fast), color var(--nm-transition-fast);
+  transition:
+    background-color 0.25s $nm-ease-ambient,
+    color 0.25s $nm-ease-ambient,
+    box-shadow 0.3s $nm-ease-spring,
+    transform 0.25s $nm-ease-spring;
   cursor: default;
 
   &--clickable {
     cursor: pointer;
 
-    &:hover {
-      background-color: var(--nm-surface-raised);
+    @media (hover: hover) {
+      &:hover {
+        background-color: var(--nm-surface-raised);
+        transform: translateX(2px);
+        box-shadow:
+          2px 2px 4px var(--nm-shadow-dark),
+          -1px -1px 3px var(--nm-shadow-light);
+      }
+    }
+
+    &:active {
+      transform: translateX(1px) scale(0.98);
+      transition: transform 0.1s $nm-ease-compress, box-shadow 0.1s $nm-ease-compress;
     }
   }
 }
@@ -190,10 +205,22 @@ function handleSelect() {
   border-radius: 4px;
   padding: 0;
   flex-shrink: 0;
-  transition: color var(--nm-transition-fast);
+  transition:
+    color 0.25s $nm-ease-ambient,
+    transform 0.2s $nm-ease-spring,
+    background-color 0.25s $nm-ease-ambient;
 
-  &:hover {
-    color: var(--nm-text-primary);
+  @media (hover: hover) {
+    &:hover {
+      color: var(--nm-text-primary);
+      background-color: var(--nm-surface-raised);
+      transform: scale(1.15);
+    }
+  }
+
+  &:active {
+    transform: scale(0.9);
+    transition: transform 0.1s $nm-ease-compress;
   }
 }
 
@@ -205,7 +232,7 @@ function handleSelect() {
 .nm-tree-node__chevron {
   width: 14px;
   height: 14px;
-  transition: transform 0.25s cubic-bezier(0.4, 0.0, 0.2, 1.0);
+  transition: transform 0.3s $nm-ease-spring;
   transform: rotate(0deg);
 }
 
@@ -222,7 +249,7 @@ function handleSelect() {
 .nm-tree-node__label {
   font-size: 13px;
   color: var(--nm-text-secondary);
-  transition: color var(--nm-transition-fast);
+  transition: color 0.25s $nm-ease-ambient;
   line-height: 1.5;
 }
 
@@ -232,6 +259,13 @@ function handleSelect() {
   background-color: rgba(108, 122, 224, 0.12);
   border-radius: 2px;
   padding: 0 1px;
+  animation: nm-tree-highlight-pop 0.35s $nm-ease-bounce;
+}
+
+@keyframes nm-tree-highlight-pop {
+  0% { transform: scale(0.9); opacity: 0.5; }
+  60% { transform: scale(1.03); }
+  100% { transform: scale(1); opacity: 1; }
 }
 
 .nm-tree-node--selected > .nm-tree-node__row {
@@ -251,11 +285,26 @@ function handleSelect() {
   overflow: hidden;
   display: grid;
   grid-template-rows: 1fr;
-  transition: grid-template-rows 0.3s cubic-bezier(0.4, 0.0, 0.2, 1.0), opacity 0.3s ease;
+  transition:
+    grid-template-rows 0.4s $nm-ease-spring,
+    opacity 0.35s $nm-ease-ambient;
 
   &--collapsed {
     grid-template-rows: 0fr;
     opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nm-tree-node__row,
+  .nm-tree-node__toggle,
+  .nm-tree-node__chevron,
+  .nm-tree-node__label,
+  .nm-tree-node__children {
+    transition: none;
+  }
+  .nm-tree-node__label--highlight {
+    animation: none;
   }
 }
 </style>

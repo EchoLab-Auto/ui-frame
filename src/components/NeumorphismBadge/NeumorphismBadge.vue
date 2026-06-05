@@ -83,12 +83,31 @@ const classList = computed(() => [
     -1px -1px 3px rgba(255, 255, 255, 0.3);
   z-index: 1;
   pointer-events: none;
+  animation: nm-badge-pop 0.4s $nm-ease-bounce;
 
   &--dot {
     min-width: 8px;
     height: 8px;
     padding: 0;
     border-radius: 50%;
+    animation: nm-badge-pulse 2s ease-in-out infinite;
+  }
+}
+
+@keyframes nm-badge-pop {
+  0% { transform: scale(0); opacity: 0; }
+  70% { transform: scale(1.2); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes nm-badge-pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.3); opacity: 0.8; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nm-badge__content {
+    animation: none;
   }
 }
 

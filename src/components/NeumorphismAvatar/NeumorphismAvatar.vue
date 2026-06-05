@@ -73,15 +73,34 @@ const fallbackContent = computed(() => {
   overflow: hidden;
   background-color: var(--nm-surface-color);
   @include nm-raised(2px, 5px);
+  transition:
+    box-shadow 0.35s $nm-ease-spring,
+    transform 0.35s $nm-ease-spring;
 
   &--circle  { border-radius: 50%; }
   &--rounded { border-radius: var(--nm-border-radius-md); }
+
+  @media (hover: hover) {
+    &:hover {
+      transform: scale(1.06);
+      box-shadow:
+        4px 4px 10px var(--nm-shadow-dark),
+        -4px -4px 10px var(--nm-shadow-light);
+    }
+  }
+
+  &:active {
+    transform: scale(0.96);
+    transition: transform 0.1s $nm-ease-compress;
+  }
 }
 
 .nm-avatar__img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  opacity: 0;
+  animation: nm-avatar-fade-in 0.4s $nm-ease-ambient forwards;
 }
 
 .nm-avatar__fallback {
@@ -99,4 +118,19 @@ const fallbackContent = computed(() => {
 .nm-avatar--small  { width: var(--nm-avatar-size-sm); height: var(--nm-avatar-size-sm); font-size: var(--nm-avatar-font-sm); }
 .nm-avatar--medium { width: var(--nm-avatar-size-md); height: var(--nm-avatar-size-md); font-size: var(--nm-avatar-font-md); }
 .nm-avatar--large  { width: var(--nm-avatar-size-lg); height: var(--nm-avatar-size-lg); font-size: var(--nm-avatar-font-lg); }
+
+@keyframes nm-avatar-fade-in {
+  from { opacity: 0; transform: scale(1.05); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nm-avatar {
+    transition: none;
+  }
+  .nm-avatar__img {
+    animation: none;
+    opacity: 1;
+  }
+}
 </style>

@@ -166,16 +166,44 @@ const classList = computed(() => [
   color: var(--nm-text-secondary);
   background: transparent;
   white-space: nowrap;
-  transition: all var(--nm-transition-fast);
+  transition:
+    box-shadow 0.35s $nm-ease-spring,
+    transform 0.3s $nm-ease-spring,
+    color 0.3s $nm-ease-ambient,
+    background-color 0.3s $nm-ease-ambient;
+  position: relative;
+  overflow: hidden;
 
   &:hover:not(&--disabled):not(&--active) {
     color: var(--nm-text-primary);
     @include nm-raised(1px, 3px);
+    transform: translateY(-1px);
+  }
+
+  &:active:not(&--disabled):not(&--active) {
+    transform: translateY(0) scale(0.97);
+    transition: transform 0.1s $nm-ease-compress, box-shadow 0.1s $nm-ease-compress;
   }
 
   &--active {
     color: var(--nm-primary-color);
     @include nm-inset(2px, 4px);
+    animation: nm-tab-active 0.4s $nm-ease-bounce;
+  }
+
+  // Active glow indicator
+  &--active::after {
+    content: '';
+    position: absolute;
+    bottom: 2px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 20px;
+    height: 2px;
+    border-radius: 1px;
+    background-color: var(--nm-primary-color);
+    box-shadow: 0 0 6px rgba(108, 122, 224, 0.4);
+    animation: nm-tab-indicator 0.4s $nm-ease-spring;
   }
 
   &--disabled {
@@ -186,15 +214,53 @@ const classList = computed(() => [
 
 .nm-tabs__tab-label {
   position: relative;
+  transition: transform 0.25s $nm-ease-spring;
+}
+
+.nm-tabs__tab--active .nm-tabs__tab-label {
+  transform: scale(1.02);
 }
 
 .nm-tabs__panel {
   padding: var(--nm-spacing-md);
   color: var(--nm-text-primary);
+  animation: nm-tab-panel-fade 0.35s $nm-ease-decelerate;
 }
 
 // Sizes
 .nm-tabs--small .nm-tabs__tab { padding: 6px 14px; font-size: 12px; }
 .nm-tabs--medium .nm-tabs__tab { padding: 10px 20px; font-size: 14px; }
 .nm-tabs--large .nm-tabs__tab { padding: 14px 28px; font-size: 16px; }
+
+@keyframes nm-tab-active {
+  0% { transform: scale(0.96); }
+  60% { transform: scale(1.02); }
+  100% { transform: scale(1); }
+}
+
+@keyframes nm-tab-indicator {
+  0% { width: 0; opacity: 0; }
+  50% { width: 28px; opacity: 1; }
+  100% { width: 20px; opacity: 1; }
+}
+
+@keyframes nm-tab-panel-fade {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nm-tabs__tab {
+    transition: none;
+  }
+  .nm-tabs__tab--active {
+    animation: none;
+  }
+  .nm-tabs__tab--active::after {
+    animation: none;
+  }
+  .nm-tabs__panel {
+    animation: none;
+  }
+}
 </style>

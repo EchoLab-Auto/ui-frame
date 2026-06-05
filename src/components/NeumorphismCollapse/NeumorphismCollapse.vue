@@ -138,6 +138,12 @@ const classList = computed(() => [
     transform: translateY(-1px);
   }
 
+  &:active:not(:disabled) {
+    transform: translateY(0) scale(0.99);
+    @include nm-inset(2px, 5px);
+    transition: transform 0.1s $nm-ease-compress, box-shadow 0.1s $nm-ease-compress;
+  }
+
   &[aria-expanded="true"] {
     @include nm-inset(2px, 5px);
     border-radius: var(--nm-border-radius-md) var(--nm-border-radius-md) 0 0;

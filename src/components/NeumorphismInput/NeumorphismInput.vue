@@ -165,13 +165,15 @@ function handleKeydown(event: KeyboardEvent): void {
   overflow: hidden;
   @include nm-inset(4px, 8px);
   transition:
-    box-shadow 0.3s ease,
-    background-color var(--nm-transition-slow);
+    box-shadow 0.35s $nm-ease-spring,
+    background-color var(--nm-transition-slow),
+    transform 0.3s $nm-ease-spring;
 
   &:not(.nm-input--disabled):not(.nm-input--focused):hover {
     box-shadow:
       inset 5px 5px 10px var(--nm-shadow-dark),
       inset -5px -5px 10px var(--nm-shadow-light);
+    transform: translateY(-1px);
   }
 
   &--focused {
@@ -180,8 +182,10 @@ function handleKeydown(event: KeyboardEvent): void {
       inset -5px -5px 10px var(--nm-shadow-light),
       0 0 0 3px var(--nm-primary-color);
     transition:
-      box-shadow 0.25s ease,
-      background-color var(--nm-transition-slow);
+      box-shadow 0.3s $nm-ease-spring,
+      background-color var(--nm-transition-slow),
+      transform 0.3s $nm-ease-spring;
+    transform: translateY(-1px);
   }
 
   &--error {
@@ -201,6 +205,28 @@ function handleKeydown(event: KeyboardEvent): void {
   &--disabled {
     opacity: 0.6;
     cursor: not-allowed;
+  }
+
+  // Error shake animation
+  &--error-shake {
+    animation: nm-input-shake 0.4s $nm-ease-compress;
+  }
+}
+
+@keyframes nm-input-shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-5px); }
+  40% { transform: translateX(5px); }
+  60% { transform: translateX(-3px); }
+  80% { transform: translateX(3px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nm-input {
+    transition: none;
+  }
+  .nm-input--error-shake {
+    animation: none;
   }
 }
 

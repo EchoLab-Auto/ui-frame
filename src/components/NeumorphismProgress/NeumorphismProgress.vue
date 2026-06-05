@@ -35,6 +35,7 @@ const classList = computed(() => [
   {
     'nm-progress--indeterminate': props.indeterminate,
     'nm-progress--striped': props.striped,
+    'nm-progress--complete': !props.indeterminate && percentage.value >= 100,
   },
 ])
 
@@ -84,10 +85,42 @@ const variantColors: Record<ProgressVariant, string> = {
 .nm-progress__bar {
   height: 100%;
   border-radius: 6px;
-  transition: width 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: width 0.5s $nm-ease-spring;
   box-shadow:
     inset 0 -2px 4px rgba(0, 0, 0, 0.15),
     inset 0 2px 4px rgba(255, 255, 255, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+// Shimmer sweep on the bar
+.nm-progress__bar::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.15),
+    transparent
+  );
+  animation: nm-progress-shimmer 2s ease-in-out infinite;
+}
+
+// Glow on complete (100%)
+.nm-progress--complete .nm-progress__bar {
+  box-shadow:
+    inset 0 -2px 4px rgba(0, 0, 0, 0.15),
+    inset 0 2px 4px rgba(255, 255, 255, 0.1),
+    0 0 8px rgba(108, 122, 224, 0.3);
+  animation: nm-progress-complete-glow 1.5s ease-in-out infinite;
+}
+
+.nm-progress--complete .nm-progress__bar::after {
+  animation: none;
 }
 
 .nm-progress--indeterminate .nm-progress__bar {
@@ -130,5 +163,27 @@ const variantColors: Record<ProgressVariant, string> = {
 @keyframes nm-progress-striped {
   0% { background-position: 0 0; }
   100% { background-position: 16px 0; }
+}
+
+@keyframes nm-progress-shimmer {
+  0%   { left: -100%; }
+  100% { left: 200%; }
+}
+
+@keyframes nm-progress-complete-glow {
+  0%, 100% { box-shadow: inset 0 -2px 4px rgba(0, 0, 0, 0.15), inset 0 2px 4px rgba(255, 255, 255, 0.1), 0 0 6px rgba(108, 122, 224, 0.2); }
+  50%      { box-shadow: inset 0 -2px 4px rgba(0, 0, 0, 0.15), inset 0 2px 4px rgba(255, 255, 255, 0.1), 0 0 14px rgba(108, 122, 224, 0.4); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nm-progress__bar {
+    transition: none;
+  }
+  .nm-progress__bar::after {
+    animation: none;
+  }
+  .nm-progress--complete .nm-progress__bar {
+    animation: none;
+  }
 }
 </style>

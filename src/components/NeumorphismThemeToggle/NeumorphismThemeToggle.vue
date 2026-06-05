@@ -158,26 +158,64 @@ function selectTheme(value: Theme) {
   color: var(--nm-text-placeholder);
   border-radius: var(--nm-border-radius-full);
   transition:
-    background-color var(--nm-transition-normal),
-    box-shadow var(--nm-transition-normal),
-    color var(--nm-transition-normal);
+    background-color 0.35s $nm-ease-spring,
+    box-shadow 0.35s $nm-ease-spring,
+    color 0.3s $nm-ease-ambient,
+    transform 0.25s $nm-ease-spring;
   white-space: nowrap;
+  position: relative;
+  overflow: hidden;
 
   &:disabled {
     cursor: not-allowed;
+  }
+
+  @media (hover: hover) {
+    &:hover:not(:disabled):not(.nm-theme-toggle__btn--active) {
+      color: var(--nm-text-secondary);
+      background-color: rgba(128, 128, 128, 0.06);
+      transform: translateY(-1px);
+    }
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(0.96);
+    transition: transform 0.1s $nm-ease-compress;
   }
 
   &--active {
     color: var(--nm-primary-color);
     @include nm-raised-strong(2px, 4px);
     background-color: var(--nm-surface-raised);
+    animation: nm-theme-toggle-activate 0.4s $nm-ease-bounce;
   }
+}
+
+// Ripple effect on active state
+.nm-theme-toggle__btn::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(circle at center, rgba(108, 122, 224, 0.1) 0%, transparent 70%);
+  opacity: 0;
+  transform: scale(0);
+  transition: none;
+}
+
+.nm-theme-toggle__btn--active::after {
+  animation: nm-theme-toggle-ripple 0.5s $nm-ease-decelerate;
 }
 
 .nm-theme-toggle__icon {
   width: 16px;
   height: 16px;
   flex-shrink: 0;
+  transition: transform 0.35s $nm-ease-spring;
+}
+
+.nm-theme-toggle__btn--active .nm-theme-toggle__icon {
+  transform: rotate(15deg) scale(1.1);
 }
 
 .nm-theme-toggle__label {
@@ -223,6 +261,32 @@ function selectTheme(value: Theme) {
 
   .nm-theme-toggle__label {
     font-size: 14px;
+  }
+}
+
+@keyframes nm-theme-toggle-activate {
+  0% { transform: scale(0.92); }
+  60% { transform: scale(1.03); }
+  100% { transform: scale(1); }
+}
+
+@keyframes nm-theme-toggle-ripple {
+  0% { opacity: 0.4; transform: scale(0); }
+  100% { opacity: 0; transform: scale(2); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nm-theme-toggle__btn {
+    transition: none;
+  }
+  .nm-theme-toggle__btn--active {
+    animation: none;
+  }
+  .nm-theme-toggle__btn--active::after {
+    animation: none;
+  }
+  .nm-theme-toggle__icon {
+    transition: none;
   }
 }
 </style>
