@@ -40,7 +40,9 @@
 
 /// Hover lift effect
 @mixin nm-hover-lift {
-  transition: box-shadow var(--nm-transition-fast), transform var(--nm-transition-fast);
+  transition:
+    box-shadow var(--nm-transition-fast),
+    transform var(--nm-transition-fast);
 
   &:hover {
     transform: translateY(-2px);
@@ -52,7 +54,9 @@
 
 /// Active press effect
 @mixin nm-active-press {
-  transition: box-shadow var(--nm-transition-fast), transform var(--nm-transition-fast);
+  transition:
+    box-shadow var(--nm-transition-fast),
+    transform var(--nm-transition-fast);
 
   &:active {
     transform: translateY(1px);
@@ -156,19 +160,33 @@ $nm-ease-accelerate: cubic-bezier(0.4, 0, 1, 1);
 }
 
 @keyframes nm-shake {
-  0%, 100% { transform: translateX(0); }
-  20% { transform: translateX(-6px); }
-  40% { transform: translateX(6px); }
-  60% { transform: translateX(-3px); }
-  80% { transform: translateX(3px); }
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-6px);
+  }
+  40% {
+    transform: translateX(6px);
+  }
+  60% {
+    transform: translateX(-3px);
+  }
+  80% {
+    transform: translateX(3px);
+  }
 }
 
 @keyframes nm-pulse-glow {
-  0%, 100% {
+  0%,
+  100% {
     box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
   }
   50% {
-    box-shadow: 0 0 12px rgba(0, 0, 0, 0.2), 0 0 20px var(--nm-primary-color);
+    box-shadow:
+      0 0 12px rgba(0, 0, 0, 0.2),
+      0 0 20px var(--nm-primary-color);
   }
 }
 
@@ -206,12 +224,25 @@ $nm-ease-accelerate: cubic-bezier(0.4, 0, 1, 1);
 }
 
 @keyframes nm-pop {
-  0% { transform: scale(0); }
-  70% { transform: scale(1.15); }
-  100% { transform: scale(1); }
+  0% {
+    transform: scale(0);
+  }
+  70% {
+    transform: scale(1.15);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 
 @keyframes nm-pulse-dot {
-  0%, 100% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.4); opacity: 0.7; }
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.4);
+    opacity: 0.7;
+  }
 }

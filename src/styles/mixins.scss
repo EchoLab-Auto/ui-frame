@@ -15,23 +15,33 @@ $nm-breakpoint-xxl: 1400px;
 // ==========================================
 
 @mixin nm-screen-sm {
-  @media (min-width: $nm-breakpoint-sm) { @content; }
+  @media (min-width: $nm-breakpoint-sm) {
+    @content;
+  }
 }
 
 @mixin nm-screen-md {
-  @media (min-width: $nm-breakpoint-md) { @content; }
+  @media (min-width: $nm-breakpoint-md) {
+    @content;
+  }
 }
 
 @mixin nm-screen-lg {
-  @media (min-width: $nm-breakpoint-lg) { @content; }
+  @media (min-width: $nm-breakpoint-lg) {
+    @content;
+  }
 }
 
 @mixin nm-screen-xl {
-  @media (min-width: $nm-breakpoint-xl) { @content; }
+  @media (min-width: $nm-breakpoint-xl) {
+    @content;
+  }
 }
 
 @mixin nm-screen-xxl {
-  @media (min-width: $nm-breakpoint-xxl) { @content; }
+  @media (min-width: $nm-breakpoint-xxl) {
+    @content;
+  }
 }
 
 // ==========================================
@@ -39,17 +49,23 @@ $nm-breakpoint-xxl: 1400px;
 // Targets devices that DON'T support fine pointer (touchscreens)
 // ==========================================
 @mixin nm-touch-device {
-  @media (pointer: coarse) { @content; }
+  @media (pointer: coarse) {
+    @content;
+  }
 }
 
 // Targets devices that DO support fine pointer (mouse)
 @mixin nm-mouse-device {
-  @media (pointer: fine) { @content; }
+  @media (pointer: fine) {
+    @content;
+  }
 }
 
 // ==========================================
 // Mobile-only mixin (legacy — prefer mobile-first)
 // ==========================================
 @mixin nm-mobile-only {
-  @media (max-width: ($nm-breakpoint-md - 1px)) { @content; }
+  @media (max-width: ($nm-breakpoint-md - 1px)) {
+    @content;
+  }
 }

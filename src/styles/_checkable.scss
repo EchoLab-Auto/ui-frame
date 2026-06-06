@@ -64,12 +64,15 @@
 
 @mixin checkable-sizes($name, $indicator-class) {
   .nm-#{$name}--small .nm-#{$name}__#{$indicator-class} {
-    width: 18px; height: 18px;
+    width: 18px;
+    height: 18px;
   }
   .nm-#{$name}--medium .nm-#{$name}__#{$indicator-class} {
-    width: 24px; height: 24px;
+    width: 24px;
+    height: 24px;
   }
   .nm-#{$name}--large .nm-#{$name}__#{$indicator-class} {
-    width: 30px; height: 30px;
+    width: 30px;
+    height: 30px;
   }
 }
