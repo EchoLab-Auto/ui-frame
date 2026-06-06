@@ -66,7 +66,7 @@ describe('useToast', () => {
     addToast({ message: '1' })
     addToast({ message: '2' })
     clearAll()
-    expect(toasts.value.every((t) => t.leaving)).toBe(true)
+    expect(toasts.value.every(t => t.leaving)).toBe(true)
     vi.advanceTimersByTime(300)
     expect(toasts.value).toHaveLength(0)
   })

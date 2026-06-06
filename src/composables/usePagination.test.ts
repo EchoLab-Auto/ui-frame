@@ -38,7 +38,7 @@ describe('usePagination', () => {
     const { pagination } = setup(200, 50, 5)
     const pages = pagination.visiblePages.value
     // Some pages should be ellipsis strings
-    const hasEllipsis = pages.some((p) => typeof p === 'string')
+    const hasEllipsis = pages.some(p => typeof p === 'string')
     expect(hasEllipsis).toBe(true)
   })
 

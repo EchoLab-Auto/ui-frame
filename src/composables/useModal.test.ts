@@ -8,10 +8,7 @@ afterEach(() => {
 })
 
 // Wraps composable call inside a component's setup() so lifecycle hooks work.
-function withModal(
-  initialOpen = false,
-  opts: Record<string, unknown> = {}
-) {
+function withModal(initialOpen = false, opts: Record<string, unknown> = {}) {
   const open = ref(initialOpen)
   let modalResult: ReturnType<typeof useModal> | null = null
 
@@ -58,19 +55,13 @@ describe('useModal', () => {
 
   it('should close on Escape when closable', () => {
     const { open, modal } = withModal(true)
-    modal().handleKeydown(
-      new KeyboardEvent('keydown', { key: 'Escape' }),
-      undefined
-    )
+    modal().handleKeydown(new KeyboardEvent('keydown', { key: 'Escape' }), undefined)
     expect(open.value).toBe(false)
   })
 
   it('should not close on Escape when not closable', () => {
     const { open, modal } = withModal(true, { closable: ref(false) })
-    modal().handleKeydown(
-      new KeyboardEvent('keydown', { key: 'Escape' }),
-      undefined
-    )
+    modal().handleKeydown(new KeyboardEvent('keydown', { key: 'Escape' }), undefined)
     expect(open.value).toBe(true)
   })
 
@@ -96,10 +87,7 @@ describe('useModal', () => {
     expect(document.activeElement).toBe(btn1)
 
     btn1.focus()
-    modal().handleKeydown(
-      new KeyboardEvent('keydown', { key: 'Tab', shiftKey: true }),
-      dialog
-    )
+    modal().handleKeydown(new KeyboardEvent('keydown', { key: 'Tab', shiftKey: true }), dialog)
     expect(document.activeElement).toBe(btn2)
 
     document.body.removeChild(dialog)

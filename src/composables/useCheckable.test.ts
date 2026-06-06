@@ -41,9 +41,9 @@ describe('useCheckable', () => {
       size: 'medium',
     }))
     // Vue class binding expects an object within the array
-    const classObj = classList.value.find(
-      (c) => typeof c === 'object' && c !== null
-    ) as Record<string, boolean> | undefined
+    const classObj = classList.value.find(c => typeof c === 'object' && c !== null) as
+      | Record<string, boolean>
+      | undefined
     expect(classObj).toBeDefined()
     expect(classObj!['nm-checkbox--checked']).toBe(true)
   })
@@ -55,9 +55,9 @@ describe('useCheckable', () => {
       isDisabled: true,
       size: 'medium',
     }))
-    const classObj = classList.value.find(
-      (c) => typeof c === 'object' && c !== null
-    ) as Record<string, boolean> | undefined
+    const classObj = classList.value.find(c => typeof c === 'object' && c !== null) as
+      | Record<string, boolean>
+      | undefined
     expect(classObj!['nm-checkbox--disabled']).toBe(true)
   })
 
@@ -69,9 +69,9 @@ describe('useCheckable', () => {
       size: 'medium',
       extraClasses: { 'nm-checkbox--indeterminate': true },
     }))
-    const classObj = classList.value.find(
-      (c) => typeof c === 'object' && c !== null
-    ) as Record<string, boolean> | undefined
+    const classObj = classList.value.find(c => typeof c === 'object' && c !== null) as
+      | Record<string, boolean>
+      | undefined
     expect(classObj!['nm-checkbox--indeterminate']).toBe(true)
   })
 })

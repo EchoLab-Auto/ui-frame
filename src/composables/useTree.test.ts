@@ -76,7 +76,7 @@ describe('useTree', () => {
     const parentKeys = ref<string[]>([])
     const tree = useTree({ data: ref(treeData), selectedKeys: parentKeys })
     tree.select('1')
-    await new Promise((r) => setTimeout(r, 0))
+    await new Promise(r => setTimeout(r, 0))
     expect(parentKeys.value).toContain('1')
   })
 })

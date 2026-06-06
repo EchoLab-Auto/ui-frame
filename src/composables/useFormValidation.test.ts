@@ -19,37 +19,27 @@ describe('useFormValidation', () => {
   })
 
   it('should validate minLength', () => {
-    const error = validateFieldValue('ab', [
-      { minLength: 3, message: 'Min 3 chars' },
-    ])
+    const error = validateFieldValue('ab', [{ minLength: 3, message: 'Min 3 chars' }])
     expect(error).toBe('Min 3 chars')
   })
 
   it('should pass minLength', () => {
-    const error = validateFieldValue('abc', [
-      { minLength: 3, message: 'Min 3 chars' },
-    ])
+    const error = validateFieldValue('abc', [{ minLength: 3, message: 'Min 3 chars' }])
     expect(error).toBe('')
   })
 
   it('should validate maxLength', () => {
-    const error = validateFieldValue('abcdef', [
-      { maxLength: 5, message: 'Max 5 chars' },
-    ])
+    const error = validateFieldValue('abcdef', [{ maxLength: 5, message: 'Max 5 chars' }])
     expect(error).toBe('Max 5 chars')
   })
 
   it('should validate pattern', () => {
-    const error = validateFieldValue('abc', [
-      { pattern: /^\d+$/, message: 'Digits only' },
-    ])
+    const error = validateFieldValue('abc', [{ pattern: /^\d+$/, message: 'Digits only' }])
     expect(error).toBe('Digits only')
   })
 
   it('should pass pattern match', () => {
-    const error = validateFieldValue('123', [
-      { pattern: /^\d+$/, message: 'Digits only' },
-    ])
+    const error = validateFieldValue('123', [{ pattern: /^\d+$/, message: 'Digits only' }])
     expect(error).toBe('')
   })
 
@@ -83,9 +73,7 @@ describe('useFormValidation', () => {
   })
 
   it('should skip non-required empty values', () => {
-    const error = validateFieldValue('', [
-      { minLength: 3, message: 'Min 3 chars' },
-    ])
+    const error = validateFieldValue('', [{ minLength: 3, message: 'Min 3 chars' }])
     expect(error).toBe('')
   })
 
