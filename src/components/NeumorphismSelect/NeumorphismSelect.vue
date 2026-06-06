@@ -4,6 +4,7 @@ import { useSelect } from '@/composables/useSelect'
 import type { SelectOption } from '@/composables/useSelect'
 import { useFormField } from '@/composables/useFormField'
 import { useConfig } from '@/composables/useConfig'
+import { useLocale } from '@/composables/useLocale'
 import NeumorphismFieldLabel from '@/components/NeumorphismField/NeumorphismFieldLabel.vue'
 import NeumorphismFieldError from '@/components/NeumorphismField/NeumorphismFieldError.vue'
 
@@ -29,17 +30,22 @@ export interface NeumorphismSelectProps {
 const props = withDefaults(defineProps<NeumorphismSelectProps>(), {
   modelValue: '',
   options: () => [],
-  placeholder: '请选择',
+  placeholder: '',
   disabled: false,
   size: 'medium',
   clearable: false,
-  emptyText: '暂无选项',
-  clearLabel: '清除选择',
-  listLabel: '选项列表',
+  emptyText: '',
+  clearLabel: '',
+  listLabel: '',
 })
 
 const config = useConfig()
+const { t } = useLocale()
 const resolvedSize = computed(() => props.size ?? config.value.select?.size ?? 'medium')
+const resolvedPlaceholder = computed(() => props.placeholder || t('selectPlaceholder'))
+const resolvedEmptyText = computed(() => props.emptyText || t('selectEmpty'))
+const resolvedClearLabel = computed(() => props.clearLabel || t('selectClear'))
+const resolvedListLabel = computed(() => props.listLabel || t('selectListLabel'))
 
 const emit = defineEmits<{
   (e: 'update:modelValue', value: string | number): void
@@ -51,33 +57,40 @@ const emit = defineEmits<{
 // Use headless select composable for all behavioral logic
 const modelRef = computed({
   get: () => props.modelValue,
-  set: (val) => {
+  set: val => {
     emit('update:modelValue', val)
     emit('change', val)
   },
 })
 
-const { isOpen, selectedOption, toggleOpen, selectOption, clearValue, handleKeydown, handleBlur: onSelectBlur } =
-  useSelect({
-    modelValue: modelRef,
-    options: computed(() => props.options),
-    disabled: computed(() => props.disabled),
-  })
+const {
+  isOpen,
+  selectedOption,
+  toggleOpen,
+  selectOption,
+  clearValue,
+  handleKeydown,
+  handleBlur: onSelectBlur,
+} = useSelect({
+  modelValue: modelRef,
+  options: computed(() => props.options),
+  disabled: computed(() => props.disabled),
+})
 
-const { fieldId, errorMessage, baseClassList, handleFocus, handleBlur } =
-  useFormField(() => ({
-    id: props.id,
-    size: resolvedSize.value,
-    disabled: props.disabled,
-    error: props.error,
-    prefix: 'select',
-  }))
+const { fieldId, errorMessage, baseClassList, handleFocus, handleBlur } = useFormField(() => ({
+  id: props.id,
+  size: resolvedSize.value,
+  disabled: props.disabled,
+  error: props.error,
+  prefix: 'select',
+}))
 
 const classList = computed(() => [
   ...baseClassList('nm-select').value,
   {
     'nm-select--open': isOpen.value,
-    'nm-select--has-value': props.modelValue !== '' && props.modelValue !== undefined && props.modelValue !== null,
+    'nm-select--has-value':
+      props.modelValue !== '' && props.modelValue !== undefined && props.modelValue !== null,
   },
 ])
 
@@ -100,7 +113,7 @@ function updateDropdownPosition() {
   }
 }
 
-watch(isOpen, (open) => {
+watch(isOpen, open => {
   if (open) {
     nextTick(updateDropdownPosition)
     window.addEventListener('scroll', updateDropdownPosition, true)
@@ -148,7 +161,7 @@ function onContainerBlur(e: FocusEvent) {
       <span class="nm-select__value" :class="{ 'nm-select__value--placeholder': !selectedOption }">
         <!-- @slot Custom selected value display -->
         <slot name="value" :option="selectedOption">
-          {{ selectedOption?.label || placeholder }}
+          {{ selectedOption?.label || resolvedPlaceholder }}
         </slot>
       </span>
       <span class="nm-select__actions">
@@ -156,25 +169,44 @@ function onContainerBlur(e: FocusEvent) {
           v-if="clearable && selectedOption"
           class="nm-select__clear"
           type="button"
+          :aria-label="resolvedClearLabel"
           @click="onClear"
-          :aria-label="clearLabel"
         >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M18 6L6 18M6 6l12 12"/>
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M18 6L6 18M6 6l12 12" />
           </svg>
         </button>
         <svg
           class="nm-select__arrow"
           :class="{ 'nm-select__arrow--open': isOpen }"
-          width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
         >
-          <path d="M6 9l6 6 6-6"/>
+          <path d="M6 9l6 6 6-6" />
         </svg>
       </span>
 
       <teleport to="body">
         <transition name="nm-select-dropdown">
-          <div v-if="isOpen" ref="dropdownRef" class="nm-select__dropdown" role="listbox" :aria-label="label || '选项列表'" :style="dropdownStyle">
+          <div
+            v-if="isOpen"
+            ref="dropdownRef"
+            class="nm-select__dropdown"
+            role="listbox"
+            :aria-label="label || resolvedListLabel"
+            :style="dropdownStyle"
+          >
             <!-- @slot Custom option rendering. Bind: option, selected, index, select -->
             <slot
               v-for="(option, index) in options"
@@ -200,7 +232,7 @@ function onContainerBlur(e: FocusEvent) {
               </div>
             </slot>
             <div v-if="options.length === 0" class="nm-select__option nm-select__option--empty">
-              {{ emptyText }}
+              {{ resolvedEmptyText }}
             </div>
           </div>
         </transition>
@@ -261,7 +293,9 @@ function onContainerBlur(e: FocusEvent) {
   overflow: hidden;
   text-overflow: ellipsis;
 
-  &--placeholder { color: var(--nm-text-placeholder); }
+  &--placeholder {
+    color: var(--nm-text-placeholder);
+  }
 }
 
 .nm-select__actions {
@@ -282,13 +316,17 @@ function onContainerBlur(e: FocusEvent) {
   color: var(--nm-text-secondary);
   border-radius: 50%;
   transition: color var(--nm-transition-fast);
-  &:hover { color: var(--nm-text-primary); }
+  &:hover {
+    color: var(--nm-text-primary);
+  }
 }
 
 .nm-select__arrow {
   color: var(--nm-text-secondary);
   transition: transform var(--nm-transition-fast);
-  &--open { transform: rotate(180deg); }
+  &--open {
+    transform: rotate(180deg);
+  }
 }
 
 .nm-select__dropdown {
@@ -359,7 +397,9 @@ function onContainerBlur(e: FocusEvent) {
 .nm-select--small {
   min-height: 36px;
   padding: 6px 12px;
-  .nm-select__value { font-size: 13px; }
+  .nm-select__value {
+    font-size: 13px;
+  }
 }
 
 .nm-select--medium {
@@ -370,19 +410,41 @@ function onContainerBlur(e: FocusEvent) {
 .nm-select--large {
   min-height: 60px;
   padding: 14px 20px;
-  .nm-select__value { font-size: 16px; }
+  .nm-select__value {
+    font-size: 16px;
+  }
 }
 
 // Dropdown transition
-.nm-select-dropdown-enter-active { transition: opacity 0.25s $nm-ease-decelerate, transform 0.25s $nm-ease-spring; }
-.nm-select-dropdown-leave-active { transition: opacity 0.15s $nm-ease-accelerate, transform 0.15s $nm-ease-accelerate; }
-.nm-select-dropdown-enter-from { opacity: 0; transform: translateY(-8px) scale(0.98); }
-.nm-select-dropdown-leave-to { opacity: 0; transform: translateY(-4px) scale(0.98); }
+.nm-select-dropdown-enter-active {
+  transition:
+    opacity 0.25s $nm-ease-decelerate,
+    transform 0.25s $nm-ease-spring;
+}
+.nm-select-dropdown-leave-active {
+  transition:
+    opacity 0.15s $nm-ease-accelerate,
+    transform 0.15s $nm-ease-accelerate;
+}
+.nm-select-dropdown-enter-from {
+  opacity: 0;
+  transform: translateY(-8px) scale(0.98);
+}
+.nm-select-dropdown-leave-to {
+  opacity: 0;
+  transform: translateY(-4px) scale(0.98);
+}
 
 @keyframes nm-select-dot-pop {
-  0% { transform: scale(0); }
-  70% { transform: scale(1.4); }
-  100% { transform: scale(1); }
+  0% {
+    transform: scale(0);
+  }
+  70% {
+    transform: scale(1.4);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

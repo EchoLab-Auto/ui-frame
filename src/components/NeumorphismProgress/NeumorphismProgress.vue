@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useLocale } from '@/composables/useLocale'
 
 export type ProgressVariant = 'default' | 'primary' | 'success' | 'warning' | 'error'
 
@@ -22,6 +23,8 @@ const props = withDefaults(defineProps<NeumorphismProgressProps>(), {
   indeterminate: false,
   striped: false,
 })
+
+const { t } = useLocale()
 
 const percentage = computed(() => {
   if (props.indeterminate) return 0
@@ -49,7 +52,14 @@ const variantColors: Record<ProgressVariant, string> = {
 </script>
 
 <template>
-  <div :class="classList" role="progressbar" :aria-valuenow="indeterminate ? undefined : modelValue" :aria-valuemin="0" :aria-valuemax="max" :aria-label="showLabel ? undefined : `进度 ${Math.round(percentage)}%`">
+  <div
+    :class="classList"
+    role="progressbar"
+    :aria-valuenow="indeterminate ? undefined : modelValue"
+    :aria-valuemin="0"
+    :aria-valuemax="max"
+    :aria-label="showLabel ? undefined : t('progressLabel', { percentage: Math.round(percentage) })"
+  >
     <div class="nm-progress__track">
       <div
         class="nm-progress__bar"
@@ -101,12 +111,7 @@ const variantColors: Record<ProgressVariant, string> = {
   left: -100%;
   width: 50%;
   height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.15),
-    transparent
-  );
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
   animation: nm-progress-shimmer 2s ease-in-out infinite;
 }
 
@@ -151,28 +156,59 @@ const variantColors: Record<ProgressVariant, string> = {
 }
 
 // Sizes
-.nm-progress--small  .nm-progress__track { height: 6px; border-radius: 3px; }
-.nm-progress--large  .nm-progress__track { height: 18px; border-radius: 9px; }
+.nm-progress--small .nm-progress__track {
+  height: 6px;
+  border-radius: 3px;
+}
+.nm-progress--large .nm-progress__track {
+  height: 18px;
+  border-radius: 9px;
+}
 
 @keyframes nm-progress-indeterminate {
-  0%   { transform: translateX(-100%); }
-  50%  { transform: translateX(100%); }
-  100% { transform: translateX(200%); }
+  0% {
+    transform: translateX(-100%);
+  }
+  50% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(200%);
+  }
 }
 
 @keyframes nm-progress-striped {
-  0% { background-position: 0 0; }
-  100% { background-position: 16px 0; }
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: 16px 0;
+  }
 }
 
 @keyframes nm-progress-shimmer {
-  0%   { left: -100%; }
-  100% { left: 200%; }
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 200%;
+  }
 }
 
 @keyframes nm-progress-complete-glow {
-  0%, 100% { box-shadow: inset 0 -2px 4px rgba(0, 0, 0, 0.15), inset 0 2px 4px rgba(255, 255, 255, 0.1), 0 0 6px rgba(108, 122, 224, 0.2); }
-  50%      { box-shadow: inset 0 -2px 4px rgba(0, 0, 0, 0.15), inset 0 2px 4px rgba(255, 255, 255, 0.1), 0 0 14px rgba(108, 122, 224, 0.4); }
+  0%,
+  100% {
+    box-shadow:
+      inset 0 -2px 4px rgba(0, 0, 0, 0.15),
+      inset 0 2px 4px rgba(255, 255, 255, 0.1),
+      0 0 6px rgba(108, 122, 224, 0.2);
+  }
+  50% {
+    box-shadow:
+      inset 0 -2px 4px rgba(0, 0, 0, 0.15),
+      inset 0 2px 4px rgba(255, 255, 255, 0.1),
+      0 0 14px rgba(108, 122, 224, 0.4);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

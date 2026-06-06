@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import { useLocale } from '@/composables/useLocale'
 import { useTouchDevice } from '@/composables/useTouchDevice'
 
 export interface NeumorphismLayoutProps {
@@ -52,6 +53,8 @@ function toggleCollapse() {
   }
 }
 
+const { t } = useLocale()
+
 function closeMobileDrawer() {
   mobileDrawerOpen.value = false
 }
@@ -86,10 +89,17 @@ const siderStyle = computed(() => ({
           v-if="showSider && collapsible"
           class="nm-layout__collapse-btn"
           type="button"
-          :aria-label="effectiveCollapsed ? '展开侧边栏' : '折叠侧边栏'"
+          :aria-label="effectiveCollapsed ? t('layoutExpandSider') : t('layoutCollapseSider')"
           @click="toggleCollapse"
         >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
             <path v-if="effectiveCollapsed" d="M16 18l-6-6 6-6" />
             <path v-else d="M8 18l6-6-6-6" />
           </svg>
@@ -119,7 +129,10 @@ const siderStyle = computed(() => ({
       <aside
         v-if="showSider"
         class="nm-layout__sider"
-        :class="{ 'nm-layout__sider--drawer': isMobile, 'nm-layout__sider--open': mobileDrawerOpen }"
+        :class="{
+          'nm-layout__sider--drawer': isMobile,
+          'nm-layout__sider--open': mobileDrawerOpen,
+        }"
         :style="!isMobile ? siderStyle : undefined"
       >
         <div class="nm-layout__sider-inner">
@@ -225,7 +238,9 @@ const siderStyle = computed(() => ({
   &:active {
     @include nm-inset(1px, 2px);
     transform: translateY(0);
-    transition: box-shadow 0.1s $nm-ease-compress, transform 0.1s $nm-ease-compress;
+    transition:
+      box-shadow 0.1s $nm-ease-compress,
+      transform 0.1s $nm-ease-compress;
   }
 
   // Icon rotation on collapse state change
@@ -288,7 +303,6 @@ const siderStyle = computed(() => ({
   overflow-y: auto;
   overflow-x: hidden;
 
-
   // Subtle inner scrolling shadow hint
   background:
     linear-gradient(var(--nm-surface-color) 30%, rgba(255, 255, 255, 0)),
@@ -296,7 +310,11 @@ const siderStyle = computed(() => ({
     radial-gradient(farthest-side at 50% 0, var(--nm-shadow-dark-strong), transparent),
     radial-gradient(farthest-side at 50% 100%, var(--nm-shadow-dark-strong), transparent) 0 100%;
   background-repeat: no-repeat;
-  background-size: 100% 24px, 100% 24px, 100% 8px, 100% 8px;
+  background-size:
+    100% 24px,
+    100% 24px,
+    100% 8px,
+    100% 8px;
   background-attachment: local, local, scroll, scroll;
 }
 
@@ -308,10 +326,16 @@ const siderStyle = computed(() => ({
   z-index: 150;
 }
 
-.nm-layout-fade-enter-active { transition: opacity 0.3s $nm-ease-decelerate; }
-.nm-layout-fade-leave-active { transition: opacity 0.2s $nm-ease-accelerate; }
+.nm-layout-fade-enter-active {
+  transition: opacity 0.3s $nm-ease-decelerate;
+}
+.nm-layout-fade-leave-active {
+  transition: opacity 0.2s $nm-ease-accelerate;
+}
 .nm-layout-fade-enter-from,
-.nm-layout-fade-leave-to { opacity: 0; }
+.nm-layout-fade-leave-to {
+  opacity: 0;
+}
 
 @media (prefers-reduced-motion: reduce) {
   .nm-layout__sider {
@@ -330,7 +354,6 @@ const siderStyle = computed(() => ({
   flex: 1;
   min-width: 0;
   overflow-y: auto;
-
 
   .nm-layout--mobile & {
     overflow-y: visible;
