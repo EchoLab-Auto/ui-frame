@@ -39,6 +39,9 @@ skills-lock.json
 # TypeScript 缓存
 *.tsbuildinfo
 
+# 测试覆盖率报告
+coverage/
+
 # npm
 .npm
 .eslintcache
