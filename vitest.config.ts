@@ -13,5 +13,25 @@ export default defineConfig({
     environment: 'happy-dom',
     globals: true,
     include: ['src/**/*.test.ts'],
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'html', 'json'],
+      reportsDirectory: './coverage',
+      exclude: [
+        'node_modules/',
+        'examples/',
+        '**/*.test.ts',
+        '**/index.ts',
+        'docs/',
+        'dist/',
+        '**/*.d.ts',
+      ],
+      thresholds: {
+        statements: 80,
+        branches: 70,
+        functions: 80,
+        lines: 80,
+      },
+    },
   },
 })
