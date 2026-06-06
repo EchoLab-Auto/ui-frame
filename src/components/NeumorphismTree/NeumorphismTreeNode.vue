@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useLocale } from '@/composables/useLocale'
 // Self-import for recursive component reference in <script setup>
 import NeumorphismTreeNode from './NeumorphismTreeNode.vue'
 import type { TreeNodeData } from '@/composables/useTree'
@@ -9,7 +10,7 @@ export interface NeumorphismTreeNodeProps {
   selectedKeys: string[]
   expandedKeys: string[]
   searchText: string
-  level: number
+  level?: number
 }
 
 const props = withDefaults(defineProps<NeumorphismTreeNodeProps>(), {
@@ -29,13 +30,15 @@ const searchLower = computed(() => props.searchText.toLowerCase().trim())
 
 function matchesNodeSearch(node: TreeNodeData, search: string): boolean {
   if (node.label.toLowerCase().includes(search)) return true
-  return node.children?.some((c) => matchesNodeSearch(c, search)) ?? false
+  return node.children?.some(c => matchesNodeSearch(c, search)) ?? false
 }
+
+const { t } = useLocale()
 
 const matchesSearch = computed(() => {
   if (!searchLower.value) return true
   if (props.node.label.toLowerCase().includes(searchLower.value)) return true
-  return props.node.children?.some((c) => matchesNodeSearch(c, searchLower.value)) ?? false
+  return props.node.children?.some(c => matchesNodeSearch(c, searchLower.value)) ?? false
 })
 
 const labelParts = computed(() => {
@@ -56,7 +59,6 @@ function handleSelect() {
     emit('select', props.node.key)
   }
 }
-
 </script>
 
 <template>
@@ -86,7 +88,7 @@ function handleSelect() {
         type="button"
         class="nm-tree-node__toggle"
         :class="{ 'nm-tree-node__toggle--expanded': isExpanded }"
-        :aria-label="isExpanded ? '折叠' : '展开'"
+        :aria-label="isExpanded ? t('treeCollapse') : t('treeExpand')"
         @click.stop="handleToggle"
       >
         <svg
@@ -95,7 +97,13 @@ function handleSelect() {
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
         >
-          <path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+          <path
+            d="M9 6l6 6-6 6"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
         </svg>
       </button>
 
@@ -122,7 +130,8 @@ function handleSelect() {
               v-for="(part, i) in labelParts"
               :key="i"
               :class="{ 'nm-tree-node__label--highlight': part.toLowerCase() === searchLower }"
-            >{{ part }}</span>
+              >{{ part }}</span
+            >
           </template>
           <template v-else>{{ node.label }}</template>
         </span>
@@ -130,7 +139,11 @@ function handleSelect() {
     </div>
 
     <!-- Children -->
-    <ul v-if="hasChildren" class="nm-tree-node__children" :class="{ 'nm-tree-node__children--collapsed': !isExpanded }">
+    <ul
+      v-if="hasChildren"
+      class="nm-tree-node__children"
+      :class="{ 'nm-tree-node__children--collapsed': !isExpanded }"
+    >
       <NeumorphismTreeNode
         v-for="child in node.children"
         :key="child.key"
@@ -139,8 +152,8 @@ function handleSelect() {
         :expanded-keys="expandedKeys"
         :search-text="searchText"
         :level="level + 1"
-        @toggle-expand="(k) => emit('toggle-expand', k)"
-        @select="(k) => emit('select', k)"
+        @toggle-expand="k => emit('toggle-expand', k)"
+        @select="k => emit('select', k)"
       />
     </ul>
   </li>
@@ -187,7 +200,9 @@ function handleSelect() {
 
     &:active {
       transform: translateX(1px) scale(0.98);
-      transition: transform 0.1s $nm-ease-compress, box-shadow 0.1s $nm-ease-compress;
+      transition:
+        transform 0.1s $nm-ease-compress,
+        box-shadow 0.1s $nm-ease-compress;
     }
   }
 }
@@ -263,9 +278,17 @@ function handleSelect() {
 }
 
 @keyframes nm-tree-highlight-pop {
-  0% { transform: scale(0.9); opacity: 0.5; }
-  60% { transform: scale(1.03); }
-  100% { transform: scale(1); opacity: 1; }
+  0% {
+    transform: scale(0.9);
+    opacity: 0.5;
+  }
+  60% {
+    transform: scale(1.03);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
 .nm-tree-node--selected > .nm-tree-node__row {

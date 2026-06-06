@@ -80,7 +80,7 @@ function handleChange(): void {
         :value="value"
         v-bind="inputAttrs"
         @change="handleChange"
-      >
+      />
       <span class="nm-radio__circle" aria-hidden="true">
         <span class="nm-radio__dot" />
       </span>
@@ -163,8 +163,14 @@ function handleChange(): void {
 }
 
 @keyframes nm-radio-ripple {
-  0% { opacity: 0.5; transform: scale(0); }
-  100% { opacity: 0; transform: scale(2.5); }
+  0% {
+    opacity: 0.5;
+    transform: scale(0);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(2.5);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -182,15 +188,33 @@ function handleChange(): void {
 
 // Sizes (with dot dimensions)
 .nm-radio--small {
-  .nm-radio__circle { width: 18px; height: 18px; }
-  .nm-radio__dot { width: 8px; height: 8px; }
+  .nm-radio__circle {
+    width: 18px;
+    height: 18px;
+  }
+  .nm-radio__dot {
+    width: 8px;
+    height: 8px;
+  }
 }
 .nm-radio--medium {
-  .nm-radio__circle { width: 24px; height: 24px; }
-  .nm-radio__dot { width: 12px; height: 12px; }
+  .nm-radio__circle {
+    width: 24px;
+    height: 24px;
+  }
+  .nm-radio__dot {
+    width: 12px;
+    height: 12px;
+  }
 }
 .nm-radio--large {
-  .nm-radio__circle { width: 30px; height: 30px; }
-  .nm-radio__dot { width: 16px; height: 16px; }
+  .nm-radio__circle {
+    width: 30px;
+    height: 30px;
+  }
+  .nm-radio__dot {
+    width: 16px;
+    height: 16px;
+  }
 }
 </style>

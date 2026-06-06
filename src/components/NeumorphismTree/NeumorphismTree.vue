@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useLocale } from '@/composables/useLocale'
 import { useTree } from '@/composables/useTree'
 import type { TreeNodeData } from '@/composables/useTree'
 import NeumorphismTreeNode from './NeumorphismTreeNode.vue'
@@ -33,12 +34,12 @@ const emit = defineEmits<{
 // Use headless tree composable for all behavioral logic
 const selectedKeysRef = computed({
   get: () => props.selectedKeys,
-  set: (val) => emit('update:selectedKeys', val),
+  set: val => emit('update:selectedKeys', val),
 })
 
 const expandedKeysRef = computed({
   get: () => props.expandedKeys,
-  set: (val) => emit('update:expandedKeys', val),
+  set: val => emit('update:expandedKeys', val),
 })
 
 const {
@@ -69,6 +70,8 @@ function handleSelect(key: string) {
   if (node) emit('node-click', node)
 }
 
+const { t } = useLocale()
+
 // Wrap toggle to sync
 function handleToggleExpand(key: string) {
   toggleExpand(key)
@@ -90,10 +93,15 @@ const classList = computed(() => ['nm-tree'])
 </script>
 
 <template>
-  <div :class="classList" role="tree" aria-label="树形导航">
+  <div :class="classList" role="tree" :aria-label="t('treeLabel')">
     <!-- Search bar -->
     <div v-if="showSearch" class="nm-tree__search">
-      <svg class="nm-tree__search-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <svg
+        class="nm-tree__search-icon"
+        viewBox="0 0 24 24"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
         <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2" />
         <path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
       </svg>
@@ -103,24 +111,33 @@ const classList = computed(() => ['nm-tree'])
         :placeholder="searchPlaceholder"
         :value="searchText"
         @input="onSearchInput(($event.target as HTMLInputElement).value)"
-      >
+      />
       <button
         v-if="searchText"
         type="button"
         class="nm-tree__search-clear"
-        aria-label="清除搜索"
+        :aria-label="t('treeClearSearch')"
         @click="searchText = ''"
       >
         <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+          <path
+            d="M18 6L6 18M6 6l12 12"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+          />
         </svg>
       </button>
     </div>
 
     <!-- Expand/Collapse all -->
     <div v-if="data.length > 0" class="nm-tree__actions">
-      <button type="button" class="nm-tree__action-btn" @click="handleExpandAll">全部展开</button>
-      <button type="button" class="nm-tree__action-btn" @click="handleCollapseAll">全部折叠</button>
+      <button type="button" class="nm-tree__action-btn" @click="handleExpandAll">
+        {{ t('treeExpandAll') }}
+      </button>
+      <button type="button" class="nm-tree__action-btn" @click="handleCollapseAll">
+        {{ t('treeCollapseAll') }}
+      </button>
     </div>
 
     <!-- Tree nodes -->
@@ -140,9 +157,7 @@ const classList = computed(() => ['nm-tree'])
     </ul>
 
     <!-- Empty state -->
-    <div v-if="data.length === 0" class="nm-tree__empty">
-      暂无数据
-    </div>
+    <div v-if="data.length === 0" class="nm-tree__empty">{{ t('treeEmpty') }}</div>
   </div>
 </template>
 

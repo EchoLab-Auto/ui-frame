@@ -77,8 +77,13 @@ const style = computed(() => {
 
 // Generate column classes
 @for $i from 0 through 24 {
-  .nm-col-#{$i} { flex: 0 0 math.percentage($i * 0.0416666667); max-width: math.percentage($i * 0.0416666667); }
-  .nm-col-offset-#{$i} { margin-left: math.percentage($i * 0.0416666667); }
+  .nm-col-#{$i} {
+    flex: 0 0 math.percentage($i * 0.0416666667);
+    max-width: math.percentage($i * 0.0416666667);
+  }
+  .nm-col-offset-#{$i} {
+    margin-left: math.percentage($i * 0.0416666667);
+  }
 }
 
 .nm-col {
@@ -90,38 +95,53 @@ const style = computed(() => {
 // Responsive columns — mobile-first
 @include nm-screen-sm {
   @for $i from 0 through 24 {
-    .nm-col-sm-#{$i} { flex: 0 0 math.percentage($i * 0.0416666667); max-width: math.percentage($i * 0.0416666667); }
+    .nm-col-sm-#{$i} {
+      flex: 0 0 math.percentage($i * 0.0416666667);
+      max-width: math.percentage($i * 0.0416666667);
+    }
   }
 }
 
 @include nm-screen-md {
   @for $i from 0 through 24 {
-    .nm-col-md-#{$i} { flex: 0 0 math.percentage($i * 0.0416666667); max-width: math.percentage($i * 0.0416666667); }
+    .nm-col-md-#{$i} {
+      flex: 0 0 math.percentage($i * 0.0416666667);
+      max-width: math.percentage($i * 0.0416666667);
+    }
   }
 }
 
 @include nm-screen-lg {
   @for $i from 0 through 24 {
-    .nm-col-lg-#{$i} { flex: 0 0 math.percentage($i * 0.0416666667); max-width: math.percentage($i * 0.0416666667); }
+    .nm-col-lg-#{$i} {
+      flex: 0 0 math.percentage($i * 0.0416666667);
+      max-width: math.percentage($i * 0.0416666667);
+    }
   }
 }
 
 @include nm-screen-xl {
   @for $i from 0 through 24 {
-    .nm-col-xl-#{$i} { flex: 0 0 math.percentage($i * 0.0416666667); max-width: math.percentage($i * 0.0416666667); }
+    .nm-col-xl-#{$i} {
+      flex: 0 0 math.percentage($i * 0.0416666667);
+      max-width: math.percentage($i * 0.0416666667);
+    }
   }
 }
 
 @include nm-screen-xxl {
   @for $i from 0 through 24 {
-    .nm-col-xxl-#{$i} { flex: 0 0 math.percentage($i * 0.0416666667); max-width: math.percentage($i * 0.0416666667); }
+    .nm-col-xxl-#{$i} {
+      flex: 0 0 math.percentage($i * 0.0416666667);
+      max-width: math.percentage($i * 0.0416666667);
+    }
   }
 }
 
 // Touch device — stack columns on small screens
 @include nm-touch-device {
   @include nm-mobile-only {
-    .nm-col:not([class*="nm-col-xs-"]) {
+    .nm-col:not([class*='nm-col-xs-']) {
       flex: 0 0 100%;
       max-width: 100%;
     }

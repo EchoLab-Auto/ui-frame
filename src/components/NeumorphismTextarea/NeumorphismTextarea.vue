@@ -58,14 +58,13 @@ const textareaAttrs = computed(() => {
   return result
 })
 
-const { fieldId, errorMessage, baseClassList, handleFocus, handleBlur } =
-  useFormField(() => ({
-    id: props.id,
-    size: props.size,
-    disabled: props.disabled,
-    error: props.error,
-    prefix: 'textarea',
-  }))
+const { fieldId, errorMessage, baseClassList, handleFocus, handleBlur } = useFormField(() => ({
+  id: props.id,
+  size: props.size,
+  disabled: props.disabled,
+  error: props.error,
+  prefix: 'textarea',
+}))
 
 const textareaRef = ref<HTMLTextAreaElement>()
 const charCount = computed(() => props.modelValue?.length || 0)
@@ -106,11 +105,14 @@ onMounted(() => {
   adjustHeight()
 })
 
-watch(() => props.modelValue, () => {
-  if (props.autoResize) {
-    nextTick(adjustHeight)
+watch(
+  () => props.modelValue,
+  () => {
+    if (props.autoResize) {
+      nextTick(adjustHeight)
+    }
   }
-})
+)
 </script>
 
 <template>
@@ -212,11 +214,22 @@ watch(() => props.modelValue, () => {
 }
 
 @keyframes nm-textarea-shake {
-  0%, 100% { transform: translateX(0); }
-  20% { transform: translateX(-5px); }
-  40% { transform: translateX(5px); }
-  60% { transform: translateX(-3px); }
-  80% { transform: translateX(3px); }
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-5px);
+  }
+  40% {
+    transform: translateX(5px);
+  }
+  60% {
+    transform: translateX(-3px);
+  }
+  80% {
+    transform: translateX(3px);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -240,8 +253,12 @@ watch(() => props.modelValue, () => {
   resize: vertical;
   width: 100%;
 
-  &::placeholder { color: var(--nm-text-placeholder); }
-  &:disabled { cursor: not-allowed; }
+  &::placeholder {
+    color: var(--nm-text-placeholder);
+  }
+  &:disabled {
+    cursor: not-allowed;
+  }
 
   &--auto-resize {
     resize: none;
@@ -262,7 +279,16 @@ watch(() => props.modelValue, () => {
 }
 
 // Sizes
-.nm-textarea--small .nm-textarea__field { padding: 6px 12px; font-size: 13px; }
-.nm-textarea--medium .nm-textarea__field { padding: 10px 16px; font-size: 14px; }
-.nm-textarea--large .nm-textarea__field { padding: 14px 20px; font-size: 16px; }
+.nm-textarea--small .nm-textarea__field {
+  padding: 6px 12px;
+  font-size: 13px;
+}
+.nm-textarea--medium .nm-textarea__field {
+  padding: 10px 16px;
+  font-size: 14px;
+}
+.nm-textarea--large .nm-textarea__field {
+  padding: 14px 20px;
+  font-size: 16px;
+}
 </style>

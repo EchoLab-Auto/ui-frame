@@ -63,14 +63,13 @@ const inputAttrs = computed(() => {
   return result
 })
 
-const { fieldId, errorMessage, baseClassList, handleFocus, handleBlur } =
-  useFormField(() => ({
-    id: props.id,
-    size: resolvedSize.value,
-    disabled: props.disabled,
-    error: props.error,
-    prefix: 'input',
-  }))
+const { fieldId, errorMessage, baseClassList, handleFocus, handleBlur } = useFormField(() => ({
+  id: props.id,
+  size: resolvedSize.value,
+  disabled: props.disabled,
+  error: props.error,
+  prefix: 'input',
+}))
 
 const hasValue = computed(() => props.modelValue.length > 0)
 
@@ -135,7 +134,7 @@ function handleKeydown(event: KeyboardEvent): void {
         @focus="(e: FocusEvent) => handleFocus(e, emit)"
         @blur="(e: FocusEvent) => handleBlur(e, emit)"
         @keydown="handleKeydown"
-      >
+      />
 
       <div v-if="$slots.suffix" class="nm-input__suffix">
         <slot name="suffix" />
@@ -214,11 +213,22 @@ function handleKeydown(event: KeyboardEvent): void {
 }
 
 @keyframes nm-input-shake {
-  0%, 100% { transform: translateX(0); }
-  20% { transform: translateX(-5px); }
-  40% { transform: translateX(5px); }
-  60% { transform: translateX(-3px); }
-  80% { transform: translateX(3px); }
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-5px);
+  }
+  40% {
+    transform: translateX(5px);
+  }
+  60% {
+    transform: translateX(-3px);
+  }
+  80% {
+    transform: translateX(3px);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -252,20 +262,38 @@ function handleKeydown(event: KeyboardEvent): void {
 // Size variants
 .nm-input--small {
   min-height: 36px;
-  .nm-input__field { padding: 6px 12px; font-size: 13px; }
-  .nm-input__prefix, .nm-input__suffix { padding: 6px 10px; }
+  .nm-input__field {
+    padding: 6px 12px;
+    font-size: 13px;
+  }
+  .nm-input__prefix,
+  .nm-input__suffix {
+    padding: 6px 10px;
+  }
 }
 
 .nm-input--medium {
   min-height: 48px;
-  .nm-input__field { padding: 10px 16px; font-size: 14px; }
-  .nm-input__prefix, .nm-input__suffix { padding: 10px 14px; }
+  .nm-input__field {
+    padding: 10px 16px;
+    font-size: 14px;
+  }
+  .nm-input__prefix,
+  .nm-input__suffix {
+    padding: 10px 14px;
+  }
 }
 
 .nm-input--large {
   min-height: 60px;
-  .nm-input__field { padding: 14px 20px; font-size: 16px; }
-  .nm-input__prefix, .nm-input__suffix { padding: 14px 16px; }
+  .nm-input__field {
+    padding: 14px 20px;
+    font-size: 16px;
+  }
+  .nm-input__prefix,
+  .nm-input__suffix {
+    padding: 14px 16px;
+  }
 }
 
 .nm-input__prefix,
@@ -276,6 +304,10 @@ function handleKeydown(event: KeyboardEvent): void {
   flex-shrink: 0;
 }
 
-.nm-input__prefix { padding-right: 0; }
-.nm-input__suffix { padding-left: 0; }
+.nm-input__prefix {
+  padding-right: 0;
+}
+.nm-input__suffix {
+  padding-left: 0;
+}
 </style>

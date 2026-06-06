@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useLocale } from '@/composables/useLocale'
 
 export interface NeumorphismSkeletonProps {
   variant?: 'text' | 'circle' | 'rect'
@@ -14,6 +15,8 @@ const props = withDefaults(defineProps<NeumorphismSkeletonProps>(), {
   count: 1,
   animation: 'pulse',
 })
+
+const { t } = useLocale()
 
 const items = computed(() => {
   const safeCount = Math.max(0, Math.floor(props.count))
@@ -42,7 +45,7 @@ function formatSize(val?: string | number): string | undefined {
       height: formatSize(height),
     }"
     role="status"
-    aria-label="加载中"
+    :aria-label="t('skeletonLoading')"
   >
     <span class="nm-skeleton__shimmer" aria-hidden="true" />
   </span>
@@ -89,24 +92,30 @@ function formatSize(val?: string | number): string | undefined {
 }
 
 .nm-skeleton--wave .nm-skeleton__shimmer {
-  background: linear-gradient(
-    90deg,
-    transparent 25%,
-    var(--nm-shadow-light) 50%,
-    transparent 75%
-  );
+  background: linear-gradient(90deg, transparent 25%, var(--nm-shadow-light) 50%, transparent 75%);
   background-size: 200% 100%;
   animation: nm-skeleton-wave 1.6s ease-in-out infinite;
 }
 
 @keyframes nm-skeleton-pulse {
-  0%, 100% { opacity: 0.5; }
-  50% { opacity: 1; }
+  0%,
+  100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 1;
+  }
 }
 
 @keyframes nm-skeleton-wave {
-  0%   { transform: translateX(-100%); }
-  50%  { transform: translateX(100%); }
-  100% { transform: translateX(100%); }
+  0% {
+    transform: translateX(-100%);
+  }
+  50% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
 }
 </style>

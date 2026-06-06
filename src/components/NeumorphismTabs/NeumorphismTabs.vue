@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, nextTick } from 'vue'
 import { useTabs } from '@/composables/useTabs'
+import { useLocale } from '@/composables/useLocale'
 import type { TabItem } from '@/composables/useTabs'
 
 export type { TabItem }
@@ -21,6 +22,9 @@ const props = withDefaults(defineProps<NeumorphismTabsProps>(), {
   navLabel: '标签导航',
 })
 
+const { t } = useLocale()
+const resolvedNavLabel = computed(() => props.navLabel || t('tabsNavLabel'))
+
 const emit = defineEmits<{
   (e: 'update:modelValue', value: string): void
   (e: 'change', value: string): void
@@ -30,22 +34,26 @@ const emit = defineEmits<{
 // Use headless tabs composable for all behavioral logic
 const activeKey = computed({
   get: () => props.modelValue,
-  set: (val) => {
+  set: val => {
     emit('update:modelValue', val)
     emit('change', val)
-    const tab = props.tabs.find((t) => t.key === val)
+    const tab = props.tabs.find(t => t.key === val)
     if (tab) emit('tabClick', tab)
   },
 })
 
-const { activate, handleKeydown: onKeydown, panelId, orientation } =
-  useTabs({
-    modelValue: activeKey,
-    tabs: computed(() => props.tabs),
-    position: computed(() => props.position),
-  })
+const {
+  activate,
+  handleKeydown: onKeydown,
+  panelId,
+  orientation,
+} = useTabs({
+  modelValue: activeKey,
+  tabs: computed(() => props.tabs),
+  position: computed(() => props.position),
+})
 
-const activeTabs = computed(() => props.tabs.filter((t) => !t.disabled))
+const activeTabs = computed(() => props.tabs.filter(t => !t.disabled))
 
 const tabRefs = ref<Map<string, HTMLElement>>(new Map())
 
@@ -56,7 +64,7 @@ function setTabRef(key: string, el: unknown) {
 function handleKeydown(event: KeyboardEvent, key: string) {
   onKeydown(event, key)
   // Focus the newly activated tab after keyboard navigation
-  const activeT = activeTabs.value.find((t) => t.key === activeKey.value)
+  const activeT = activeTabs.value.find(t => t.key === activeKey.value)
   if (activeT) {
     nextTick(() => tabRefs.value.get(activeT.key)?.focus())
   }
@@ -75,7 +83,7 @@ const classList = computed(() => [
       class="nm-tabs__nav"
       role="tablist"
       :aria-orientation="orientation"
-      :aria-label="navLabel"
+      :aria-label="resolvedNavLabel"
     >
       <!-- @slot Custom tab rendering. Bind: tab, active, index, activate -->
       <slot
@@ -89,7 +97,7 @@ const classList = computed(() => [
       >
         <button
           :id="`${panelId}-tab-${tab.key}`"
-          :ref="(el) => setTabRef(tab.key, el)"
+          :ref="el => setTabRef(tab.key, el)"
           class="nm-tabs__tab"
           :class="{
             'nm-tabs__tab--active': modelValue === tab.key,
@@ -125,18 +133,30 @@ const classList = computed(() => [
 .nm-tabs {
   display: flex;
 
-  &--top, &--bottom {
+  &--top,
+  &--bottom {
     flex-direction: column;
   }
 
-  &--left, &--right {
+  &--left,
+  &--right {
     flex-direction: row;
   }
 
-  &--left .nm-tabs__nav { order: 0; }
-  &--left .nm-tabs__panel { order: 1; flex: 1; }
-  &--right .nm-tabs__nav { order: 1; }
-  &--right .nm-tabs__panel { order: 0; flex: 1; }
+  &--left .nm-tabs__nav {
+    order: 0;
+  }
+  &--left .nm-tabs__panel {
+    order: 1;
+    flex: 1;
+  }
+  &--right .nm-tabs__nav {
+    order: 1;
+  }
+  &--right .nm-tabs__panel {
+    order: 0;
+    flex: 1;
+  }
 }
 
 .nm-tabs__nav {
@@ -182,7 +202,9 @@ const classList = computed(() => [
 
   &:active:not(&--disabled):not(&--active) {
     transform: translateY(0) scale(0.97);
-    transition: transform 0.1s $nm-ease-compress, box-shadow 0.1s $nm-ease-compress;
+    transition:
+      transform 0.1s $nm-ease-compress,
+      box-shadow 0.1s $nm-ease-compress;
   }
 
   &--active {
@@ -228,25 +250,55 @@ const classList = computed(() => [
 }
 
 // Sizes
-.nm-tabs--small .nm-tabs__tab { padding: 6px 14px; font-size: 12px; }
-.nm-tabs--medium .nm-tabs__tab { padding: 10px 20px; font-size: 14px; }
-.nm-tabs--large .nm-tabs__tab { padding: 14px 28px; font-size: 16px; }
+.nm-tabs--small .nm-tabs__tab {
+  padding: 6px 14px;
+  font-size: 12px;
+}
+.nm-tabs--medium .nm-tabs__tab {
+  padding: 10px 20px;
+  font-size: 14px;
+}
+.nm-tabs--large .nm-tabs__tab {
+  padding: 14px 28px;
+  font-size: 16px;
+}
 
 @keyframes nm-tab-active {
-  0% { transform: scale(0.96); }
-  60% { transform: scale(1.02); }
-  100% { transform: scale(1); }
+  0% {
+    transform: scale(0.96);
+  }
+  60% {
+    transform: scale(1.02);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 
 @keyframes nm-tab-indicator {
-  0% { width: 0; opacity: 0; }
-  50% { width: 28px; opacity: 1; }
-  100% { width: 20px; opacity: 1; }
+  0% {
+    width: 0;
+    opacity: 0;
+  }
+  50% {
+    width: 28px;
+    opacity: 1;
+  }
+  100% {
+    width: 20px;
+    opacity: 1;
+  }
 }
 
 @keyframes nm-tab-panel-fade {
-  from { opacity: 0; transform: translateY(4px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

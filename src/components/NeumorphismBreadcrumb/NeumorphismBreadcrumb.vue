@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useLocale } from '@/composables/useLocale'
 
 export interface BreadcrumbItem {
   label: string
@@ -19,14 +20,13 @@ const props = withDefaults(defineProps<NeumorphismBreadcrumbProps>(), {
   size: 'medium',
 })
 
+const { t } = useLocale()
+
 const emit = defineEmits<{
   (e: 'itemClick', item: BreadcrumbItem, index: number): void
 }>()
 
-const classList = computed(() => [
-  'nm-breadcrumb',
-  `nm-breadcrumb--${props.size}`,
-])
+const classList = computed(() => ['nm-breadcrumb', `nm-breadcrumb--${props.size}`])
 
 function handleClick(item: BreadcrumbItem, index: number) {
   if (item.disabled) return
@@ -35,7 +35,7 @@ function handleClick(item: BreadcrumbItem, index: number) {
 </script>
 
 <template>
-  <nav :class="classList" aria-label="面包屑导航">
+  <nav :class="classList" :aria-label="t('breadcrumbLabel')">
     <ol class="nm-breadcrumb__list">
       <li
         v-for="(item, index) in items"
@@ -59,11 +59,7 @@ function handleClick(item: BreadcrumbItem, index: number) {
           {{ item.label }}
         </span>
 
-        <span
-          v-if="index < items.length - 1"
-          class="nm-breadcrumb__separator"
-          aria-hidden="true"
-        >
+        <span v-if="index < items.length - 1" class="nm-breadcrumb__separator" aria-hidden="true">
           {{ separator }}
         </span>
       </li>
@@ -131,7 +127,9 @@ function handleClick(item: BreadcrumbItem, index: number) {
     &:active {
       transform: translateY(0);
       @include nm-inset(1px, 2px);
-      transition: transform 0.1s $nm-ease-compress, box-shadow 0.1s $nm-ease-compress;
+      transition:
+        transform 0.1s $nm-ease-compress,
+        box-shadow 0.1s $nm-ease-compress;
     }
 
     &:focus-visible {
@@ -149,9 +147,15 @@ function handleClick(item: BreadcrumbItem, index: number) {
 }
 
 // Sizes
-.nm-breadcrumb--small { font-size: 12px; }
-.nm-breadcrumb--medium { font-size: 14px; }
-.nm-breadcrumb--large { font-size: 16px; }
+.nm-breadcrumb--small {
+  font-size: 12px;
+}
+.nm-breadcrumb--medium {
+  font-size: 14px;
+}
+.nm-breadcrumb--large {
+  font-size: 16px;
+}
 
 @media (prefers-reduced-motion: reduce) {
   .nm-breadcrumb__text {

@@ -26,7 +26,7 @@ const emit = defineEmits<{
 
 const isChecked = computed({
   get: () => props.modelValue,
-  set: (value) => {
+  set: value => {
     if (props.disabled) return
     emit('update:modelValue', value)
     emit('change', value)
@@ -57,12 +57,19 @@ const { inputId, classList } = useCheckable(() => ({
 }))
 
 // Sync native indeterminate property for accessibility
-watch(() => props.indeterminate, (val) => {
-  if (inputRef.value) inputRef.value.indeterminate = val
-}, { immediate: true })
+watch(
+  () => props.indeterminate,
+  val => {
+    if (inputRef.value) inputRef.value.indeterminate = val
+  },
+  { immediate: true }
+)
 
 function handleChange(event: Event): void {
-  if (props.disabled) { event.preventDefault(); return }
+  if (props.disabled) {
+    event.preventDefault()
+    return
+  }
   isChecked.value = (event.target as HTMLInputElement).checked
 }
 </script>
@@ -80,13 +87,19 @@ function handleChange(event: Event): void {
         :name="name"
         v-bind="inputAttrs"
         @change="handleChange"
-      >
+      />
       <span class="nm-checkbox__box" aria-hidden="true">
         <svg v-if="indeterminate" class="nm-checkbox__icon" viewBox="0 0 24 24" fill="none">
-          <path d="M5 12H19" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+          <path d="M5 12H19" stroke="currentColor" stroke-width="3" stroke-linecap="round" />
         </svg>
         <svg v-else-if="isChecked" class="nm-checkbox__icon" viewBox="0 0 24 24" fill="none">
-          <path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          <path
+            d="M5 13l4 4L19 7"
+            stroke="currentColor"
+            stroke-width="3"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
         </svg>
       </span>
     </span>
@@ -167,8 +180,14 @@ function handleChange(event: Event): void {
 }
 
 @keyframes nm-checkbox-ripple {
-  0% { opacity: 0.6; transform: scale(0); }
-  100% { opacity: 0; transform: scale(2); }
+  0% {
+    opacity: 0.6;
+    transform: scale(0);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(2);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

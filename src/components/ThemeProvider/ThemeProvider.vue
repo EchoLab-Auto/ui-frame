@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { watch, computed } from 'vue'
+import { computed } from 'vue'
 import { provideTheme, type Theme, type ThemeOptions } from '@/composables/useTheme'
 
 export interface ThemeProviderProps {
@@ -23,15 +23,9 @@ const options = computed<ThemeOptions>(() => ({
   followSystem: props.followSystem,
 }))
 
-const themeContext = provideTheme(options.value)
-
-// Watch for prop changes and update
-watch(
-  () => props.defaultTheme,
-  (theme) => {
-    themeContext.setTheme(theme || 'auto')
-  }
-)
+// Pass the computed options directly so provideTheme can watch
+// defaultTheme changes at runtime automatically.
+const themeContext = provideTheme(options)
 </script>
 
 <template>

@@ -25,7 +25,7 @@ const localError = ref('')
 const formError = computed(() => (props.name ? form?.errors[props.name] : undefined))
 const displayError = computed(() => props.error || formError.value || localError.value)
 
-const fieldId = computed(() => props.name ? `nm-field-${props.name}` : generateId('nm-field'))
+const fieldId = computed(() => (props.name ? `nm-field-${props.name}` : generateId('nm-field')))
 
 function validate(value: unknown): boolean {
   const fieldRules = props.rules
@@ -71,10 +71,7 @@ defineExpose({ validate, clearError, fieldId })
 </script>
 
 <template>
-  <div
-    class="nm-form-item"
-    :class="{ 'nm-form-item--error': !!displayError }"
-  >
+  <div class="nm-form-item" :class="{ 'nm-form-item--error': !!displayError }">
     <label
       v-if="label"
       :for="name ? fieldId : undefined"

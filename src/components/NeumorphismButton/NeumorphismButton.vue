@@ -74,7 +74,13 @@ function handleClick(event: MouseEvent): void {
     @click="handleClick"
   >
     <span v-if="loading" class="nm-button__spinner">
-      <svg v-once class="nm-button__spinner-svg" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <svg
+        v-once
+        class="nm-button__spinner-svg"
+        viewBox="0 0 24 24"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
         <circle
           cx="12"
           cy="12"
@@ -161,21 +167,8 @@ function handleClick(event: MouseEvent): void {
 .nm-button--circle {
   border-radius: 50%;
   padding: 0;
-
-  &.nm-button--small {
-    width: 32px;
-    height: 32px;
-  }
-
-  &.nm-button--medium {
-    width: 44px;
-    height: 44px;
-  }
-
-  &.nm-button--large {
-    width: 56px;
-    height: 56px;
-  }
+  width: var(--nm-button-min-height);
+  height: var(--nm-button-min-height);
 }
 
 // ---------- Style variants ----------
@@ -280,8 +273,12 @@ function handleClick(event: MouseEvent): void {
 }
 
 @keyframes nm-spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .nm-button__content {

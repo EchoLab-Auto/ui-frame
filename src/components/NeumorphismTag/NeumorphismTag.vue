@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useLocale } from '@/composables/useLocale'
 
 export type TagVariant = 'default' | 'primary' | 'success' | 'warning' | 'error' | 'info'
 
@@ -9,6 +10,8 @@ export interface NeumorphismTagProps {
   size?: 'small' | 'medium' | 'large'
   disabled?: boolean
   rounded?: boolean
+  /** Accessible label for the close button */
+  closeLabel?: string
 }
 
 const props = withDefaults(defineProps<NeumorphismTagProps>(), {
@@ -17,12 +20,16 @@ const props = withDefaults(defineProps<NeumorphismTagProps>(), {
   size: 'medium',
   disabled: false,
   rounded: false,
+  closeLabel: '',
 })
 
 const emit = defineEmits<{
   (e: 'close', event: MouseEvent): void
   (e: 'click', event: MouseEvent): void
 }>()
+
+const { t } = useLocale()
+const resolvedCloseLabel = computed(() => props.closeLabel || t('tagClose'))
 
 function handleClose(event: MouseEvent) {
   if (props.disabled) return
@@ -64,12 +71,19 @@ const variantColors: Record<TagVariant, string> = {
     <button
       v-if="closable"
       class="nm-tag__close"
-      @click="handleClose"
-      :aria-label="'移除标签'"
+      :aria-label="resolvedCloseLabel"
       type="button"
+      @click="handleClose"
     >
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-        <path d="M18 6L6 18M6 6l12 12"/>
+      <svg
+        width="12"
+        height="12"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2.5"
+      >
+        <path d="M18 6L6 18M6 6l12 12" />
       </svg>
     </button>
   </span>
@@ -116,7 +130,9 @@ const variantColors: Record<TagVariant, string> = {
 
   &:active:not(.nm-tag--disabled) {
     transform: translateY(0);
-    transition: transform 0.1s $nm-ease-compress, box-shadow 0.1s $nm-ease-compress;
+    transition:
+      transform 0.1s $nm-ease-compress,
+      box-shadow 0.1s $nm-ease-compress;
   }
 
   // Colored variants
@@ -131,8 +147,12 @@ const variantColors: Record<TagVariant, string> = {
       2px 2px 4px rgba(0, 0, 0, 0.15),
       -1px -1px 3px rgba(255, 255, 255, 0.2);
 
-    .nm-tag__close { color: rgba(255, 255, 255, 0.7); }
-    .nm-tag__close:hover { color: #fff; }
+    .nm-tag__close {
+      color: rgba(255, 255, 255, 0.7);
+    }
+    .nm-tag__close:hover {
+      color: #fff;
+    }
 
     @media (hover: hover) {
       &:hover:not(.nm-tag--disabled) {
@@ -185,7 +205,19 @@ const variantColors: Record<TagVariant, string> = {
 }
 
 // Sizes
-.nm-tag--small  { padding: 2px 8px; font-size: 11px; height: 22px; }
-.nm-tag--medium { padding: 4px 12px; font-size: 13px; height: 28px; }
-.nm-tag--large  { padding: 6px 16px; font-size: 14px; height: 34px; }
+.nm-tag--small {
+  padding: 2px 8px;
+  font-size: 11px;
+  height: 22px;
+}
+.nm-tag--medium {
+  padding: 4px 12px;
+  font-size: 13px;
+  height: 28px;
+}
+.nm-tag--large {
+  padding: 6px 16px;
+  font-size: 14px;
+  height: 34px;
+}
 </style>

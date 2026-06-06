@@ -41,11 +41,22 @@ const classList = computed(() => [
   &:not(&--fluid) {
     max-width: 100%;
 
-    @include nm-screen-sm { max-width: 540px; }
-    @include nm-screen-md { max-width: 720px; padding-inline: 24px; }
-    @include nm-screen-lg { max-width: 960px; }
-    @include nm-screen-xl { max-width: 1140px; }
-    @include nm-screen-xxl { max-width: 1320px; }
+    @include nm-screen-sm {
+      max-width: 540px;
+    }
+    @include nm-screen-md {
+      max-width: 720px;
+      padding-inline: 24px;
+    }
+    @include nm-screen-lg {
+      max-width: 960px;
+    }
+    @include nm-screen-xl {
+      max-width: 1140px;
+    }
+    @include nm-screen-xxl {
+      max-width: 1320px;
+    }
   }
 
   &--no-padding {

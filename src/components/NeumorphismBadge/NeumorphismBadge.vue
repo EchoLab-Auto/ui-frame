@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useLocale } from '@/composables/useLocale'
 
 export interface NeumorphismBadgeProps {
   value?: string | number
@@ -30,6 +31,12 @@ const isHidden = computed(() => {
   return (isNaN(num) || num <= 0) && !props.showZero
 })
 
+const { t } = useLocale()
+
+const ariaLabel = computed(() =>
+  props.dot ? t('badgeOnline') : t('badgeUnread', { count: displayValue.value })
+)
+
 const classList = computed(() => [
   'nm-badge',
   {
@@ -47,7 +54,7 @@ const classList = computed(() => [
       class="nm-badge__content"
       :class="{ 'nm-badge__content--dot': dot }"
       :style="color ? { backgroundColor: color } : undefined"
-      :aria-label="dot ? '在线' : `未读 ${displayValue}`"
+      :aria-label="ariaLabel"
     >
       <span v-if="!dot" class="nm-badge__text" aria-hidden="true">{{ displayValue }}</span>
     </sup>
@@ -95,14 +102,29 @@ const classList = computed(() => [
 }
 
 @keyframes nm-badge-pop {
-  0% { transform: scale(0); opacity: 0; }
-  70% { transform: scale(1.2); }
-  100% { transform: scale(1); opacity: 1; }
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  70% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
 @keyframes nm-badge-pulse {
-  0%, 100% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.3); opacity: 0.8; }
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.3);
+    opacity: 0.8;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

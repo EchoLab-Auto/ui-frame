@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
+import { useLocale } from '@/composables/useLocale'
 
 export type AvatarSize = 'small' | 'medium' | 'large'
 
@@ -21,12 +22,17 @@ const emit = defineEmits<{
   (e: 'error'): void
 }>()
 
+const { t } = useLocale()
+
 const hasImage = computed(() => !!props.src)
 const showFallback = ref(false)
 
-watch(() => props.src, () => {
-  showFallback.value = false
-})
+watch(
+  () => props.src,
+  () => {
+    showFallback.value = false
+  }
+)
 
 function onImageError() {
   showFallback.value = true
@@ -41,19 +47,20 @@ const classList = computed(() => [
 
 const fallbackContent = computed(() => {
   if (props.initials) return props.initials.slice(0, 2).toUpperCase()
-  return ''
+  if (props.alt) return props.alt.slice(0, 1).toUpperCase()
+  return '?' // Show a question mark as a generic fallback
 })
 </script>
 
 <template>
-  <div :class="classList" role="img" :aria-label="alt || initials || '头像'">
+  <div :class="classList" role="img" :aria-label="alt || initials || t('badgeAvatar')">
     <img
       v-if="hasImage && !showFallback"
       :src="src"
       :alt="alt || ''"
       class="nm-avatar__img"
       @error="onImageError"
-    >
+    />
     <span v-else-if="icon || $slots.fallback" class="nm-avatar__fallback nm-avatar__icon">
       <slot name="fallback">
         {{ fallbackContent }}
@@ -77,8 +84,12 @@ const fallbackContent = computed(() => {
     box-shadow 0.35s $nm-ease-spring,
     transform 0.35s $nm-ease-spring;
 
-  &--circle  { border-radius: 50%; }
-  &--rounded { border-radius: var(--nm-border-radius-md); }
+  &--circle {
+    border-radius: 50%;
+  }
+  &--rounded {
+    border-radius: var(--nm-border-radius-md);
+  }
 
   @media (hover: hover) {
     &:hover {
@@ -115,13 +126,31 @@ const fallbackContent = computed(() => {
 }
 
 // Sizes
-.nm-avatar--small  { width: var(--nm-avatar-size-sm); height: var(--nm-avatar-size-sm); font-size: var(--nm-avatar-font-sm); }
-.nm-avatar--medium { width: var(--nm-avatar-size-md); height: var(--nm-avatar-size-md); font-size: var(--nm-avatar-font-md); }
-.nm-avatar--large  { width: var(--nm-avatar-size-lg); height: var(--nm-avatar-size-lg); font-size: var(--nm-avatar-font-lg); }
+.nm-avatar--small {
+  width: var(--nm-avatar-size-sm);
+  height: var(--nm-avatar-size-sm);
+  font-size: var(--nm-avatar-font-sm);
+}
+.nm-avatar--medium {
+  width: var(--nm-avatar-size-md);
+  height: var(--nm-avatar-size-md);
+  font-size: var(--nm-avatar-font-md);
+}
+.nm-avatar--large {
+  width: var(--nm-avatar-size-lg);
+  height: var(--nm-avatar-size-lg);
+  font-size: var(--nm-avatar-font-lg);
+}
 
 @keyframes nm-avatar-fade-in {
-  from { opacity: 0; transform: scale(1.05); }
-  to   { opacity: 1; transform: scale(1); }
+  from {
+    opacity: 0;
+    transform: scale(1.05);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

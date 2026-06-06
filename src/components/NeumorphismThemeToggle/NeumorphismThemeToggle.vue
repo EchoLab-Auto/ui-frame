@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, watch } from 'vue'
 import { useTheme } from '@/composables/useTheme'
+import { useLocale } from '@/composables/useLocale'
 import type { Theme } from '@/composables/useTheme'
 
 export interface NeumorphismThemeToggleProps {
@@ -26,14 +27,16 @@ const emit = defineEmits<{
   (e: 'change', value: Theme): void
 }>()
 
+const { t } = useLocale()
+
 const options = computed<{ value: Theme; label: string }[]>(() => {
   const items = [
-    { value: 'light' as Theme, label: '亮色' },
-    { value: 'auto' as Theme, label: '自动' },
-    { value: 'dark' as Theme, label: '暗色' },
+    { value: 'light' as Theme, label: t('themeToggleLight') },
+    { value: 'auto' as Theme, label: t('themeToggleAuto') },
+    { value: 'dark' as Theme, label: t('themeToggleDark') },
   ]
   if (props.disableAuto) {
-    return items.filter((i) => i.value !== 'auto')
+    return items.filter(i => i.value !== 'auto')
   }
   return items
 })
@@ -43,12 +46,12 @@ const themeContext = useTheme()
 // Sync external modelValue changes to the global theme system
 watch(
   () => props.modelValue,
-  (value) => {
+  value => {
     if (value !== themeContext.theme.value) {
       themeContext.setTheme(value)
     }
   },
-  { immediate: true },
+  { immediate: true }
 )
 
 const classList = computed(() => [
@@ -69,7 +72,7 @@ function selectTheme(value: Theme) {
 </script>
 
 <template>
-  <div :class="classList" role="radiogroup" :aria-label="'主题切换'">
+  <div :class="classList" role="radiogroup" :aria-label="t('themeToggleLabel')">
     <button
       v-for="opt in options"
       :key="opt.value"
@@ -91,8 +94,12 @@ function selectTheme(value: Theme) {
         xmlns="http://www.w3.org/2000/svg"
       >
         <circle cx="12" cy="12" r="4" fill="currentColor" />
-        <path stroke="currentColor" stroke-width="2" stroke-linecap="round"
-          d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32 1.41 1.41M2 12h2m16 0h2M4.93 19.07l1.41-1.41m11.32-11.32 1.41-1.41" />
+        <path
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32 1.41 1.41M2 12h2m16 0h2M4.93 19.07l1.41-1.41m11.32-11.32 1.41-1.41"
+        />
       </svg>
 
       <!-- Auto icon: monitor/sync -->
@@ -105,8 +112,13 @@ function selectTheme(value: Theme) {
       >
         <rect x="2" y="3" width="20" height="14" rx="2" stroke="currentColor" stroke-width="2" />
         <path stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M8 21h8m-4-4v4" />
-        <path stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-          d="M12 9v3l2 1.5" />
+        <path
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          d="M12 9v3l2 1.5"
+        />
         <circle cx="12" cy="12" r="1" fill="currentColor" />
       </svg>
 
@@ -118,8 +130,7 @@ function selectTheme(value: Theme) {
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
       >
-        <path fill="currentColor"
-          d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+        <path fill="currentColor" d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
       </svg>
 
       <span v-if="size !== 'small'" class="nm-theme-toggle__label">{{ opt.label }}</span>
@@ -265,14 +276,26 @@ function selectTheme(value: Theme) {
 }
 
 @keyframes nm-theme-toggle-activate {
-  0% { transform: scale(0.92); }
-  60% { transform: scale(1.03); }
-  100% { transform: scale(1); }
+  0% {
+    transform: scale(0.92);
+  }
+  60% {
+    transform: scale(1.03);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 
 @keyframes nm-theme-toggle-ripple {
-  0% { opacity: 0.4; transform: scale(0); }
-  100% { opacity: 0; transform: scale(2); }
+  0% {
+    opacity: 0.4;
+    transform: scale(0);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(2);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

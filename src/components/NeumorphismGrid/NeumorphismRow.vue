@@ -3,7 +3,13 @@ import { computed, provide } from 'vue'
 import { RowGutterKey } from '@/composables/injectionKeys'
 
 export type RowAlign = 'start' | 'center' | 'end' | 'stretch' | 'baseline'
-export type RowJustify = 'start' | 'center' | 'end' | 'space-between' | 'space-around' | 'space-evenly'
+export type RowJustify =
+  | 'start'
+  | 'center'
+  | 'end'
+  | 'space-between'
+  | 'space-around'
+  | 'space-evenly'
 
 export interface NeumorphismRowProps {
   gutter?: number | [number, number]
@@ -19,26 +25,26 @@ const props = withDefaults(defineProps<NeumorphismRowProps>(), {
   wrap: true,
 })
 
-const gutterX = computed(() => Array.isArray(props.gutter) ? props.gutter[0] : props.gutter)
-const gutterY = computed(() => Array.isArray(props.gutter) ? props.gutter[1] : props.gutter)
+const gutterX = computed(() => (Array.isArray(props.gutter) ? props.gutter[0] : props.gutter))
+const gutterY = computed(() => (Array.isArray(props.gutter) ? props.gutter[1] : props.gutter))
 
 provide(RowGutterKey, { x: gutterX, y: gutterY })
 
 const justifyMap: Record<RowJustify, string> = {
-  'start': 'flex-start',
-  'center': 'center',
-  'end': 'flex-end',
+  start: 'flex-start',
+  center: 'center',
+  end: 'flex-end',
   'space-between': 'space-between',
   'space-around': 'space-around',
   'space-evenly': 'space-evenly',
 }
 
 const alignMap: Record<RowAlign, string> = {
-  'start': 'flex-start',
-  'center': 'center',
-  'end': 'flex-end',
-  'stretch': 'stretch',
-  'baseline': 'baseline',
+  start: 'flex-start',
+  center: 'center',
+  end: 'flex-end',
+  stretch: 'stretch',
+  baseline: 'baseline',
 }
 
 const style = computed(() => {
@@ -52,14 +58,14 @@ const style = computed(() => {
   }
 })
 
-const classList = computed(() => [
-  'nm-row',
-  { 'nm-row--nowrap': !props.wrap },
-])
+const classList = computed(() => ['nm-row', { 'nm-row--nowrap': !props.wrap }])
 </script>
 
 <template>
-  <div :class="classList" :style="[style, { justifyContent: justifyMap[justify], alignItems: alignMap[align] }]">
+  <div
+    :class="classList"
+    :style="[style, { justifyContent: justifyMap[justify], alignItems: alignMap[align] }]"
+  >
     <slot />
   </div>
 </template>

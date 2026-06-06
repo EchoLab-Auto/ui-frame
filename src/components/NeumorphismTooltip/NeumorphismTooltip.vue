@@ -23,12 +23,17 @@ const props = withDefaults(defineProps<NeumorphismTooltipProps>(), {
 })
 
 // Use headless tooltip composable for all behavioral logic
-const { isVisible, show, hide, toggle, handleKeydown: onKeydown } =
-  useTooltip({
-    disabled: computed(() => props.disabled),
-    delay: props.delay,
-    trigger: computed(() => props.trigger),
-  })
+const {
+  isVisible,
+  show,
+  hide,
+  toggle,
+  handleKeydown: onKeydown,
+} = useTooltip({
+  disabled: computed(() => props.disabled),
+  delay: props.delay,
+  trigger: computed(() => props.trigger),
+})
 
 const offsetPx = computed(() => `${props.offset}px`)
 
@@ -40,32 +45,44 @@ function checkBoundary(): TooltipPosition {
   if (!el) return props.position
 
   const rect = el.getBoundingClientRect()
+  const contentEl = el.querySelector('.nm-tooltip') as HTMLElement | null
+  const contentHeight = contentEl?.offsetHeight ?? 40
+  const contentWidth = contentEl?.offsetWidth ?? 120
 
-  // Check if tooltip would overflow in the preferred direction
   switch (props.position) {
     case 'top':
-      if (rect.top < 60) return 'bottom'
+      if (rect.top < contentHeight + props.offset + 8) return 'bottom'
       break
     case 'bottom':
-      if (rect.bottom > window.innerHeight - 60) return 'top'
+      if (rect.bottom + contentHeight + props.offset + 8 > window.innerHeight) return 'top'
       break
     case 'left':
-      if (rect.left < 100) return 'right'
+      if (rect.left < contentWidth + props.offset + 8) return 'right'
       break
     case 'right':
-      if (rect.right > window.innerWidth - 100) return 'left'
+      if (rect.right + contentWidth + props.offset + 8 > window.innerWidth) return 'left'
       break
   }
   return props.position
 }
 
-watch(isVisible, (visible) => {
+function handleWindowChange() {
+  if (isVisible.value) {
+    actualPosition.value = checkBoundary()
+  }
+}
+
+watch(isVisible, visible => {
   if (visible) {
     nextTick(() => {
       actualPosition.value = checkBoundary()
+      window.addEventListener('scroll', handleWindowChange, { passive: true })
+      window.addEventListener('resize', handleWindowChange)
     })
   } else {
     actualPosition.value = props.position
+    window.removeEventListener('scroll', handleWindowChange)
+    window.removeEventListener('resize', handleWindowChange)
   }
 })
 
@@ -193,21 +210,39 @@ const classList = computed(() => [
 }
 
 // Transition — base
-.nm-tooltip-fade-enter-active { transition: opacity 0.2s ease, transform 0.2s ease; }
-.nm-tooltip-fade-leave-active { transition: opacity 0.15s ease, transform 0.15s ease; }
+.nm-tooltip-fade-enter-active {
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+}
+.nm-tooltip-fade-leave-active {
+  transition:
+    opacity 0.15s ease,
+    transform 0.15s ease;
+}
 .nm-tooltip-fade-enter-from,
-.nm-tooltip-fade-leave-to { opacity: 0; }
+.nm-tooltip-fade-leave-to {
+  opacity: 0;
+}
 
 // Position-specific enter/leave offsets
 .nm-tooltip--top.nm-tooltip-fade-enter-from,
-.nm-tooltip--top.nm-tooltip-fade-leave-to { transform: translateX(-50%) translateY(4px); }
+.nm-tooltip--top.nm-tooltip-fade-leave-to {
+  transform: translateX(-50%) translateY(4px);
+}
 
 .nm-tooltip--bottom.nm-tooltip-fade-enter-from,
-.nm-tooltip--bottom.nm-tooltip-fade-leave-to { transform: translateX(-50%) translateY(-4px); }
+.nm-tooltip--bottom.nm-tooltip-fade-leave-to {
+  transform: translateX(-50%) translateY(-4px);
+}
 
 .nm-tooltip--left.nm-tooltip-fade-enter-from,
-.nm-tooltip--left.nm-tooltip-fade-leave-to { transform: translateY(-50%) translateX(4px); }
+.nm-tooltip--left.nm-tooltip-fade-leave-to {
+  transform: translateY(-50%) translateX(4px);
+}
 
 .nm-tooltip--right.nm-tooltip-fade-enter-from,
-.nm-tooltip--right.nm-tooltip-fade-leave-to { transform: translateY(-50%) translateX(-4px); }
+.nm-tooltip--right.nm-tooltip-fade-leave-to {
+  transform: translateY(-50%) translateX(-4px);
+}
 </style>

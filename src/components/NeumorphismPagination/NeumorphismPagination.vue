@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useLocale } from '@/composables/useLocale'
 import { usePagination } from '@/composables/usePagination'
 
 export interface NeumorphismPaginationProps {
@@ -38,27 +39,20 @@ const emit = defineEmits<{
 // Use headless pagination composable for all behavioral logic
 const currentPage = computed({
   get: () => props.modelValue,
-  set: (val) => {
+  set: val => {
     emit('update:modelValue', val)
     emit('change', val)
   },
 })
 
-const {
-  totalPages,
-  visiblePages,
-  changePage,
-  prevPage,
-  nextPage,
-  isPrevDisabled,
-  isNextDisabled,
-} = usePagination({
-  modelValue: currentPage,
-  total: computed(() => props.total),
-  pageSize: computed(() => props.pageSize),
-  maxVisiblePages: computed(() => props.maxVisiblePages),
-  disabled: computed(() => props.disabled),
-})
+const { totalPages, visiblePages, changePage, prevPage, nextPage, isPrevDisabled, isNextDisabled } =
+  usePagination({
+    modelValue: currentPage,
+    total: computed(() => props.total),
+    pageSize: computed(() => props.pageSize),
+    maxVisiblePages: computed(() => props.maxVisiblePages),
+    disabled: computed(() => props.disabled),
+  })
 
 const classList = computed(() => [
   'nm-pagination',
@@ -69,12 +63,14 @@ const classList = computed(() => [
 function onJumperChange(event: Event) {
   changePage(Number((event.target as HTMLInputElement).value))
 }
+
+const { t } = useLocale()
 </script>
 
 <template>
-  <nav :class="classList" role="navigation" aria-label="分页导航">
+  <nav :class="classList" role="navigation" :aria-label="t('paginationLabel')">
     <span v-if="showTotal" class="nm-pagination__total">
-      共 {{ total }} 条
+      {{ t('paginationTotal', { total }) }}
     </span>
 
     <ul class="nm-pagination__list">
@@ -83,11 +79,18 @@ function onJumperChange(event: Event) {
           class="nm-pagination__btn"
           :disabled="isPrevDisabled"
           :aria-label="prevLabel"
-          @click="prevPage"
           type="button"
+          @click="prevPage"
         >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M15 18l-6-6 6-6"/>
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M15 18l-6-6 6-6" />
           </svg>
         </button>
       </li>
@@ -101,19 +104,17 @@ function onJumperChange(event: Event) {
         :active="page === modelValue"
       >
         <li>
-          <span
-            v-if="typeof page === 'string'"
-            class="nm-pagination__ellipsis"
-            aria-hidden="true"
-          >...</span>
+          <span v-if="typeof page === 'string'" class="nm-pagination__ellipsis" aria-hidden="true"
+            >...</span
+          >
           <button
             v-else
             class="nm-pagination__btn"
             :class="{ 'nm-pagination__btn--active': page === modelValue }"
             :aria-label="`第 ${page} 页`"
             :aria-current="page === modelValue ? 'page' : undefined"
-            @click="changePage(page)"
             type="button"
+            @click="changePage(page)"
           >
             {{ page }}
           </button>
@@ -125,11 +126,18 @@ function onJumperChange(event: Event) {
           class="nm-pagination__btn"
           :disabled="isNextDisabled"
           :aria-label="nextLabel"
-          @click="nextPage"
           type="button"
+          @click="nextPage"
         >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M9 18l6-6-6-6"/>
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M9 18l6-6-6-6" />
           </svg>
         </button>
       </li>
@@ -143,9 +151,9 @@ function onJumperChange(event: Event) {
         :min="1"
         :max="totalPages"
         :value="modelValue"
-        @change="onJumperChange"
         :disabled="disabled"
-      >
+        @change="onJumperChange"
+      />
       页
     </div>
   </nav>
@@ -161,7 +169,9 @@ function onJumperChange(event: Event) {
   flex-wrap: wrap;
   user-select: none;
 
-  &--disabled { opacity: 0.6; }
+  &--disabled {
+    opacity: 0.6;
+  }
 }
 
 .nm-pagination__total {
@@ -273,21 +283,41 @@ function onJumperChange(event: Event) {
 
 // Sizes
 .nm-pagination--small {
-  .nm-pagination__btn { min-width: 30px; height: 30px; font-size: 12px; }
+  .nm-pagination__btn {
+    min-width: 30px;
+    height: 30px;
+    font-size: 12px;
+  }
 }
 .nm-pagination--large {
-  .nm-pagination__btn { min-width: 46px; height: 46px; font-size: 16px; }
+  .nm-pagination__btn {
+    min-width: 46px;
+    height: 46px;
+    font-size: 16px;
+  }
 }
 
 @keyframes nm-pagination-active {
-  0% { transform: scale(0.9); }
-  60% { transform: scale(1.05); }
-  100% { transform: scale(1); }
+  0% {
+    transform: scale(0.9);
+  }
+  60% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 
 @keyframes nm-pagination-glow {
-  0% { opacity: 0.5; transform: scale(0.5); }
-  100% { opacity: 0; transform: scale(2); }
+  0% {
+    opacity: 0.5;
+    transform: scale(0.5);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(2);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

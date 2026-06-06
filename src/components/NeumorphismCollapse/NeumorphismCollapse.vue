@@ -27,7 +27,7 @@ const emit = defineEmits<{
 
 const activeKeys = computed({
   get: () => props.modelValue,
-  set: (val) => {
+  set: val => {
     emit('update:modelValue', val)
     emit('change', val)
   },
@@ -42,10 +42,7 @@ const { toggle, isActive } = useCollapse({
 
 const collapseId = generateId('nm-collapse')
 
-const classList = computed(() => [
-  'nm-collapse',
-  `nm-collapse--${props.size}`,
-])
+const classList = computed(() => ['nm-collapse', `nm-collapse--${props.size}`])
 </script>
 
 <template>
@@ -54,7 +51,10 @@ const classList = computed(() => [
       v-for="item in items"
       :key="item.key"
       class="nm-collapse__item"
-      :class="{ 'nm-collapse__item--active': isActive(item.key), 'nm-collapse__item--disabled': item.disabled }"
+      :class="{
+        'nm-collapse__item--active': isActive(item.key),
+        'nm-collapse__item--disabled': item.disabled,
+      }"
     >
       <h3 class="nm-collapse__header">
         <button
@@ -71,9 +71,19 @@ const classList = computed(() => [
           <slot :name="`header-${item.key}`" :item="item" :active="isActive(item.key)">
             <span class="nm-collapse__title">{{ item.title }}</span>
           </slot>
-          <span class="nm-collapse__icon" :class="{ 'nm-collapse__icon--active': isActive(item.key) }">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M6 9l6 6 6-6"/>
+          <span
+            class="nm-collapse__icon"
+            :class="{ 'nm-collapse__icon--active': isActive(item.key) }"
+          >
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M6 9l6 6 6-6" />
             </svg>
           </span>
         </button>
@@ -109,7 +119,9 @@ const classList = computed(() => [
   background-color: var(--nm-surface-color);
   border-radius: var(--nm-border-radius-md);
 
-  &--disabled { opacity: 0.5; }
+  &--disabled {
+    opacity: 0.5;
+  }
 }
 
 .nm-collapse__header {
@@ -141,16 +153,23 @@ const classList = computed(() => [
   &:active:not(:disabled) {
     transform: translateY(0) scale(0.99);
     @include nm-inset(2px, 5px);
-    transition: transform 0.1s $nm-ease-compress, box-shadow 0.1s $nm-ease-compress;
+    transition:
+      transform 0.1s $nm-ease-compress,
+      box-shadow 0.1s $nm-ease-compress;
   }
 
-  &[aria-expanded="true"] {
+  &[aria-expanded='true'] {
     @include nm-inset(2px, 5px);
     border-radius: var(--nm-border-radius-md) var(--nm-border-radius-md) 0 0;
   }
 
-  &:disabled { cursor: not-allowed; }
-  &:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--nm-primary-color); }
+  &:disabled {
+    cursor: not-allowed;
+  }
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px var(--nm-primary-color);
+  }
 }
 
 .nm-collapse__title {
@@ -163,7 +182,9 @@ const classList = computed(() => [
   color: var(--nm-text-secondary);
   transition: transform var(--nm-transition-fast);
 
-  &--active { transform: rotate(180deg); }
+  &--active {
+    transform: rotate(180deg);
+  }
 }
 
 .nm-collapse__panel {
@@ -201,6 +222,12 @@ const classList = computed(() => [
 }
 
 // Sizes
-.nm-collapse--small  .nm-collapse__trigger { padding: 12px 16px; font-size: 13px; }
-.nm-collapse--large  .nm-collapse__trigger { padding: 20px 28px; font-size: 16px; }
+.nm-collapse--small .nm-collapse__trigger {
+  padding: 12px 16px;
+  font-size: 13px;
+}
+.nm-collapse--large .nm-collapse__trigger {
+  padding: 20px 28px;
+  font-size: 16px;
+}
 </style>

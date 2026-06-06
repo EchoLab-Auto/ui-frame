@@ -37,10 +37,7 @@ provide(RadioGroupKey, {
   setValue,
 })
 
-const classList = computed(() => [
-  'nm-radio-group',
-  `nm-radio-group--${props.direction}`,
-])
+const classList = computed(() => ['nm-radio-group', `nm-radio-group--${props.direction}`])
 </script>
 
 <template>

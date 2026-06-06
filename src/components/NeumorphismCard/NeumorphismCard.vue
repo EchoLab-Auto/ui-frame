@@ -46,9 +46,9 @@ export interface NeumorphismCardProps {
 
 // Map old variant+depth to unified elevation
 const DEPTH_TO_MAGNITUDE: Record<CardDepth, number> = {
-  'shallow': 1,
-  'medium': 2,
-  'deep': 3,
+  shallow: 1,
+  medium: 2,
+  deep: 3,
   'very-deep': 4,
 }
 
@@ -127,7 +127,7 @@ $elevation-shadows: (
     light-blur: 12px,
   ),
   3: (
-    ambient: 0 4px 8px rgba(0, 0, 0, 0.10),
+    ambient: 0 4px 8px rgba(0, 0, 0, 0.1),
     dark-offset: 12px,
     dark-blur: 28px,
     light-offset: -6px,
@@ -148,15 +148,18 @@ $elevation-shadows: (
   box-shadow:
     map.get($s, ambient),
     map.get($s, dark-offset) map.get($s, dark-offset) map.get($s, dark-blur) var(--nm-shadow-dark),
-    map.get($s, light-offset) map.get($s, light-offset) map.get($s, light-blur) var(--nm-shadow-light);
+    map.get($s, light-offset) map.get($s, light-offset) map.get($s, light-blur)
+      var(--nm-shadow-light);
 }
 
 /// Emit a pressed (concave) shadow for the given |elevation| magnitude.
 @mixin nm-card-pressed($level) {
   $s: map.get($elevation-shadows, $level);
   box-shadow:
-    inset map.get($s, dark-offset) map.get($s, dark-offset) map.get($s, dark-blur) var(--nm-shadow-dark-deep),
-    inset map.get($s, light-offset) map.get($s, light-offset) map.get($s, light-blur) var(--nm-shadow-light-deep);
+    inset map.get($s, dark-offset) map.get($s, dark-offset) map.get($s, dark-blur)
+      var(--nm-shadow-dark-deep),
+    inset map.get($s, light-offset) map.get($s, light-offset) map.get($s, light-blur)
+      var(--nm-shadow-light-deep);
 }
 
 // ============================================================
@@ -170,49 +173,95 @@ $elevation-shadows: (
 }
 
 // ---------- Radius ----------
-.nm-card--radius-small  { border-radius: var(--nm-border-radius-sm); }
-.nm-card--radius-medium { border-radius: var(--nm-border-radius-md); }
-.nm-card--radius-large  { border-radius: var(--nm-border-radius-lg); }
-.nm-card--radius-xl     { border-radius: var(--nm-border-radius-xl); }
+.nm-card--radius-small {
+  border-radius: var(--nm-border-radius-sm);
+}
+.nm-card--radius-medium {
+  border-radius: var(--nm-border-radius-md);
+}
+.nm-card--radius-large {
+  border-radius: var(--nm-border-radius-lg);
+}
+.nm-card--radius-xl {
+  border-radius: var(--nm-border-radius-xl);
+}
 
 // ---------- Padding ----------
 .nm-card:not(.nm-card--no-padding) {
-  .nm-card__header { padding: var(--nm-spacing-md) var(--nm-spacing-lg); }
-  .nm-card__body   { padding: var(--nm-spacing-lg); }
-  .nm-card__footer { padding: var(--nm-spacing-md) var(--nm-spacing-lg); }
+  .nm-card__header {
+    padding: var(--nm-spacing-md) var(--nm-spacing-lg);
+  }
+  .nm-card__body {
+    padding: var(--nm-spacing-lg);
+  }
+  .nm-card__footer {
+    padding: var(--nm-spacing-md) var(--nm-spacing-lg);
+  }
 }
 .nm-card--no-padding {
-  .nm-card__header, .nm-card__body, .nm-card__footer { padding: 0; }
+  .nm-card__header,
+  .nm-card__body,
+  .nm-card__footer {
+    padding: 0;
+  }
 }
 
 // ---------- Header / Footer ----------
-.nm-card__header { border-bottom: 1px solid transparent; }
-.nm-card__footer { border-top:    1px solid transparent; }
+.nm-card__header {
+  border-bottom: 1px solid transparent;
+}
+.nm-card__footer {
+  border-top: 1px solid transparent;
+}
 
 // ============================================================
 //  Elevation levels — raised (positive)
 // ============================================================
-.nm-card--elevation-1 { @include nm-card-raised(1); }
-.nm-card--elevation-2 { @include nm-card-raised(2); }
-.nm-card--elevation-3 { @include nm-card-raised(3); }
-.nm-card--elevation-4 { @include nm-card-raised(4); }
+.nm-card--elevation-1 {
+  @include nm-card-raised(1);
+}
+.nm-card--elevation-2 {
+  @include nm-card-raised(2);
+}
+.nm-card--elevation-3 {
+  @include nm-card-raised(3);
+}
+.nm-card--elevation-4 {
+  @include nm-card-raised(4);
+}
 
 // Raised cards get subtle header/footer dividers
 .nm-card--elevation-1,
 .nm-card--elevation-2,
 .nm-card--elevation-3,
 .nm-card--elevation-4 {
-  .nm-card__header { border-bottom-color: rgba(0, 0, 0, 0.05); }
-  .nm-card__footer { border-top-color:    rgba(0, 0, 0, 0.05); }
+  .nm-card__header {
+    border-bottom-color: rgba(0, 0, 0, 0.05);
+  }
+  .nm-card__footer {
+    border-top-color: rgba(0, 0, 0, 0.05);
+  }
 }
 
 // ============================================================
 //  Elevation levels — pressed (negative)
 // ============================================================
-.nm-card--elevation--1 { @include nm-card-pressed(1); background-color: var(--nm-surface-raised); }
-.nm-card--elevation--2 { @include nm-card-pressed(2); background-color: var(--nm-surface-raised); }
-.nm-card--elevation--3 { @include nm-card-pressed(3); background-color: var(--nm-surface-raised); }
-.nm-card--elevation--4 { @include nm-card-pressed(4); background-color: var(--nm-surface-raised); }
+.nm-card--elevation--1 {
+  @include nm-card-pressed(1);
+  background-color: var(--nm-surface-raised);
+}
+.nm-card--elevation--2 {
+  @include nm-card-pressed(2);
+  background-color: var(--nm-surface-raised);
+}
+.nm-card--elevation--3 {
+  @include nm-card-pressed(3);
+  background-color: var(--nm-surface-raised);
+}
+.nm-card--elevation--4 {
+  @include nm-card-pressed(4);
+  background-color: var(--nm-surface-raised);
+}
 
 // ============================================================
 //  Elevation 0 — flush with the background (no shadow, same color)
@@ -228,14 +277,24 @@ $elevation-shadows: (
 // ============================================================
 .nm-card--hover-bulge {
   // Raised → more raised
-  &.nm-card--elevation-1:hover { @include nm-card-raised(3); }
-  &.nm-card--elevation-2:hover { @include nm-card-raised(4); }
+  &.nm-card--elevation-1:hover {
+    @include nm-card-raised(3);
+  }
+  &.nm-card--elevation-2:hover {
+    @include nm-card-raised(4);
+  }
   &.nm-card--elevation-3:hover,
-  &.nm-card--elevation-4:hover { @include nm-card-raised(4); }
+  &.nm-card--elevation-4:hover {
+    @include nm-card-raised(4);
+  }
 
   // Pressed → less pressed (toward surface)
-  &.nm-card--elevation--4:hover { @include nm-card-pressed(2); }
-  &.nm-card--elevation--3:hover { @include nm-card-pressed(1); }
+  &.nm-card--elevation--4:hover {
+    @include nm-card-pressed(2);
+  }
+  &.nm-card--elevation--3:hover {
+    @include nm-card-pressed(1);
+  }
   &.nm-card--elevation--2:hover,
   &.nm-card--elevation--1:hover {
     box-shadow: none;
@@ -255,14 +314,24 @@ $elevation-shadows: (
 // ============================================================
 .nm-card--hover-sink {
   // Pressed → more pressed
-  &.nm-card--elevation--1:hover { @include nm-card-pressed(3); }
-  &.nm-card--elevation--2:hover { @include nm-card-pressed(4); }
+  &.nm-card--elevation--1:hover {
+    @include nm-card-pressed(3);
+  }
+  &.nm-card--elevation--2:hover {
+    @include nm-card-pressed(4);
+  }
   &.nm-card--elevation--3:hover,
-  &.nm-card--elevation--4:hover { @include nm-card-pressed(4); }
+  &.nm-card--elevation--4:hover {
+    @include nm-card-pressed(4);
+  }
 
   // Raised → less raised (toward surface)
-  &.nm-card--elevation-4:hover { @include nm-card-raised(2); }
-  &.nm-card--elevation-3:hover { @include nm-card-raised(1); }
+  &.nm-card--elevation-4:hover {
+    @include nm-card-raised(2);
+  }
+  &.nm-card--elevation-3:hover {
+    @include nm-card-raised(1);
+  }
   &.nm-card--elevation-2:hover,
   &.nm-card--elevation-1:hover {
     box-shadow: none;

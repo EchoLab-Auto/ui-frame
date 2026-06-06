@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useLocale } from '@/composables/useLocale'
 
 export interface NeumorphismCanvasProps {
   /** Current zoom level (1 = 100%) */
@@ -39,9 +40,11 @@ const emit = defineEmits<{
   (e: 'zoom-change', value: number): void
 }>()
 
+const { t } = useLocale()
+
 const currentZoom = computed({
   get: () => props.modelValue,
-  set: (val) => {
+  set: val => {
     emit('update:modelValue', val)
     emit('zoom-change', val)
   },
@@ -79,9 +82,7 @@ const wrapperStyle = computed(() => ({
   height: props.height,
 }))
 
-const classList = computed(() => [
-  'nm-canvas',
-])
+const classList = computed(() => ['nm-canvas'])
 </script>
 
 <template>
@@ -92,13 +93,18 @@ const classList = computed(() => [
         <button
           type="button"
           class="nm-canvas__btn"
-          aria-label="缩小"
+          :aria-label="t('canvasZoomOut')"
           :disabled="currentZoom <= minZoom"
           @click="zoomOut"
         >
           <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2" />
-            <path d="M8 11h6M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+            <path
+              d="M8 11h6M21 21l-4.35-4.35"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+            />
           </svg>
         </button>
 
@@ -107,25 +113,42 @@ const classList = computed(() => [
         <button
           type="button"
           class="nm-canvas__btn"
-          aria-label="放大"
+          :aria-label="t('canvasZoomIn')"
           :disabled="currentZoom >= maxZoom"
           @click="zoomIn"
         >
           <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2" />
-            <path d="M11 8v6M8 11h6M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+            <path
+              d="M11 8v6M8 11h6M21 21l-4.35-4.35"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+            />
           </svg>
         </button>
 
         <button
           type="button"
           class="nm-canvas__btn nm-canvas__btn--reset"
-          aria-label="重置缩放"
+          :aria-label="t('canvasZoomReset')"
           @click="resetZoom"
         >
           <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-            <path d="M3 3v5h5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            <path
+              d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+            <path
+              d="M3 3v5h5"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
           </svg>
         </button>
       </div>
@@ -135,10 +158,7 @@ const classList = computed(() => [
 
     <!-- Canvas viewport -->
     <div class="nm-canvas__viewport">
-      <div
-        class="nm-canvas__grid"
-        :style="gridStyle"
-      >
+      <div class="nm-canvas__grid" :style="gridStyle">
         <div
           class="nm-canvas__content"
           :style="{ transform: `scale(${currentZoom})`, transformOrigin: 'top left' }"
@@ -217,7 +237,9 @@ const classList = computed(() => [
   &:active:not(:disabled) {
     @include nm-inset-strong(2px, 4px);
     transform: translateY(0);
-    transition: box-shadow 0.1s $nm-ease-compress, transform 0.1s $nm-ease-compress;
+    transition:
+      box-shadow 0.1s $nm-ease-compress,
+      transform 0.1s $nm-ease-compress;
   }
 
   &:disabled {

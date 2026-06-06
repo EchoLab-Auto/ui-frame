@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useConfig } from '@/composables/useConfig'
 
 export interface NeumorphismSwitchProps {
   /** v-model binding */
@@ -24,6 +25,9 @@ const props = withDefaults(defineProps<NeumorphismSwitchProps>(), {
   size: 'medium',
 })
 
+const config = useConfig()
+const resolvedSize = computed(() => props.size ?? config.value.switch?.size ?? 'medium')
+
 const emit = defineEmits<{
   (e: 'update:modelValue', value: boolean): void
   (e: 'change', value: boolean): void
@@ -31,7 +35,7 @@ const emit = defineEmits<{
 
 const isChecked = computed({
   get: () => props.modelValue,
-  set: (value) => {
+  set: value => {
     emit('update:modelValue', value)
     emit('change', value)
   },
@@ -39,7 +43,7 @@ const isChecked = computed({
 
 const classList = computed(() => [
   'nm-switch',
-  `nm-switch--${props.size}`,
+  `nm-switch--${resolvedSize.value}`,
   {
     'nm-switch--checked': isChecked.value,
     'nm-switch--disabled': props.disabled,
@@ -74,7 +78,7 @@ function handleChange(event: Event): void {
         :checked="isChecked"
         :disabled="disabled"
         @change="handleChange"
-      >
+      />
       <span class="nm-switch__track" aria-hidden="true" :style="trackStyle">
         <span class="nm-switch__thumb">
           <slot name="thumb" :checked="isChecked">
@@ -207,11 +211,8 @@ $switch-ambient: cubic-bezier(0.4, 0, 0.2, 1);
   top: 50%;
   inset-inline-start: var(--nm-switch-gap);
   // translateX gets animated; scaleX/Y adds squash-and-stretch
-  transform:
-    translateY(-50%)
-    translateX(var(--nm-switch-shift))
-    scaleX(calc(1 + var(--nm-switch-stretch)))
-    scaleY(calc(1 - var(--nm-switch-stretch) * 0.5));
+  transform: translateY(-50%) translateX(var(--nm-switch-shift))
+    scaleX(calc(1 + var(--nm-switch-stretch))) scaleY(calc(1 - var(--nm-switch-stretch) * 0.5));
   transform-origin: center center;
   background: linear-gradient(145deg, var(--nm-bg-color) 0%, var(--nm-surface-raised) 100%);
   border-radius: 50%;
@@ -219,11 +220,11 @@ $switch-ambient: cubic-bezier(0.4, 0, 0.2, 1);
   align-items: center;
   justify-content: center;
   transition:
-    transform       0.5s $switch-spring,
-    background      0.4s $switch-ambient,
-    box-shadow      0.4s $switch-ambient,
-    width           0.25s $switch-compress,
-    height          0.25s $switch-compress;
+    transform 0.5s $switch-spring,
+    background 0.4s $switch-ambient,
+    box-shadow 0.4s $switch-ambient,
+    width 0.25s $switch-compress,
+    height 0.25s $switch-compress;
   box-shadow:
     1px 2px 4px rgba(0, 0, 0, 0.12),
     2px 2px 6px var(--nm-shadow-dark),
@@ -238,7 +239,7 @@ $switch-ambient: cubic-bezier(0.4, 0, 0.2, 1);
   background-color: var(--nm-text-placeholder);
   transition:
     background-color 0.4s $switch-ambient,
-    transform        0.3s $switch-compress;
+    transform 0.3s $switch-compress;
 }
 
 .nm-switch--checked .nm-switch__thumb-dot {

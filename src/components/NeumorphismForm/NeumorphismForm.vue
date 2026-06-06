@@ -59,10 +59,7 @@ function validateField(name: string): boolean {
 function validateAll(): boolean {
   let valid = true
   // Validate all fields that have rules or registered validators
-  const allNames = new Set([
-    ...Object.keys(props.rules),
-    ...fieldValidators.keys(),
-  ])
+  const allNames = new Set([...Object.keys(props.rules), ...fieldValidators.keys()])
   for (const name of allNames) {
     if (!validateField(name)) valid = false
   }
@@ -91,12 +88,18 @@ function handleSubmit(event: Event) {
 }
 
 function clearErrors() {
-  Object.keys(errors).forEach((k) => delete errors[k])
+  Object.keys(errors).forEach(k => delete errors[k])
 }
 
+// Use getter properties so child components always read the latest
+// prop values even when the parent replaces the whole object.
 provide(FormKey, {
-  model: props.model,
-  rules: props.rules,
+  get model() {
+    return props.model
+  },
+  get rules() {
+    return props.rules
+  },
   errors,
   labelWidth: props.labelWidth,
   size: props.size,
@@ -109,16 +112,13 @@ onBeforeUnmount(() => {
   fieldValidators.clear()
 })
 
-const classList = computed(() => [
-  'nm-form',
-  `nm-form--${props.direction}`,
-])
+const classList = computed(() => ['nm-form', `nm-form--${props.direction}`])
 
 defineExpose({ validateAll, validateField, clearErrors })
 </script>
 
 <template>
-  <form :class="classList" @submit="handleSubmit" novalidate>
+  <form :class="classList" novalidate @submit="handleSubmit">
     <slot :errors="errors" :validate-all="validateAll" :clear-errors="clearErrors" />
   </form>
 </template>

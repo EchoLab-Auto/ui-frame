@@ -1,5 +1,10 @@
 export { default as NeumorphismButton } from './NeumorphismButton'
-export type { NeumorphismButtonProps, ButtonVariant, ButtonSize, ButtonShape } from './NeumorphismButton'
+export type {
+  NeumorphismButtonProps,
+  ButtonVariant,
+  ButtonSize,
+  ButtonShape,
+} from './NeumorphismButton'
 
 export { default as NeumorphismSwitch } from './NeumorphismSwitch'
 export type { NeumorphismSwitchProps } from './NeumorphismSwitch'
@@ -28,7 +33,13 @@ export { default as NeumorphismModal } from './NeumorphismModal'
 export type { NeumorphismModalProps } from './NeumorphismModal'
 
 export { default as NeumorphismToastProvider } from './NeumorphismToast'
-export type { NeumorphismToastProviderProps, ToastOptions, ToastType, ToastPosition, ToastItem } from './NeumorphismToast'
+export type {
+  NeumorphismToastProviderProps,
+  ToastOptions,
+  ToastType,
+  ToastPosition,
+  ToastItem,
+} from './NeumorphismToast'
 
 export { default as NeumorphismTooltip } from './NeumorphismTooltip'
 export type { NeumorphismTooltipProps, TooltipPosition, TooltipTrigger } from './NeumorphismTooltip'
@@ -59,6 +70,9 @@ export type { NeumorphismProgressProps, ProgressVariant } from './NeumorphismPro
 export { default as NeumorphismSkeleton } from './NeumorphismSkeleton'
 export type { NeumorphismSkeletonProps } from './NeumorphismSkeleton'
 
+export { default as NeumorphismTable } from './NeumorphismTable'
+export type { NeumorphismTableProps, TableColumn } from './NeumorphismTable'
+
 // Layout
 export { default as NeumorphismDivider } from './NeumorphismDivider'
 export type { NeumorphismDividerProps, DividerDirection, DividerAlign } from './NeumorphismDivider'
@@ -80,7 +94,11 @@ export { default as NeumorphismThemeToggle } from './NeumorphismThemeToggle'
 export type { NeumorphismThemeToggleProps } from './NeumorphismThemeToggle'
 
 export { NeumorphismTree, NeumorphismTreeNode } from './NeumorphismTree'
-export type { NeumorphismTreeProps, NeumorphismTreeNodeProps, TreeNodeData } from './NeumorphismTree'
+export type {
+  NeumorphismTreeProps,
+  NeumorphismTreeNodeProps,
+  TreeNodeData,
+} from './NeumorphismTree'
 
 export { default as NeumorphismCanvas } from './NeumorphismCanvas'
 export type { NeumorphismCanvasProps } from './NeumorphismCanvas'

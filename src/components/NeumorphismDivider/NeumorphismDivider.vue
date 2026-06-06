@@ -30,11 +30,7 @@ const classList = computed(() => [
 </script>
 
 <template>
-  <div
-    :class="classList"
-    role="separator"
-    :aria-orientation="direction"
-  >
+  <div :class="classList" role="separator" :aria-orientation="direction">
     <span v-if="$slots.default" class="nm-divider__text">
       <slot />
     </span>
