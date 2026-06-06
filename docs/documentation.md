@@ -25,9 +25,7 @@ import '@echolab/ui-frame/dist/style.css'
 
 <template>
   <NeumorphismCard :elevation="2">
-    <NeumorphismButton variant="raised" size="medium">
-      点击我
-    </NeumorphismButton>
+    <NeumorphismButton variant="raised" size="medium"> 点击我 </NeumorphismButton>
   </NeumorphismCard>
 </template>
 ```
@@ -40,22 +38,17 @@ import '@echolab/ui-frame/dist/style.css'
 
 带有柔和凸起或凹陷阴影效果的按钮。三层阴影（环境遮挡 + 定向阴影 + 边缘高光），悬停/点击采用弹性缓动。
 
-| 属性 | 类型 | 默认值 | 说明 |
-|------|------|--------|------|
-| variant | `'raised' \| 'flat' \| 'pressed'` | `'raised'` | 阴影变体 |
-| size | `'small' \| 'medium' \| 'large'` | `'medium'` | 按钮尺寸 |
-| shape | `'rounded' \| 'pill' \| 'circle'` | `'rounded'` | 按钮形状 |
-| disabled | `boolean` | `false` | 是否禁用 |
-| loading | `boolean` | `false` | 是否加载中 |
-| type | `'button' \| 'submit' \| 'reset'` | `'button'` | 原生按钮类型 |
+| 属性     | 类型                              | 默认值      | 说明         |
+| -------- | --------------------------------- | ----------- | ------------ |
+| variant  | `'raised' \| 'flat' \| 'pressed'` | `'raised'`  | 阴影变体     |
+| size     | `'small' \| 'medium' \| 'large'`  | `'medium'`  | 按钮尺寸     |
+| shape    | `'rounded' \| 'pill' \| 'circle'` | `'rounded'` | 按钮形状     |
+| disabled | `boolean`                         | `false`     | 是否禁用     |
+| loading  | `boolean`                         | `false`     | 是否加载中   |
+| type     | `'button' \| 'submit' \| 'reset'` | `'button'`  | 原生按钮类型 |
 
 ```vue
-<NeumorphismButton
-  variant="raised"
-  size="medium"
-  shape="rounded"
-  @click="handleClick"
->
+<NeumorphismButton variant="raised" size="medium" shape="rounded" @click="handleClick">
   按钮文字
 </NeumorphismButton>
 ```
@@ -66,13 +59,13 @@ import '@echolab/ui-frame/dist/style.css'
 
 带有太阳/月亮图标的切换开关。图标采用交叉淡入淡出过渡，滑块以临界阻尼曲线平滑滑动（无过冲回弹）。
 
-| 属性 | 类型 | 默认值 | 说明 |
-|------|------|--------|------|
-| modelValue | `boolean` | `false` | 绑定值 |
-| disabled | `boolean` | `false` | 是否禁用 |
-| activeText | `string` | — | 开启状态文本 |
-| inactiveText | `string` | — | 关闭状态文本 |
-| size | `'small' \| 'medium' \| 'large'` | `'medium'` | 开关尺寸 |
+| 属性         | 类型                             | 默认值     | 说明         |
+| ------------ | -------------------------------- | ---------- | ------------ |
+| modelValue   | `boolean`                        | `false`    | 绑定值       |
+| disabled     | `boolean`                        | `false`    | 是否禁用     |
+| activeText   | `string`                         | —          | 开启状态文本 |
+| inactiveText | `string`                         | —          | 关闭状态文本 |
+| size         | `'small' \| 'medium' \| 'large'` | `'medium'` | 开关尺寸     |
 
 ```vue
 <script setup>
@@ -81,12 +74,7 @@ const isDark = ref(false)
 </script>
 
 <template>
-  <NeumorphismSwitch
-    v-model="isDark"
-    active-text="暗色"
-    inactive-text="亮色"
-    size="medium"
-  />
+  <NeumorphismSwitch v-model="isDark" active-text="暗色" inactive-text="亮色" size="medium" />
 </template>
 ```
 
@@ -97,17 +85,18 @@ const isDark = ref(false)
 统一台阶高度模型的容器组件。`elevation` 正数凸起、负数凹陷、零值平齐，|elevation| 控制阴影强度（1–4）。
 
 `hoverable` 支持两种悬停模式：
+
 - `'bulge'` — 台阶升高 2 级（凸起更凸，凹陷回平，不跨越零点）
 - `'sink'` — 台阶降低 2 级（凹陷更深，凸起回平，不跨越零点）
 
-| 属性 | 类型 | 默认值 | 说明 |
-|------|------|--------|------|
-| elevation | `number` | `2` | 台阶高度：正=凸起，负=凹陷，0=平齐 |
-| hoverable | `boolean \| 'bulge' \| 'sink'` | `false` | 悬停动效模式 |
-| radius | `'small' \| 'medium' \| 'large' \| 'xl'` | `'large'` | 圆角大小 |
-| noPadding | `boolean` | `false` | 是否移除内边距 |
-| variant | `'raised' \| 'pressed'` | — | **[已弃用]** 请使用 `elevation` |
-| depth | `'shallow' \| 'medium' \| 'deep' \| 'very-deep'` | — | **[已弃用]** 请使用 `elevation` 绝对值 |
+| 属性      | 类型                                             | 默认值    | 说明                                   |
+| --------- | ------------------------------------------------ | --------- | -------------------------------------- |
+| elevation | `number`                                         | `2`       | 台阶高度：正=凸起，负=凹陷，0=平齐     |
+| hoverable | `boolean \| 'bulge' \| 'sink'`                   | `false`   | 悬停动效模式                           |
+| radius    | `'small' \| 'medium' \| 'large' \| 'xl'`         | `'large'` | 圆角大小                               |
+| noPadding | `boolean`                                        | `false`   | 是否移除内边距                         |
+| variant   | `'raised' \| 'pressed'`                          | —         | **[已弃用]** 请使用 `elevation`        |
+| depth     | `'shallow' \| 'medium' \| 'deep' \| 'very-deep'` | —         | **[已弃用]** 请使用 `elevation` 绝对值 |
 
 ```vue
 <!-- 凸起 2 级，悬停膨胀到 4 级 -->
@@ -134,17 +123,17 @@ const isDark = ref(false)
 
 #### 台阶高度对照表
 
-| elevation | 效果 | 阴影强度 |
-|-----------|------|----------|
-| 4 | 强凸起 | 16px/36px |
-| 3 | 中强凸起 | 12px/28px |
-| 2 | 默认凸起 | 8px/20px |
-| 1 | 轻微凸起 | 4px/10px |
-| 0 | 平齐（与背景融合） | 无 |
-| -1 | 轻微凹陷 | 4px/10px |
-| -2 | 默认凹陷 | 8px/20px |
-| -3 | 中强凹陷 | 12px/28px |
-| -4 | 强凹陷 | 16px/36px |
+| elevation | 效果               | 阴影强度  |
+| --------- | ------------------ | --------- |
+| 4         | 强凸起             | 16px/36px |
+| 3         | 中强凸起           | 12px/28px |
+| 2         | 默认凸起           | 8px/20px  |
+| 1         | 轻微凸起           | 4px/10px  |
+| 0         | 平齐（与背景融合） | 无        |
+| -1        | 轻微凹陷           | 4px/10px  |
+| -2        | 默认凹陷           | 8px/20px  |
+| -3        | 中强凹陷           | 12px/28px |
+| -4        | 强凹陷             | 16px/36px |
 
 ---
 
@@ -152,23 +141,23 @@ const isDark = ref(false)
 
 带有柔和凹陷阴影效果的输入框。悬停时凹陷加深，聚焦时出现主色光环。
 
-| 属性 | 类型 | 默认值 | 说明 |
-|------|------|--------|------|
-| modelValue | `string` | `''` | 绑定值 |
-| type | `string` | `'text'` | 输入类型 |
-| placeholder | `string` | — | 占位符 |
-| disabled | `boolean` | `false` | 是否禁用 |
-| readonly | `boolean` | `false` | 是否只读 |
-| required | `boolean` | `false` | 是否必填 |
-| size | `'small' \| 'medium' \| 'large'` | `'medium'` | 输入框尺寸 |
-| label | `string` | — | 标签文字 |
-| error | `string \| boolean` | — | 错误信息或状态 |
+| 属性        | 类型                             | 默认值     | 说明           |
+| ----------- | -------------------------------- | ---------- | -------------- |
+| modelValue  | `string`                         | `''`       | 绑定值         |
+| type        | `string`                         | `'text'`   | 输入类型       |
+| placeholder | `string`                         | —          | 占位符         |
+| disabled    | `boolean`                        | `false`    | 是否禁用       |
+| readonly    | `boolean`                        | `false`    | 是否只读       |
+| required    | `boolean`                        | `false`    | 是否必填       |
+| size        | `'small' \| 'medium' \| 'large'` | `'medium'` | 输入框尺寸     |
+| label       | `string`                         | —          | 标签文字       |
+| error       | `string \| boolean`              | —          | 错误信息或状态 |
 
 插槽：
 
-| 插槽 | 说明 |
-|------|------|
-| `prefix` | 输入框前缀（图标等） |
+| 插槽     | 说明                           |
+| -------- | ------------------------------ |
+| `prefix` | 输入框前缀（图标等）           |
 | `suffix` | 输入框后缀（图标、清空按钮等） |
 
 ```vue
@@ -199,21 +188,21 @@ const value = ref('')
 
 管理应用全局的亮色/暗色主题状态。
 
-| 属性 | 类型 | 默认值 | 说明 |
-|------|------|--------|------|
-| defaultTheme | `'light' \| 'dark' \| 'auto'` | `'auto'` | 默认主题 |
-| storageKey | `string` | `'nm-theme-preference'` | localStorage 存储键 |
-| followSystem | `boolean` | `true` | 是否跟随系统偏好 |
+| 属性         | 类型                          | 默认值                  | 说明                |
+| ------------ | ----------------------------- | ----------------------- | ------------------- |
+| defaultTheme | `'light' \| 'dark' \| 'auto'` | `'auto'`                | 默认主题            |
+| storageKey   | `string`                      | `'nm-theme-preference'` | localStorage 存储键 |
+| followSystem | `boolean`                     | `true`                  | 是否跟随系统偏好    |
 
 插槽 props：
 
-| 属性 | 类型 | 说明 |
-|------|------|------|
-| isDark | `boolean` | 当前是否为暗色主题 |
-| toggleTheme | `() => void` | 切换亮/暗主题 |
-| setTheme | `(t: Theme) => void` | 设置为指定主题 |
-| theme | `Ref<Theme>` | 当前主题设置值 |
-| currentTheme | `Ref<'light' \| 'dark'>` | 实际生效的主题 |
+| 属性         | 类型                     | 说明               |
+| ------------ | ------------------------ | ------------------ |
+| isDark       | `boolean`                | 当前是否为暗色主题 |
+| toggleTheme  | `() => void`             | 切换亮/暗主题      |
+| setTheme     | `(t: Theme) => void`     | 设置为指定主题     |
+| theme        | `Ref<Theme>`             | 当前主题设置值     |
+| currentTheme | `Ref<'light' \| 'dark'>` | 实际生效的主题     |
 
 ```vue
 <template>
@@ -224,12 +213,8 @@ const value = ref('')
     v-slot="{ isDark, toggleTheme, setTheme }"
   >
     <div>
-      <NeumorphismButton @click="toggleTheme">
-        切换主题
-      </NeumorphismButton>
-      <NeumorphismButton @click="setTheme('light')">
-        亮色模式
-      </NeumorphismButton>
+      <NeumorphismButton @click="toggleTheme"> 切换主题 </NeumorphismButton>
+      <NeumorphismButton @click="setTheme('light')"> 亮色模式 </NeumorphismButton>
     </div>
   </ThemeProvider>
 </template>
@@ -253,11 +238,11 @@ const { isDark, toggleTheme, setTheme } = useTheme()
 
 响应式页面容器，提供居中布局和自适应内边距。
 
-| 属性 | 类型 | 默认值 | 说明 |
-|------|------|--------|------|
-| mode | `'fixed' \| 'fluid'` | `'fixed'` | fixed 模式下根据断点限制最大宽度，fluid 全宽 |
-| noPadding | `boolean` | `false` | 是否移除内边距 |
-| tag | `string` | `'div'` | 自定义渲染标签 |
+| 属性      | 类型                 | 默认值    | 说明                                         |
+| --------- | -------------------- | --------- | -------------------------------------------- |
+| mode      | `'fixed' \| 'fluid'` | `'fixed'` | fixed 模式下根据断点限制最大宽度，fluid 全宽 |
+| noPadding | `boolean`            | `false`   | 是否移除内边距                               |
+| tag       | `string`             | `'div'`   | 自定义渲染标签                               |
 
 ```vue
 <NeumorphismContainer>
@@ -277,25 +262,25 @@ const { isDark, toggleTheme, setTheme } = useTheme()
 
 **NeumorphismRow 属性：**
 
-| 属性 | 类型 | 默认值 | 说明 |
-|------|------|--------|------|
-| gutter | `number \| [number, number]` | `0` | 列间距（px），支持 [水平, 垂直] |
-| justify | `'start' \| 'center' \| 'end' \| 'space-between' \| 'space-around' \| 'space-evenly'` | `'start'` | 水平排列方式 |
-| align | `'start' \| 'center' \| 'end' \| 'stretch' \| 'baseline'` | `'stretch'` | 垂直对齐方式 |
-| wrap | `boolean` | `true` | 是否换行 |
+| 属性    | 类型                                                                                  | 默认值      | 说明                            |
+| ------- | ------------------------------------------------------------------------------------- | ----------- | ------------------------------- |
+| gutter  | `number \| [number, number]`                                                          | `0`         | 列间距（px），支持 [水平, 垂直] |
+| justify | `'start' \| 'center' \| 'end' \| 'space-between' \| 'space-around' \| 'space-evenly'` | `'start'`   | 水平排列方式                    |
+| align   | `'start' \| 'center' \| 'end' \| 'stretch' \| 'baseline'`                             | `'stretch'` | 垂直对齐方式                    |
+| wrap    | `boolean`                                                                             | `true`      | 是否换行                        |
 
 **NeumorphismCol 属性：**
 
-| 属性 | 类型 | 默认值 | 说明 |
-|------|------|--------|------|
-| span | `number` | `24` | 栅格占位格数（1-24） |
-| offset | `number` | — | 左侧偏移格数 |
-| xs | `number` | — | `<576px` 断点下占位 |
-| sm | `number` | — | `≥576px` 断点下占位 |
-| md | `number` | — | `≥768px` 断点下占位 |
-| lg | `number` | — | `≥992px` 断点下占位 |
-| xl | `number` | — | `≥1200px` 断点下占位 |
-| xxl | `number` | — | `≥1400px` 断点下占位 |
+| 属性   | 类型     | 默认值 | 说明                 |
+| ------ | -------- | ------ | -------------------- |
+| span   | `number` | `24`   | 栅格占位格数（1-24） |
+| offset | `number` | —      | 左侧偏移格数         |
+| xs     | `number` | —      | `<576px` 断点下占位  |
+| sm     | `number` | —      | `≥576px` 断点下占位  |
+| md     | `number` | —      | `≥768px` 断点下占位  |
+| lg     | `number` | —      | `≥992px` 断点下占位  |
+| xl     | `number` | —      | `≥1200px` 断点下占位 |
+| xxl    | `number` | —      | `≥1400px` 断点下占位 |
 
 ```vue
 <NeumorphismContainer>
@@ -319,34 +304,29 @@ const { isDark, toggleTheme, setTheme } = useTheme()
 
 经典页面布局框架，包含 Header + Sider + Content + Footer。
 
-| 属性 | 类型 | 默认值 | 说明 |
-|------|------|--------|------|
-| showHeader | `boolean` | `true` | 是否显示顶部导航 |
-| showSider | `boolean` | `false` | 是否显示侧边栏 |
-| siderWidth | `number` | `240` | 侧边栏宽度（px） |
-| collapsible | `boolean` | `false` | 侧边栏是否可折叠 |
-| defaultCollapsed | `boolean` | `false` | 侧边栏默认是否折叠 |
-| collapsedWidth | `number` | `64` | 折叠后的宽度（px） |
-| mobileAutoCollapse | `boolean` | `true` | 移动端是否自动折叠侧边栏 |
+| 属性               | 类型      | 默认值  | 说明                     |
+| ------------------ | --------- | ------- | ------------------------ |
+| showHeader         | `boolean` | `true`  | 是否显示顶部导航         |
+| showSider          | `boolean` | `false` | 是否显示侧边栏           |
+| siderWidth         | `number`  | `240`   | 侧边栏宽度（px）         |
+| collapsible        | `boolean` | `false` | 侧边栏是否可折叠         |
+| defaultCollapsed   | `boolean` | `false` | 侧边栏默认是否折叠       |
+| collapsedWidth     | `number`  | `64`    | 折叠后的宽度（px）       |
+| mobileAutoCollapse | `boolean` | `true`  | 移动端是否自动折叠侧边栏 |
 
 插槽：
 
-| 插槽 | 说明 |
-|------|------|
-| `header-left` | 顶部左侧区域 |
-| `header-center` | 顶部中间区域 |
-| `header-right` | 顶部右侧区域 |
-| `sider` | 侧边栏内容（slot prop: `collapsed`） |
-| default | 主内容区域 |
-| `footer` | 页面底部 |
+| 插槽            | 说明                                 |
+| --------------- | ------------------------------------ |
+| `header-left`   | 顶部左侧区域                         |
+| `header-center` | 顶部中间区域                         |
+| `header-right`  | 顶部右侧区域                         |
+| `sider`         | 侧边栏内容（slot prop: `collapsed`） |
+| default         | 主内容区域                           |
+| `footer`        | 页面底部                             |
 
 ```vue
-<NeumorphismLayout
-  show-header
-  show-sider
-  :sider-width="240"
-  collapsible
->
+<NeumorphismLayout show-header show-sider :sider-width="240" collapsible>
   <template #header-left>
     <strong>Logo</strong>
   </template>
@@ -383,14 +363,14 @@ const { isDark, toggleTheme, setTheme } = useTheme()
 
 本库采用 **mobile-first** 响应式策略，内置 6 个断点：
 
-| 断点名称 | 最小宽度 | 适用设备 |
-|----------|----------|----------|
-| xs | 0px | 手机（默认） |
-| sm | 576px | 大屏手机 / 小平板 |
-| md | 768px | 平板 |
-| lg | 992px | 小桌面 / 平板横屏 |
-| xl | 1200px | 桌面 |
-| xxl | 1400px | 大桌面 |
+| 断点名称 | 最小宽度 | 适用设备          |
+| -------- | -------- | ----------------- |
+| xs       | 0px      | 手机（默认）      |
+| sm       | 576px    | 大屏手机 / 小平板 |
+| md       | 768px    | 平板              |
+| lg       | 992px    | 小桌面 / 平板横屏 |
+| xl       | 1200px   | 桌面              |
+| xxl      | 1400px   | 大桌面            |
 
 ### SCSS Mixins
 
@@ -400,28 +380,30 @@ const { isDark, toggleTheme, setTheme } = useTheme()
 @use '@/styles/mixins.scss' as *;
 
 .my-element {
-  font-size: 14px;  // 移动端（默认）
+  font-size: 14px; // 移动端（默认）
 
   @include nm-screen-md {
-    font-size: 16px;  // 平板及以上
+    font-size: 16px; // 平板及以上
   }
 
   @include nm-screen-xl {
-    font-size: 18px;  // 大桌面
+    font-size: 18px; // 大桌面
   }
 }
 
 // 触屏设备专属样式
 @include nm-touch-device {
   .my-button {
-    min-height: 48px;  // 增大触摸目标
+    min-height: 48px; // 增大触摸目标
   }
 }
 
 // 鼠标设备专属样式
 @include nm-mouse-device {
   .my-button {
-    &:hover { opacity: 0.8; }
+    &:hover {
+      opacity: 0.8;
+    }
   }
 }
 ```
@@ -491,7 +473,7 @@ const { isTouch, isMobile } = useTouchDevice()
   --nm-transition-slow: 0.5s ease;
 }
 
-[data-theme="dark"] {
+[data-theme='dark'] {
   --nm-bg-color: #1c1c1c;
   --nm-surface-color: #1c1c1c;
   --nm-surface-raised: #222222;

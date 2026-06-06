@@ -41,17 +41,17 @@ app.mount('#app')
 
 ## 组件列表
 
-| 组件 | 说明 | 关键属性 |
-|------|------|----------|
-| `NeumorphismButton` | 凸起/扁平/凹陷按钮，多层阴影 + 弹性悬停 | `variant`, `size`, `shape`, `disabled`, `loading` |
-| `NeumorphismSwitch` | 日月图标切换开关，交叉淡入淡出 + 临界阻尼滑动 | `v-model`, `active-text`, `inactive-text`, `size` |
-| `NeumorphismCard` | 统一台阶高度容器，支持 bulge/sink 悬停动效 | `elevation`, `hoverable`, `radius`, `noPadding` |
-| `NeumorphismInput` | 凹陷输入框，支持悬停加深 + 聚焦光环 | `v-model`, `label`, `placeholder`, `size`, `error` |
-| `ThemeProvider` | 亮色/暗色主题管理，自动跟随系统 | `default-theme`, `storage-key`, `follow-system` |
-| `NeumorphismContainer` | 响应式页面容器，固定/全宽模式 | `mode`, `noPadding`, `tag` |
-| `NeumorphismRow` | flexbox 栅格行，列间距与对齐控制 | `gutter`, `justify`, `align`, `wrap` |
-| `NeumorphismCol` | 栅格列，支持 6 个响应式断点 | `span`, `offset`, `xs`, `sm`, `md`, `lg`, `xl`, `xxl` |
-| `NeumorphismLayout` | 经典页面框架（Header/Sider/Content/Footer） | `showHeader`, `showSider`, `siderWidth`, `collapsible` |
+| 组件                   | 说明                                          | 关键属性                                               |
+| ---------------------- | --------------------------------------------- | ------------------------------------------------------ |
+| `NeumorphismButton`    | 凸起/扁平/凹陷按钮，多层阴影 + 弹性悬停       | `variant`, `size`, `shape`, `disabled`, `loading`      |
+| `NeumorphismSwitch`    | 日月图标切换开关，交叉淡入淡出 + 临界阻尼滑动 | `v-model`, `active-text`, `inactive-text`, `size`      |
+| `NeumorphismCard`      | 统一台阶高度容器，支持 bulge/sink 悬停动效    | `elevation`, `hoverable`, `radius`, `noPadding`        |
+| `NeumorphismInput`     | 凹陷输入框，支持悬停加深 + 聚焦光环           | `v-model`, `label`, `placeholder`, `size`, `error`     |
+| `ThemeProvider`        | 亮色/暗色主题管理，自动跟随系统               | `default-theme`, `storage-key`, `follow-system`        |
+| `NeumorphismContainer` | 响应式页面容器，固定/全宽模式                 | `mode`, `noPadding`, `tag`                             |
+| `NeumorphismRow`       | flexbox 栅格行，列间距与对齐控制              | `gutter`, `justify`, `align`, `wrap`                   |
+| `NeumorphismCol`       | 栅格列，支持 6 个响应式断点                   | `span`, `offset`, `xs`, `sm`, `md`, `lg`, `xl`, `xxl`  |
+| `NeumorphismLayout`    | 经典页面框架（Header/Sider/Content/Footer）   | `showHeader`, `showSider`, `siderWidth`, `collapsible` |
 
 详细文档：[docs/documentation.md](docs/documentation.md)
 

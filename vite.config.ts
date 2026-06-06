@@ -28,7 +28,7 @@ export default defineConfig({
       entry: resolve(__dirname, 'src/index.ts'),
       name: 'NeumorphismUI',
       formats: ['es', 'umd'],
-      fileName: (format) => `ui-frame.${format === 'es' ? 'js' : 'umd.cjs'}`,
+      fileName: format => `ui-frame.${format === 'es' ? 'js' : 'umd.cjs'}`,
     },
     rollupOptions: {
       external: ['vue'],
@@ -37,7 +37,7 @@ export default defineConfig({
         globals: {
           vue: 'Vue',
         },
-        assetFileNames: (assetInfo) => {
+        assetFileNames: assetInfo => {
           if (assetInfo.name === 'style.css') {
             return 'style.css'
           }
