@@ -56,24 +56,26 @@ function collectAllKeys(nodes: TreeNodeData[]): string[] {
 
 function expandMatching(nodes: TreeNodeData[], search: string): string[] {
   const keys: string[] = []
-  function walk(list: TreeNodeData[]) {
+  const searchLower = search.toLowerCase()
+
+  function walk(list: TreeNodeData[]): boolean {
+    let hasMatch = false
     for (const n of list) {
-      if (
-        n.label.toLowerCase().includes(search.toLowerCase()) ||
-        n.children?.some((c) => matchesAny(c, search))
-      ) {
-        keys.push(n.key)
+      const labelMatch = n.label.toLowerCase().includes(searchLower)
+      let childMatch = false
+      if (n.children?.length) {
+        childMatch = walk(n.children)
       }
-      if (n.children?.length) walk(n.children)
+      if (labelMatch || childMatch) {
+        keys.push(n.key)
+        hasMatch = true
+      }
     }
+    return hasMatch
   }
+
   walk(nodes)
   return keys
-}
-
-function matchesAny(node: TreeNodeData, search: string): boolean {
-  if (node.label.toLowerCase().includes(search)) return true
-  return node.children?.some((c) => matchesAny(c, search)) ?? false
 }
 
 function findNodeInTree(nodes: TreeNodeData[], key: string): TreeNodeData | null {
@@ -101,14 +103,20 @@ export function useTree(opts: UseTreeOptions): UseTreeReturn {
 
   // Sync local state back to parent v-model refs
   if (opts.selectedKeys) {
-    watch(() => [...localSelectedKeys.value], (val) => {
-      opts.selectedKeys!.value = val
-    })
+    watch(
+      () => [...localSelectedKeys.value],
+      val => {
+        opts.selectedKeys!.value = val
+      }
+    )
   }
   if (opts.expandedKeys) {
-    watch(() => [...localExpandedKeys.value], (val) => {
-      opts.expandedKeys!.value = val
-    })
+    watch(
+      () => [...localExpandedKeys.value],
+      val => {
+        opts.expandedKeys!.value = val
+      }
+    )
   }
 
   const allKeys = computed(() => collectAllKeys(data.value))

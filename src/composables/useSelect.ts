@@ -8,7 +8,7 @@ export interface SelectOption {
 
 export interface UseSelectOptions {
   /** v-model value */
-  modelValue: Ref<string | number>
+  modelValue: Ref<string | number | undefined>
   /** Available options */
   options: Ref<SelectOption[]> | ComputedRef<SelectOption[]>
   /** Whether the select is disabled */
@@ -35,9 +35,7 @@ export function useSelect(opts: UseSelectOptions): UseSelectReturn {
 
   const isOpen = ref(false)
 
-  const selectedOption = computed(() =>
-    options.value.find((o) => o.value === modelValue.value)
-  )
+  const selectedOption = computed(() => options.value.find(o => o.value === modelValue.value))
 
   function toggleOpen() {
     if (disabled?.value) return
@@ -61,7 +59,7 @@ export function useSelect(opts: UseSelectOptions): UseSelectReturn {
 
   function clearValue(value?: string | number) {
     if (disabled?.value) return
-    modelValue.value = (value ?? undefined) as string | number
+    modelValue.value = value
     isOpen.value = false
   }
 
@@ -84,10 +82,10 @@ export function useSelect(opts: UseSelectOptions): UseSelectReturn {
     }
     if (!isOpen.value) return
 
-    const enabledOpts = options.value.filter((o) => !o.disabled)
+    const enabledOpts = options.value.filter(o => !o.disabled)
     if (enabledOpts.length === 0) return
 
-    const idx = enabledOpts.findIndex((o) => o.value === modelValue.value)
+    const idx = enabledOpts.findIndex(o => o.value === modelValue.value)
 
     if (event.key === 'ArrowDown') {
       event.preventDefault()

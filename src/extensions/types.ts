@@ -57,5 +57,4 @@ export interface NeumorphismPluginOptions {
  * type MyFullConfig = ExtendedConfig<MyWidgetConfig>
  * ```
  */
-export type ExtendedConfig<T extends Record<string, unknown>> =
-  NeumorphismGlobalConfig & T
+export type ExtendedConfig<T extends Record<string, unknown>> = NeumorphismGlobalConfig & T

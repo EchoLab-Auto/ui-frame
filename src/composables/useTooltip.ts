@@ -60,7 +60,11 @@ export function useTooltip(opts: UseTooltipOptions = {}): UseTooltipReturn {
 
   function toggle() {
     if (disabled?.value) return
-    isVisible.value ? hide() : show()
+    if (isVisible.value) {
+      hide()
+    } else {
+      show()
+    }
   }
 
   function handleKeydown(event: KeyboardEvent) {

@@ -1,4 +1,15 @@
-import { ref, computed, provide, inject, watch, onBeforeUnmount, type InjectionKey, type Ref } from 'vue'
+import {
+  ref,
+  computed,
+  provide,
+  inject,
+  watch,
+  onBeforeUnmount,
+  isRef,
+  unref,
+  type InjectionKey,
+  type Ref,
+} from 'vue'
 
 export type Theme = 'light' | 'dark' | 'auto'
 
@@ -67,14 +78,12 @@ function applyThemeClass(isDark: boolean): void {
 }
 
 /**
- * Create theme state for a component tree
+ * Create theme state for a component tree.
+ * The returned context is independent — each call gets its own state
+ * and event listeners, safe for SSR and concurrent usage.
  */
 export function createTheme(options: ThemeOptions = {}): ThemeContext {
-  const {
-    defaultTheme = 'auto',
-    storageKey = STORAGE_KEY,
-    followSystem = true,
-  } = options
+  const { defaultTheme = 'auto', storageKey = STORAGE_KEY, followSystem = true } = options
 
   // Initialize theme from storage or default
   const stored = getStoredTheme(storageKey)
@@ -93,7 +102,7 @@ export function createTheme(options: ThemeOptions = {}): ThemeContext {
   // Watch for changes and apply
   watch(
     isDark,
-    (dark) => {
+    dark => {
       applyThemeClass(dark)
     },
     { immediate: true }
@@ -140,41 +149,49 @@ export function createTheme(options: ThemeOptions = {}): ThemeContext {
 }
 
 /**
- * Provide theme context to child components
+ * Provide theme context to child components.
+ *
+ * Accepts a plain object or a reactive ref/computed. When a ref is passed,
+ * `defaultTheme` changes are propagated automatically at runtime.
+ *
+ * Note: `storageKey` and `followSystem` are only read at initialization.
+ *       Changing them at runtime requires remounting the provider.
  */
-export function provideTheme(options: ThemeOptions = {}): ThemeContext {
-  const themeContext = createTheme(options)
+export function provideTheme(options: ThemeOptions | Ref<ThemeOptions> = {}): ThemeContext {
+  const themeContext = createTheme(unref(options))
   provide(ThemeKey, themeContext)
+
+  // React to runtime defaultTheme changes when a ref/computed is passed
+  if (isRef(options)) {
+    watch(
+      () => options.value.defaultTheme,
+      theme => {
+        if (theme !== undefined) themeContext.setTheme(theme)
+      }
+    )
+  }
+
   onBeforeUnmount(() => {
     themeContext.dispose()
   })
   return themeContext
 }
 
-// Module-level fallback to avoid creating multiple listeners
-let fallbackTheme: ThemeContext | null = null
-let fallbackRefCount = 0
-
 /**
- * Inject theme context from parent
+ * Inject theme context from parent.
+ *
+ * If no provider is found, creates an independent fallback context
+ * that is disposed when the calling component unmounts.
+ * This avoids module-level shared state that leaks across SSR requests.
  */
 export function useTheme(): ThemeContext {
-  const context = inject(ThemeKey)
+  const context = inject(ThemeKey, null)
   if (!context) {
-    // Return a shared default theme context if not provided
-    if (!fallbackTheme) {
-      fallbackTheme = createTheme()
-    }
-    fallbackRefCount++
+    const fallback = createTheme()
     onBeforeUnmount(() => {
-      fallbackRefCount--
-      if (fallbackRefCount <= 0 && fallbackTheme) {
-        fallbackTheme.dispose()
-        fallbackTheme = null
-        fallbackRefCount = 0
-      }
+      fallback.dispose()
     })
-    return fallbackTheme
+    return fallback
   }
   return context
 }

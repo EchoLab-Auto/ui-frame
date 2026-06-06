@@ -42,13 +42,9 @@ export function usePagination(opts: UsePaginationOptions): UsePaginationReturn {
   const maxVisiblePages = opts.maxVisiblePages ?? computed(() => 7)
   const disabled = opts.disabled ?? computed(() => false)
 
-  const totalPages = computed(() =>
-    Math.max(1, Math.ceil(total.value / pageSize.value))
-  )
+  const totalPages = computed(() => Math.max(1, Math.ceil(total.value / pageSize.value)))
 
-  const currentPage = computed(() =>
-    Math.min(Math.max(1, modelValue.value), totalPages.value)
-  )
+  const currentPage = computed(() => Math.min(Math.max(1, modelValue.value), totalPages.value))
 
   function changePage(page: number) {
     if (isNaN(page) || !isFinite(page)) return

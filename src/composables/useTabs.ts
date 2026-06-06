@@ -46,16 +46,16 @@ export function useTabs(opts: UseTabsOptions): UseTabsReturn {
   })
 
   function activate(key: string) {
-    const tab = tabs.value.find((t) => t.key === key)
+    const tab = tabs.value.find(t => t.key === key)
     if (tab?.disabled) return
     modelValue.value = key
   }
 
   function handleKeydown(event: KeyboardEvent, currentKey: string) {
-    const activeTabs = tabs.value.filter((t) => !t.disabled)
+    const activeTabs = tabs.value.filter(t => !t.disabled)
     if (activeTabs.length === 0) return
 
-    const idx = activeTabs.findIndex((t) => t.key === currentKey)
+    const idx = activeTabs.findIndex(t => t.key === currentKey)
     let nextIdx: number
 
     if (orientation.value === 'vertical') {

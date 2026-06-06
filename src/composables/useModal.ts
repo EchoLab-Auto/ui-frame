@@ -3,6 +3,11 @@ import { ref, watch, onMounted, onBeforeUnmount, nextTick, type Ref } from 'vue'
 // Module-level scroll lock counter to handle nested modals
 let scrollLockCount = 0
 
+function getScrollbarWidth(): number {
+  if (typeof window === 'undefined') return 0
+  return window.innerWidth - document.documentElement.clientWidth
+}
+
 export interface UseModalOptions {
   /** v-model visibility */
   modelValue: Ref<boolean>
@@ -45,6 +50,10 @@ export function useModal(opts: UseModalOptions): UseModalReturn {
 
   function lockBodyScroll() {
     if (scrollLockCount++ === 0) {
+      const scrollbarWidth = getScrollbarWidth()
+      if (scrollbarWidth > 0) {
+        document.body.style.paddingRight = `${scrollbarWidth}px`
+      }
       document.body.style.overflow = 'hidden'
     }
   }
@@ -53,16 +62,17 @@ export function useModal(opts: UseModalOptions): UseModalReturn {
     if (--scrollLockCount <= 0) {
       scrollLockCount = 0
       document.body.style.overflow = ''
+      document.body.style.paddingRight = ''
     }
   }
 
   watch(
     () => modelValue.value,
-    (val) => {
+    val => {
       if (val) {
         rendered.value = true
         const ae = document.activeElement
-    previousActiveElement.value = ae instanceof HTMLElement ? ae : null
+        previousActiveElement.value = ae instanceof HTMLElement ? ae : null
         lockBodyScroll()
         nextTick(() => {
           visible.value = true

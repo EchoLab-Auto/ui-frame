@@ -21,11 +21,7 @@ export interface NeumorphismSetupContext {
    * const size = computed(() => resolveProp(props.size, config.value.input?.size, 'medium'))
    * ```
    */
-  resolveProp: <T>(
-    explicit: T | undefined,
-    configValue: T | undefined,
-    defaultValue: T
-  ) => T
+  resolveProp: <T>(explicit: T | undefined, configValue: T | undefined, defaultValue: T) => T
 }
 
 /**
@@ -50,11 +46,7 @@ export interface NeumorphismSetupContext {
 export function useNeumorphismSetup(): NeumorphismSetupContext {
   const config = useConfig()
 
-  function resolveProp<T>(
-    explicit: T | undefined,
-    configValue: T | undefined,
-    defaultValue: T
-  ): T {
+  function resolveProp<T>(explicit: T | undefined, configValue: T | undefined, defaultValue: T): T {
     return explicit ?? configValue ?? defaultValue
   }
 

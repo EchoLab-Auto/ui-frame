@@ -31,7 +31,7 @@ export function useCollapse(opts: UseCollapseOptions): UseCollapseReturn {
   const accordion = opts.accordion
 
   function toggle(key: string) {
-    const item = items.value.find((i) => i.key === key)
+    const item = items.value.find(i => i.key === key)
     if (item?.disabled) return
 
     const keys = [...modelValue.value]

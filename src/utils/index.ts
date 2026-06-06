@@ -18,7 +18,10 @@ export function debounce<T extends (...args: unknown[]) => void>(
     timer = setTimeout(() => fn(...args), delay)
   }
   debounced.cancel = () => {
-    if (timer) { clearTimeout(timer); timer = null }
+    if (timer) {
+      clearTimeout(timer)
+      timer = null
+    }
   }
   return debounced
 }

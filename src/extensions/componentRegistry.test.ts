@@ -2,7 +2,11 @@ import { describe, it, expect } from 'vitest'
 import { h } from 'vue'
 import { ComponentRegistry } from './componentRegistry'
 
-const mockComponent = { setup() { return () => h('div') } }
+const mockComponent = {
+  setup() {
+    return () => h('div')
+  },
+}
 
 describe('ComponentRegistry', () => {
   it('should register and retrieve a component', () => {
@@ -25,7 +29,11 @@ describe('ComponentRegistry', () => {
 
   it('should allow overriding an existing registration', () => {
     const registry = new ComponentRegistry()
-    const comp2 = { setup() { return () => h('span') } }
+    const comp2 = {
+      setup() {
+        return () => h('span')
+      },
+    }
     registry.register('X', mockComponent)
     registry.register('X', comp2)
     expect(registry.get('X')).toBe(comp2)
@@ -33,9 +41,7 @@ describe('ComponentRegistry', () => {
 
   it('should support chained register()', () => {
     const registry = new ComponentRegistry()
-    registry
-      .register('A', mockComponent)
-      .register('B', mockComponent)
+    registry.register('A', mockComponent).register('B', mockComponent)
     expect(registry.get('A')).toBe(mockComponent)
     expect(registry.get('B')).toBe(mockComponent)
   })
@@ -85,7 +91,7 @@ describe('ComponentRegistry', () => {
       component(name: string, _comp: unknown) {
         called.push(name)
       },
-    } as any
+    } as unknown as { component(name: string, _comp: unknown): void }
 
     const registry = new ComponentRegistry()
     registry.register('Foo', mockComponent).register('Bar', mockComponent)
@@ -99,7 +105,7 @@ describe('ComponentRegistry', () => {
       component(name: string, _comp: unknown) {
         called.push(name)
       },
-    } as any
+    } as unknown as { component(name: string, _comp: unknown): void }
 
     const registry = new ComponentRegistry()
     registry.register('Foo', mockComponent)

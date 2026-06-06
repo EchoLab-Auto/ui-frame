@@ -1,7 +1,13 @@
 import { ref, onBeforeUnmount, type Ref } from 'vue'
 
 export type ToastType = 'info' | 'success' | 'warning' | 'error'
-export type ToastPosition = 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right' | 'top-center' | 'bottom-center'
+export type ToastPosition =
+  | 'top-left'
+  | 'top-right'
+  | 'bottom-left'
+  | 'bottom-right'
+  | 'top-center'
+  | 'bottom-center'
 
 export interface ToastItem {
   id: string
@@ -74,18 +80,18 @@ export function useToast(opts: UseToastOptions = {}): UseToastReturn {
       leaving: false,
     }
 
-    toasts.value = [
-      ...toasts.value.slice(Math.max(0, toasts.value.length - (maxCount - 1))),
-      item,
-    ]
+    toasts.value = [...toasts.value.slice(Math.max(0, toasts.value.length - (maxCount - 1))), item]
 
     // Cancel any in-flight clearAll since a new toast was added
     if (clearing) {
       const t = timers.get('__clearAll')
-      if (t) { clearTimeout(t); timers.delete('__clearAll') }
+      if (t) {
+        clearTimeout(t)
+        timers.delete('__clearAll')
+      }
       clearing = false
       // Remove toasts that were already in leaving state from the canceled clearAll
-      toasts.value = toasts.value.filter((t) => !t.leaving)
+      toasts.value = toasts.value.filter(t => !t.leaving)
     }
 
     if (item.duration > 0) {
@@ -101,22 +107,22 @@ export function useToast(opts: UseToastOptions = {}): UseToastReturn {
 
   function removeToast(id: string) {
     clearToastTimers(id)
-    const item = toasts.value.find((t) => t.id === id)
+    const item = toasts.value.find(t => t.id === id)
     if (item) item.leaving = true
     timers.set(
       id,
       setTimeout(() => {
-        toasts.value = toasts.value.filter((t) => t.id !== id)
+        toasts.value = toasts.value.filter(t => t.id !== id)
         timers.delete(id)
       }, 250)
     )
   }
 
   function clearAll() {
-    timers.forEach((t) => clearTimeout(t))
+    timers.forEach(t => clearTimeout(t))
     timers.clear()
     clearing = true
-    toasts.value.forEach((t) => {
+    toasts.value.forEach(t => {
       t.leaving = true
     })
     timers.set(
@@ -130,7 +136,7 @@ export function useToast(opts: UseToastOptions = {}): UseToastReturn {
   }
 
   onBeforeUnmount(() => {
-    timers.forEach((t) => clearTimeout(t))
+    timers.forEach(t => clearTimeout(t))
     timers.clear()
   })
 

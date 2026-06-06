@@ -25,9 +25,7 @@ export function useFormField(config: () => FormFieldConfig) {
   const initialCfg = config()
   const fieldId = initialCfg.id || generateId(`nm-${initialCfg.prefix}`)
 
-  const errorMessage = computed(() =>
-    typeof cfg.value.error === 'string' ? cfg.value.error : ''
-  )
+  const errorMessage = computed(() => (typeof cfg.value.error === 'string' ? cfg.value.error : ''))
 
   const hasError = computed(() => !!cfg.value.error)
 

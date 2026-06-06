@@ -5,9 +5,7 @@ import { useNeumorphismSetup } from './createComponent'
 import { ConfigKey } from '../composables/useConfig'
 import type { NeumorphismGlobalConfig } from '../composables/useConfig'
 
-function withSetup(
-  configOverride?: Partial<NeumorphismGlobalConfig>
-) {
+function withSetup(configOverride?: Partial<NeumorphismGlobalConfig>) {
   let setupCtx: ReturnType<typeof useNeumorphismSetup> | null = null
 
   // Parent provides config; child injects it via useNeumorphismSetup
@@ -21,7 +19,10 @@ function withSetup(
   const Parent = defineComponent({
     setup() {
       if (configOverride) {
-        provide(ConfigKey, computed(() => configOverride))
+        provide(
+          ConfigKey,
+          computed(() => configOverride)
+        )
       }
       return () => h(Child)
     },

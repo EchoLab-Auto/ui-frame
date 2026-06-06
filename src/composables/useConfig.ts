@@ -33,7 +33,13 @@ export interface NeumorphismGlobalConfig {
   }
   /** Default toast props */
   toast?: {
-    position?: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right' | 'top-center' | 'bottom-center'
+    position?:
+      | 'top-left'
+      | 'top-right'
+      | 'bottom-left'
+      | 'bottom-right'
+      | 'top-center'
+      | 'bottom-center'
     maxCount?: number
   }
   /** Default tooltip props */
@@ -90,6 +96,20 @@ export interface NeumorphismGlobalConfig {
     multiple?: boolean
     searchPlaceholder?: string
   }
+  /** Default switch props */
+  switch?: {
+    size?: 'small' | 'medium' | 'large'
+  }
+  /** Default table props */
+  table?: {
+    size?: 'small' | 'medium' | 'large'
+    striped?: boolean
+    hoverable?: boolean
+  }
+  /** Locale configuration */
+  locale?: 'zh-CN' | 'en-US'
+  /** Custom locale messages (overrides built-in locale) */
+  localeMessages?: import('@/locales/types').LocaleMessages
   /** Default theme config */
   theme?: {
     defaultTheme?: 'light' | 'dark' | 'auto'
@@ -118,6 +138,9 @@ const DEFAULT_CONFIG: NeumorphismGlobalConfig = {}
  * ```
  */
 export function useConfig(): ComputedRef<NeumorphismGlobalConfig> {
-  const config = inject(ConfigKey, computed(() => DEFAULT_CONFIG))
+  const config = inject(
+    ConfigKey,
+    computed(() => DEFAULT_CONFIG)
+  )
   return config
 }
