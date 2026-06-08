@@ -54,6 +54,11 @@ function handleToggle() {
   }
 }
 
+function handleSlotToggle(event?: Event) {
+  event?.stopPropagation()
+  handleToggle()
+}
+
 function handleSelect() {
   if (!props.node.disabled) {
     emit('select', props.node.key)
@@ -71,7 +76,7 @@ function handleSelect() {
       'nm-tree-node--leaf': !hasChildren,
       'nm-tree-node--expanded': isExpanded,
     }"
-    :style="{ paddingLeft: `calc(${level} * var(--nm-tree-node-indent, 20px) + 4px)` }"
+    :style="{ paddingLeft: `calc(${level} * var(--nm-tree-node-indent, 8px) + 4px)` }"
     role="treeitem"
     :aria-expanded="hasChildren ? isExpanded : undefined"
     :aria-selected="isSelected"
@@ -121,7 +126,7 @@ function handleSelect() {
         :expanded="isExpanded"
         :level="level"
         :select="handleSelect"
-        :toggle="handleToggle"
+        :toggle="handleSlotToggle"
       >
         <!-- Label with search highlight -->
         <span class="nm-tree-node__label">
@@ -144,17 +149,19 @@ function handleSelect() {
       class="nm-tree-node__children"
       :class="{ 'nm-tree-node__children--collapsed': !isExpanded }"
     >
-      <NeumorphismTreeNode
-        v-for="child in node.children"
-        :key="child.key"
-        :node="child"
-        :selected-keys="selectedKeys"
-        :expanded-keys="expandedKeys"
-        :search-text="searchText"
-        :level="level + 1"
-        @toggle-expand="k => emit('toggle-expand', k)"
-        @select="k => emit('select', k)"
-      />
+      <div class="nm-tree-node__children-wrapper">
+        <NeumorphismTreeNode
+          v-for="child in node.children"
+          :key="child.key"
+          :node="child"
+          :selected-keys="selectedKeys"
+          :expanded-keys="expandedKeys"
+          :search-text="searchText"
+          :level="level + 1"
+          @toggle-expand="k => emit('toggle-expand', k)"
+          @select="k => emit('select', k)"
+        />
+      </div>
     </ul>
   </li>
 </template>
@@ -177,6 +184,7 @@ function handleSelect() {
   align-items: center;
   gap: 4px;
   padding: 5px 8px;
+  white-space: nowrap;
   border-radius: var(--nm-border-radius-sm);
   transition:
     background-color 0.25s $nm-ease-ambient,
@@ -266,6 +274,7 @@ function handleSelect() {
   color: var(--nm-text-secondary);
   transition: color 0.25s $nm-ease-ambient;
   line-height: 1.5;
+  white-space: nowrap;
 }
 
 .nm-tree-node__label--highlight {
@@ -316,6 +325,10 @@ function handleSelect() {
     grid-template-rows: 0fr;
     opacity: 0;
   }
+}
+
+.nm-tree-node__children-wrapper {
+  min-height: 0;
 }
 
 @media (prefers-reduced-motion: reduce) {

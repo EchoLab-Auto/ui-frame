@@ -166,6 +166,7 @@ const classList = computed(() => ['nm-tree'])
 
 .nm-tree {
   @include nm-theme-transition;
+  overflow-x: auto;
 }
 
 // Search
@@ -262,6 +263,7 @@ const classList = computed(() => ['nm-tree'])
   margin: 0;
   padding: 0;
   list-style: none;
+  min-width: max-content;
 }
 
 // Empty

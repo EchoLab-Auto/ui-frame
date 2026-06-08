@@ -334,3 +334,41 @@
       inset -2px -2px 4px var(--nm-shadow-light);
   }
 }
+
+// ---------- Custom Scrollbar (Neumorphism) ----------
+.nm-root,
+.nm-theme-default,
+[data-theme='dark'],
+.nm-theme-dark {
+  // Firefox
+  scrollbar-width: thin;
+  scrollbar-color: var(--nm-surface-raised) transparent;
+
+  // WebKit
+  & ::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+  }
+
+  & ::-webkit-scrollbar-track {
+    background: transparent;
+    box-shadow: none;
+  }
+
+  & ::-webkit-scrollbar-thumb {
+    background: var(--nm-surface-raised);
+    border-radius: var(--nm-border-radius-sm);
+    box-shadow:
+      4px 4px 10px var(--nm-shadow-dark-strong),
+      -3px -3px 8px var(--nm-shadow-light-strong);
+    transition: background var(--nm-transition-fast);
+  }
+
+  & ::-webkit-scrollbar-thumb:hover {
+    background: var(--nm-surface-color);
+  }
+
+  & ::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+}

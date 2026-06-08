@@ -49,20 +49,20 @@ describe('NeumorphismSwitch', () => {
     expect(wrapper.text()).toContain('Off')
   })
 
-  it('should apply active color style when checked', () => {
+  it('should apply active color CSS variable when checked', () => {
     const wrapper = mount(NeumorphismSwitch, {
       props: { modelValue: true, activeColor: '#00ff00' },
     })
     const track = wrapper.find('.nm-switch__track')
-    expect(track.attributes('style')).toContain('background-color: #00ff00')
+    expect(track.attributes('style')).toContain('--nm-switch-active-color: #00ff00')
   })
 
-  it('should apply inactive color style when unchecked', () => {
+  it('should apply inactive color CSS variable when unchecked', () => {
     const wrapper = mount(NeumorphismSwitch, {
       props: { modelValue: false, inactiveColor: '#ff0000' },
     })
     const track = wrapper.find('.nm-switch__track')
-    expect(track.attributes('style')).toContain('background-color: #ff0000')
+    expect(track.attributes('style')).toContain('--nm-switch-inactive-color: #ff0000')
   })
 
   it('should toggle from checked to unchecked', async () => {

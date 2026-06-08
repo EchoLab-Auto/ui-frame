@@ -51,15 +51,13 @@ const classList = computed(() => [
 ])
 
 const trackStyle = computed(() => {
-  const color = isChecked.value ? props.activeColor : props.inactiveColor
-  return color ? { backgroundColor: color } : undefined
+  const style: Record<string, string> = {}
+  if (props.activeColor) style['--nm-switch-active-color'] = props.activeColor
+  if (props.inactiveColor) style['--nm-switch-inactive-color'] = props.inactiveColor
+  return Object.keys(style).length ? style : undefined
 })
 
 function handleChange(event: Event): void {
-  if (props.disabled) {
-    event.preventDefault()
-    return
-  }
   const target = event.target as HTMLInputElement
   isChecked.value = target.checked
 }
@@ -101,7 +99,7 @@ function handleChange(event: Event): void {
 // Physics Constants
 // ==========================================
 // Spring curve with overshoot: peak velocity → slight overshoot → settle
-$switch-spring: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+$switch-spring: cubic-bezier(0.34, 1.1, 0.64, 1);
 
 // Quick compression for active state
 $switch-compress: cubic-bezier(0.4, 0, 0.2, 1);
@@ -124,12 +122,15 @@ $switch-ambient: cubic-bezier(0.4, 0, 0.2, 1);
 
 .nm-switch__label {
   font-size: 14px;
-  color: var(--nm-text-secondary);
   transition: color 0.4s $switch-ambient;
+}
 
-  &--active {
-    color: var(--nm-text-primary);
-  }
+.nm-switch:not(.nm-switch--checked) .nm-switch__label--inactive {
+  color: var(--nm-text-primary);
+}
+
+.nm-switch:not(.nm-switch--checked) .nm-switch__label--active {
+  color: var(--nm-text-secondary);
 }
 
 .nm-switch--checked .nm-switch__label--active {
@@ -203,13 +204,13 @@ $switch-ambient: cubic-bezier(0.4, 0, 0.2, 1);
 // Thumb — physical toggle with spring physics
 // ==========================================
 .nm-switch__thumb {
-  --nm-switch-gap: 3px;
+  --nm-switch-gap: 4px;
   --nm-switch-shift: 0px;
-  --nm-switch-stretch: 0px;
+  --nm-switch-stretch: 0;
 
   position: absolute;
   top: 50%;
-  inset-inline-start: var(--nm-switch-gap);
+  left: var(--nm-switch-gap);
   // translateX gets animated; scaleX/Y adds squash-and-stretch
   transform: translateY(-50%) translateX(var(--nm-switch-shift))
     scaleX(calc(1 + var(--nm-switch-stretch))) scaleY(calc(1 - var(--nm-switch-stretch) * 0.5));
@@ -236,14 +237,14 @@ $switch-ambient: cubic-bezier(0.4, 0, 0.2, 1);
   width: 36%;
   height: 36%;
   border-radius: 50%;
-  background-color: var(--nm-text-placeholder);
+  background-color: var(--nm-switch-inactive-color, var(--nm-text-placeholder));
   transition:
     background-color 0.4s $switch-ambient,
     transform 0.3s $switch-compress;
 }
 
 .nm-switch--checked .nm-switch__thumb-dot {
-  background-color: var(--nm-primary-color);
+  background-color: var(--nm-switch-active-color, var(--nm-primary-color));
 }
 
 // ==========================================
@@ -304,7 +305,7 @@ $switch-ambient: cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   &.nm-switch--checked .nm-switch__thumb {
-    --nm-switch-shift: 20px; // track(44) - thumb(18) - 2 * gap(3)
+    --nm-switch-shift: 18px; // track(44) - thumb(18) - 2 * gap(4)
   }
 }
 
@@ -321,7 +322,7 @@ $switch-ambient: cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   &.nm-switch--checked .nm-switch__thumb {
-    --nm-switch-shift: 26px; // track(56) - thumb(24) - 2 * gap(3)
+    --nm-switch-shift: 24px; // track(56) - thumb(24) - 2 * gap(4)
   }
 }
 
@@ -338,18 +339,45 @@ $switch-ambient: cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   &.nm-switch--checked .nm-switch__thumb {
-    --nm-switch-shift: 34px; // track(72) - thumb(32) - 2 * gap(3)
+    --nm-switch-shift: 32px; // track(72) - thumb(32) - 2 * gap(4)
   }
+}
+
+// ==========================================
+// Color overlay layer
+// ==========================================
+.nm-switch__track::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--nm-switch-inactive-color, transparent);
+  opacity: 0.25;
+  transition:
+    opacity 0.45s $switch-ambient,
+    background 0.45s $switch-ambient;
+  pointer-events: none;
+}
+
+.nm-switch--checked .nm-switch__track::after {
+  background: var(--nm-switch-active-color, transparent);
 }
 
 // ==========================================
 // Focus
 // ==========================================
-.nm-switch__input:focus-visible + .nm-switch__track {
+.nm-switch:not(.nm-switch--checked) .nm-switch__input:focus-visible + .nm-switch__track {
   box-shadow:
     0 0 0 2px var(--nm-primary-color),
     inset 3px 3px 6px var(--nm-shadow-dark-strong),
     inset -3px -3px 6px var(--nm-shadow-light-strong);
+}
+
+.nm-switch--checked .nm-switch__input:focus-visible + .nm-switch__track {
+  box-shadow:
+    0 0 0 2px var(--nm-primary-color),
+    inset 4px 4px 8px var(--nm-shadow-dark-strong),
+    inset -4px -4px 8px var(--nm-shadow-light-strong);
 }
 
 // ==========================================

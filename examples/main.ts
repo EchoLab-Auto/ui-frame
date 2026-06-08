@@ -1,9 +1,13 @@
 import { createApp } from 'vue'
 import App from './App.vue'
+import router from './router'
 import NeumorphismUI from '../src/index'
 import '../src/styles/index.scss'
 
 const app = createApp(App)
+
+// Router
+app.use(router)
 
 // Global config — set default props for all components
 app.use(NeumorphismUI, {
