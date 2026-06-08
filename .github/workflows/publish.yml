@@ -5,8 +5,13 @@ on:
     types: [published]
   workflow_dispatch:
 
+concurrency:
+  group: publish
+  cancel-in-progress: false
+
 jobs:
   publish:
+    name: Publish
     runs-on: ubuntu-latest
     timeout-minutes: 10
     env:
@@ -17,29 +22,48 @@ jobs:
       id-token: write
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
           node-version: '22'
           cache: npm
           registry-url: 'https://registry.npmjs.org'
 
-      - run: npm install -g npm@11
-      - run: npm ci
+      - name: Upgrade npm
+        run: npm install -g npm@11
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Format check
+        run: npm run format:check
 
       - name: Type check
         run: npm run typecheck
+
+      - name: Run tests
+        run: npm test
 
       - name: Build library
         run: npm run build
 
       - name: Verify outputs
         run: |
-          test -f dist/ui-frame.js      || { echo "MISSING: dist/ui-frame.js";      exit 1; }
-          test -f dist/ui-frame.umd.cjs || { echo "MISSING: dist/ui-frame.umd.cjs"; exit 1; }
-          test -f dist/style.css        || { echo "MISSING: dist/style.css";        exit 1; }
-          test -f dist/index.d.ts       || { echo "MISSING: dist/index.d.ts";       exit 1; }
+          test -f dist/ui-frame.js           || { echo "MISSING: dist/ui-frame.js";           exit 1; }
+          test -f dist/ui-frame.umd.cjs      || { echo "MISSING: dist/ui-frame.umd.cjs";      exit 1; }
+          test -f dist/style.css             || { echo "MISSING: dist/style.css";             exit 1; }
+          test -f dist/index.d.ts            || { echo "MISSING: dist/index.d.ts";            exit 1; }
+          test -d dist/composables           || { echo "MISSING: dist/composables";           exit 1; }
+          test -f dist/extensions/index.js   || { echo "MISSING: dist/extensions/index.js";   exit 1; }
+          test -f dist/extensions/index.d.ts || { echo "MISSING: dist/extensions/index.d.ts"; exit 1; }
+          test -f dist/utils/index.js        || { echo "MISSING: dist/utils/index.js";        exit 1; }
+          test -f dist/utils/index.d.ts      || { echo "MISSING: dist/utils/index.d.ts";      exit 1; }
           echo "OK — all outputs verified"
 
       - name: Publish to npm
