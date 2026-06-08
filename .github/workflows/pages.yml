@@ -24,6 +24,8 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    env:
+      HUSKY: 0
 
     steps:
       - uses: actions/checkout@v4
