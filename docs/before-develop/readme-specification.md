@@ -87,15 +87,4 @@ import '@echolab/ui-frame/dist/style.css'
 
 ## 四、检查清单
 
-创建或修改 README 后自检：
-
-```
-□ 标题是否为 npm 包名 @echolab/ui-frame？
-□ 一句话描述是否准确传达项目定位？
-□ 特性列表是否包含新拟态、主题切换、TypeScript、无障碍？
-□ 安装命令是否正确？
-□ 快速开始示例是否可直接复制运行？
-□ 是否提供了完整文档的链接？
-□ 是否声明了 License？
-□ 内容是否面向外部使用者，无内部实现细节？
-```
+> README 检查清单见 [project.md](./project.md)。
