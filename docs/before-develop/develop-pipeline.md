@@ -34,13 +34,17 @@
 # 类型检查（每次保存后建议执行）
 npm run typecheck
 
-# Lint 检查
+# Lint 检查（必须零错误才能提交）
 npm run lint
 
-# 自动修复
-npm run lint:fix
-npm run format
+# 自动修复（如有报错，先执行修复）
+npm run lint -- --fix
 ```
+
+> ⚠️ **重要**：`npm run lint` 出现任何 `prettier/prettier` 或 `eslint` 错误时，必须先修复再提交。不可将格式错误推送到 CI。
+>
+> 建议开启编辑器保存时自动格式化，避免手动修复：
+> - VS Code：安装 Prettier + ESLint 插件，开启 `editor.formatOnSave` 和 `editor.codeActionsOnSave.source.fixAll.eslint`
 
 ### Step 3 — 测试驱动（如修改逻辑）
 
@@ -136,16 +140,19 @@ npm test              # 提交前全量验证
 # 1. 类型检查
 npm run typecheck
 
-# 2. 全量测试
+# 2. Lint 检查（必须零错误）
+npm run lint
+
+# 3. 全量测试
 npm test
 
-# 3. 库构建
+# 4. 库构建
 npm run build
 
-# 4. 示例构建（如修改了示例相关）
+# 5. 示例构建（如修改了示例相关）
 npm run example:build
 
-# 5. 产物校验（可选，CI 会再做）
+# 6. 产物校验（可选，CI 会再做）
 ls dist/ui-frame.js dist/ui-frame.umd.cjs dist/style.css dist/index.d.ts
 ```
 
@@ -229,6 +236,7 @@ ls dist/ui-frame.js dist/ui-frame.umd.cjs dist/style.css dist/index.d.ts
 ┌─────────────────────────────────────────────────────────────┐
 │ 提交前                                                      │
 │  ├─ typecheck（全量）                                       │
+│  ├─ npm run lint（必须零错误）                              │
 │  ├─ npm test（全量）                                        │
 │  ├─ npm run build                                          │
 │  ├─ npm run example:build（如相关）                         │
@@ -237,7 +245,7 @@ ls dist/ui-frame.js dist/ui-frame.umd.cjs dist/style.css dist/index.d.ts
                           ↓
 ┌─────────────────────────────────────────────────────────────┐
 │ CI 验证（自动）                                             │
-│  ├─ typecheck → test → build → example:build → verify      │
+│  ├─ typecheck → lint → test → build → example:build → verify │
 │  └─ 通过后自动部署 Pages / 可选发布 npm                     │
 └─────────────────────────────────────────────────────────────┘
 ```

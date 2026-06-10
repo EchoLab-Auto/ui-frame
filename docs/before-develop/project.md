@@ -89,6 +89,7 @@ docs/
 
 ```
 □ 类型检查通过（npm run typecheck）
+□ Lint 检查零错误（npm run lint）
 □ 全量测试通过（npm test）
 □ 库构建成功（npm run build）
 □ 示例构建成功（npm run example:build，如相关）
@@ -147,6 +148,7 @@ docs/
 | -------- | ----------------------- | -------------------- |
 | 安装     | `npm ci`                | 依赖锁定冲突         |
 | 类型     | `npm run typecheck`     | TS 类型错误          |
+| **Lint** | **`npm run lint`**      | **代码格式/风格错误** |
 | 测试     | `npm test`              | 测试失败或覆盖率不足 |
 | 库构建   | `npm run build`         | 构建产物缺失         |
 | 示例构建 | `npm run example:build` | 示例站点损坏         |
