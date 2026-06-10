@@ -1,8 +1,6 @@
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { useDocLayout } from './useDocLayout'
 import type { ProDocNode } from './types.js'
-import { nodeToTreeData } from './tree-utils.js'
-import type { TreeNodeData } from '@/components/NeumorphismTree'
 import NeumorphismLayout from '@/components/NeumorphismLayout/NeumorphismLayout.vue'
 import NeumorphismButton from '@/components/NeumorphismButton/NeumorphismButton.vue'
 import NeumorphismCard from '@/components/NeumorphismCard/NeumorphismCard.vue'
@@ -11,7 +9,6 @@ import NeumorphismTree from '@/components/NeumorphismTree/NeumorphismTree.vue'
 import NeumorphismDivider from '@/components/NeumorphismDivider/NeumorphismDivider.vue'
 import NeumorphismTag from '@/components/NeumorphismTag/NeumorphismTag.vue'
 import NeumorphismContainer from '@/components/NeumorphismContainer/NeumorphismContainer.vue'
-import { useTheme } from '@/composables/useTheme'
 import MarkdownRenderer from './MarkdownRenderer.vue'
 
 export interface DocViewerProps {
@@ -31,52 +28,20 @@ const emit = defineEmits<{
   (e: 'docLink', path: string): void
 }>()
 
-const selectedPath = ref(props.initialPath ?? props.root.children[0]?.path ?? '')
-const expandedKeys = ref<string[]>([])
+const {
+  selectedPath,
+  selectedKeys,
+  expandedKeys,
+  treeData,
+  displayNode,
+  themeModel,
+  handleTreeSelect,
+  handleDocLink,
+} = useDocLayout({ root: props.root, initialPath: props.initialPath })
 
-const { theme, setTheme } = useTheme()
-const themeModel = computed({
-  get: () => theme.value,
-  set: val => setTheme(val),
-})
-
-const treeData = computed(() => props.root.children.map(nodeToTreeData) as TreeNodeData[])
-const selectedKeys = ref<string[]>(selectedPath.value ? [selectedPath.value] : [])
-
-watch(selectedPath, path => {
-  selectedKeys.value = path ? [path] : []
-})
-
-const selectedNode = computed<ProDocNode | undefined>(() => {
-  if (!selectedPath.value) return undefined
-  function find(node: ProDocNode): ProDocNode | undefined {
-    if (node.path === selectedPath.value) return node
-    for (const child of node.children) {
-      const result = find(child)
-      if (result) return result
-    }
-    return undefined
-  }
-  return find(props.root)
-})
-
-const displayNode = computed(() => selectedNode.value || props.root.children[0])
-
-function handleTreeSelect(key: string) {
-  selectedPath.value = key
+function onDocLink(path: string) {
+  handleDocLink(emit, path)
 }
-
-function handleDocLink(path: string) {
-  selectedPath.value = path
-  emit('docLink', path)
-}
-
-watch(
-  () => props.initialPath,
-  newPath => {
-    if (newPath) selectedPath.value = newPath
-  }
-)
 </script>
 
 <template>
@@ -137,7 +102,7 @@ watch(
                   <MarkdownRenderer
                     :key="displayNode.path"
                     :content="displayNode.body"
-                    @doc-link="handleDocLink"
+                    @doc-link="onDocLink"
                   />
                 </Transition>
               </div>

@@ -1,4 +1,4 @@
-import { ref, computed, watch, type Ref, type ComputedRef } from 'vue'
+import { ref, computed, watch, nextTick, type Ref, type ComputedRef } from 'vue'
 
 export interface TreeNodeData {
   key: string
@@ -40,6 +40,15 @@ export interface UseTreeReturn {
   collapseAll: () => void
   /** Handle search input — auto-expands matching nodes */
   onSearchInput: (value: string) => void
+}
+
+/** 浅比较两个字符串数组是否相等 */
+function arraysEqual(a: string[], b: string[]): boolean {
+  if (a.length !== b.length) return false
+  for (let i = 0; i < a.length; i++) {
+    if (a[i] !== b[i]) return false
+  }
+  return true
 }
 
 function collectAllKeys(nodes: TreeNodeData[]): string[] {
@@ -101,23 +110,57 @@ export function useTree(opts: UseTreeOptions): UseTreeReturn {
   const localSelectedKeys = ref<string[]>([...(opts.selectedKeys?.value ?? [])])
   const searchText = ref('')
 
-  // Sync local state back to parent v-model refs
-  if (opts.selectedKeys) {
+  // ==========================================
+  // 安全的双向同步 — 使用 syncFlag 打破循环
+  // ==========================================
+  let syncing = false
+
+  function syncFromExternal(
+    external: Ref<string[]> | undefined,
+    local: Ref<string[]>
+  ) {
+    if (!external) return
     watch(
-      () => [...localSelectedKeys.value],
+      () => external.value,
       val => {
-        opts.selectedKeys!.value = val
-      }
+        if (syncing) return
+        const next = [...val]
+        if (arraysEqual(local.value, next)) return
+        syncing = true
+        local.value = next
+        nextTick(() => {
+          syncing = false
+        })
+      },
+      { immediate: true, deep: true }
     )
   }
-  if (opts.expandedKeys) {
+
+  function syncToExternal(
+    local: Ref<string[]>,
+    external: Ref<string[]> | undefined
+  ) {
+    if (!external) return
     watch(
-      () => [...localExpandedKeys.value],
+      () => local.value,
       val => {
-        opts.expandedKeys!.value = val
-      }
+        if (syncing) return
+        const next = [...val]
+        if (arraysEqual(external.value, next)) return
+        syncing = true
+        external.value = next
+        nextTick(() => {
+          syncing = false
+        })
+      },
+      { deep: true }
     )
   }
+
+  syncFromExternal(opts.selectedKeys, localSelectedKeys)
+  syncFromExternal(opts.expandedKeys, localExpandedKeys)
+  syncToExternal(localSelectedKeys, opts.selectedKeys)
+  syncToExternal(localExpandedKeys, opts.expandedKeys)
 
   const allKeys = computed(() => collectAllKeys(data.value))
 

@@ -1,5 +1,8 @@
 import { computed, type Ref, type ComputedRef } from 'vue'
 
+/** SSR-safe ID 计数器 */
+let tabIdCounter = 0
+
 export interface TabItem {
   key: string
   label: string
@@ -37,7 +40,7 @@ export function useTabs(opts: UseTabsOptions): UseTabsReturn {
   const { modelValue, tabs } = opts
   const pos = opts.position
 
-  const tabListId = `nm-tabs-${Math.random().toString(36).slice(2, 9)}`
+  const tabListId = `nm-tabs-${++tabIdCounter}`
   const panelId = computed(() => `${tabListId}-panel`)
 
   const orientation = computed(() => {

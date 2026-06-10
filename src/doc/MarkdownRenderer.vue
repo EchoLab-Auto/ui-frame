@@ -12,6 +12,8 @@ export interface MarkdownRendererProps {
   className?: string
   /** 是否显示目录 */
   showToc?: boolean
+  /** 滚动容器（HTMLElement 或 CSS 选择器）。不传则自动查找 .nm-layout__content */
+  scrollContainer?: HTMLElement | string
 }
 
 const props = withDefaults(defineProps<MarkdownRendererProps>(), {
@@ -35,23 +37,29 @@ function makeUniqueId(text: string): string {
   return `${tocPrefix}-${slugify(text)}`
 }
 
+// ==========================================
+// 模块级正则 — 避免每次调用重复编译
+// ==========================================
+const COMMENT_RE = /(\/\/.*$|\/\*[\s\S]*?\*\/|#\s+.*$|--.*$)/gm
+const STRING_RE = /(&quot;.*?&quot;|\'.*?\'|`.*?`)/g
+const KEYWORD_RE =
+  /\b(const|let|var|function|return|if|else|for|while|do|switch|case|break|continue|default|try|catch|finally|throw|new|this|typeof|instanceof|class|extends|import|export|from|async|await|yield|static|public|private|protected|interface|type|enum|namespace|module|declare|abstract|readonly|implements|void|number|string|boolean|any|never|unknown|null|undefined|true|false)\b/g
+const FUNCTION_RE = /\b([a-zA-Z_]\w*)(?=\()/g
+const NUMBER_RE = /\b(\d+\.?\d*)\b/g
+const TYPE_RE = /\b([A-Z][a-zA-Z0-9_]*)\b/g
+
 /** 简易代码高亮 */
 function highlightCode(code: string, lang?: string): string {
   if (!lang || lang === 'text' || lang === 'plain') {
     return escapeHtml(code)
   }
   let html = escapeHtml(code)
-  html = html.replace(
-    /(\/\/.*$|\/\*[\s\S]*?\*\/|#\s+.*$|--.*$)/gm,
-    '<span class="token-comment">$1</span>'
-  )
-  html = html.replace(/(&quot;.*?&quot;|\'.*?\'|`.*?`)/g, '<span class="token-string">$1</span>')
-  const keywords =
-    /\b(const|let|var|function|return|if|else|for|while|do|switch|case|break|continue|default|try|catch|finally|throw|new|this|typeof|instanceof|class|extends|import|export|from|async|await|yield|static|public|private|protected|interface|type|enum|namespace|module|declare|abstract|readonly|implements|void|number|string|boolean|any|never|unknown|null|undefined|true|false)\b/g
-  html = html.replace(keywords, '<span class="token-keyword">$1</span>')
-  html = html.replace(/\b([a-zA-Z_]\w*)(?=\()/g, '<span class="token-function">$1</span>')
-  html = html.replace(/\b(\d+\.?\d*)\b/g, '<span class="token-number">$1</span>')
-  html = html.replace(/\b([A-Z][a-zA-Z0-9_]*)\b/g, '<span class="token-type">$1</span>')
+  html = html.replace(COMMENT_RE, '<span class="token-comment">$1</span>')
+  html = html.replace(STRING_RE, '<span class="token-string">$1</span>')
+  html = html.replace(KEYWORD_RE, '<span class="token-keyword">$1</span>')
+  html = html.replace(FUNCTION_RE, '<span class="token-function">$1</span>')
+  html = html.replace(NUMBER_RE, '<span class="token-number">$1</span>')
+  html = html.replace(TYPE_RE, '<span class="token-type">$1</span>')
   return html
 }
 
@@ -98,56 +106,64 @@ function extractToc(content: string): { level: number; text: string; id: string 
   return headings
 }
 
-/** 渲染后的 HTML */
-const renderedHtml = computed(() => {
-  const renderer = new marked.Renderer()
-  renderer.heading = ({ tokens, depth }) => {
-    const text = extractTextFromTokens(tokens as unknown[])
-    const id = makeUniqueId(text)
-    return `<h${depth} id="${id}"><a href="#${id}" class="heading-anchor" aria-hidden="true">#</a>${text}</h${depth}>`
-  }
-  renderer.code = ({ text, lang }) => {
-    const language = lang || 'text'
-    const highlighted = highlightCode(text, lang)
-    const lines = text.split('\n').length
-    const lineNumbers = Array.from({ length: lines }, (_, i) => i + 1)
-      .map(n => `<span class="line-num">${n}</span>`)
-      .join('')
-    return `
-      <div class="code-block-wrapper">
-        <div class="code-block-header">
-          <span class="code-lang">${language}</span>
-          <span class="code-lines">${lines} lines</span>
-          <button class="code-copy-btn" data-code="${escapeHtml(text)}" onclick="navigator.clipboard.writeText(this.dataset.code).then(()=>{this.textContent='已复制!';setTimeout(()=>this.textContent='复制',1500)})">复制</button>
-        </div>
-        <div class="code-block-body">
-          <div class="line-numbers">${lineNumbers}</div>
-          <pre><code class="language-${language}">${highlighted}</code></pre>
-        </div>
+// ==========================================
+// 预创建 Renderer 实例 — 避免每次 content 变化都重建
+// ==========================================
+const renderer = new marked.Renderer()
+
+renderer.heading = ({ tokens, depth }) => {
+  const text = extractTextFromTokens(tokens as unknown[])
+  const id = makeUniqueId(text)
+  return `<h${depth} id="${id}"><a href="#${id}" class="heading-anchor" aria-hidden="true">#</a>${text}</h${depth}>`
+}
+
+renderer.code = ({ text, lang }) => {
+  const language = lang || 'text'
+  const highlighted = highlightCode(text, lang)
+  const lines = text.split('\n').length
+  const lineNumbers = Array.from({ length: lines }, (_, i) => i + 1)
+    .map(n => `<span class="line-num">${n}</span>`)
+    .join('')
+  return `
+    <div class="code-block-wrapper">
+      <div class="code-block-header">
+        <span class="code-lang">${language}</span>
+        <span class="code-lines">${lines} lines</span>
+        <button class="code-copy-btn" data-code="${escapeHtml(text)}">复制</button>
       </div>
+      <div class="code-block-body">
+        <div class="line-numbers">${lineNumbers}</div>
+        <pre><code class="language-${language}">${highlighted}</code></pre>
+      </div>
+    </div>
+  `
+}
+
+renderer.codespan = ({ text }) => {
+  return `<code class="inline-code">${escapeHtml(text)}</code>`
+}
+
+renderer.image = ({ href, title, text }) => {
+  return `<img src="${href}" alt="${text}" title="${title || ''}" loading="lazy" />`
+}
+
+renderer.listitem = ({ text, task, checked }) => {
+  if (task) {
+    return `
+      <li class="task-list-item">
+        <label class="task-checkbox">
+          <input type="checkbox" ${checked ? 'checked' : ''} disabled />
+          <span class="checkmark"></span>
+          <span class="task-text">${text.replace(/^\[[ x]\]\s*/, '')}</span>
+        </label>
+      </li>
     `
   }
-  renderer.codespan = ({ text }) => {
-    return `<code class="inline-code">${escapeHtml(text)}</code>`
-  }
-  renderer.image = ({ href, title, text }) => {
-    return `<img src="${href}" alt="${text}" title="${title || ''}" loading="lazy" />`
-  }
-  renderer.listitem = ({ text, task, checked }) => {
-    if (task) {
-      return `
-        <li class="task-list-item">
-          <label class="task-checkbox">
-            <input type="checkbox" ${checked ? 'checked' : ''} disabled />
-            <span class="checkmark"></span>
-            <span class="task-text">${text.replace(/^\[[ x]\]\s*/, '')}</span>
-          </label>
-        </li>
-      `
-    }
-    return `<li>${text}</li>`
-  }
+  return `<li>${text}</li>`
+}
 
+/** 渲染后的 HTML */
+const renderedHtml = computed(() => {
   return marked.parse(props.content, {
     async: false,
     gfm: true,
@@ -170,9 +186,28 @@ function scrollToHeadingAndClose(id: string) {
   showMobileToc.value = false
 }
 
-/** 处理点击事件（拦截文档链接） */
-function handleClick(e: MouseEvent) {
+/** 统一处理内容区点击：复制按钮 + 文档链接 */
+function handleContentClick(e: MouseEvent) {
   const target = e.target as HTMLElement
+
+  // 1. 处理代码复制按钮
+  const copyBtn = target.closest('.code-copy-btn') as HTMLButtonElement | null
+  if (copyBtn) {
+    const code = copyBtn.dataset.code
+    if (code) {
+      e.preventDefault()
+      navigator.clipboard.writeText(code).then(() => {
+        const originalText = copyBtn.textContent
+        copyBtn.textContent = '已复制!'
+        setTimeout(() => {
+          if (copyBtn) copyBtn.textContent = originalText
+        }, 1500)
+      })
+    }
+    return
+  }
+
+  // 2. 处理文档链接拦截
   const link = target.closest('a')
   if (link) {
     const href = link.getAttribute('href')
@@ -183,9 +218,21 @@ function handleClick(e: MouseEvent) {
   }
 }
 
+/** 解析滚动容器：优先使用 prop，其次查找 .nm-layout__content */
+function resolveScrollContainer(): HTMLElement | null {
+  if (!contentRef.value) return null
+  if (props.scrollContainer instanceof HTMLElement) {
+    return props.scrollContainer
+  }
+  if (typeof props.scrollContainer === 'string') {
+    return contentRef.value.closest(props.scrollContainer) as HTMLElement | null
+  }
+  return contentRef.value.closest('.nm-layout__content') as HTMLElement | null
+}
+
 /** 监听滚动，高亮当前目录项 */
 function handleScroll() {
-  const main = contentRef.value?.closest('.nm-layout__content') as HTMLElement | null
+  const main = resolveScrollContainer()
   if (!main) return
   const headings = contentRef.value?.querySelectorAll('h1, h2, h3')
   if (!headings) return
@@ -223,17 +270,17 @@ function throttle(fn: () => void, wait: number): () => void {
 const throttledHandleScroll = throttle(handleScroll, 80)
 
 // 挂载后监听滚动
-let scrollContainer: HTMLElement | null = null
+let activeScrollContainer: HTMLElement | null = null
 
 watch(contentRef, (el, oldEl) => {
   if (oldEl) {
-    const oldContainer = oldEl.closest('.nm-layout__content') as HTMLElement | null
+    const oldContainer = resolveScrollContainer()
     oldContainer?.removeEventListener('scroll', throttledHandleScroll)
   }
   if (el) {
     nextTick(() => {
-      scrollContainer = el.closest('.nm-layout__content') as HTMLElement | null
-      scrollContainer?.addEventListener('scroll', throttledHandleScroll)
+      activeScrollContainer = resolveScrollContainer()
+      activeScrollContainer?.addEventListener('scroll', throttledHandleScroll)
       // 初始同步高亮
       handleScroll()
     })
@@ -242,7 +289,7 @@ watch(contentRef, (el, oldEl) => {
 
 // 卸载时清理
 onBeforeUnmount(() => {
-  scrollContainer?.removeEventListener('scroll', throttledHandleScroll)
+  activeScrollContainer?.removeEventListener('scroll', throttledHandleScroll)
 })
 </script>
 
@@ -253,7 +300,7 @@ onBeforeUnmount(() => {
       <div
         ref="contentRef"
         class="neumorphism-markdown-content"
-        @click="handleClick"
+        @click="handleContentClick"
         v-html="renderedHtml"
       />
     </div>

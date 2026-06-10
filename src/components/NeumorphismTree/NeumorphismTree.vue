@@ -117,7 +117,7 @@ const classList = computed(() => ['nm-tree'])
         type="button"
         class="nm-tree__search-clear"
         :aria-label="t('treeClearSearch')"
-        @click="searchText = ''"
+        @click="onSearchInput('')"
       >
         <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path

@@ -36,3 +36,7 @@ export { createDocTree, flattenDocTree, getAncestors } from './doc-tree.js'
 // === 树节点转换 ===
 export { getNodeIcon, nodeToTreeData } from './tree-utils.js'
 export type { DocTreeNode } from './tree-utils.js'
+
+// === 共享布局逻辑 ===
+export { useDocLayout } from './useDocLayout'
+export type { UseDocLayoutOptions, UseDocLayoutReturn } from './useDocLayout'

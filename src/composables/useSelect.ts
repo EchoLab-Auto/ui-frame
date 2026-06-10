@@ -35,6 +35,41 @@ export function useSelect(opts: UseSelectOptions): UseSelectReturn {
 
   const isOpen = ref(false)
 
+  // ==========================================
+  // Typeahead 键盘搜索
+  // ==========================================
+  const typeaheadBuffer = ref('')
+  let typeaheadTimer: ReturnType<typeof setTimeout> | null = null
+
+  function resetTypeahead() {
+    typeaheadBuffer.value = ''
+    if (typeaheadTimer) {
+      clearTimeout(typeaheadTimer)
+      typeaheadTimer = null
+    }
+  }
+
+  function appendTypeahead(char: string) {
+    typeaheadBuffer.value += char.toLowerCase()
+    if (typeaheadTimer) clearTimeout(typeaheadTimer)
+    typeaheadTimer = setTimeout(() => {
+      typeaheadBuffer.value = ''
+    }, 500)
+
+    // 查找匹配项
+    const enabledOpts = options.value.filter(o => !o.disabled)
+    const buffer = typeaheadBuffer.value
+    // 先查找前缀匹配
+    let match = enabledOpts.find(o => o.label.toLowerCase().startsWith(buffer))
+    if (!match) {
+      // 退而求其次：查找包含匹配的
+      match = enabledOpts.find(o => o.label.toLowerCase().includes(buffer))
+    }
+    if (match) {
+      navigateToOption(match)
+    }
+  }
+
   const selectedOption = computed(() => options.value.find(o => o.value === modelValue.value))
 
   function toggleOpen() {
@@ -44,6 +79,7 @@ export function useSelect(opts: UseSelectOptions): UseSelectReturn {
 
   function close() {
     isOpen.value = false
+    resetTypeahead()
   }
 
   function navigateToOption(option: SelectOption) {
@@ -55,12 +91,14 @@ export function useSelect(opts: UseSelectOptions): UseSelectReturn {
     if (option.disabled || disabled?.value) return
     modelValue.value = option.value
     isOpen.value = false
+    resetTypeahead()
   }
 
   function clearValue(value?: string | number) {
     if (disabled?.value) return
     modelValue.value = value
     isOpen.value = false
+    resetTypeahead()
   }
 
   function handleKeydown(event: KeyboardEvent) {
@@ -68,6 +106,7 @@ export function useSelect(opts: UseSelectOptions): UseSelectReturn {
 
     if (event.key === 'Escape') {
       isOpen.value = false
+      resetTypeahead()
       return
     }
     if (event.key === 'Enter' || event.key === ' ') {
@@ -101,12 +140,17 @@ export function useSelect(opts: UseSelectOptions): UseSelectReturn {
     } else if (event.key === 'End') {
       event.preventDefault()
       if (enabledOpts[enabledOpts.length - 1]) navigateToOption(enabledOpts[enabledOpts.length - 1])
+    } else if (event.key.length === 1 && !event.ctrlKey && !event.metaKey && !event.altKey) {
+      // Typeahead: printable character
+      event.preventDefault()
+      appendTypeahead(event.key)
     }
   }
 
   function handleBlur(relatedTarget: EventTarget | null, currentTarget: HTMLElement) {
     if (!currentTarget.contains(relatedTarget as Node)) {
       isOpen.value = false
+      resetTypeahead()
     }
   }
 

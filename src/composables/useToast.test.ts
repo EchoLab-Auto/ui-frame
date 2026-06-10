@@ -16,7 +16,7 @@ describe('useToast', () => {
     expect(toasts.value).toHaveLength(1)
     expect(toasts.value[0].message).toBe('Test message')
     expect(toasts.value[0].type).toBe('info')
-    expect(id).toBe('nm-toast-1')
+    expect(id).toMatch(/^nm-toast-[a-z0-9]+-[a-z0-9]+$/)
   })
 
   it('should add toast with custom type and duration', () => {

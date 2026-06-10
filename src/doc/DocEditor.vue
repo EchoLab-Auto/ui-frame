@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, computed } from 'vue'
 import type { ProDocNode } from './types.js'
-import { nodeToTreeData } from './tree-utils.js'
-import type { TreeNodeData } from '@/components/NeumorphismTree'
+import { useDocLayout } from './useDocLayout'
 import NeumorphismLayout from '@/components/NeumorphismLayout/NeumorphismLayout.vue'
 import NeumorphismButton from '@/components/NeumorphismButton/NeumorphismButton.vue'
 import NeumorphismCard from '@/components/NeumorphismCard/NeumorphismCard.vue'
@@ -11,7 +10,6 @@ import NeumorphismTree from '@/components/NeumorphismTree/NeumorphismTree.vue'
 import NeumorphismDivider from '@/components/NeumorphismDivider/NeumorphismDivider.vue'
 import NeumorphismTag from '@/components/NeumorphismTag/NeumorphismTag.vue'
 import NeumorphismContainer from '@/components/NeumorphismContainer/NeumorphismContainer.vue'
-import { useTheme } from '@/composables/useTheme'
 import MarkdownEditor from './MarkdownEditor.vue'
 
 export interface DocEditorProps {
@@ -32,36 +30,36 @@ const emit = defineEmits<{
   (e: 'docLink', path: string): void
 }>()
 
-const selectedPath = ref(props.initialPath ?? '')
+const {
+  selectedPath,
+  selectedKeys,
+  expandedKeys,
+  treeData,
+  displayNode,
+  themeModel,
+  handleTreeSelect,
+} = useDocLayout({ root: props.root, initialPath: props.initialPath })
+
+/** 编辑缓存 LRU 限制 */
+const MAX_EDIT_CACHE = 50
 const editedContent = ref<Record<string, string>>({})
-const expandedKeys = ref<string[]>([])
+const editAccessOrder = ref<string[]>([])
 
-const { theme, setTheme } = useTheme()
-const themeModel = computed({
-  get: () => theme.value,
-  set: val => setTheme(val),
-})
+/** 安全地设置编辑内容，带 LRU 淘汰 */
+function setEditContent(path: string, content: string) {
+  const order = editAccessOrder.value.filter(p => p !== path)
+  order.push(path)
 
-const treeData = computed(() => props.root.children.map(nodeToTreeData) as TreeNodeData[])
-
-const selectedKeys = ref<string[]>(selectedPath.value ? [selectedPath.value] : [])
-
-watch(selectedPath, path => {
-  selectedKeys.value = path ? [path] : []
-})
-
-/** 查找当前节点 */
-function findNode(path: string, node: ProDocNode = props.root): ProDocNode | undefined {
-  if (node.path === path) return node
-  for (const child of node.children) {
-    const result = findNode(path, child)
-    if (result) return result
+  while (order.length > MAX_EDIT_CACHE) {
+    const oldest = order.shift()!
+    if (oldest !== path) {
+      delete editedContent.value[oldest]
+    }
   }
-  return undefined
-}
 
-const selectedNode = computed(() => (selectedPath.value ? findNode(selectedPath.value) : undefined))
-const displayNode = computed(() => selectedNode.value || props.root.children[0])
+  editAccessOrder.value = order
+  editedContent.value[path] = content
+}
 
 /** 获取当前编辑内容 */
 function getCurrentContent(node: ProDocNode): string {
@@ -71,18 +69,13 @@ function getCurrentContent(node: ProDocNode): string {
 /** 处理内容变化 */
 function handleContentChange(value: string) {
   if (!displayNode.value) return
-  editedContent.value[displayNode.value.path] = value
+  setEditContent(displayNode.value.path, value)
 }
 
 /** 处理保存 */
 function handleSave() {
   if (!displayNode.value) return
   emit('save', displayNode.value.path, getCurrentContent(displayNode.value))
-}
-
-/** 处理树节点选择 */
-function handleTreeSelect(key: string) {
-  selectedPath.value = key
 }
 
 /** 处理文档链接 */

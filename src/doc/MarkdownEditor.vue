@@ -36,6 +36,41 @@ const tabs = [
 /** 内容字数统计 */
 const charCount = computed(() => props.value.length)
 const lineCount = computed(() => props.value.split('\n').length)
+
+// ==========================================
+// 分栏同步滚动
+// ==========================================
+const editPanelRef = ref<HTMLDivElement | null>(null)
+const previewPanelRef = ref<HTMLDivElement | null>(null)
+let syncingScroll = false
+
+function syncPreviewScroll() {
+  if (syncingScroll || mode.value !== 'split') return
+  const textarea = editPanelRef.value?.querySelector('textarea') as HTMLTextAreaElement | null
+  const preview = previewPanelRef.value
+  if (!textarea || !preview) return
+
+  const ratio = textarea.scrollTop / (textarea.scrollHeight - textarea.clientHeight || 1)
+  syncingScroll = true
+  preview.scrollTop = ratio * (preview.scrollHeight - preview.clientHeight)
+  requestAnimationFrame(() => {
+    syncingScroll = false
+  })
+}
+
+function syncEditScroll() {
+  if (syncingScroll || mode.value !== 'split') return
+  const textarea = editPanelRef.value?.querySelector('textarea') as HTMLTextAreaElement | null
+  const preview = previewPanelRef.value
+  if (!textarea || !preview) return
+
+  const ratio = preview.scrollTop / (preview.scrollHeight - preview.clientHeight || 1)
+  syncingScroll = true
+  textarea.scrollTop = ratio * (textarea.scrollHeight - textarea.clientHeight)
+  requestAnimationFrame(() => {
+    syncingScroll = false
+  })
+}
 </script>
 
 <template>
@@ -55,8 +90,10 @@ const lineCount = computed(() => props.value.split('\n').length)
     <div class="neumorphism-editor-panels" :class="`neumorphism-mode-${mode}`">
       <!-- Edit panel -->
       <div
+        ref="editPanelRef"
         class="neumorphism-editor-panel neumorphism-editor-panel--edit"
         :class="{ hidden: mode === 'preview' }"
+        @scroll="syncPreviewScroll"
       >
         <NeumorphismCard :elevation="-3" no-padding class="edit-card">
           <NeumorphismTextarea
@@ -72,8 +109,10 @@ const lineCount = computed(() => props.value.split('\n').length)
 
       <!-- Preview panel -->
       <div
+        ref="previewPanelRef"
         class="neumorphism-editor-panel neumorphism-editor-panel--preview"
         :class="{ hidden: mode === 'edit' }"
+        @scroll="syncEditScroll"
       >
         <NeumorphismCard :elevation="-2" no-padding class="preview-card">
           <MarkdownRenderer :content="props.value" :show-toc="false" @doc-link="handleDocLink" />

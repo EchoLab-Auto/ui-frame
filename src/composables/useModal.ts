@@ -1,7 +1,19 @@
 import { ref, watch, onMounted, onBeforeUnmount, nextTick, type Ref } from 'vue'
 
-// Module-level scroll lock counter to handle nested modals
-let scrollLockCount = 0
+// SSR-safe scroll lock counter — keyed by document to support iframes/concurrent usage
+const scrollLockCounters = new WeakMap<Document, number>()
+
+function getScrollLockCount(doc: Document): number {
+  return scrollLockCounters.get(doc) ?? 0
+}
+
+function setScrollLockCount(doc: Document, count: number): void {
+  if (count <= 0) {
+    scrollLockCounters.delete(doc)
+  } else {
+    scrollLockCounters.set(doc, count)
+  }
+}
 
 function getScrollbarWidth(): number {
   if (typeof window === 'undefined') return 0
@@ -49,7 +61,10 @@ export function useModal(opts: UseModalOptions): UseModalReturn {
   let destroyTimer: ReturnType<typeof setTimeout> | undefined
 
   function lockBodyScroll() {
-    if (scrollLockCount++ === 0) {
+    if (typeof document === 'undefined') return
+    const count = getScrollLockCount(document)
+    setScrollLockCount(document, count + 1)
+    if (count === 0) {
       const scrollbarWidth = getScrollbarWidth()
       if (scrollbarWidth > 0) {
         document.body.style.paddingRight = `${scrollbarWidth}px`
@@ -59,8 +74,11 @@ export function useModal(opts: UseModalOptions): UseModalReturn {
   }
 
   function unlockBodyScroll() {
-    if (--scrollLockCount <= 0) {
-      scrollLockCount = 0
+    if (typeof document === 'undefined') return
+    const count = getScrollLockCount(document)
+    const next = Math.max(0, count - 1)
+    setScrollLockCount(document, next)
+    if (next === 0) {
       document.body.style.overflow = ''
       document.body.style.paddingRight = ''
     }

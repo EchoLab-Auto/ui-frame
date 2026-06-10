@@ -42,6 +42,11 @@ export interface UseToastReturn {
   clearAll: () => void
 }
 
+/** 生成 SSR 安全的唯一 Toast ID */
+function generateToastId(): string {
+  return `nm-toast-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`
+}
+
 /**
  * Headless toast — encapsulates toast queue management, auto-dismiss
  * timers, and remove animations. Use with your own UI rendering.
@@ -56,7 +61,6 @@ export function useToast(opts: UseToastOptions = {}): UseToastReturn {
   const { maxCount = 5 } = opts
 
   const toasts = ref<ToastItem[]>([])
-  let idCounter = 0
   const timers = new Map<string, ReturnType<typeof setTimeout>>()
   let clearing = false
 
@@ -69,7 +73,7 @@ export function useToast(opts: UseToastOptions = {}): UseToastReturn {
   }
 
   function addToast(options: ToastOptions): string {
-    const id = `nm-toast-${++idCounter}`
+    const id = generateToastId()
     const item: ToastItem = {
       id,
       message: options.message,

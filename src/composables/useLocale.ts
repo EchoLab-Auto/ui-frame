@@ -1,4 +1,4 @@
-import { inject, computed, type ComputedRef } from 'vue'
+import { inject, provide, computed, type ComputedRef } from 'vue'
 import type { InjectionKey } from 'vue'
 import type { LocaleMessages, Locale } from '@/locales/types'
 import { zhCN } from '@/locales/zh-CN'
@@ -66,12 +66,10 @@ export function useLocale(): {
  * ```
  */
 export function provideLocale(messages: LocaleMessages): void {
-  import('vue').then(({ provide, computed }) => {
-    provide(
-      LocaleKey,
-      computed(() => messages)
-    )
-  })
+  provide(
+    LocaleKey,
+    computed(() => messages)
+  )
 }
 
 /**
