@@ -112,7 +112,36 @@ on:
 - **自动 provenance**：`npm publish --provenance --access public` 生成 SBOM 供应链证明
 - **Token 注入**：通过 `NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}` 认证
 
-**任务流水线**：安装 → Lint → Format check → Type check → Test → Build → Verify → Publish
+**任务流水线**：
+
+| 步骤         | 命令                    | 说明                               |
+| ------------ | ----------------------- | ---------------------------------- |
+| Checkout     | `actions/checkout@v4`   | 拉取代码                           |
+| Setup Node   | `actions/setup-node@v4` | Node 22 + npm 缓存 + registry 配置 |
+| Upgrade npm  | `npm install -g npm@11` | 锁定 npm 版本                      |
+| Install      | `npm ci`                | 纯净安装                           |
+| Lint         | `npm run lint`          | ESLint 检查                        |
+| Format check | `npm run format:check`  | Prettier 格式校验                  |
+| Type check   | `npm run typecheck`     | 全量类型检查                       |
+| Test         | `npm test`              | 单元测试                           |
+| Build        | `npm run build`         | 构建库产物                         |
+| Verify       | `test -f ...`           | 断言产物文件全部存在               |
+| Publish      | `npm publish ...`       | 发布到 npm                         |
+
+**产物校验清单**（与 CI 一致）：
+
+```
+Library core:
+  dist/ui-frame.js
+  dist/ui-frame.umd.cjs
+  dist/style.css
+  dist/index.d.ts
+
+Subpath exports:
+  dist/composables/
+  dist/extensions/index.js + .d.ts
+  dist/utils/index.js + .d.ts
+```
 
 > 注意：Publish 的验证步骤与 CI 完全一致，确保发布前代码质量达标。
 

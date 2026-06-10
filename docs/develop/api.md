@@ -7,7 +7,9 @@
 ## 目录
 
 - [安装与引入](#安装与引入)
+- [子路径导出](#子路径导出)
 - [Vue 组件](#vue-组件)
+- [Doc 文档渲染](#doc-文档渲染)
 - [Headless Composables](#headless-composables)
 - [组合式函数](#组合式函数)
 - [类型导出](#类型导出)
@@ -41,6 +43,21 @@ app.use(NeumorphismUI)
 import { NeumorphismButton, NeumorphismCard, useTheme } from '@echolab/ui-frame'
 import '@echolab/ui-frame/dist/style.css'
 ```
+
+---
+
+## 子路径导出
+
+除主入口外，本库还提供以下子路径导出，支持更细粒度的按需引入：
+
+| 子路径                            | 用途                    | 示例                                                                  |
+| --------------------------------- | ----------------------- | --------------------------------------------------------------------- |
+| `@echolab/ui-frame/composables/*` | 单独引入某个 composable | `import { useSelect } from '@echolab/ui-frame/composables/useSelect'` |
+| `@echolab/ui-frame/extensions`    | 扩展系统                | `import { ComponentRegistry } from '@echolab/ui-frame/extensions'`    |
+| `@echolab/ui-frame/utils`         | 工具函数                | `import { debounce } from '@echolab/ui-frame/utils'`                  |
+| `@echolab/ui-frame/doc`           | 文档渲染模块            | `import { DocViewer } from '@echolab/ui-frame/doc'`                   |
+
+> 使用子路径导出时仍需引入样式文件：`import '@echolab/ui-frame/dist/style.css'`
 
 ---
 
@@ -828,6 +845,189 @@ import type { ThemeProviderProps } from '@echolab/ui-frame'
 
 ---
 
+## Doc 文档渲染
+
+文档渲染模块提供 Markdown 渲染、文档查看器和编辑器组件，适用于构建文档站点或知识库。
+
+### DocViewer
+
+```ts
+import { DocViewer } from '@echolab/ui-frame/doc'
+import type { DocViewerProps } from '@echolab/ui-frame/doc'
+```
+
+文档查看器组件，提供侧边栏树形导航 + Markdown 内容渲染的完整文档浏览体验。
+
+| Props       | Type         | Default | Description          |
+| ----------- | ------------ | ------- | -------------------- |
+| root        | `ProDocNode` | —       | 文档树根节点（必需） |
+| initialPath | `string`     | —       | 初始选中的文档路径   |
+| className   | `string`     | `''`    | 自定义样式类名       |
+
+**Events:** `docLink`
+
+---
+
+### DocEditor
+
+```ts
+import { DocEditor } from '@echolab/ui-frame/doc'
+import type { DocEditorProps } from '@echolab/ui-frame/doc'
+```
+
+文档编辑器组件，在 DocViewer 基础上增加 Markdown 编辑能力，支持编辑/预览/分栏三种模式。
+
+| Props       | Type         | Default | Description          |
+| ----------- | ------------ | ------- | -------------------- |
+| root        | `ProDocNode` | —       | 文档树根节点（必需） |
+| initialPath | `string`     | —       | 初始选中的文档路径   |
+| className   | `string`     | `''`    | 自定义样式类名       |
+
+**Events:** `save`, `docLink`
+
+---
+
+### MarkdownRenderer
+
+```ts
+import { MarkdownRenderer } from '@echolab/ui-frame/doc'
+import type { MarkdownRendererProps } from '@echolab/ui-frame/doc'
+```
+
+Markdown 渲染组件，支持目录（TOC）、代码高亮、内部链接跳转。
+
+| Props           | Type                    | Default | Description                                      |
+| --------------- | ----------------------- | ------- | ------------------------------------------------ |
+| content         | `string`                | —       | Markdown 内容（必需）                            |
+| className       | `string`                | `''`    | 自定义样式类名                                   |
+| showToc         | `boolean`               | `true`  | 是否显示目录                                     |
+| scrollContainer | `HTMLElement \| string` | —       | 滚动容器（不传则自动查找 `.nm-layout__content`） |
+
+**Events:** `docLink`
+
+---
+
+### MarkdownEditor
+
+```ts
+import { MarkdownEditor } from '@echolab/ui-frame/doc'
+import type { MarkdownEditorProps } from '@echolab/ui-frame/doc'
+```
+
+Markdown 编辑器组件，提供编辑/预览/分栏三种模式，支持分栏同步滚动。
+
+| Props     | Type     | Default | Description           |
+| --------- | -------- | ------- | --------------------- |
+| value     | `string` | —       | Markdown 内容（必需） |
+| className | `string` | `''`    | 自定义样式类名        |
+
+**Events:** `change`, `docLink`
+
+---
+
+### Doc 类型定义
+
+```ts
+import type { ProDocNode, DocTree, ProDocOptions, DocTreeNode } from '@echolab/ui-frame/doc'
+```
+
+```ts
+interface ProDocNode {
+  id: string
+  title: string
+  path: string
+  content: string
+  body: string
+  meta: Record<string, unknown>
+  children: ProDocNode[]
+  order: number
+}
+
+interface DocTree {
+  root: ProDocNode
+  nodeMap: Map<string, ProDocNode>
+  findByPath(path: string): ProDocNode | undefined
+  findById(id: string): ProDocNode | undefined
+}
+
+interface ProDocOptions {
+  docsRoot?: string
+  indexPath?: string
+}
+
+interface DocTreeNode {
+  key: string
+  label: string
+  icon: string
+  children: DocTreeNode[]
+}
+```
+
+---
+
+### Doc 工具函数
+
+```ts
+import {
+  parseFrontmatter,
+  pathToId,
+  extractTitle,
+  createNode,
+  buildDocTree,
+  createDocTree,
+  flattenDocTree,
+  getAncestors,
+  getNodeIcon,
+  nodeToTreeData,
+} from '@echolab/ui-frame/doc'
+```
+
+| 函数               | 签名                                            | 说明                         |
+| ------------------ | ----------------------------------------------- | ---------------------------- |
+| `parseFrontmatter` | `(content: string) => { meta, body }`           | 解析 Markdown 的 frontmatter |
+| `pathToId`         | `(path: string) => string`                      | 将路径转换为唯一 ID          |
+| `extractTitle`     | `(content: string) => string`                   | 从 Markdown 中提取标题       |
+| `createNode`       | `(path: string, content: string) => ProDocNode` | 创建单个文档节点             |
+| `buildDocTree`     | `(nodes: ProDocNode[]) => DocTree`              | 构建文档树                   |
+| `createDocTree`    | `(root: ProDocNode) => DocTree`                 | 从根节点创建文档树           |
+| `flattenDocTree`   | `(tree: DocTree) => ProDocNode[]`               | 扁平化文档树                 |
+| `getAncestors`     | `(tree: DocTree, path: string) => ProDocNode[]` | 获取指定路径的所有祖先节点   |
+| `getNodeIcon`      | `(node: ProDocNode) => string`                  | 根据路径推断节点图标         |
+| `nodeToTreeData`   | `(node: ProDocNode) => DocTreeNode`             | 将节点转换为树形数据         |
+
+---
+
+### useDocLayout
+
+```ts
+import { useDocLayout } from '@echolab/ui-frame/doc'
+import type { UseDocLayoutOptions, UseDocLayoutReturn } from '@echolab/ui-frame/doc'
+```
+
+DocViewer / DocEditor 共享的布局逻辑 composable，管理树节点选择、主题切换、节点查找等。
+
+```ts
+interface UseDocLayoutOptions {
+  root: ProDocNode
+  initialPath?: string
+}
+
+interface UseDocLayoutReturn {
+  selectedPath: Ref<string>
+  selectedKeys: Ref<string[]>
+  expandedKeys: Ref<string[]>
+  treeData: ComputedRef<TreeNodeData[]>
+  selectedNode: ComputedRef<ProDocNode | undefined>
+  displayNode: ComputedRef<ProDocNode | undefined>
+  docTree: ComputedRef<DocTree>
+  themeModel: WritableComputedRef<Theme>
+  handleTreeSelect: (key: string) => void
+  handleDocLink: (emit: (e: 'docLink', path: string) => void, path: string) => void
+}
+```
+
+---
+
 ## Headless Composables
 
 Headless Composables 将业务逻辑与 UI 完全解耦，封装了键盘导航、ARIA、状态管理等行为，开发者只需关心 UI 渲染。
@@ -1244,6 +1444,17 @@ function validateFieldValue(value: unknown, rules: FormRule[]): string | undefin
 | `NeumorphismPluginOptions` | 插件选项（新版）              |
 | `ComponentOverrides`       | 组件覆盖映射                  |
 | `NeumorphismSetupContext`  | 组件构建上下文                |
+| `ExtendedConfig`           | 扩展配置类型                  |
+| `ProDocNode`               | 文档节点                      |
+| `DocTree`                  | 文档树结构                    |
+| `ProDocOptions`            | 文档配置选项                  |
+| `DocTreeNode`              | 树节点数据结构                |
+| `DocViewerProps`           | DocViewer 组件属性            |
+| `DocEditorProps`           | DocEditor 组件属性            |
+| `MarkdownRendererProps`    | MarkdownRenderer 组件属性     |
+| `MarkdownEditorProps`      | MarkdownEditor 组件属性       |
+| `UseDocLayoutOptions`      | useDocLayout 选项             |
+| `UseDocLayoutReturn`       | useDocLayout 返回值           |
 
 ---
 
@@ -1279,6 +1490,22 @@ class ComponentRegistry {
 }
 ```
 
+**使用示例：**
+
+```ts
+import { ComponentRegistry } from '@echolab/ui-frame'
+
+const registry = new ComponentRegistry()
+
+// 注册自定义按钮
+registry.register('NeumorphismButton', MyCustomButton)
+
+// 检查是否已注册
+if (registry.has('NeumorphismButton')) {
+  const btn = registry.get('NeumorphismButton')
+}
+```
+
 ### useNeumorphismSetup
 
 ```ts
@@ -1297,7 +1524,11 @@ interface NeumorphismSetupContext {
 ### 插件选项
 
 ```ts
-import type { NeumorphismPluginOptions, ComponentOverrides } from '@echolab/ui-frame'
+import type {
+  NeumorphismPluginOptions,
+  ComponentOverrides,
+  ExtendedConfig,
+} from '@echolab/ui-frame'
 ```
 
 ```ts
@@ -1309,6 +1540,10 @@ interface NeumorphismPluginOptions {
 
 interface ComponentOverrides {
   [key: string]: Component
+}
+
+interface ExtendedConfig {
+  [key: string]: unknown
 }
 ```
 

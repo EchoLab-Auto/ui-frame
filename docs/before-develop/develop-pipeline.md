@@ -79,7 +79,7 @@ npm test              # 提交前全量验证
 ```
 ┌────────────────────────────────────────────────────────────┐
 │  Step 1 — Agent 启动本地预览                                │
-│  ├─ 执行：npm run example:dev                               │
+│  ├─ 执行：npm run example                                    │
 │  ├─ 示例站点启动后输出本地访问地址（如 http://localhost:5173）│
 │  ├─ 确保修改在示例站点中有对应展示：                         │
 │  │   ├─ 组件修改 → 在「组件总览」页可查看                    │
@@ -228,7 +228,7 @@ ls dist/ui-frame.js dist/ui-frame.umd.cjs dist/style.css dist/index.d.ts
                           ↓
 ┌─────────────────────────────────────────────────────────────┐
 │ 人类闭环验证（UI 修改时）                                   │
-│  ├─ Agent 启动本地预览：npm run example:dev                 │
+│  ├─ Agent 启动本地预览：npm run example                     │
 │  ├─ 人类通过浏览器审查                                      │
 │  ├─ 不通过 → Agent 接收反馈重新修改                         │
 │  └─ 通过 → 进入提交前验证                                   │

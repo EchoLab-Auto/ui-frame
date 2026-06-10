@@ -13,6 +13,8 @@
 - [表单验证](#表单验证)
 - [自定义主题](#自定义主题)
 - [Headless Composables 使用](#headless-composables-使用)
+- [Doc 文档渲染](#doc-文档渲染)
+- [子路径导出](#子路径导出)
 - [扩展组件](#扩展组件)
 - [国际化](#国际化)
 - [最佳实践](#最佳实践)
@@ -577,3 +579,165 @@ const { isTouch } = useTouchDevice()
   <NeumorphismButton type="submit">提交</NeumorphismButton>
 </NeumorphismForm>
 ```
+
+---
+
+## Doc 文档渲染
+
+文档渲染模块提供一套完整的文档站点构建能力，包括 Markdown 渲染、文档树导航和编辑器。
+
+### 基础文档查看器
+
+```vue
+<script setup>
+import { DocViewer } from '@echolab/ui-frame/doc'
+import '@echolab/ui-frame/dist/style.css'
+
+const docRoot = {
+  id: 'root',
+  title: '文档中心',
+  path: '/',
+  content: '',
+  body: '',
+  meta: {},
+  order: 0,
+  children: [
+    {
+      id: 'guide',
+      title: '快速开始',
+      path: '/guide',
+      content: '# 快速开始\n\n欢迎使用...',
+      body: '# 快速开始\n\n欢迎使用...',
+      meta: {},
+      order: 1,
+      children: [],
+    },
+    {
+      id: 'api',
+      title: 'API 参考',
+      path: '/api',
+      content: '# API 参考\n\n## 组件...',
+      body: '# API 参考\n\n## 组件...',
+      meta: {},
+      order: 2,
+      children: [],
+    },
+  ],
+}
+</script>
+
+<template>
+  <DocViewer :root="docRoot" initial-path="/guide" />
+</template>
+```
+
+### Markdown 渲染组件
+
+```vue
+<script setup>
+import { MarkdownRenderer } from '@echolab/ui-frame/doc'
+
+const content = `# 标题
+
+这是一段 **加粗** 的文字。
+
+\`\`\`ts
+const hello = 'world'
+\`\`\`
+`
+</script>
+
+<template>
+  <MarkdownRenderer :content="content" />
+</template>
+```
+
+### Markdown 编辑器
+
+```vue
+<script setup>
+import { ref } from 'vue'
+import { MarkdownEditor } from '@echolab/ui-frame/doc'
+
+const value = ref('# 编辑中\n\n在这里输入 Markdown...')
+</script>
+
+<template>
+  <MarkdownEditor v-model="value" @change="v => (value = v)" />
+</template>
+```
+
+### 从文件构建文档树
+
+```vue
+<script setup>
+import { DocViewer, parseFrontmatter, buildDocTree } from '@echolab/ui-frame/doc'
+import { ref, onMounted } from 'vue'
+
+const docRoot = ref(null)
+
+onMounted(async () => {
+  // 假设通过 import.meta.glob 获取所有 markdown 文件
+  const modules = import.meta.glob('/docs/**/*.md', { as: 'raw' })
+  const nodes = []
+
+  for (const [path, loader] of Object.entries(modules)) {
+    const content = await loader()
+    const { meta, body } = parseFrontmatter(content)
+    nodes.push({
+      id: path,
+      title: meta.title || extractTitle(content),
+      path,
+      content,
+      body,
+      meta,
+      order: meta.order || 0,
+      children: [],
+    })
+  }
+
+  const tree = buildDocTree(nodes)
+  docRoot.value = tree.root
+})
+</script>
+
+<template>
+  <DocViewer v-if="docRoot" :root="docRoot" />
+</template>
+```
+
+---
+
+## 子路径导出
+
+为了进一步减少打包体积，可以使用子路径按需引入：
+
+### 按需引入 composables
+
+```ts
+// 只引入需要的 composable，不引入全部组件
+import { useSelect } from '@echolab/ui-frame/composables/useSelect'
+import { useTheme } from '@echolab/ui-frame/composables/useTheme'
+```
+
+### 按需引入工具函数
+
+```ts
+import { debounce } from '@echolab/ui-frame/utils'
+import { generateId } from '@echolab/ui-frame/utils'
+```
+
+### 按需引入扩展系统
+
+```ts
+import { ComponentRegistry } from '@echolab/ui-frame/extensions'
+```
+
+### 按需引入文档渲染
+
+```ts
+import { MarkdownRenderer } from '@echolab/ui-frame/doc'
+```
+
+> 使用子路径导出时，样式文件仍需全局引入一次：
+> `import '@echolab/ui-frame/dist/style.css'`

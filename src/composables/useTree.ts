@@ -115,10 +115,7 @@ export function useTree(opts: UseTreeOptions): UseTreeReturn {
   // ==========================================
   let syncing = false
 
-  function syncFromExternal(
-    external: Ref<string[]> | undefined,
-    local: Ref<string[]>
-  ) {
+  function syncFromExternal(external: Ref<string[]> | undefined, local: Ref<string[]>) {
     if (!external) return
     watch(
       () => external.value,
@@ -136,10 +133,7 @@ export function useTree(opts: UseTreeOptions): UseTreeReturn {
     )
   }
 
-  function syncToExternal(
-    local: Ref<string[]>,
-    external: Ref<string[]> | undefined
-  ) {
+  function syncToExternal(local: Ref<string[]>, external: Ref<string[]> | undefined) {
     if (!external) return
     watch(
       () => local.value,

@@ -72,9 +72,7 @@ export function useDocLayout(options: UseDocLayoutOptions): UseDocLayoutReturn {
     return docTree.value.findByPath(selectedPath.value)
   })
 
-  const displayNode = computed<ProDocNode | undefined>(
-    () => selectedNode.value || root.children[0]
-  )
+  const displayNode = computed<ProDocNode | undefined>(() => selectedNode.value || root.children[0])
 
   function handleTreeSelect(key: string) {
     selectedPath.value = key
