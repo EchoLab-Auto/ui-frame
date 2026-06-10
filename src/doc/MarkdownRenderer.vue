@@ -3,6 +3,7 @@ import { ref, computed, watch, nextTick, onBeforeUnmount } from 'vue'
 import { marked } from 'marked'
 import NeumorphismCard from '@/components/NeumorphismCard/NeumorphismCard.vue'
 import NeumorphismBadge from '@/components/NeumorphismBadge/NeumorphismBadge.vue'
+import { generateId } from '@/utils'
 
 export interface MarkdownRendererProps {
   /** Markdown 内容 */
@@ -25,6 +26,14 @@ const emit = defineEmits<{
 const contentRef = ref<HTMLDivElement | null>(null)
 const activeHeading = ref('')
 const showMobileToc = ref(false)
+
+/** 实例级唯一前缀，避免多实例 id 冲突 */
+const tocPrefix = generateId('toc')
+
+/** 生成带前缀的唯一 heading id */
+function makeUniqueId(text: string): string {
+  return `${tocPrefix}-${slugify(text)}`
+}
 
 /** 简易代码高亮 */
 function highlightCode(code: string, lang?: string): string {
@@ -75,14 +84,14 @@ function extractTextFromTokens(tokens: unknown[]): string {
 
 function extractToc(content: string): { level: number; text: string; id: string }[] {
   const headings: { level: number; text: string; id: string }[] = []
-  const lines = content.split('\n')
-  for (const line of lines) {
-    const match = line.match(/^(#{1,6})\s+(.+)$/)
-    if (match) {
+  const tokens = marked.lexer(content)
+  for (const token of tokens) {
+    if (token.type === 'heading') {
+      const text = extractTextFromTokens(token.tokens as unknown[])
       headings.push({
-        level: match[1].length,
-        text: match[2].trim(),
-        id: slugify(match[2].trim()),
+        level: token.depth,
+        text,
+        id: makeUniqueId(text),
       })
     }
   }
@@ -94,7 +103,7 @@ const renderedHtml = computed(() => {
   const renderer = new marked.Renderer()
   renderer.heading = ({ tokens, depth }) => {
     const text = extractTextFromTokens(tokens as unknown[])
-    const id = slugify(text)
+    const id = makeUniqueId(text)
     return `<h${depth} id="${id}"><a href="#${id}" class="heading-anchor" aria-hidden="true">#</a>${text}</h${depth}>`
   }
   renderer.code = ({ text, lang }) => {
@@ -152,7 +161,7 @@ const toc = computed(() => extractToc(props.content))
 
 /** 滚动到指定 heading */
 function scrollToHeading(id: string) {
-  document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
+  contentRef.value?.querySelector(`[id="${id}"]`)?.scrollIntoView({ behavior: 'smooth' })
 }
 
 /** 滚动到指定 heading 并关闭移动端 TOC */
@@ -193,21 +202,47 @@ function handleScroll() {
   activeHeading.value = current
 }
 
+/** 节流 */
+function throttle(fn: () => void, wait: number): () => void {
+  let lastTime = 0
+  let rafId: number | null = null
+  return () => {
+    const now = Date.now()
+    if (now - lastTime >= wait) {
+      lastTime = now
+      fn()
+    } else if (rafId === null) {
+      rafId = requestAnimationFrame(() => {
+        rafId = null
+        fn()
+      })
+    }
+  }
+}
+
+const throttledHandleScroll = throttle(handleScroll, 80)
+
 // 挂载后监听滚动
 let scrollContainer: HTMLElement | null = null
 
-watch(contentRef, el => {
+watch(contentRef, (el, oldEl) => {
+  if (oldEl) {
+    const oldContainer = oldEl.closest('.nm-layout__content') as HTMLElement | null
+    oldContainer?.removeEventListener('scroll', throttledHandleScroll)
+  }
   if (el) {
     nextTick(() => {
       scrollContainer = el.closest('.nm-layout__content') as HTMLElement | null
-      scrollContainer?.addEventListener('scroll', handleScroll)
+      scrollContainer?.addEventListener('scroll', throttledHandleScroll)
+      // 初始同步高亮
+      handleScroll()
     })
   }
 })
 
 // 卸载时清理
 onBeforeUnmount(() => {
-  scrollContainer?.removeEventListener('scroll', handleScroll)
+  scrollContainer?.removeEventListener('scroll', throttledHandleScroll)
 })
 </script>
 
