@@ -222,10 +222,18 @@ function scrollToSection(id: string) {
         <nav v-if="!collapsed" class="sider-nav" aria-label="文档组件导航">
           <div class="nav-group">
             <span class="nav-group-title">文档组件</span>
-            <a href="#markdown-renderer" class="nav-link" @click.prevent="scrollToSection('markdown-renderer')">
+            <a
+              href="#markdown-renderer"
+              class="nav-link"
+              @click.prevent="scrollToSection('markdown-renderer')"
+            >
               MarkdownRenderer
             </a>
-            <a href="#markdown-editor" class="nav-link" @click.prevent="scrollToSection('markdown-editor')">
+            <a
+              href="#markdown-editor"
+              class="nav-link"
+              @click.prevent="scrollToSection('markdown-editor')"
+            >
               MarkdownEditor
             </a>
             <a href="#doc-viewer" class="nav-link" @click.prevent="scrollToSection('doc-viewer')">
@@ -256,7 +264,8 @@ function scrollToSection(id: string) {
           <section id="markdown-renderer" class="category-section">
             <h2 class="category-title">MarkdownRenderer</h2>
             <p class="category-desc">
-              将 Markdown 字符串渲染为新拟态风格的 HTML，支持代码高亮、目录生成、任务列表、图片懒加载等。
+              将 Markdown 字符串渲染为新拟态风格的
+              HTML，支持代码高亮、目录生成、任务列表、图片懒加载等。
             </p>
 
             <NeumorphismCard :elevation="1" class="demo-card demo-card--full">
@@ -288,7 +297,7 @@ function scrollToSection(id: string) {
                 </div>
               </template>
 
-              <MarkdownEditor :value="editorContent" @change="v => editorContent = v" />
+              <MarkdownEditor :value="editorContent" @change="v => (editorContent = v)" />
             </NeumorphismCard>
           </section>
 
@@ -301,7 +310,11 @@ function scrollToSection(id: string) {
               完整的文档浏览界面，包含文档树导航、Markdown 渲染、主题切换等功能。
             </p>
 
-            <NeumorphismCard :elevation="1" class="demo-card demo-card--full" style="height: 600px; padding: 0; overflow: hidden">
+            <NeumorphismCard
+              :elevation="1"
+              class="demo-card demo-card--full"
+              style="height: 600px; padding: 0; overflow: hidden"
+            >
               <template #header>
                 <div class="demo-header" style="padding: 16px 20px">
                   <h3 class="demo-title">文档查看器演示</h3>
@@ -322,7 +335,11 @@ function scrollToSection(id: string) {
               文档编辑器，包含文档树导航和 Markdown 编辑功能，支持未保存检测和 Ctrl+S 快捷键保存。
             </p>
 
-            <NeumorphismCard :elevation="1" class="demo-card demo-card--full" style="height: 600px; padding: 0; overflow: hidden">
+            <NeumorphismCard
+              :elevation="1"
+              class="demo-card demo-card--full"
+              style="height: 600px; padding: 0; overflow: hidden"
+            >
               <template #header>
                 <div class="demo-header" style="padding: 16px 20px">
                   <h3 class="demo-title">文档编辑器演示</h3>

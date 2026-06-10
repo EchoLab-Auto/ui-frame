@@ -25,31 +25,14 @@ export { default as MarkdownEditor } from './MarkdownEditor.vue'
 export type { MarkdownEditorProps } from './MarkdownEditor.vue'
 
 // === 核心类型 ===
-export type {
-  ProDocNode,
-  DocTree,
-  ProDocOptions,
-} from './types.js'
+export type { ProDocNode, DocTree, ProDocOptions } from './types.js'
 
 // === 解析器 ===
-export {
-  parseFrontmatter,
-  pathToId,
-  extractTitle,
-  createNode,
-  buildDocTree,
-} from './parser.js'
+export { parseFrontmatter, pathToId, extractTitle, createNode, buildDocTree } from './parser.js'
 
 // === 文档树工具 ===
-export {
-  createDocTree,
-  flattenDocTree,
-  getAncestors,
-} from './doc-tree.js'
+export { createDocTree, flattenDocTree, getAncestors } from './doc-tree.js'
 
 // === 树节点转换 ===
-export {
-  getNodeIcon,
-  nodeToTreeData,
-} from './tree-utils.js'
+export { getNodeIcon, nodeToTreeData } from './tree-utils.js'
 export type { DocTreeNode } from './tree-utils.js'

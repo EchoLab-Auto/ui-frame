@@ -37,13 +37,13 @@ const expandedKeys = ref<string[]>([])
 const { theme, setTheme } = useTheme()
 const themeModel = computed({
   get: () => theme.value,
-  set: (val) => setTheme(val),
+  set: val => setTheme(val),
 })
 
 const treeData = computed(() => props.root.children.map(nodeToTreeData) as TreeNodeData[])
 const selectedKeys = ref<string[]>(selectedPath.value ? [selectedPath.value] : [])
 
-watch(selectedPath, (path) => {
+watch(selectedPath, path => {
   selectedKeys.value = path ? [path] : []
 })
 
@@ -71,19 +71,17 @@ function handleDocLink(path: string) {
   emit('docLink', path)
 }
 
-watch(() => props.initialPath, (newPath) => {
-  if (newPath) selectedPath.value = newPath
-})
+watch(
+  () => props.initialPath,
+  newPath => {
+    if (newPath) selectedPath.value = newPath
+  }
+)
 </script>
 
 <template>
   <div :class="`neumorphism-doc-viewer ${props.className}`">
-    <NeumorphismLayout
-      show-header
-      show-sider
-      :sider-width="280"
-      collapsible
-    >
+    <NeumorphismLayout show-header show-sider :sider-width="280" collapsible>
       <!-- Header -->
       <template #header-left>
         <span class="neumorphism-header-brand">📚 Doc Viewer</span>
@@ -97,9 +95,9 @@ watch(() => props.initialPath, (newPath) => {
       <template #sider="{ collapsed }">
         <div v-if="!collapsed" class="neumorphism-sider-content">
           <NeumorphismTree
-            :data="treeData"
             v-model:selected-keys="selectedKeys"
             v-model:expanded-keys="expandedKeys"
+            :data="treeData"
             show-search
             search-placeholder="搜索文档..."
             @node-select="handleTreeSelect"
@@ -117,12 +115,7 @@ watch(() => props.initialPath, (newPath) => {
               <div class="neumorphism-doc-header">
                 <h1 class="neumorphism-doc-title">{{ displayNode.title }}</h1>
                 <div class="neumorphism-doc-meta">
-                  <NeumorphismTag
-                    v-if="displayNode.path"
-                    variant="primary"
-                    size="small"
-                    rounded
-                  >
+                  <NeumorphismTag v-if="displayNode.path" variant="primary" size="small" rounded>
                     {{ displayNode.path }}
                   </NeumorphismTag>
                   <NeumorphismTag
@@ -259,7 +252,9 @@ watch(() => props.initialPath, (newPath) => {
 /* Document switch transition */
 .neumorphism-doc-switch-enter-active,
 .neumorphism-doc-switch-leave-active {
-  transition: opacity 0.2s ease, transform 0.2s ease;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
 }
 
 .neumorphism-doc-switch-enter-from {

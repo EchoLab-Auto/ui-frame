@@ -48,10 +48,7 @@ export function parseFrontmatter(content: string): { meta: Record<string, unknow
 
 /** 从文件路径生成文档 ID */
 export function pathToId(filePath: string): string {
-  return filePath
-    .replace(/\.md$/i, '')
-    .replace(/\//g, '-')
-    .replace(/\\/g, '-')
+  return filePath.replace(/\.md$/i, '').replace(/\//g, '-').replace(/\\/g, '-')
 }
 
 /** 从文件内容解析出标题（H1 或 frontmatter title） */

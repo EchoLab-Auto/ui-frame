@@ -39,14 +39,14 @@ const expandedKeys = ref<string[]>([])
 const { theme, setTheme } = useTheme()
 const themeModel = computed({
   get: () => theme.value,
-  set: (val) => setTheme(val),
+  set: val => setTheme(val),
 })
 
 const treeData = computed(() => props.root.children.map(nodeToTreeData) as TreeNodeData[])
 
 const selectedKeys = ref<string[]>(selectedPath.value ? [selectedPath.value] : [])
 
-watch(selectedPath, (path) => {
+watch(selectedPath, path => {
   selectedKeys.value = path ? [path] : []
 })
 
@@ -60,7 +60,7 @@ function findNode(path: string, node: ProDocNode = props.root): ProDocNode | und
   return undefined
 }
 
-const selectedNode = computed(() => selectedPath.value ? findNode(selectedPath.value) : undefined)
+const selectedNode = computed(() => (selectedPath.value ? findNode(selectedPath.value) : undefined))
 const displayNode = computed(() => selectedNode.value || props.root.children[0])
 
 /** 获取当前编辑内容 */
@@ -109,12 +109,7 @@ function handleKeyDown(e: KeyboardEvent) {
 
 <template>
   <div :class="`neumorphism-doc-editor ${props.className}`" @keydown="handleKeyDown">
-    <NeumorphismLayout
-      show-header
-      show-sider
-      :sider-width="280"
-      collapsible
-    >
+    <NeumorphismLayout show-header show-sider :sider-width="280" collapsible>
       <!-- Header -->
       <template #header-left>
         <span class="neumorphism-editor-brand">📝 Doc Editor</span>
@@ -126,13 +121,7 @@ function handleKeyDown(e: KeyboardEvent) {
 
       <template #header-right>
         <div class="neumorphism-editor-actions">
-          <NeumorphismTag
-            v-if="hasChanges"
-            variant="warning"
-            size="small"
-          >
-            未保存
-          </NeumorphismTag>
+          <NeumorphismTag v-if="hasChanges" variant="warning" size="small"> 未保存 </NeumorphismTag>
           <NeumorphismButton
             variant="raised"
             size="small"
@@ -148,9 +137,9 @@ function handleKeyDown(e: KeyboardEvent) {
       <template #sider="{ collapsed }">
         <div v-if="!collapsed" class="neumorphism-editor-sider">
           <NeumorphismTree
-            :data="treeData"
             v-model:selected-keys="selectedKeys"
             v-model:expanded-keys="expandedKeys"
+            :data="treeData"
             show-search
             search-placeholder="搜索文档..."
             @node-select="handleTreeSelect"
@@ -168,19 +157,10 @@ function handleKeyDown(e: KeyboardEvent) {
                 <div>
                   <h1 class="neumorphism-editor-title">{{ displayNode.title }}</h1>
                   <div class="neumorphism-editor-meta">
-                    <NeumorphismTag
-                      v-if="displayNode.path"
-                      variant="primary"
-                      size="small"
-                      rounded
-                    >
+                    <NeumorphismTag v-if="displayNode.path" variant="primary" size="small" rounded>
                       {{ displayNode.path }}
                     </NeumorphismTag>
-                    <NeumorphismTag
-                      v-if="hasChanges"
-                      variant="warning"
-                      size="small"
-                    >
+                    <NeumorphismTag v-if="hasChanges" variant="warning" size="small">
                       已修改
                     </NeumorphismTag>
                   </div>
@@ -207,7 +187,11 @@ function handleKeyDown(e: KeyboardEvent) {
             </div>
 
             <div v-else class="neumorphism-editor-empty">
-              <NeumorphismCard :elevation="2" hoverable="bulge" class="neumorphism-editor-empty-icon">
+              <NeumorphismCard
+                :elevation="2"
+                hoverable="bulge"
+                class="neumorphism-editor-empty-icon"
+              >
                 <span class="neumorphism-editor-empty-emoji">📂</span>
               </NeumorphismCard>
               <p>请从左侧选择一篇文档进行编辑</p>

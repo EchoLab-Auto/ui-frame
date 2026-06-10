@@ -32,9 +32,13 @@ function highlightCode(code: string, lang?: string): string {
     return escapeHtml(code)
   }
   let html = escapeHtml(code)
-  html = html.replace(/(\/\/.*$|\/\*[\s\S]*?\*\/|#\s+.*$|--.*$)/gm, '<span class="token-comment">$1</span>')
+  html = html.replace(
+    /(\/\/.*$|\/\*[\s\S]*?\*\/|#\s+.*$|--.*$)/gm,
+    '<span class="token-comment">$1</span>'
+  )
   html = html.replace(/(&quot;.*?&quot;|\'.*?\'|`.*?`)/g, '<span class="token-string">$1</span>')
-  const keywords = /\b(const|let|var|function|return|if|else|for|while|do|switch|case|break|continue|default|try|catch|finally|throw|new|this|typeof|instanceof|class|extends|import|export|from|async|await|yield|static|public|private|protected|interface|type|enum|namespace|module|declare|abstract|readonly|implements|void|number|string|boolean|any|never|unknown|null|undefined|true|false)\b/g
+  const keywords =
+    /\b(const|let|var|function|return|if|else|for|while|do|switch|case|break|continue|default|try|catch|finally|throw|new|this|typeof|instanceof|class|extends|import|export|from|async|await|yield|static|public|private|protected|interface|type|enum|namespace|module|declare|abstract|readonly|implements|void|number|string|boolean|any|never|unknown|null|undefined|true|false)\b/g
   html = html.replace(keywords, '<span class="token-keyword">$1</span>')
   html = html.replace(/\b([a-zA-Z_]\w*)(?=\()/g, '<span class="token-function">$1</span>')
   html = html.replace(/\b(\d+\.?\d*)\b/g, '<span class="token-number">$1</span>')
@@ -52,16 +56,21 @@ function escapeHtml(text: string): string {
 }
 
 function slugify(text: string): string {
-  return text.toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-')
+  return text
+    .toLowerCase()
+    .replace(/[^\w\s-]/g, '')
+    .replace(/\s+/g, '-')
 }
 
 function extractTextFromTokens(tokens: unknown[]): string {
-  return tokens.map((t) => {
-    const token = t as Record<string, unknown>
-    if (token.text) return String(token.text)
-    if (token.tokens) return extractTextFromTokens(token.tokens as unknown[])
-    return ''
-  }).join('')
+  return tokens
+    .map(t => {
+      const token = t as Record<string, unknown>
+      if (token.text) return String(token.text)
+      if (token.tokens) return extractTextFromTokens(token.tokens as unknown[])
+      return ''
+    })
+    .join('')
 }
 
 function extractToc(content: string): { level: number; text: string; id: string }[] {
@@ -187,7 +196,7 @@ function handleScroll() {
 // 挂载后监听滚动
 let scrollContainer: HTMLElement | null = null
 
-watch(contentRef, (el) => {
+watch(contentRef, el => {
   if (el) {
     nextTick(() => {
       scrollContainer = el.closest('.nm-layout__content') as HTMLElement | null
@@ -209,8 +218,8 @@ onBeforeUnmount(() => {
       <div
         ref="contentRef"
         class="neumorphism-markdown-content"
-        v-html="renderedHtml"
         @click="handleClick"
+        v-html="renderedHtml"
       />
     </div>
 
@@ -262,7 +271,11 @@ onBeforeUnmount(() => {
         <NeumorphismCard :elevation="0" class="neumorphism-toc-mobile-panel">
           <div class="neumorphism-toc-mobile-header">
             <span class="neumorphism-toc-mobile-title">📑 目录</span>
-            <button class="neumorphism-toc-mobile-close" aria-label="关闭目录" @click="showMobileToc = false">
+            <button
+              class="neumorphism-toc-mobile-close"
+              aria-label="关闭目录"
+              @click="showMobileToc = false"
+            >
               ✕
             </button>
           </div>
@@ -341,18 +354,33 @@ onBeforeUnmount(() => {
   color: var(--nm-text-secondary);
   text-decoration: none;
   border-right: 2px solid transparent;
-  transition: color 0.2s ease, border-right-color 0.2s ease, background-color 0.2s ease;
+  transition:
+    color 0.2s ease,
+    border-right-color 0.2s ease,
+    background-color 0.2s ease;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.neumorphism-toc-item.level-1 a { padding-right: 16px; }
-.neumorphism-toc-item.level-2 a { padding-right: 24px; }
-.neumorphism-toc-item.level-3 a { padding-right: 32px; }
-.neumorphism-toc-item.level-4 a { padding-right: 40px; }
-.neumorphism-toc-item.level-5 a { padding-right: 48px; }
-.neumorphism-toc-item.level-6 a { padding-right: 56px; }
+.neumorphism-toc-item.level-1 a {
+  padding-right: 16px;
+}
+.neumorphism-toc-item.level-2 a {
+  padding-right: 24px;
+}
+.neumorphism-toc-item.level-3 a {
+  padding-right: 32px;
+}
+.neumorphism-toc-item.level-4 a {
+  padding-right: 40px;
+}
+.neumorphism-toc-item.level-5 a {
+  padding-right: 48px;
+}
+.neumorphism-toc-item.level-6 a {
+  padding-right: 56px;
+}
 
 .neumorphism-toc-item a:hover {
   color: var(--nm-primary-color);
@@ -387,12 +415,25 @@ onBeforeUnmount(() => {
   position: relative;
 }
 
-.neumorphism-markdown-content h1 { font-size: 26px; }
-.neumorphism-markdown-content h2 { font-size: 22px; }
-.neumorphism-markdown-content h3 { font-size: 18px; }
-.neumorphism-markdown-content h4 { font-size: 16px; }
-.neumorphism-markdown-content h5 { font-size: 15px; }
-.neumorphism-markdown-content h6 { font-size: 14px; color: var(--nm-text-secondary); }
+.neumorphism-markdown-content h1 {
+  font-size: 26px;
+}
+.neumorphism-markdown-content h2 {
+  font-size: 22px;
+}
+.neumorphism-markdown-content h3 {
+  font-size: 18px;
+}
+.neumorphism-markdown-content h4 {
+  font-size: 16px;
+}
+.neumorphism-markdown-content h5 {
+  font-size: 15px;
+}
+.neumorphism-markdown-content h6 {
+  font-size: 14px;
+  color: var(--nm-text-secondary);
+}
 
 .heading-anchor {
   position: absolute;
@@ -404,7 +445,9 @@ onBeforeUnmount(() => {
   font-size: 16px;
   font-weight: 400;
   opacity: 0;
-  transition: opacity 0.2s ease, color 0.2s ease;
+  transition:
+    opacity 0.2s ease,
+    color 0.2s ease;
 }
 
 .neumorphism-markdown-content h1:hover .heading-anchor,
@@ -481,7 +524,9 @@ onBeforeUnmount(() => {
   flex-shrink: 0;
   background-color: var(--nm-surface-color);
   border: 1px solid var(--nm-border-medium);
-  transition: background-color 0.2s ease, border-color 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease;
 }
 
 .task-checkbox input:checked + .checkmark {
@@ -565,7 +610,9 @@ onBeforeUnmount(() => {
   color: var(--nm-text-secondary);
   background-color: var(--nm-surface-color);
   cursor: pointer;
-  transition: color 0.2s ease, background-color 0.2s ease;
+  transition:
+    color 0.2s ease,
+    background-color 0.2s ease;
 }
 
 .code-copy-btn:hover {
@@ -620,14 +667,32 @@ onBeforeUnmount(() => {
   box-shadow: none;
 }
 
-.token-comment { color: var(--nm-code-comment); font-style: italic; }
-.token-string { color: var(--nm-code-string); }
-.token-keyword { color: var(--nm-code-keyword); font-weight: 600; }
-.token-function { color: var(--nm-code-function); }
-.token-number { color: var(--nm-code-number); }
-.token-type { color: var(--nm-code-type); }
-.token-operator { color: var(--nm-code-operator); }
-.token-punctuation { color: var(--nm-code-punctuation); }
+.token-comment {
+  color: var(--nm-code-comment);
+  font-style: italic;
+}
+.token-string {
+  color: var(--nm-code-string);
+}
+.token-keyword {
+  color: var(--nm-code-keyword);
+  font-weight: 600;
+}
+.token-function {
+  color: var(--nm-code-function);
+}
+.token-number {
+  color: var(--nm-code-number);
+}
+.token-type {
+  color: var(--nm-code-type);
+}
+.token-operator {
+  color: var(--nm-code-operator);
+}
+.token-punctuation {
+  color: var(--nm-code-punctuation);
+}
 
 .neumorphism-markdown-content blockquote {
   margin: 0 0 18px 0;
@@ -742,7 +807,9 @@ onBeforeUnmount(() => {
   box-shadow:
     6px 6px 12px var(--nm-shadow-dark),
     -6px -6px 12px var(--nm-shadow-light);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .neumorphism-toc-mobile-btn:hover {
@@ -801,7 +868,9 @@ onBeforeUnmount(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: color 0.2s ease, background-color 0.2s ease;
+  transition:
+    color 0.2s ease,
+    background-color 0.2s ease;
 }
 
 .neumorphism-toc-mobile-close:hover {

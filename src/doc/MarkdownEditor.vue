@@ -76,11 +76,7 @@ const lineCount = computed(() => props.value.split('\n').length)
         :class="{ hidden: mode === 'edit' }"
       >
         <NeumorphismCard :elevation="-2" no-padding class="preview-card">
-          <MarkdownRenderer
-            :content="props.value"
-            :show-toc="false"
-            @doc-link="handleDocLink"
-          />
+          <MarkdownRenderer :content="props.value" :show-toc="false" @doc-link="handleDocLink" />
         </NeumorphismCard>
       </div>
     </div>
