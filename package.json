@@ -12,6 +12,11 @@
       "require": "./dist/ui-frame.umd.cjs",
       "types": "./dist/index.d.ts"
     },
+    "./doc": {
+      "import": "./dist/ui-frame.js",
+      "require": "./dist/ui-frame.umd.cjs",
+      "types": "./dist/index.d.ts"
+    },
     "./style.css": "./dist/style.css",
     "./dist/*": "./dist/*",
     "./composables/*": {
@@ -105,5 +110,8 @@
     "vue": "^3.4.0",
     "vue-router": "^4.6.4",
     "vue-tsc": "^2.2.12"
+  },
+  "dependencies": {
+    "marked": "^18.0.5"
   }
 }

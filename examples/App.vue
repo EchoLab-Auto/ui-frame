@@ -12,6 +12,7 @@ const isDark = themeContext.isDark
 const navItems = [
   { path: '/components', label: '组件总览' },
   { path: '/layout', label: '排版系统' },
+  { path: '/doc', label: '文档组件' },
 ]
 </script>
 

@@ -15,6 +15,8 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': resolve(__dirname, '../src'),
+      '@echolab/ui-frame': resolve(__dirname, '../src/index.ts'),
+      '@echolab/ui-frame/doc': resolve(__dirname, '../src/doc/index.ts'),
     },
   },
 })

@@ -16,6 +16,11 @@ const routes: RouteRecordRaw[] = [
     name: 'Layout',
     component: () => import('../pages/LayoutPage.vue'),
   },
+  {
+    path: '/doc',
+    name: 'Doc',
+    component: () => import('../pages/DocPage.vue'),
+  },
 ]
 
 export default createRouter({

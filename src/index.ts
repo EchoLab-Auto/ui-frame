@@ -250,6 +250,19 @@ export type {
 export { RadioGroupKey, FormKey, RowGutterKey } from './composables/injectionKeys'
 export type { RadioGroupContext, FormContext, RowGutterContext } from './composables/injectionKeys'
 
+// Doc module — Markdown rendering & document viewer/editor
+export { DocViewer, MarkdownRenderer, DocEditor, MarkdownEditor } from './doc'
+export type {
+  DocViewerProps,
+  MarkdownRendererProps,
+  DocEditorProps,
+  MarkdownEditorProps,
+  ProDocNode,
+  DocTree,
+  ProDocOptions,
+  DocTreeNode,
+} from './doc'
+
 // Install function — registers all components globally
 const NAME_TO_COMPONENT = {
   NeumorphismButton,

@@ -31,7 +31,7 @@ export default defineConfig({
       fileName: format => `ui-frame.${format === 'es' ? 'js' : 'umd.cjs'}`,
     },
     rollupOptions: {
-      external: ['vue'],
+      external: ['vue', 'marked'],
       output: {
         exports: 'named',
         globals: {

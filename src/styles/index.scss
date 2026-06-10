@@ -219,6 +219,21 @@
   --nm-breadcrumb-font-md: 14px;
   --nm-breadcrumb-font-lg: 16px;
   --nm-breadcrumb-separator-margin: 6px;
+
+  // -- Code Highlighting (Doc module) --
+  --nm-code-comment: #008000;
+  --nm-code-string: #a31515;
+  --nm-code-keyword: #0000ff;
+  --nm-code-function: #795e26;
+  --nm-code-number: #098658;
+  --nm-code-type: #267f99;
+  --nm-code-operator: #000000;
+  --nm-code-punctuation: #000000;
+
+  // -- Doc module design tokens --
+  --nm-border-subtle: color-mix(in srgb, var(--nm-text-placeholder) 12%, transparent);
+  --nm-border-medium: color-mix(in srgb, var(--nm-text-placeholder) 15%, transparent);
+  --nm-selection-bg: color-mix(in srgb, var(--nm-primary-color) 30%, transparent);
 }
 
 // ---------- Dark Mode Tokens ----------
@@ -248,6 +263,18 @@
   --nm-color-error: #e74c3c;
   --nm-color-warning: #f39c12;
   --nm-color-info: #3498db;
+
+  // -- Code Highlighting (Doc module, dark) --
+  --nm-code-comment: #6a9955;
+  --nm-code-string: #ce9178;
+  --nm-code-keyword: #569cd6;
+  --nm-code-function: #dcdcaa;
+  --nm-code-number: #b5cea8;
+  --nm-code-type: #4ec9b0;
+  --nm-code-operator: #d4d4d4;
+  --nm-code-punctuation: #808080;
+
+  --nm-selection-bg: color-mix(in srgb, var(--nm-primary-color) 50%, transparent);
 }
 
 // ---------- Base Styles ----------
