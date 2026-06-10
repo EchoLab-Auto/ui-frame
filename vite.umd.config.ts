@@ -1,16 +1,9 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
-import dts from 'vite-plugin-dts'
 import { resolve } from 'path'
 
 export default defineConfig({
-  plugins: [
-    vue(),
-    dts({
-      insertTypesEntry: true,
-      cleanVueFileName: true,
-    }),
-  ],
+  plugins: [vue()],
   css: {
     preprocessorOptions: {
       scss: {
@@ -25,14 +18,10 @@ export default defineConfig({
   },
   build: {
     lib: {
-      entry: {
-        'ui-frame': resolve(__dirname, 'src/index.ts'),
-        'extensions/index': resolve(__dirname, 'src/extensions/index.ts'),
-        'utils/index': resolve(__dirname, 'src/utils/index.ts'),
-      },
+      entry: resolve(__dirname, 'src/index.ts'),
       name: 'NeumorphismUI',
-      formats: ['es'],
-      fileName: (format, entryName) => `${entryName}.js`,
+      formats: ['umd'],
+      fileName: () => 'ui-frame.umd.cjs',
     },
     rollupOptions: {
       external: ['vue', 'marked'],
@@ -51,5 +40,6 @@ export default defineConfig({
       },
     },
     cssCodeSplit: false,
+    emptyOutDir: false,
   },
 })
