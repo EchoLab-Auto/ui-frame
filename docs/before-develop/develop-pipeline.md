@@ -44,6 +44,7 @@ npm run lint -- --fix
 > ⚠️ **重要**：`npm run lint` 出现任何 `prettier/prettier` 或 `eslint` 错误时，必须先修复再提交。不可将格式错误推送到 CI。
 >
 > 建议开启编辑器保存时自动格式化，避免手动修复：
+>
 > - VS Code：安装 Prettier + ESLint 插件，开启 `editor.formatOnSave` 和 `editor.codeActionsOnSave.source.fixAll.eslint`
 
 ### Step 3 — 测试驱动（如修改逻辑）
