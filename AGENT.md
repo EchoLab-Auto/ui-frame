@@ -7,3 +7,7 @@
 ```bash
     npx skills add https://github.com/EchoLab-Auto/skill-before-develop --skill before-develop --agent claude-code -y
 ```
+
+```bash
+    npx skills add https://github.com/EchoLab-Auto/skill-check-before-act --skill check-before-act --agent claude-code -y
+```

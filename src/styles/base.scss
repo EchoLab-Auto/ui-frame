@@ -1,0 +1,235 @@
+// ==========================================
+// Neumorphism UI - Base Styles & Keyframes
+// ==========================================
+// 基础工具样式 + 动画关键帧。
+// 独立编译为 base.css，按需引入组件的用户推荐加载此文件。
+// ==========================================
+
+// ==========================================
+// Keyframe Animations
+// 从 variables.scss 移入，统一由 base.css 提供，
+// 避免每个 @use variables.scss 的组件重复输出 keyframes。
+// ==========================================
+
+@keyframes nm-scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.85);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes nm-shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-6px);
+  }
+  40% {
+    transform: translateX(6px);
+  }
+  60% {
+    transform: translateX(-3px);
+  }
+  80% {
+    transform: translateX(3px);
+  }
+}
+
+@keyframes nm-pulse-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
+  }
+  50% {
+    box-shadow:
+      0 0 12px rgba(0, 0, 0, 0.2),
+      0 0 20px var(--nm-primary-color);
+  }
+}
+
+@keyframes nm-fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes nm-fade-in-down {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes nm-slide-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes nm-pop {
+  0% {
+    transform: scale(0);
+  }
+  70% {
+    transform: scale(1.15);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes nm-pulse-dot {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.4);
+    opacity: 0.7;
+  }
+}
+
+// ==========================================
+// Base Utility Styles
+// ==========================================
+
+.nm-root,
+.nm-theme-default {
+  background-color: var(--nm-bg-color);
+  color: var(--nm-text-primary);
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    background-color var(--nm-transition-slow),
+    box-shadow var(--nm-transition-slow),
+    color var(--nm-transition-slow),
+    border-color var(--nm-transition-slow);
+}
+
+// ---- Reduced motion global override ----
+@media (prefers-reduced-motion: reduce) {
+  .nm-root,
+  .nm-theme-default,
+  .nm-root *,
+  .nm-theme-default * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+// ---- Mobile-friendly global defaults ----
+.nm-root {
+  -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+
+  @media (prefers-reduced-motion: no-preference) {
+    scroll-behavior: smooth;
+  }
+
+  :where(&) button,
+  :where(&) a,
+  :where(&) input,
+  :where(&) select,
+  :where(&) textarea,
+  :where(&) [role='button'],
+  :where(&) [role='tab'] {
+    @media (pointer: coarse) {
+      min-height: 44px;
+    }
+  }
+
+  :where(&) a,
+  :where(&) button,
+  :where(&) [role='button'] {
+    touch-action: manipulation;
+  }
+
+  :where(&) input,
+  :where(&) textarea,
+  :where(&) select {
+    -webkit-appearance: none;
+    appearance: none;
+    border-radius: 0;
+  }
+
+  :where(&) img,
+  :where(&) video {
+    max-width: 100%;
+    height: auto;
+  }
+}
+
+.nm-focus-ring {
+  outline: none;
+
+  &:focus-visible {
+    box-shadow:
+      0 0 0 3px var(--nm-primary-color),
+      inset 2px 2px 4px var(--nm-shadow-dark),
+      inset -2px -2px 4px var(--nm-shadow-light);
+  }
+}
+
+// ---------- Custom Scrollbar (Neumorphism) ----------
+.nm-root,
+.nm-theme-default,
+[data-theme='dark'],
+.nm-theme-dark {
+  // Firefox
+  scrollbar-width: thin;
+  scrollbar-color: var(--nm-surface-raised) transparent;
+
+  // WebKit
+  & ::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+  }
+
+  & ::-webkit-scrollbar-track {
+    background: transparent;
+    box-shadow: none;
+  }
+
+  & ::-webkit-scrollbar-thumb {
+    background: var(--nm-surface-raised);
+    border-radius: var(--nm-border-radius-sm);
+    box-shadow:
+      4px 4px 10px var(--nm-shadow-dark-strong),
+      -3px -3px 8px var(--nm-shadow-light-strong);
+    transition: background var(--nm-transition-fast);
+  }
+
+  & ::-webkit-scrollbar-thumb:hover {
+    background: var(--nm-surface-color);
+  }
+
+  & ::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+}

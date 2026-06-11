@@ -1,0 +1,281 @@
+// ==========================================
+// Neumorphism UI - Design Tokens (CSS Custom Properties)
+// ==========================================
+// 仅包含 CSS 自定义属性定义，零 SCSS 变量/mixin。
+// 独立编译为 tokens.css，按需引入组件的用户必须加载此文件。
+// ==========================================
+
+// ---------- Light Mode Tokens ----------
+:root {
+  --nm-bg-color: #e0e0e0;
+  --nm-surface-color: #e0e0e0;
+  --nm-surface-raised: #e5e5e5;
+
+  --nm-text-primary: #555555;
+  --nm-text-secondary: #888888;
+  --nm-text-disabled: #bbbbbb;
+  --nm-text-placeholder: #aaaaaa;
+
+  --nm-primary-color: #6c7ae0;
+  --nm-primary-light: #8b9af0;
+  --nm-primary-dark: #5a68c0;
+
+  --nm-shadow-dark: rgba(0, 0, 0, 0.15);
+  --nm-shadow-light: rgba(255, 255, 255, 0.8);
+  --nm-shadow-dark-strong: rgba(0, 0, 0, 0.2);
+  --nm-shadow-light-strong: rgba(255, 255, 255, 0.9);
+  --nm-shadow-dark-deep: rgba(0, 0, 0, 0.18);
+  --nm-shadow-light-deep: rgba(255, 255, 255, 0.85);
+
+  --nm-border-radius-sm: 8px;
+  --nm-border-radius-md: 16px;
+  --nm-border-radius-lg: 24px;
+  --nm-border-radius-xl: 32px;
+  --nm-border-radius-full: 9999px;
+
+  --nm-spacing-xs: 4px;
+  --nm-spacing-sm: 8px;
+  --nm-spacing-md: 16px;
+  --nm-spacing-lg: 24px;
+  --nm-spacing-xl: 32px;
+
+  --nm-color-success: #27ae60;
+  --nm-color-error: #e74c3c;
+  --nm-color-warning: #f39c12;
+  --nm-color-info: #3498db;
+
+  --nm-transition-fast: 0.2s ease;
+  --nm-transition-normal: 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  --nm-transition-slow: 0.5s ease;
+
+  --nm-depth-shallow: 3px;
+  --nm-depth-medium: 6px;
+  --nm-depth-deep: 10px;
+  --nm-depth-very-deep: 16px;
+
+  // ==========================================
+  // Component Design Tokens
+  // Override any of these CSS variables to
+  // customize component appearance without
+  // touching component source code.
+  // ==========================================
+
+  // -- Button --
+  --nm-button-padding-y-sm: 8px;
+  --nm-button-padding-x-sm: 16px;
+  --nm-button-font-sm: 13px;
+  --nm-button-min-height-sm: 32px;
+  --nm-button-padding-y-md: 12px;
+  --nm-button-padding-x-md: 24px;
+  --nm-button-font-md: 14px;
+  --nm-button-min-height-md: 44px;
+  --nm-button-padding-y-lg: 16px;
+  --nm-button-padding-x-lg: 32px;
+  --nm-button-font-lg: 16px;
+  --nm-button-min-height-lg: 56px;
+  --nm-button-font-weight: 500;
+
+  // -- Input / Textarea --
+  --nm-field-padding-y-sm: 6px;
+  --nm-field-padding-x-sm: 12px;
+  --nm-field-font-sm: 13px;
+  --nm-field-min-height-sm: 36px;
+  --nm-field-padding-y-md: 10px;
+  --nm-field-padding-x-md: 16px;
+  --nm-field-font-md: 14px;
+  --nm-field-min-height-md: 48px;
+  --nm-field-padding-y-lg: 14px;
+  --nm-field-padding-x-lg: 20px;
+  --nm-field-font-lg: 16px;
+  --nm-field-min-height-lg: 60px;
+
+  // -- Select --
+  --nm-select-option-padding-y: 10px;
+  --nm-select-option-padding-x: 14px;
+  --nm-select-option-font: 14px;
+  --nm-select-option-hover-bg: var(--nm-surface-raised);
+  --nm-select-dropdown-max-height: 240px;
+
+  // -- Card --
+  --nm-card-padding: 20px;
+  --nm-card-header-padding: 16px 20px;
+  --nm-card-footer-padding: 12px 20px;
+
+  // -- Modal --
+  --nm-modal-padding: 24px;
+  --nm-modal-header-padding: 20px 24px 0;
+  --nm-modal-footer-padding: 0 24px 20px;
+  --nm-modal-max-width-sm: 400px;
+  --nm-modal-max-width-md: 560px;
+  --nm-modal-max-width-lg: 720px;
+  --nm-modal-title-font: 18px;
+  --nm-modal-mask-bg: rgba(0, 0, 0, 0.4);
+
+  // -- Tabs --
+  --nm-tabs-tab-padding-y-sm: 6px;
+  --nm-tabs-tab-padding-x-sm: 14px;
+  --nm-tabs-tab-font-sm: 12px;
+  --nm-tabs-tab-padding-y-md: 10px;
+  --nm-tabs-tab-padding-x-md: 20px;
+  --nm-tabs-tab-font-md: 14px;
+  --nm-tabs-tab-padding-y-lg: 14px;
+  --nm-tabs-tab-padding-x-lg: 28px;
+  --nm-tabs-tab-font-lg: 16px;
+  --nm-tabs-nav-gap: 4px;
+
+  // -- Pagination --
+  --nm-pagination-btn-min-width-sm: 30px;
+  --nm-pagination-btn-height-sm: 30px;
+  --nm-pagination-btn-font-sm: 12px;
+  --nm-pagination-btn-min-width-md: 38px;
+  --nm-pagination-btn-height-md: 38px;
+  --nm-pagination-btn-font-md: 14px;
+  --nm-pagination-btn-min-width-lg: 46px;
+  --nm-pagination-btn-height-lg: 46px;
+  --nm-pagination-btn-font-lg: 16px;
+  --nm-pagination-gap: 12px;
+
+  // -- Collapse --
+  --nm-collapse-trigger-padding-y-sm: 12px;
+  --nm-collapse-trigger-padding-x-sm: 16px;
+  --nm-collapse-trigger-font-sm: 13px;
+  --nm-collapse-trigger-padding-y-md: 16px;
+  --nm-collapse-trigger-padding-x-md: 20px;
+  --nm-collapse-trigger-font-md: 15px;
+  --nm-collapse-trigger-padding-y-lg: 20px;
+  --nm-collapse-trigger-padding-x-lg: 28px;
+  --nm-collapse-trigger-font-lg: 16px;
+  --nm-collapse-content-padding-y: 16px;
+  --nm-collapse-content-padding-x: 20px;
+  --nm-collapse-item-gap: 4px;
+
+  // -- Tree --
+  --nm-tree-node-padding-y: 5px;
+  --nm-tree-node-padding-x: 8px;
+  --nm-tree-node-font: 13px;
+  --nm-tree-node-indent: 20px;
+  --nm-tree-toggle-size: 20px;
+
+  // -- Toast --
+  --nm-toast-min-width: 280px;
+  --nm-toast-max-width: 420px;
+  --nm-toast-padding-y: 14px;
+  --nm-toast-padding-x: 18px;
+  --nm-toast-font: 14px;
+  --nm-toast-gap: 10px;
+
+  // -- Tooltip --
+  --nm-tooltip-padding-y: 8px;
+  --nm-tooltip-padding-x: 14px;
+  --nm-tooltip-font: 13px;
+  --nm-tooltip-arrow-size: 8px;
+
+  // -- Form --
+  --nm-form-item-gap: 16px;
+  --nm-form-label-font: 14px;
+  --nm-form-error-font: 12px;
+  --nm-form-label-width: 100px;
+
+  // -- Badge --
+  --nm-badge-font: 11px;
+  --nm-badge-size: 18px;
+  --nm-badge-dot-size: 8px;
+
+  // -- Tag --
+  --nm-tag-padding-y-sm: 2px;
+  --nm-tag-padding-x-sm: 8px;
+  --nm-tag-font-sm: 11px;
+  --nm-tag-padding-y-md: 4px;
+  --nm-tag-padding-x-md: 12px;
+  --nm-tag-font-md: 12px;
+  --nm-tag-padding-y-lg: 6px;
+  --nm-tag-padding-x-lg: 16px;
+  --nm-tag-font-lg: 14px;
+
+  // -- Progress --
+  --nm-progress-height-sm: 4px;
+  --nm-progress-height-md: 8px;
+  --nm-progress-height-lg: 12px;
+  --nm-progress-border-radius: 9999px;
+
+  // -- Avatar --
+  --nm-avatar-size-sm: 32px;
+  --nm-avatar-size-md: 44px;
+  --nm-avatar-size-lg: 64px;
+  --nm-avatar-font-sm: 12px;
+  --nm-avatar-font-md: 16px;
+  --nm-avatar-font-lg: 22px;
+
+  // -- Skeleton --
+  --nm-skeleton-animation-duration: 1.5s;
+
+  // -- Switch --
+  --nm-switch-width-sm: 44px;
+  --nm-switch-height-sm: 24px;
+  --nm-switch-width-md: 56px;
+  --nm-switch-height-md: 30px;
+  --nm-switch-width-lg: 68px;
+  --nm-switch-height-lg: 36px;
+
+  // -- Breadcrumb --
+  --nm-breadcrumb-font-sm: 12px;
+  --nm-breadcrumb-font-md: 14px;
+  --nm-breadcrumb-font-lg: 16px;
+  --nm-breadcrumb-separator-margin: 6px;
+
+  // -- Code Highlighting (Doc module) --
+  --nm-code-comment: #008000;
+  --nm-code-string: #a31515;
+  --nm-code-keyword: #0000ff;
+  --nm-code-function: #795e26;
+  --nm-code-number: #098658;
+  --nm-code-type: #267f99;
+  --nm-code-operator: #000000;
+  --nm-code-punctuation: #000000;
+
+  // -- Doc module design tokens --
+  --nm-border-subtle: color-mix(in srgb, var(--nm-text-placeholder) 12%, transparent);
+  --nm-border-medium: color-mix(in srgb, var(--nm-text-placeholder) 15%, transparent);
+  --nm-selection-bg: color-mix(in srgb, var(--nm-primary-color) 30%, transparent);
+}
+
+// ---------- Dark Mode Tokens ----------
+[data-theme='dark'],
+.nm-theme-dark {
+  --nm-bg-color: #1c1c1c;
+  --nm-surface-color: #1c1c1c;
+  --nm-surface-raised: #222222;
+
+  --nm-text-primary: #c0c0c0;
+  --nm-text-secondary: #888888;
+  --nm-text-disabled: #505050;
+  --nm-text-placeholder: #666666;
+
+  --nm-primary-color: #7b8cf0;
+  --nm-primary-light: #9aacff;
+  --nm-primary-dark: #6a7ad0;
+
+  --nm-shadow-dark: rgba(0, 0, 0, 0.5);
+  --nm-shadow-light: rgba(255, 255, 255, 0.06);
+  --nm-shadow-dark-strong: rgba(0, 0, 0, 0.6);
+  --nm-shadow-light-strong: rgba(255, 255, 255, 0.08);
+  --nm-shadow-dark-deep: rgba(0, 0, 0, 0.6);
+  --nm-shadow-light-deep: rgba(255, 255, 255, 0.1);
+
+  --nm-color-success: #2ecc71;
+  --nm-color-error: #e74c3c;
+  --nm-color-warning: #f39c12;
+  --nm-color-info: #3498db;
+
+  // -- Code Highlighting (Doc module, dark) --
+  --nm-code-comment: #6a9955;
+  --nm-code-string: #ce9178;
+  --nm-code-keyword: #569cd6;
+  --nm-code-function: #dcdcaa;
+  --nm-code-number: #b5cea8;
+  --nm-code-type: #4ec9b0;
+  --nm-code-operator: #d4d4d4;
+  --nm-code-punctuation: #808080;
+
+  --nm-selection-bg: color-mix(in srgb, var(--nm-primary-color) 50%, transparent);
+}

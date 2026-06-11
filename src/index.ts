@@ -43,114 +43,9 @@ import {
 
 import './styles/index.scss'
 
-// Individual component exports
-export {
-  NeumorphismButton,
-  NeumorphismSwitch,
-  NeumorphismCard,
-  NeumorphismInput,
-  ThemeProvider,
-  NeumorphismCheckbox,
-  NeumorphismRadio,
-  NeumorphismRadioGroup,
-  NeumorphismSelect,
-  NeumorphismTextarea,
-  NeumorphismForm,
-  NeumorphismFormItem,
-  NeumorphismModal,
-  NeumorphismToastProvider,
-  NeumorphismTooltip,
-  NeumorphismTabs,
-  NeumorphismBreadcrumb,
-  NeumorphismPagination,
-  NeumorphismAvatar,
-  NeumorphismBadge,
-  NeumorphismTag,
-  NeumorphismProgress,
-  NeumorphismSkeleton,
-  NeumorphismTable,
-  NeumorphismDivider,
-  NeumorphismCollapse,
-  NeumorphismContainer,
-  NeumorphismRow,
-  NeumorphismCol,
-  NeumorphismLayout,
-  NeumorphismThemeToggle,
-  NeumorphismTree,
-  NeumorphismTreeNode,
-  NeumorphismCanvas,
-}
-
-// Type exports
-export type { NeumorphismButtonProps, ButtonVariant, ButtonSize, ButtonShape } from './components'
-
-export type { NeumorphismSwitchProps } from './components'
-
-export type { NeumorphismCardProps, CardVariant, CardDepth } from './components'
-
-export type { NeumorphismInputProps, InputSize } from './components'
-
-export type { ThemeProviderProps } from './components'
-
-export type { NeumorphismCheckboxProps } from './components'
-
-export type { NeumorphismRadioProps, NeumorphismRadioGroupProps } from './components'
-
-export type { NeumorphismSelectProps, NeumorphismSelectOption } from './components'
-
-export type { NeumorphismTextareaProps } from './components'
-
-export type { NeumorphismFormProps, NeumorphismFormItemProps, FormRule } from './components'
-
-export type { NeumorphismModalProps } from './components'
-
-export type {
-  NeumorphismToastProviderProps,
-  ToastOptions,
-  ToastType,
-  ToastPosition,
-  ToastItem,
-} from './components'
-
-export type { NeumorphismTooltipProps, TooltipPosition, TooltipTrigger } from './components'
-
-export type { NeumorphismTabsProps, TabItem } from './components'
-
-export type { NeumorphismBreadcrumbProps, BreadcrumbItem } from './components'
-
-export type { NeumorphismPaginationProps } from './components'
-
-export type { NeumorphismAvatarProps, AvatarSize } from './components'
-
-export type { NeumorphismBadgeProps } from './components'
-
-export type { NeumorphismTagProps, TagVariant } from './components'
-
-export type { NeumorphismProgressProps, ProgressVariant } from './components'
-
-export type { NeumorphismSkeletonProps } from './components'
-
-export type { NeumorphismTableProps } from './components'
-
-export type { NeumorphismDividerProps, DividerDirection, DividerAlign } from './components'
-
-export type { NeumorphismCollapseProps, CollapseItem } from './components'
-
-export type {
-  NeumorphismContainerProps,
-  NeumorphismRowProps,
-  RowAlign,
-  RowJustify,
-  NeumorphismColProps,
-  ColSpan,
-  ColOffset,
-  NeumorphismLayoutProps,
-  NeumorphismThemeToggleProps,
-  NeumorphismTreeProps,
-  NeumorphismTreeNodeProps,
-  TreeNodeData,
-  NeumorphismCanvasProps,
-} from './components'
+// Individual component exports — re-export all components and types from the barrel
+export * from './components'
+export type * from './components'
 
 // Composables — theme
 export { useTheme, provideTheme, createTheme } from './composables/useTheme'
@@ -249,19 +144,6 @@ export type {
 // Public injection keys — for building custom components that participate in protocols
 export { RadioGroupKey, FormKey, RowGutterKey } from './composables/injectionKeys'
 export type { RadioGroupContext, FormContext, RowGutterContext } from './composables/injectionKeys'
-
-// Doc module — Markdown rendering & document viewer/editor
-export { DocViewer, MarkdownRenderer, DocEditor, MarkdownEditor } from './doc'
-export type {
-  DocViewerProps,
-  MarkdownRendererProps,
-  DocEditorProps,
-  MarkdownEditorProps,
-  ProDocNode,
-  DocTree,
-  ProDocOptions,
-  DocTreeNode,
-} from './doc'
 
 // Install function — registers all components globally
 const NAME_TO_COMPONENT = {

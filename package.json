@@ -13,15 +13,8 @@
       "types": "./dist/index.d.ts"
     },
     "./doc": {
-      "import": "./dist/ui-frame.js",
-      "require": "./dist/ui-frame.umd.cjs",
-      "types": "./dist/index.d.ts"
-    },
-    "./style.css": "./dist/style.css",
-    "./dist/*": "./dist/*",
-    "./composables/*": {
-      "import": "./dist/composables/*",
-      "types": "./dist/composables/*.d.ts"
+      "import": "./dist/doc/index.js",
+      "types": "./dist/doc/index.d.ts"
     },
     "./extensions": {
       "import": "./dist/extensions/index.js",
@@ -30,7 +23,19 @@
     "./utils": {
       "import": "./dist/utils/index.js",
       "types": "./dist/utils/index.d.ts"
-    }
+    },
+    "./style.css": "./dist/style.css",
+    "./tokens.css": "./dist/tokens.css",
+    "./base.css": "./dist/base.css",
+    "./components/*": {
+      "import": "./dist/components/*/index.js",
+      "types": "./dist/components/*/index.d.ts"
+    },
+    "./composables/*": {
+      "import": "./dist/composables/*.js",
+      "types": "./dist/composables/*.d.ts"
+    },
+    "./dist/*": "./dist/*"
   },
   "files": [
     "dist"
@@ -106,6 +111,7 @@
     "typescript": "^5.3.0",
     "vite": "^5.0.0",
     "vite-plugin-dts": "^3.6.0",
+    "vite-plugin-lib-inject-css": "^2.2.2",
     "vitest": "^4.1.8",
     "vue": "^3.4.0",
     "vue-router": "^4.6.4",
