@@ -388,6 +388,7 @@ onBeforeUnmount(() => {
 .neumorphism-markdown {
   display: flex;
   gap: 28px;
+  align-items: flex-start;
 }
 
 .neumorphism-markdown-body {
@@ -395,14 +396,20 @@ onBeforeUnmount(() => {
   min-width: 0;
 }
 
-/* TOC */
+/* TOC — sticky sidebar that floats alongside content when scrolling */
 .neumorphism-toc {
   width: 220px;
   min-width: 200px;
-  max-height: calc(100vh - 180px);
+  flex-shrink: 0;
   position: sticky;
-  top: 16px;
+  top: 20px;
   align-self: flex-start;
+  max-height: calc(100vh - 100px);
+  overflow-y: auto;
+  z-index: 10;
+  /* Scrollbar styling for the TOC itself */
+  scrollbar-width: thin;
+  scrollbar-color: var(--nm-surface-raised) transparent;
 }
 
 .neumorphism-toc-card {
