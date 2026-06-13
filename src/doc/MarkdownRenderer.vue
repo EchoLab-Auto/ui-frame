@@ -16,6 +16,20 @@ export interface MarkdownRendererProps {
   scrollContainer?: HTMLElement | string
 }
 
+interface TocNode {
+  level: number
+  text: string
+  id: string
+  children: TocNode[]
+}
+
+interface FlatTocItem {
+  level: number
+  text: string
+  id: string
+  hasChildren: boolean
+}
+
 const props = withDefaults(defineProps<MarkdownRendererProps>(), {
   className: '',
   showToc: true,
@@ -26,8 +40,10 @@ const emit = defineEmits<{
 }>()
 
 const contentRef = ref<HTMLDivElement | null>(null)
+const tocNavRef = ref<HTMLElement | null>(null)
 const activeHeading = ref('')
 const showMobileToc = ref(false)
+const collapsedGroups = ref<Set<string>>(new Set())
 
 /** 实例级唯一前缀，避免多实例 id 冲突 */
 const tocPrefix = generateId('toc')
@@ -175,6 +191,54 @@ const renderedHtml = computed(() => {
 /** 目录 */
 const toc = computed(() => extractToc(props.content))
 
+/** 将扁平 TOC 构建为层级树 */
+const tocTree = computed(() => {
+  const items = toc.value
+  const root: TocNode[] = []
+  const stack: TocNode[] = []
+
+  for (const item of items) {
+    const node: TocNode = { level: item.level, text: item.text, id: item.id, children: [] }
+
+    // 弹出栈中 level >= 当前节点的项，找到父节点
+    while (stack.length > 0 && stack[stack.length - 1].level >= node.level) {
+      stack.pop()
+    }
+
+    if (stack.length === 0) {
+      root.push(node)
+    } else {
+      stack[stack.length - 1].children.push(node)
+    }
+
+    stack.push(node)
+  }
+
+  return root
+})
+
+/** 将树展平为可见项列表（尊重折叠状态） */
+const visibleToc = computed(() => {
+  const result: FlatTocItem[] = []
+
+  function walk(nodes: TocNode[]) {
+    for (const node of nodes) {
+      result.push({
+        level: node.level,
+        text: node.text,
+        id: node.id,
+        hasChildren: node.children.length > 0,
+      })
+      if (node.children.length > 0 && !collapsedGroups.value.has(node.id)) {
+        walk(node.children)
+      }
+    }
+  }
+
+  walk(tocTree.value)
+  return result
+})
+
 /** 滚动到指定 heading */
 function scrollToHeading(id: string) {
   contentRef.value?.querySelector(`[id="${id}"]`)?.scrollIntoView({ behavior: 'smooth' })
@@ -184,6 +248,33 @@ function scrollToHeading(id: string) {
 function scrollToHeadingAndClose(id: string) {
   scrollToHeading(id)
   showMobileToc.value = false
+}
+
+/** 切换 TOC 节点折叠状态 */
+function toggleCollapse(id: string) {
+  const next = new Set(collapsedGroups.value)
+  if (next.has(id)) {
+    next.delete(id)
+  } else {
+    next.add(id)
+  }
+  collapsedGroups.value = next
+}
+
+/** 查询 TOC 节点是否已折叠 */
+function isCollapsed(id: string): boolean {
+  return collapsedGroups.value.has(id)
+}
+
+/** 将 TOC 侧边栏滚动到当前激活项（仅桌面端可见时执行） */
+function scrollTocToActive() {
+  if (!tocNavRef.value) return
+  // 桌面端 TOC 隐藏时（移动端），跳过滚动
+  if (window.innerWidth <= 1100) return
+  const activeEl = tocNavRef.value.querySelector('.neumorphism-toc-item.active') as HTMLElement | null
+  if (activeEl) {
+    activeEl.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
+  }
 }
 
 /** 统一处理内容区点击：复制按钮 + 文档链接 */
@@ -230,7 +321,7 @@ function resolveScrollContainer(): HTMLElement | null {
   return contentRef.value.closest('.nm-layout__content') as HTMLElement | null
 }
 
-/** 监听滚动，高亮当前目录项 */
+/** 监听滚动，高亮当前目录项并同步 TOC 滚动位置 */
 function handleScroll() {
   const main = resolveScrollContainer()
   if (!main) return
@@ -246,7 +337,10 @@ function handleScroll() {
       break
     }
   }
-  activeHeading.value = current
+  if (current !== activeHeading.value) {
+    activeHeading.value = current
+    nextTick(() => scrollTocToActive())
+  }
 }
 
 /** 节流 */
@@ -291,6 +385,28 @@ watch(contentRef, (el, oldEl) => {
 onBeforeUnmount(() => {
   activeScrollContainer?.removeEventListener('scroll', throttledHandleScroll)
 })
+
+/** autoHeading 变化时，自动展开被折叠的祖先节点 */
+watch(activeHeading, (newId) => {
+  if (!newId) return
+
+  function findAndExpand(nodes: TocNode[]): boolean {
+    for (const node of nodes) {
+      if (node.id === newId) return true
+      if (findAndExpand(node.children)) {
+        if (collapsedGroups.value.has(node.id)) {
+          const next = new Set(collapsedGroups.value)
+          next.delete(node.id)
+          collapsedGroups.value = next
+        }
+        return true
+      }
+    }
+    return false
+  }
+
+  findAndExpand(tocTree.value)
+})
 </script>
 
 <template>
@@ -306,7 +422,7 @@ onBeforeUnmount(() => {
     </div>
 
     <!-- 目录侧边栏（桌面端） -->
-    <nav v-if="showToc && toc.length > 0" class="neumorphism-toc" aria-label="文档目录">
+    <nav v-if="showToc && toc.length > 0" ref="tocNavRef" class="neumorphism-toc" aria-label="文档目录">
       <NeumorphismCard :elevation="-2" no-padding class="neumorphism-toc-card">
         <div class="neumorphism-toc-header">
           <span>📑 目录</span>
@@ -314,9 +430,9 @@ onBeforeUnmount(() => {
         </div>
         <ul class="neumorphism-toc-list" role="list">
           <li
-            v-for="item in toc"
+            v-for="item in visibleToc"
             :key="item.id"
-            :class="`neumorphism-toc-item level-${item.level} ${activeHeading === item.id ? 'active' : ''}`"
+            :class="`neumorphism-toc-item level-${item.level} ${activeHeading === item.id ? 'active' : ''} ${item.hasChildren ? 'has-children' : ''}`"
             role="listitem"
           >
             <a
@@ -325,7 +441,15 @@ onBeforeUnmount(() => {
               :aria-current="activeHeading === item.id ? 'location' : undefined"
               @click.prevent="scrollToHeading(item.id)"
             >
-              {{ item.text }}
+              <button
+                v-if="item.hasChildren"
+                class="toc-toggle"
+                :aria-label="isCollapsed(item.id) ? '展开子标题' : '折叠子标题'"
+                @click.stop.prevent="toggleCollapse(item.id)"
+              >
+                {{ isCollapsed(item.id) ? '▸' : '▾' }}
+              </button>
+              <span class="toc-text">{{ item.text }}</span>
             </a>
           </li>
         </ul>
@@ -363,9 +487,9 @@ onBeforeUnmount(() => {
           </div>
           <ul class="neumorphism-toc-list" role="list">
             <li
-              v-for="item in toc"
+              v-for="item in visibleToc"
               :key="item.id"
-              :class="`neumorphism-toc-item level-${item.level} ${activeHeading === item.id ? 'active' : ''}`"
+              :class="`neumorphism-toc-item level-${item.level} ${activeHeading === item.id ? 'active' : ''} ${item.hasChildren ? 'has-children' : ''}`"
               role="listitem"
             >
               <a
@@ -374,7 +498,15 @@ onBeforeUnmount(() => {
                 :aria-current="activeHeading === item.id ? 'location' : undefined"
                 @click.prevent="scrollToHeadingAndClose(item.id)"
               >
-                {{ item.text }}
+                <button
+                  v-if="item.hasChildren"
+                  class="toc-toggle"
+                  :aria-label="isCollapsed(item.id) ? '展开子标题' : '折叠子标题'"
+                  @click.stop.prevent="toggleCollapse(item.id)"
+                >
+                  {{ isCollapsed(item.id) ? '▸' : '▾' }}
+                </button>
+                <span class="toc-text">{{ item.text }}</span>
               </a>
             </li>
           </ul>
@@ -437,8 +569,10 @@ onBeforeUnmount(() => {
 }
 
 .neumorphism-toc-item a {
-  display: block;
-  padding: 5px 16px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 12px 5px 0;
   font-size: 13px;
   color: var(--nm-text-secondary);
   text-decoration: none;
@@ -452,23 +586,61 @@ onBeforeUnmount(() => {
   text-overflow: ellipsis;
 }
 
+/* 层级左侧缩进 */
 .neumorphism-toc-item.level-1 a {
-  padding-right: 16px;
+  padding-left: 16px;
 }
 .neumorphism-toc-item.level-2 a {
-  padding-right: 24px;
+  padding-left: 32px;
 }
 .neumorphism-toc-item.level-3 a {
-  padding-right: 32px;
+  padding-left: 48px;
 }
 .neumorphism-toc-item.level-4 a {
-  padding-right: 40px;
+  padding-left: 64px;
 }
 .neumorphism-toc-item.level-5 a {
-  padding-right: 48px;
+  padding-left: 80px;
 }
 .neumorphism-toc-item.level-6 a {
-  padding-right: 56px;
+  padding-left: 96px;
+}
+
+/* 有子项的标题略微加粗 */
+.neumorphism-toc-item.has-children > a .toc-text {
+  font-weight: 500;
+}
+
+/* TOC 折叠/展开按钮 */
+.toc-toggle {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  margin: 0;
+  border: none;
+  border-radius: var(--nm-border-radius-sm);
+  background: transparent;
+  color: var(--nm-text-placeholder);
+  font-size: 10px;
+  line-height: 16px;
+  text-align: center;
+  cursor: pointer;
+  font-family: monospace;
+  transition:
+    color 0.15s ease,
+    background-color 0.15s ease;
+}
+
+.toc-toggle:hover {
+  color: var(--nm-primary-color);
+  background-color: color-mix(in srgb, var(--nm-primary-color) 10%, transparent);
+}
+
+.toc-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .neumorphism-toc-item a:hover {
