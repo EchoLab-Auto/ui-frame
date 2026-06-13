@@ -164,6 +164,7 @@ function onDocLink(path: string) {
 
 .neumorphism-content-card {
   min-height: 100%;
+  overflow: visible; /* 允许 sticky/fixed TOC 超出卡片边界 */
 }
 
 /* Document Header */
