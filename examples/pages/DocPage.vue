@@ -79,6 +79,72 @@ class Person {
 
 - [外部链接](https://github.com)
 - [内部文档](./guide.md) — 会被拦截为 docLink 事件
+
+## 目录 (TOC)
+
+右侧目录自动从标题生成，支持 **粘性悬浮** — 滚动文档内容时目录始终固定在可视区域，不会随内容滚出屏幕。
+
+### 目录特性
+
+- 自动提取 H1-H6 标题
+- 滚动同步高亮当前章节
+- 目录自身内容过长时内部可滚动
+- 响应式：窄屏自动切换为移动端浮动按钮 + 抽屉面板
+
+## 图片
+
+![Neumorphism UI](https://placehold.co/600x200/e0e0e0/888?text=Neumorphism+UI)
+
+图片使用了原生的 \`loading="lazy"\` 属性延迟加载。
+
+## 更多引用
+
+> 第一层引用：UI 组件库是前端开发的基础设施。
+>
+> > 嵌套引用：好的组件库需要兼顾设计一致性和灵活性。
+
+> 另一个引用块：新拟态风格通过多层阴影模拟物理光照。
+
+## 数字列表
+
+1. 第一项：安装依赖
+2. 第二项：引入组件
+3. 第三项：配置主题
+   1. 选择亮色或暗色主题
+   2. 设置主题存储键
+   3. 启用跟随系统
+
+## 内联元素大全
+
+- **粗体文本** 用于强调
+- *斜体文本* 用于引用
+- ~~删除线~~ 表示已废弃
+- \`内联代码\` 用于变量名
+- 混合使用：**粗体中的 \`代码\` 和 *斜体***
+
+## 配置选项
+
+\`MarkdownRenderer\` 组件支持以下属性来自定义渲染行为。
+
+### 自定义滚动容器
+
+通过 \`scrollContainer\` 属性可以指定滚动容器，支持 HTMLElement 或 CSS 选择器。
+
+### 代码高亮定制
+
+内置的简易语法高亮支持注释、字符串、关键字、函数名、数字和类型的着色。
+
+### 性能优化
+
+模块级正则预编译避免重复创建，\`throttle\` 节流减少高亮计算频率。
+
+### 无障碍支持
+
+所有目录项使用 \`role="button"\` 并绑定 \`aria-current\` 指示当前位置。
+
+### 暗色模式适配
+
+代码高亮颜色在暗色模式下自动切换，确保在任何背景下都可读。
 `)
 
 // ==========================================
@@ -268,11 +334,11 @@ function scrollToSection(id: string) {
               HTML，支持代码高亮、目录生成、任务列表、图片懒加载等。
             </p>
 
-            <NeumorphismCard :elevation="1" class="demo-card demo-card--full">
+            <NeumorphismCard :elevation="1" class="demo-card demo-card--full demo-card--renderer">
               <template #header>
                 <div class="demo-header">
                   <h3 class="demo-title">Markdown 渲染演示</h3>
-                  <span class="demo-badge">代码高亮 · 目录 · 任务列表</span>
+                  <span class="demo-badge">代码高亮 · 目录 · 任务列表 · 目录悬浮</span>
                 </div>
               </template>
 
@@ -508,6 +574,11 @@ function scrollToSection(id: string) {
   @include nm-screen-lg {
     grid-column: 1 / -1;
   }
+}
+
+/* MarkdownRenderer 需要 overflow: visible 以支持 sticky TOC */
+.demo-card--renderer {
+  overflow: visible;
 }
 
 .demo-header {
