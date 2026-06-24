@@ -18,6 +18,7 @@ docs/
 │   └── readme-specification.md # 项目 README 内容规范
 │
 ├── develop/                 # 开发参考（技术细节）
+│   ├── agent-guide.md           # Agent 构建指南（组件目录 + 模式 + 决策指南）
 │   ├── api.md                  # API 参考文档
 │   ├── ci-design.md            # CI/CD 设计说明
 │   └── guide.md                # 用户指南

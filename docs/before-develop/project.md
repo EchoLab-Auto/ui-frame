@@ -88,6 +88,7 @@ docs/
 │   └── readme-specification.md
 │
 └── develop/           # 参考层 — "怎么用"（面向使用者）
+    ├── agent-guide.md # Agent 构建指南，组件目录 + 模式 + 决策
     ├── api.md         # 参考手册式，按模块名检索
     └── guide.md       # 教程式，按场景阅读
 ```
