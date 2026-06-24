@@ -12,6 +12,7 @@
 | [design-patterns.md](./design-patterns.md)           | 源码中使用的具体设计模式     | 新增组件/功能前    |
 | [develop-pipeline.md](./develop-pipeline.md)         | 从编码到提交的完整验证流程   | 理解规范后开始编码 |
 | [documentation-guide.md](./documentation-guide.md)   | 文档分层结构与撰写规范       | 需要写/改文档时    |
+| [ci-pipeline.md](./ci-pipeline.md)                   | CI 流程设计与验证链路        | 提交前/开 PR 前    |
 | [readme-specification.md](./readme-specification.md) | 项目 README 的内容结构与标准 | 修改 README 时     |
 
 ---
@@ -81,6 +82,7 @@ npm run build && npm run example:build
 ```
 docs/
 ├── before-develop/    # 约束层 — "该怎么写"（面向开发者）
+│   ├── ci-pipeline.md
 │   ├── design-philosophy.md
 │   ├── design-patterns.md
 │   ├── develop-pipeline.md
@@ -90,6 +92,7 @@ docs/
 └── develop/           # 参考层 — "怎么用"（面向使用者）
     ├── agent-guide.md # Agent 构建指南，组件目录 + 模式 + 决策
     ├── api.md         # 参考手册式，按模块名检索
+    ├── ci-design.md   # CI/CD 架构设计说明
     └── guide.md       # 教程式，按场景阅读
 ```
 

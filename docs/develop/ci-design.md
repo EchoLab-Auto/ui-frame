@@ -55,22 +55,26 @@ on:
   workflow_dispatch: # 支持手动触发
 ```
 
+**矩阵策略**：CI 同时在 Node 20 和 Node 22 上运行，确保跨版本兼容性。仅 Node 22 的任务上传 artifacts（避免重复）。
+
 **任务流水线**（`jobs.check`）：
 
-| 步骤             | 命令                         | 说明                                  |
-| ---------------- | ---------------------------- | ------------------------------------- |
-| Checkout         | `actions/checkout@v4`        | 拉取代码                              |
-| Setup Node       | `actions/setup-node@v4`      | Node 22 + npm 缓存                    |
-| Upgrade npm      | `npm install -g npm@11`      | 锁定 npm 版本，避免 lock 文件兼容问题 |
-| Install          | `npm ci`                     | 纯净安装，依赖 lock 文件              |
-| Lint             | `npm run lint`               | ESLint 检查 `.ts` `.tsx` `.vue`       |
-| Format check     | `npm run format:check`       | Prettier 格式校验                     |
-| Type check       | `npm run typecheck`          | `vue-tsc --noEmit` 全量类型检查       |
-| Test             | `npm test`                   | Vitest 单元测试                       |
-| Build library    | `npm run build`              | Vite 构建组件库产物                   |
-| Build example    | `npm run example:build`      | 构建示例站点                          |
-| Verify outputs   | `test -f ...`                | 断言产物文件全部存在                  |
-| Upload artifacts | `actions/upload-artifact@v4` | 上传 `dist/` 和 `dist-example/`       |
+| 步骤             | 命令                                | 说明                                          |
+| ---------------- | ----------------------------------- | --------------------------------------------- |
+| Checkout         | `actions/checkout@v4`               | 拉取代码                                      |
+| Setup Node       | `actions/setup-node@v4`             | Node 20/22 矩阵 + npm 缓存                    |
+| Upgrade npm      | `npm install -g npm@11`             | 锁定 npm 版本，避免 lock 文件兼容问题         |
+| Install          | `npm ci`                            | 纯净安装，依赖 lock 文件                      |
+| Audit            | `npm audit --audit-level=high`      | 安全检查（仅 high/critical 级别报错）         |
+| Lint             | `npm run lint`                      | ESLint 检查 `.ts` `.tsx` `.vue`               |
+| Format check     | `npm run format:check`              | Prettier 格式校验                             |
+| Type check       | `npm run typecheck`                 | `vue-tsc --noEmit` 全量类型检查               |
+| Test             | `npm test`                          | Vitest 单元测试                               |
+| Build library    | `npm run build`                     | Vite 构建组件库产物                           |
+| Bundle size      | `gzip -c dist/ui-frame.js \| wc -c` | JS < 20KB gzipped, CSS < 30KB gzipped         |
+| Build example    | `npm run example:build`             | 构建示例站点                                  |
+| Verify outputs   | `test -f ...`                       | 断言产物文件全部存在                          |
+| Upload artifacts | `actions/upload-artifact@v4`        | Node 22 only: 上传 `dist/` 和 `dist-example/` |
 
 **产物校验清单**：
 
@@ -111,22 +115,23 @@ on:
 - **权限最小化**：仅申请 `contents: write`（Release 关联）和 `id-token: write`（npm provenance）
 - **自动 provenance**：`npm publish --provenance --access public` 生成 SBOM 供应链证明
 - **Token 注入**：通过 `NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}` 认证
+- **完整验证**：发布前重复 CI 全流程（lint + format + typecheck + test + build + verify），确保无漏网之鱼
 
 **任务流水线**：
 
-| 步骤         | 命令                    | 说明                               |
-| ------------ | ----------------------- | ---------------------------------- |
-| Checkout     | `actions/checkout@v4`   | 拉取代码                           |
-| Setup Node   | `actions/setup-node@v4` | Node 22 + npm 缓存 + registry 配置 |
-| Upgrade npm  | `npm install -g npm@11` | 锁定 npm 版本                      |
-| Install      | `npm ci`                | 纯净安装                           |
-| Lint         | `npm run lint`          | ESLint 检查                        |
-| Format check | `npm run format:check`  | Prettier 格式校验                  |
-| Type check   | `npm run typecheck`     | 全量类型检查                       |
-| Test         | `npm test`              | 单元测试                           |
-| Build        | `npm run build`         | 构建库产物                         |
-| Verify       | `test -f ...`           | 断言产物文件全部存在               |
-| Publish      | `npm publish ...`       | 发布到 npm                         |
+| 步骤         | 命令                       | 说明                               |
+| ------------ | -------------------------- | ---------------------------------- |
+| Checkout     | `actions/checkout@v4`      | 拉取代码                           |
+| Setup Node   | `actions/setup-node@v4`    | Node 22 + npm 缓存 + registry 配置 |
+| Upgrade npm  | `npm install -g npm@11`    | 锁定 npm 版本                      |
+| Install      | `npm ci`                   | 纯净安装                           |
+| Lint         | `npm run lint`             | ESLint 检查                        |
+| Format check | `npm run format:check`     | Prettier 格式校验                  |
+| Type check   | `npm run typecheck`        | 全量类型检查                       |
+| Test         | `npm test`                 | 单元测试                           |
+| Build        | `npm run build`            | 构建库产物                         |
+| Verify       | `test -f ...`              | 断言产物文件全部存在               |
+| Publish      | `npm publish --provenance` | 发布到 npm（含供应链证明）         |
 
 **产物校验清单**（与 CI 一致）：
 
