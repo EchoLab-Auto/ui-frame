@@ -160,60 +160,52 @@ function scrollToSection(id: string) {
 }
 
 // ---- 滚动监听（scroll-spy） ----
-// 使用 IntersectionObserver，不依赖特定滚动容器的 class 名或 DOM 层级。
-// 关键设计：root 设为 null（= 浏览器视口），用 rootMargin 顶部收缩来模拟
-// "section 顶部到达 header 下方" 的判定线。与 Layout 嵌套层数无关。
-const HEADER_OFFSET = 120 // Layout header 累计高度（外层 + 内层）
+// 思路：监听所有 .nm-layout__content 的 scroll 事件（覆盖嵌套 Layout 场景），
+// 每次滚动时直接扫描所有 section 的 getBoundingClientRect 来确定当前激活项。
+// 不依赖 IntersectionObserver 的缓存值，不用 rootMargin，与 DOM 层级解耦。
+const HEADER_OFFSET = 120 // 外层 + 内层 Layout header 的累计高度
 const activeSection = ref('buttons')
 const allSectionIds = computed(() => navCategories.flatMap(c => c.items.map(i => i.id)))
 
-let observer: IntersectionObserver | null = null
-// 记录各 section 最后一次上报的 viewport-top，用于选出"最接近判定线"的那个
-const sectionTops = new Map<string, number>()
+let scrollContainers: NodeListOf<HTMLElement> | null = null
+let scrollTicking = false
 
-function pickBestVisible(): string {
-  let bestId = allSectionIds.value[0]
-  // 找 top 最小但仍 >= HEADER_OFFSET 的 section（即第一个"在 header 下方"的）
+function updateActiveSection() {
+  let current = allSectionIds.value[0]
   for (const id of allSectionIds.value) {
-    const top = sectionTops.get(id)
-    if (top === undefined) continue
-    if (top >= HEADER_OFFSET) {
-      bestId = id
-      break
+    const el = document.getElementById(id)
+    if (!el) continue
+    // getBoundingClientRect 始终返回相对于视口的坐标，与滚动容器无关
+    if (el.getBoundingClientRect().top <= HEADER_OFFSET + 10) {
+      current = id
     }
   }
-  return bestId
+  activeSection.value = current
+}
+
+function onScroll() {
+  if (!scrollTicking) {
+    requestAnimationFrame(() => {
+      updateActiveSection()
+      scrollTicking = false
+    })
+    scrollTicking = true
+  }
 }
 
 onMounted(() => {
-  if (typeof IntersectionObserver === 'undefined') return
-
-  observer = new IntersectionObserver(
-    entries => {
-      for (const entry of entries) {
-        sectionTops.set(entry.target.id, entry.boundingClientRect.top)
-      }
-      activeSection.value = pickBestVisible()
-    },
-    {
-      rootMargin: `-${HEADER_OFFSET}px 0px 0px 0px`,
-      threshold: [0, 0.1, 0.25, 0.5, 0.75, 1],
-    }
-  )
-
-  // nextTick 确保嵌套 NeumorphismLayout 的 slot 内容已渲染到 DOM
+  // 找到所有滚动容器（嵌套 Layout 场景下有多个），全部监听
   nextTick(() => {
-    for (const id of allSectionIds.value) {
-      const el = document.getElementById(id)
-      if (el) observer!.observe(el)
-    }
+    scrollContainers = document.querySelectorAll('.nm-layout__content')
+    scrollContainers.forEach(c => c.addEventListener('scroll', onScroll, { passive: true }))
+    // 首次计算
+    updateActiveSection()
   })
 })
 
 onBeforeUnmount(() => {
-  if (observer) {
-    observer.disconnect()
-    observer = null
+  if (scrollContainers) {
+    scrollContainers.forEach(c => c.removeEventListener('scroll', onScroll))
   }
 })
 
