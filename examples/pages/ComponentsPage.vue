@@ -154,22 +154,29 @@ const navCategories = [
 // ---- 导航滚动 ----
 function scrollToSection(id: string) {
   const el = document.getElementById(id)
-  if (el) {
-    el.scrollIntoView({ behavior: 'smooth', block: 'start' })
-  }
+  if (!el) return
+  activeSection.value = id
+  pendingClickTarget = id
+  pendingClickTimer = window.setTimeout(() => {
+    pendingClickTarget = null
+  }, 600) // smooth scroll 约 400ms，留余量
+  el.scrollIntoView({ behavior: 'smooth', block: 'start' })
 }
 
 // ---- 滚动监听（scroll-spy） ----
-// scroll 事件不冒泡，因此在 document 上以 capture 模式捕获所有子元素的
-// scroll 事件。配合 getBoundingClientRect (始终基于视口) 确定当前激活
-// 的 section，完全与 Layout 嵌套层级、scoped CSS、class 名无关。
-const HEADER_OFFSET = 120 // 外层 + 内层 Layout header 的累计高度
+const HEADER_OFFSET = 120
 const activeSection = ref('buttons')
 const allSectionIds = computed(() => navCategories.flatMap(c => c.items.map(i => i.id)))
 
 let scrollTicking = false
+let pendingClickTarget: string | null = null
+let pendingClickTimer: number | null = null
 
 function updateActiveSection() {
+  // 点击触发的 smooth scroll 进行中：不更新 activeSection，
+  // 防止动画中间帧的 rAF 回调解算把高亮覆盖回旧值
+  if (pendingClickTarget) return
+
   let current = allSectionIds.value[0]
   for (const id of allSectionIds.value) {
     const el = document.getElementById(id)
@@ -193,13 +200,13 @@ function onScroll() {
 
 onMounted(() => {
   nextTick(() => {
-    // 捕获阶段拦截所有后代元素的 scroll 事件，绕过"不冒泡"限制
     document.addEventListener('scroll', onScroll, { passive: true, capture: true })
     updateActiveSection()
   })
 })
 
 onBeforeUnmount(() => {
+  if (pendingClickTimer !== null) clearTimeout(pendingClickTimer)
   document.removeEventListener('scroll', onScroll, { capture: true })
 })
 
