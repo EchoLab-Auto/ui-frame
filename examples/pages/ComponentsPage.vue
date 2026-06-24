@@ -152,18 +152,24 @@ const navCategories = [
 ]
 
 // ---- 导航滚动 ----
+let clickScrollToken = 0
+
 function scrollToSection(id: string) {
   const el = document.getElementById(id)
   if (!el) return
+  // 点击立即设 activeSection，不依赖任何 scroll 事件回调解算
   activeSection.value = id
-  settled = false
+  // 递增 token 使 scroll 处理函数跳过本次点击产生的滚动事件，
+  // 只在 smooth scroll 结束后做一次确认结算
+  clickScrollToken++
   el.scrollIntoView({ behavior: 'smooth', block: 'start' })
-  // 兜底：如果 scrollend 事件因浏览器不支持或其他原因未触发，
-  // 500ms 后强制做一次终态结算
-  clearTimeout(settleTimer)
-  settleTimer = window.setTimeout(() => {
-    if (!settled) updateActiveSection()
-  }, 500)
+  const token = clickScrollToken
+  setTimeout(() => {
+    if (token === clickScrollToken) {
+      clickScrollToken = 0
+      updateActiveSection()
+    }
+  }, 600)
 }
 
 // ---- 滚动监听（scroll-spy） ----
@@ -172,8 +178,6 @@ const activeSection = ref('buttons')
 const allSectionIds = computed(() => navCategories.flatMap(c => c.items.map(i => i.id)))
 
 let scrollTicking = false
-let settled = false
-let settleTimer: number | null = null
 
 function updateActiveSection() {
   let current = allSectionIds.value[0]
@@ -187,12 +191,10 @@ function updateActiveSection() {
   activeSection.value = current
 }
 
-function onScrollEnd() {
-  settled = true
-  updateActiveSection()
-}
-
 function onScroll() {
+  // 点击触发的 smooth scroll 进行中：所有中间帧的 scroll 事件都跳过，
+  // 避免中间帧的 getBoundingClientRect 结算把 activeSection 覆盖回旧值
+  if (clickScrollToken > 0) return
   if (!scrollTicking) {
     requestAnimationFrame(() => {
       updateActiveSection()
@@ -204,18 +206,13 @@ function onScroll() {
 
 onMounted(() => {
   nextTick(() => {
-    // 手动滚动：rAF 节流的 scroll 事件
     document.addEventListener('scroll', onScroll, { passive: true, capture: true })
-    // 点击触发的 smooth scroll：scrollend 在动画完全停止后精确触发
-    document.addEventListener('scrollend', onScrollEnd, { passive: true, capture: true })
     updateActiveSection()
   })
 })
 
 onBeforeUnmount(() => {
-  clearTimeout(settleTimer)
   document.removeEventListener('scroll', onScroll, { capture: true })
-  document.removeEventListener('scrollend', onScrollEnd, { capture: true })
 })
 
 // ---- 开关示例 ----
