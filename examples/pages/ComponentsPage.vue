@@ -159,40 +159,61 @@ function scrollToSection(id: string) {
   }
 }
 
-// ---- 滚动监听（scroll-spy） ----
+// ---- 滚动监听（scroll-spy）：基于 IntersectionObserver，与 DOM 结构解耦 ----
 const activeSection = ref('buttons')
 const allSectionIds = computed(() => navCategories.flatMap(c => c.items.map(i => i.id)))
 
-function updateActiveSection() {
-  const content = document.querySelector('.nm-layout__content')
-  if (!content) return
-  const contentTop = content.getBoundingClientRect().top
-
-  let current = allSectionIds.value[0]
-  for (const id of allSectionIds.value) {
-    const el = document.getElementById(id)
-    if (!el) continue
-    const rect = el.getBoundingClientRect()
-    if (rect.top <= contentTop + 120) {
-      current = id
-    }
-  }
-  activeSection.value = current
-}
-
-let scrollContainer: HTMLElement | null = null
+let observer: IntersectionObserver | null = null
 
 onMounted(() => {
-  scrollContainer = document.querySelector('.nm-layout__content')
-  if (scrollContainer) {
-    scrollContainer.addEventListener('scroll', updateActiveSection, { passive: true })
-    updateActiveSection()
+  if (typeof IntersectionObserver === 'undefined') return
+
+  // 收集当前视口中可见的 section 及其距顶部距离，选出最近的一个
+  const visibleSections = new Map<string, number>()
+
+  function pickActive() {
+    let bestId = allSectionIds.value[0]
+    let bestTop = Infinity
+    for (const [id, top] of visibleSections) {
+      if (top < bestTop) {
+        bestTop = top
+        bestId = id
+      }
+    }
+    activeSection.value = bestId
   }
+
+  observer = new IntersectionObserver(
+    entries => {
+      for (const entry of entries) {
+        if (entry.isIntersecting) {
+          visibleSections.set(entry.target.id, entry.boundingClientRect.top)
+        } else {
+          visibleSections.delete(entry.target.id)
+        }
+      }
+      if (visibleSections.size > 0) pickActive()
+    },
+    {
+      // rootMargin 顶部收缩 120px，匹配 Layout header 高度
+      rootMargin: '-120px 0px 0px 0px',
+      threshold: 0,
+    }
+  )
+
+  // 延迟观察：确保 DOM 已完全渲染（嵌套 Layout 场景）
+  requestAnimationFrame(() => {
+    for (const id of allSectionIds.value) {
+      const el = document.getElementById(id)
+      if (el) observer!.observe(el)
+    }
+  })
 })
 
 onBeforeUnmount(() => {
-  if (scrollContainer) {
-    scrollContainer.removeEventListener('scroll', updateActiveSection)
+  if (observer) {
+    observer.disconnect()
+    observer = null
   }
 })
 
