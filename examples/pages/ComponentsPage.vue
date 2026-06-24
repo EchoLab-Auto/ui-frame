@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { useTheme } from '../../src/composables/useTheme'
 import { useSelect } from '../../src/composables/useSelect'
 import { usePagination } from '../../src/composables/usePagination'
@@ -159,50 +159,50 @@ function scrollToSection(id: string) {
   }
 }
 
-// ---- 滚动监听（scroll-spy）：基于 IntersectionObserver，与 DOM 结构解耦 ----
+// ---- 滚动监听（scroll-spy） ----
+// 使用 IntersectionObserver，不依赖特定滚动容器的 class 名或 DOM 层级。
+// 关键设计：root 设为 null（= 浏览器视口），用 rootMargin 顶部收缩来模拟
+// "section 顶部到达 header 下方" 的判定线。与 Layout 嵌套层数无关。
+const HEADER_OFFSET = 120 // Layout header 累计高度（外层 + 内层）
 const activeSection = ref('buttons')
 const allSectionIds = computed(() => navCategories.flatMap(c => c.items.map(i => i.id)))
 
 let observer: IntersectionObserver | null = null
+// 记录各 section 最后一次上报的 viewport-top，用于选出"最接近判定线"的那个
+const sectionTops = new Map<string, number>()
+
+function pickBestVisible(): string {
+  let bestId = allSectionIds.value[0]
+  // 找 top 最小但仍 >= HEADER_OFFSET 的 section（即第一个"在 header 下方"的）
+  for (const id of allSectionIds.value) {
+    const top = sectionTops.get(id)
+    if (top === undefined) continue
+    if (top >= HEADER_OFFSET) {
+      bestId = id
+      break
+    }
+  }
+  return bestId
+}
 
 onMounted(() => {
   if (typeof IntersectionObserver === 'undefined') return
 
-  // 收集当前视口中可见的 section 及其距顶部距离，选出最近的一个
-  const visibleSections = new Map<string, number>()
-
-  function pickActive() {
-    let bestId = allSectionIds.value[0]
-    let bestTop = Infinity
-    for (const [id, top] of visibleSections) {
-      if (top < bestTop) {
-        bestTop = top
-        bestId = id
-      }
-    }
-    activeSection.value = bestId
-  }
-
   observer = new IntersectionObserver(
     entries => {
       for (const entry of entries) {
-        if (entry.isIntersecting) {
-          visibleSections.set(entry.target.id, entry.boundingClientRect.top)
-        } else {
-          visibleSections.delete(entry.target.id)
-        }
+        sectionTops.set(entry.target.id, entry.boundingClientRect.top)
       }
-      if (visibleSections.size > 0) pickActive()
+      activeSection.value = pickBestVisible()
     },
     {
-      // rootMargin 顶部收缩 120px，匹配 Layout header 高度
-      rootMargin: '-120px 0px 0px 0px',
-      threshold: 0,
+      rootMargin: `-${HEADER_OFFSET}px 0px 0px 0px`,
+      threshold: [0, 0.1, 0.25, 0.5, 0.75, 1],
     }
   )
 
-  // 延迟观察：确保 DOM 已完全渲染（嵌套 Layout 场景）
-  requestAnimationFrame(() => {
+  // nextTick 确保嵌套 NeumorphismLayout 的 slot 内容已渲染到 DOM
+  nextTick(() => {
     for (const id of allSectionIds.value) {
       const el = document.getElementById(id)
       if (el) observer!.observe(el)
