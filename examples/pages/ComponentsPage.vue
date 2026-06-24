@@ -156,11 +156,14 @@ function scrollToSection(id: string) {
   const el = document.getElementById(id)
   if (!el) return
   activeSection.value = id
-  pendingClickTarget = id
-  pendingClickTimer = window.setTimeout(() => {
-    pendingClickTarget = null
-  }, 600) // smooth scroll 约 400ms，留余量
+  settled = false
   el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  // 兜底：如果 scrollend 事件因浏览器不支持或其他原因未触发，
+  // 500ms 后强制做一次终态结算
+  clearTimeout(settleTimer)
+  settleTimer = window.setTimeout(() => {
+    if (!settled) updateActiveSection()
+  }, 500)
 }
 
 // ---- 滚动监听（scroll-spy） ----
@@ -169,14 +172,10 @@ const activeSection = ref('buttons')
 const allSectionIds = computed(() => navCategories.flatMap(c => c.items.map(i => i.id)))
 
 let scrollTicking = false
-let pendingClickTarget: string | null = null
-let pendingClickTimer: number | null = null
+let settled = false
+let settleTimer: number | null = null
 
 function updateActiveSection() {
-  // 点击触发的 smooth scroll 进行中：不更新 activeSection，
-  // 防止动画中间帧的 rAF 回调解算把高亮覆盖回旧值
-  if (pendingClickTarget) return
-
   let current = allSectionIds.value[0]
   for (const id of allSectionIds.value) {
     const el = document.getElementById(id)
@@ -186,6 +185,11 @@ function updateActiveSection() {
     }
   }
   activeSection.value = current
+}
+
+function onScrollEnd() {
+  settled = true
+  updateActiveSection()
 }
 
 function onScroll() {
@@ -200,14 +204,18 @@ function onScroll() {
 
 onMounted(() => {
   nextTick(() => {
+    // 手动滚动：rAF 节流的 scroll 事件
     document.addEventListener('scroll', onScroll, { passive: true, capture: true })
+    // 点击触发的 smooth scroll：scrollend 在动画完全停止后精确触发
+    document.addEventListener('scrollend', onScrollEnd, { passive: true, capture: true })
     updateActiveSection()
   })
 })
 
 onBeforeUnmount(() => {
-  if (pendingClickTimer !== null) clearTimeout(pendingClickTimer)
+  clearTimeout(settleTimer)
   document.removeEventListener('scroll', onScroll, { capture: true })
+  document.removeEventListener('scrollend', onScrollEnd, { capture: true })
 })
 
 // ---- 开关示例 ----
