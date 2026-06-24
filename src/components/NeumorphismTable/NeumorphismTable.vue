@@ -251,8 +251,8 @@ const showSelectionColumn = computed(
 // ---- Header ----
 .nm-table__head {
   .nm-table__th {
-    padding: 12px 16px;
-    font-size: 13px;
+    padding: var(--nm-table-cell-padding-y-md) var(--nm-table-cell-padding-x-md);
+    font-size: var(--nm-font-md);
     font-weight: 600;
     color: var(--nm-text-secondary);
     text-align: left;
@@ -289,7 +289,7 @@ const showSelectionColumn = computed(
 .nm-table__th-content {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--nm-spacing-xs);
 }
 
 .nm-table__sort-icon {
@@ -320,8 +320,8 @@ const showSelectionColumn = computed(
 }
 
 .nm-table__td {
-  padding: 12px 16px;
-  font-size: 14px;
+  padding: var(--nm-table-cell-padding-y-md) var(--nm-table-cell-padding-x-md);
+  font-size: var(--nm-font-base);
   color: var(--nm-text-primary);
   background-color: transparent;
   transition: background-color 0.2s ease;
@@ -355,7 +355,7 @@ const showSelectionColumn = computed(
 
 // Selected
 .nm-table__tr--selected {
-  background-color: rgba(108, 122, 224, 0.06) !important;
+  background-color: color-mix(in srgb, var(--nm-primary-color) 6%, transparent) !important;
   box-shadow:
     inset 2px 0 0 var(--nm-primary-color),
     inset -1px 0 0 transparent !important;
@@ -366,9 +366,9 @@ const showSelectionColumn = computed(
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 48px 24px;
+  padding: var(--nm-table-empty-padding-y) var(--nm-table-empty-padding-x);
   color: var(--nm-text-placeholder);
-  font-size: 14px;
+  font-size: var(--nm-font-base);
 }
 
 // ---- Loading overlay ----
@@ -379,7 +379,7 @@ const showSelectionColumn = computed(
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 12px;
+  gap: var(--nm-table-loading-gap);
   background-color: rgba(224, 224, 224, 0.6);
   backdrop-filter: blur(2px);
   z-index: 10;
@@ -390,16 +390,16 @@ const showSelectionColumn = computed(
 }
 
 .nm-table__loading-spinner {
-  width: 24px;
-  height: 24px;
+  width: var(--nm-spacing-lg);
+  height: var(--nm-spacing-lg);
   border: 2px solid var(--nm-surface-color);
   border-top-color: var(--nm-primary-color);
-  border-radius: 50%;
+  border-radius: var(--nm-border-radius-full);
   animation: nm-table-spin 0.8s linear infinite;
 }
 
 .nm-table__loading-text {
-  font-size: 13px;
+  font-size: var(--nm-font-md);
   color: var(--nm-text-secondary);
 }
 
@@ -407,16 +407,16 @@ const showSelectionColumn = computed(
 .nm-table--small {
   .nm-table__th,
   .nm-table__td {
-    padding: 8px 12px;
-    font-size: 12px;
+    padding: var(--nm-table-cell-padding-y-sm) var(--nm-table-cell-padding-x-sm);
+    font-size: var(--nm-font-sm);
   }
 }
 
 .nm-table--large {
   .nm-table__th,
   .nm-table__td {
-    padding: 16px 20px;
-    font-size: 15px;
+    padding: var(--nm-table-cell-padding-y-lg) var(--nm-table-cell-padding-x-lg);
+    font-size: var(--nm-font-lg);
   }
 }
 

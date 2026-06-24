@@ -147,4 +147,11 @@ const style = computed(() => {
     }
   }
 }
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
+  }
+}
 </style>

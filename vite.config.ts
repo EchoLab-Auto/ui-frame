@@ -24,6 +24,7 @@ const entries: Record<string, string> = {
   'extensions/index': resolve(__dirname, 'src/extensions/index.ts'),
   'utils/index': resolve(__dirname, 'src/utils/index.ts'),
   'doc/index': resolve(__dirname, 'src/doc/index.ts'),
+  'locales/index': resolve(__dirname, 'src/locales/index.ts'),
   // 样式独立入口
   tokens: resolve(__dirname, 'src/styles/tokens.ts'),
   base: resolve(__dirname, 'src/styles/base.ts'),

@@ -13,9 +13,12 @@ concurrency:
 
 jobs:
   check:
-    name: Lint, Test & Build
+    name: Lint, Test & Build (Node ${{ matrix.node-version }})
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    strategy:
+      matrix:
+        node-version: [20, 22]
     env:
       HUSKY: 0
 
@@ -26,7 +29,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: ${{ matrix.node-version }}
           cache: npm
 
       - name: Upgrade npm
@@ -34,6 +37,10 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Audit dependencies
+        run: npm audit --audit-level=high
+        continue-on-error: true
 
       - name: Lint
         run: npm run lint
@@ -49,6 +56,22 @@ jobs:
 
       - name: Build library
         run: npm run build
+
+      - name: Check bundle size
+        run: |
+          JS_SIZE=$(gzip -c dist/ui-frame.js | wc -c)
+          CSS_SIZE=$(gzip -c dist/style.css | wc -c)
+          echo "dist/ui-frame.js gzipped: ${JS_SIZE} bytes"
+          echo "dist/style.css gzipped: ${CSS_SIZE} bytes"
+          if [ "$JS_SIZE" -ge 20000 ]; then
+            echo "ERROR: dist/ui-frame.js exceeds 20 KB gzipped (${JS_SIZE} bytes)"
+            exit 1
+          fi
+          if [ "$CSS_SIZE" -ge 30000 ]; then
+            echo "ERROR: dist/style.css exceeds 30 KB gzipped (${CSS_SIZE} bytes)"
+            exit 1
+          fi
+          echo "OK — bundle sizes within limits"
 
       - name: Build example
         run: npm run example:build
@@ -71,6 +94,7 @@ jobs:
           echo "OK — all outputs verified"
 
       - name: Upload library artifact
+        if: matrix.node-version == '22'
         uses: actions/upload-artifact@v4
         with:
           name: dist
@@ -78,6 +102,7 @@ jobs:
           if-no-files-found: error
 
       - name: Upload example artifact
+        if: matrix.node-version == '22'
         uses: actions/upload-artifact@v4
         with:
           name: dist-example

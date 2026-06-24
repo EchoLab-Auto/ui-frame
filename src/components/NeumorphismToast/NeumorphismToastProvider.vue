@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import { useToast } from '@/composables/useToast'
 import { useLocale } from '@/composables/useLocale'
+import { useNeumorphismSetup } from '@/extensions/createComponent'
 import type { ToastType, ToastPosition, ToastItem, ToastOptions } from '@/composables/useToast'
 
 export type { ToastType, ToastPosition, ToastItem, ToastOptions }
@@ -18,17 +19,29 @@ const props = withDefaults(defineProps<NeumorphismToastProviderProps>(), {
   closeLabel: '',
 })
 
+const { config, resolveProp } = useNeumorphismSetup()
+
+const resolvedPosition = computed(() =>
+  resolveProp(props.position, config.value.toast?.position, 'top-right')
+)
+const resolvedMaxCount = computed(() =>
+  resolveProp(props.maxCount, config.value.toast?.maxCount, 5)
+)
+
 const { t } = useLocale()
 const resolvedCloseLabel = computed(() => props.closeLabel || t('toastClose'))
 
 // Use headless toast composable for all behavioral logic
 const { toasts, addToast, removeToast, clearAll } = useToast({
-  maxCount: props.maxCount,
+  maxCount: resolvedMaxCount.value,
 })
 
 defineExpose({ addToast, removeToast, clearAll, toasts })
 
-const classList = computed(() => ['nm-toast-container', `nm-toast-container--${props.position}`])
+const classList = computed(() => [
+  'nm-toast-container',
+  `nm-toast-container--${resolvedPosition.value}`,
+])
 </script>
 
 <template>
@@ -130,9 +143,9 @@ const classList = computed(() => ['nm-toast-container', `nm-toast-container--${p
   z-index: 10000;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: var(--nm-toast-gap);
   pointer-events: none;
-  padding: 16px;
+  padding: var(--nm-spacing-md);
 
   &--top-left {
     top: 0;
@@ -168,11 +181,11 @@ const classList = computed(() => ['nm-toast-container', `nm-toast-container--${p
 .nm-toast {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 14px 18px;
+  gap: var(--nm-toast-gap);
+  padding: var(--nm-toast-padding-y) var(--nm-toast-padding-x);
   pointer-events: auto;
-  min-width: 280px;
-  max-width: 420px;
+  min-width: var(--nm-toast-min-width);
+  max-width: var(--nm-toast-max-width);
   background-color: var(--nm-surface-color);
   border-radius: var(--nm-border-radius-md);
   @include nm-raised(4px, 12px);
@@ -204,7 +217,7 @@ const classList = computed(() => ['nm-toast-container', `nm-toast-container--${p
 
 .nm-toast__message {
   flex: 1;
-  font-size: 14px;
+  font-size: var(--nm-font-base);
   color: var(--nm-text-primary);
   line-height: 1.4;
 }
@@ -219,7 +232,7 @@ const classList = computed(() => ['nm-toast-container', `nm-toast-container--${p
   background: none;
   color: var(--nm-text-placeholder);
   cursor: pointer;
-  border-radius: 4px;
+  border-radius: var(--nm-border-radius-xs);
   transition:
     color 0.2s ease,
     transform 0.25s $nm-ease-spring,

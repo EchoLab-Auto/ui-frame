@@ -185,7 +185,7 @@ const classList = computed(() => ['nm-modal', `nm-modal--${resolvedSize.value}`]
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: rgba(0, 0, 0, 0.4);
+  background-color: var(--nm-mask-bg);
   backdrop-filter: blur(4px);
   opacity: 0;
   pointer-events: none;
@@ -224,13 +224,13 @@ const classList = computed(() => ['nm-modal', `nm-modal--${resolvedSize.value}`]
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 20px 24px 0;
+  padding: var(--nm-modal-header-padding);
   flex-shrink: 0;
 }
 
 .nm-modal__title {
   margin: 0;
-  font-size: 18px;
+  font-size: var(--nm-modal-title-font);
   font-weight: 600;
   color: var(--nm-text-primary);
 }
@@ -239,8 +239,8 @@ const classList = computed(() => ['nm-modal', `nm-modal--${resolvedSize.value}`]
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  width: var(--nm-spacing-xl);
+  height: var(--nm-spacing-xl);
   border: none;
   border-radius: var(--nm-border-radius-sm);
   cursor: pointer;
@@ -256,26 +256,26 @@ const classList = computed(() => ['nm-modal', `nm-modal--${resolvedSize.value}`]
 }
 
 .nm-modal__body {
-  padding: 24px;
+  padding: var(--nm-modal-padding);
   overflow-y: auto;
   color: var(--nm-text-primary);
-  font-size: 14px;
+  font-size: var(--nm-font-base);
   line-height: 1.6;
 }
 
 .nm-modal__footer {
   display: flex;
   justify-content: flex-end;
-  gap: 12px;
-  padding: 0 24px 20px;
+  gap: var(--nm-spacing-sm);
+  padding: var(--nm-modal-footer-padding);
   flex-shrink: 0;
 }
 
 .nm-modal__btn {
-  padding: 10px 24px;
+  padding: var(--nm-modal-btn-padding-y) var(--nm-modal-btn-padding-x);
   border: none;
   border-radius: var(--nm-border-radius-md);
-  font-size: 14px;
+  font-size: var(--nm-font-base);
   font-weight: 500;
   cursor: pointer;
   @include nm-raised(2px, 6px);
@@ -309,9 +309,9 @@ const classList = computed(() => ['nm-modal', `nm-modal--${resolvedSize.value}`]
 
   &--confirm {
     background-color: var(--nm-primary-color);
-    color: #fff;
+    color: var(--nm-text-on-primary);
     box-shadow:
-      2px 2px 6px rgba(108, 122, 224, 0.3),
+      2px 2px 6px color-mix(in srgb, var(--nm-primary-color) 30%, transparent),
       -2px -2px 6px var(--nm-shadow-light);
   }
 }

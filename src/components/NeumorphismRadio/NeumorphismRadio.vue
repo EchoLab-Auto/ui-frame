@@ -2,6 +2,7 @@
 import { computed, inject, useAttrs } from 'vue'
 import { useCheckable } from '@/composables/useCheckable'
 import { RadioGroupKey } from '@/composables/injectionKeys'
+import { useNeumorphismSetup } from '@/extensions/createComponent'
 
 defineOptions({ inheritAttrs: false })
 
@@ -19,6 +20,8 @@ const props = withDefaults(defineProps<NeumorphismRadioProps>(), {
   disabled: false,
   size: 'medium',
 })
+
+const { config, resolveProp } = useNeumorphismSetup()
 
 const emit = defineEmits<{
   (e: 'update:modelValue', value: unknown): void
@@ -45,8 +48,11 @@ const isChecked = computed(() => {
 })
 
 const isDisabled = computed(() => props.disabled || radioGroup?.disabled.value || false)
+const resolvedSize = computed<'small' | 'medium' | 'large'>(
+  () => resolveProp(props.size, config.value.radio?.size, 'medium') as 'small' | 'medium' | 'large'
+)
 const radioSize = computed<'small' | 'medium' | 'large'>(
-  () => (radioGroup?.size.value || props.size) as 'small' | 'medium' | 'large'
+  () => (radioGroup?.size.value || resolvedSize.value) as 'small' | 'medium' | 'large'
 )
 
 const { inputId, classList } = useCheckable(() => ({
@@ -104,7 +110,7 @@ function handleChange(): void {
 
 // Radio-specific: circle + dot
 .nm-radio__circle {
-  border-radius: 50%;
+  border-radius: var(--nm-border-radius-full);
   position: relative;
   overflow: hidden;
 }
@@ -115,7 +121,11 @@ function handleChange(): void {
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  background: radial-gradient(circle at center, rgba(108, 122, 224, 0.3) 0%, transparent 70%);
+  background: radial-gradient(
+    circle at center,
+    color-mix(in srgb, var(--nm-primary-color) 30%, transparent) 0%,
+    transparent 70%
+  );
   opacity: 0;
   transform: scale(0);
   transition: none;
@@ -126,7 +136,7 @@ function handleChange(): void {
 }
 
 .nm-radio__dot {
-  border-radius: 50%;
+  border-radius: var(--nm-border-radius-full);
   background-color: var(--nm-primary-color);
   transform: scale(0);
   @include nm-raised(1px, 2px);
@@ -142,7 +152,7 @@ function handleChange(): void {
   box-shadow:
     inset 2px 2px 4px var(--nm-shadow-dark),
     inset -2px -2px 4px var(--nm-shadow-light),
-    0 0 0 2px rgba(108, 122, 224, 0.15);
+    0 0 0 2px color-mix(in srgb, var(--nm-primary-color) 15%, transparent);
 }
 
 // Hover physics
@@ -193,14 +203,14 @@ function handleChange(): void {
     height: 18px;
   }
   .nm-radio__dot {
-    width: 8px;
-    height: 8px;
+    width: var(--nm-spacing-sm);
+    height: var(--nm-spacing-sm);
   }
 }
 .nm-radio--medium {
   .nm-radio__circle {
-    width: 24px;
-    height: 24px;
+    width: var(--nm-spacing-lg);
+    height: var(--nm-spacing-lg);
   }
   .nm-radio__dot {
     width: 12px;
@@ -213,8 +223,8 @@ function handleChange(): void {
     height: 30px;
   }
   .nm-radio__dot {
-    width: 16px;
-    height: 16px;
+    width: var(--nm-spacing-md);
+    height: var(--nm-spacing-md);
   }
 }
 </style>

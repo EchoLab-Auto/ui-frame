@@ -13,8 +13,15 @@ defineProps<{
 
 <style scoped lang="scss">
 .nm-field__error {
-  font-size: 12px;
+  font-size: var(--nm-font-sm);
   color: var(--nm-color-error);
-  margin-top: 4px;
+  margin-top: var(--nm-spacing-xs);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
+  }
 }
 </style>

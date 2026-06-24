@@ -61,6 +61,9 @@ export const zhCN: LocaleMessages = {
   // Tag
   tagClose: '移除标签',
 
+  // Alert
+  alertClose: '关闭提示',
+
   // Layout
   layoutExpandSider: '展开侧边栏',
   layoutCollapseSider: '折叠侧边栏',
@@ -79,4 +82,24 @@ export const zhCN: LocaleMessages = {
 
   // Progress
   progressLabel: '进度 {percentage}%',
+
+  // DatePicker
+  datePickerPlaceholder: '请选择日期',
+  datePickerClear: '清除日期',
+  datePickerToday: '今天',
+  datePickerPrevMonth: '上个月',
+  datePickerNextMonth: '下个月',
+  datePickerPrevYear: '上一年',
+  datePickerNextYear: '下一年',
+
+  // Upload
+  uploadSelectFile: '点击或拖拽上传',
+  uploadDropFile: '释放文件上传',
+  uploadRemove: '移除',
+  uploadPreview: '预览',
+
+  // List
+  listLoading: '加载中...',
+  listEmpty: '暂无数据',
+  listLabel: '列表',
 }

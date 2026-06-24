@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useLocale } from '@/composables/useLocale'
+import { useNeumorphismSetup } from '@/extensions/createComponent'
 
 export interface BreadcrumbItem {
   label: string
@@ -20,13 +21,19 @@ const props = withDefaults(defineProps<NeumorphismBreadcrumbProps>(), {
   size: 'medium',
 })
 
+const { config, resolveProp } = useNeumorphismSetup()
+
+const resolvedSize = computed(() =>
+  resolveProp(props.size, config.value.breadcrumb?.size, 'medium')
+)
+
 const { t } = useLocale()
 
 const emit = defineEmits<{
   (e: 'itemClick', item: BreadcrumbItem, index: number): void
 }>()
 
-const classList = computed(() => ['nm-breadcrumb', `nm-breadcrumb--${props.size}`])
+const classList = computed(() => ['nm-breadcrumb', `nm-breadcrumb--${resolvedSize.value}`])
 
 function handleClick(item: BreadcrumbItem, index: number) {
   if (item.disabled) return
@@ -81,13 +88,13 @@ function handleClick(item: BreadcrumbItem, index: number) {
   list-style: none;
   margin: 0;
   padding: 0;
-  gap: 4px;
+  gap: var(--nm-spacing-xs);
 }
 
 .nm-breadcrumb__item {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--nm-spacing-xs);
 
   &--active .nm-breadcrumb__text {
     font-weight: 600;
@@ -101,7 +108,7 @@ function handleClick(item: BreadcrumbItem, index: number) {
 }
 
 .nm-breadcrumb__text {
-  padding: 4px 8px;
+  padding: var(--nm-spacing-xs) var(--nm-spacing-sm);
   border-radius: var(--nm-border-radius-sm);
   cursor: default;
   transition:
@@ -141,20 +148,20 @@ function handleClick(item: BreadcrumbItem, index: number) {
 
 .nm-breadcrumb__separator {
   color: var(--nm-text-placeholder);
-  font-size: 13px;
+  font-size: var(--nm-font-md);
   user-select: none;
   transition: color 0.3s ease;
 }
 
 // Sizes
 .nm-breadcrumb--small {
-  font-size: 12px;
+  font-size: var(--nm-font-sm);
 }
 .nm-breadcrumb--medium {
-  font-size: 14px;
+  font-size: var(--nm-font-base);
 }
 .nm-breadcrumb--large {
-  font-size: 16px;
+  font-size: var(--nm-font-xl);
 }
 
 @media (prefers-reduced-motion: reduce) {

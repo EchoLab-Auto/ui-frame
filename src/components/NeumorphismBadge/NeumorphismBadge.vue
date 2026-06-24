@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useLocale } from '@/composables/useLocale'
+import { useNeumorphismSetup } from '@/extensions/createComponent'
 
 export interface NeumorphismBadgeProps {
   value?: string | number
@@ -16,19 +17,27 @@ const props = withDefaults(defineProps<NeumorphismBadgeProps>(), {
   showZero: false,
 })
 
+const { config, resolveProp } = useNeumorphismSetup()
+
+const resolvedMax = computed(() => resolveProp(props.max, config.value.badge?.max, 99))
+const resolvedDot = computed(() => resolveProp(props.dot, config.value.badge?.dot, false))
+const resolvedShowZero = computed(() =>
+  resolveProp(props.showZero, config.value.badge?.showZero, false)
+)
+
 const displayValue = computed(() => {
-  if (props.dot) return ''
+  if (resolvedDot.value) return ''
   const num = Number(props.value)
   if (isNaN(num)) return String(props.value || '')
-  if (num <= 0 && !props.showZero) return ''
-  if (num > props.max) return `${props.max}+`
+  if (num <= 0 && !resolvedShowZero.value) return ''
+  if (num > resolvedMax.value) return `${resolvedMax.value}+`
   return String(num)
 })
 
 const isHidden = computed(() => {
-  if (props.dot) return props.value == null || props.value === ''
+  if (resolvedDot.value) return props.value == null || props.value === ''
   const num = Number(props.value)
-  return (isNaN(num) || num <= 0) && !props.showZero
+  return (isNaN(num) || num <= 0) && !resolvedShowZero.value
 })
 
 const { t } = useLocale()
@@ -40,7 +49,7 @@ const ariaLabel = computed(() =>
 const classList = computed(() => [
   'nm-badge',
   {
-    'nm-badge--dot': props.dot,
+    'nm-badge--dot': resolvedDot.value,
     'nm-badge--hidden': isHidden.value,
   },
 ])
@@ -52,11 +61,11 @@ const classList = computed(() => [
     <sup
       v-if="!isHidden"
       class="nm-badge__content"
-      :class="{ 'nm-badge__content--dot': dot }"
+      :class="{ 'nm-badge__content--dot': resolvedDot }"
       :style="color ? { backgroundColor: color } : undefined"
       :aria-label="ariaLabel"
     >
-      <span v-if="!dot" class="nm-badge__text" aria-hidden="true">{{ displayValue }}</span>
+      <span v-if="!resolvedDot" class="nm-badge__text" aria-hidden="true">{{ displayValue }}</span>
     </sup>
   </div>
 </template>
@@ -79,24 +88,24 @@ const classList = computed(() => [
   min-width: 20px;
   height: 20px;
   padding: 0 6px;
-  border-radius: 10px;
+  border-radius: var(--nm-border-radius-full);
   background-color: var(--nm-color-error);
-  color: #fff;
-  font-size: 11px;
+  color: var(--nm-text-on-primary);
+  font-size: var(--nm-font-xs);
   font-weight: 600;
   line-height: 1;
   box-shadow:
-    1px 1px 3px rgba(0, 0, 0, 0.2),
-    -1px -1px 3px rgba(255, 255, 255, 0.3);
+    1px 1px 3px var(--nm-shadow-dark-strong),
+    -1px -1px 3px var(--nm-shadow-light-ambient-xl);
   z-index: 1;
   pointer-events: none;
   animation: nm-badge-pop 0.4s $nm-ease-bounce;
 
   &--dot {
-    min-width: 8px;
-    height: 8px;
+    min-width: var(--nm-spacing-sm);
+    height: var(--nm-spacing-sm);
     padding: 0;
-    border-radius: 50%;
+    border-radius: var(--nm-border-radius-full);
     animation: nm-badge-pulse 2s ease-in-out infinite;
   }
 }

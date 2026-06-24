@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useNeumorphismSetup } from '@/extensions/createComponent'
 
 export interface NeumorphismContainerProps {
   /** 宽度模式：fixed 固定断点宽度，fluid 全宽 */
@@ -16,9 +17,13 @@ const props = withDefaults(defineProps<NeumorphismContainerProps>(), {
   tag: 'div',
 })
 
+const { config, resolveProp } = useNeumorphismSetup()
+
+const resolvedMode = computed(() => resolveProp(props.mode, config.value.container?.mode, 'fixed'))
+
 const classList = computed(() => [
   'nm-container',
-  { 'nm-container--fluid': props.mode === 'fluid' },
+  { 'nm-container--fluid': resolvedMode.value === 'fluid' },
   { 'nm-container--no-padding': props.noPadding },
 ])
 </script>
@@ -35,7 +40,7 @@ const classList = computed(() => [
 .nm-container {
   width: 100%;
   margin-inline: auto;
-  padding-inline: 16px;
+  padding-inline: var(--nm-spacing-md);
   box-sizing: border-box;
 
   &:not(&--fluid) {
@@ -46,7 +51,7 @@ const classList = computed(() => [
     }
     @include nm-screen-md {
       max-width: 720px;
-      padding-inline: 24px;
+      padding-inline: var(--nm-spacing-lg);
     }
     @include nm-screen-lg {
       max-width: 960px;
@@ -61,6 +66,13 @@ const classList = computed(() => [
 
   &--no-padding {
     padding-inline: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
   }
 }
 </style>

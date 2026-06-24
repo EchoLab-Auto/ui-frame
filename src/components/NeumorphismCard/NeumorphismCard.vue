@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useNeumorphismSetup } from '@/extensions/createComponent'
 
 export type CardVariant = 'raised' | 'pressed'
 export type CardDepth = 'shallow' | 'medium' | 'deep' | 'very-deep'
@@ -58,6 +59,13 @@ const props = withDefaults(defineProps<NeumorphismCardProps>(), {
   hoverable: false,
 })
 
+const { config, resolveProp } = useNeumorphismSetup()
+
+const resolvedRadius = computed(() => resolveProp(props.radius, config.value.card?.radius, 'large'))
+const resolvedHoverable = computed(() =>
+  resolveProp(props.hoverable, config.value.card?.hoverable, false)
+)
+
 const elevation = computed<number>(() => {
   if (props.elevation !== undefined) return props.elevation
   // Backward-compatible: compute from variant + depth
@@ -68,12 +76,12 @@ const elevation = computed<number>(() => {
 const classList = computed(() => [
   'nm-card',
   `nm-card--elevation-${elevation.value}`,
-  `nm-card--radius-${props.radius}`,
+  `nm-card--radius-${resolvedRadius.value}`,
   {
     'nm-card--no-padding': props.noPadding,
-    'nm-card--hoverable': !!props.hoverable,
-    'nm-card--hover-bulge': props.hoverable === true || props.hoverable === 'bulge',
-    'nm-card--hover-sink': props.hoverable === 'sink',
+    'nm-card--hoverable': !!resolvedHoverable.value,
+    'nm-card--hover-bulge': resolvedHoverable.value === true || resolvedHoverable.value === 'bulge',
+    'nm-card--hover-sink': resolvedHoverable.value === 'sink',
   },
 ])
 </script>
@@ -113,28 +121,28 @@ $elevation-shadows: (
     light-blur: 0,
   ),
   1: (
-    ambient: 0 1px 2px rgba(0, 0, 0, 0.04),
+    ambient: 0 1px 2px var(--nm-shadow-ambient-sm),
     dark-offset: 4px,
     dark-blur: 10px,
     light-offset: -2px,
     light-blur: 6px,
   ),
   2: (
-    ambient: 0 2px 4px rgba(0, 0, 0, 0.07),
+    ambient: 0 2px 4px var(--nm-shadow-ambient-lg),
     dark-offset: 8px,
     dark-blur: 20px,
     light-offset: -4px,
     light-blur: 12px,
   ),
   3: (
-    ambient: 0 4px 8px rgba(0, 0, 0, 0.1),
+    ambient: 0 4px 8px var(--nm-shadow-ambient-xl),
     dark-offset: 12px,
     dark-blur: 28px,
     light-offset: -6px,
     light-blur: 16px,
   ),
   4: (
-    ambient: 0 6px 12px rgba(0, 0, 0, 0.14),
+    ambient: 0 6px 12px var(--nm-shadow-ambient-2xl),
     dark-offset: 16px,
     dark-blur: 36px,
     light-offset: -8px,
@@ -236,10 +244,10 @@ $elevation-shadows: (
 .nm-card--elevation-3,
 .nm-card--elevation-4 {
   .nm-card__header {
-    border-bottom-color: rgba(0, 0, 0, 0.05);
+    border-bottom-color: var(--nm-shadow-ambient-subtle);
   }
   .nm-card__footer {
-    border-top-color: rgba(0, 0, 0, 0.05);
+    border-top-color: var(--nm-shadow-ambient-subtle);
   }
 }
 
@@ -363,6 +371,13 @@ $elevation-shadows: (
   .nm-card--hover-sink:hover {
     transform: scale(0.985);
     background-color: var(--nm-surface-raised);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
   }
 }
 </style>

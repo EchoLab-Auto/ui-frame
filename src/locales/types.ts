@@ -60,6 +60,9 @@ export interface LocaleMessages {
   /** Tabs */
   tabsNavLabel?: string
 
+  /** Alert */
+  alertClose?: string
+
   /** Tag */
   tagClose?: string
 
@@ -81,6 +84,26 @@ export interface LocaleMessages {
 
   /** Progress */
   progressLabel?: string
+
+  /** DatePicker */
+  datePickerPlaceholder?: string
+  datePickerClear?: string
+  datePickerToday?: string
+  datePickerPrevMonth?: string
+  datePickerNextMonth?: string
+  datePickerPrevYear?: string
+  datePickerNextYear?: string
+
+  /** Upload */
+  uploadSelectFile?: string
+  uploadDropFile?: string
+  uploadRemove?: string
+  uploadPreview?: string
+
+  /** List */
+  listLoading?: string
+  listEmpty?: string
+  listLabel?: string
 }
 
 export type Locale = 'zh-CN' | 'en-US'

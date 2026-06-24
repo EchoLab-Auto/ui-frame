@@ -10,6 +10,7 @@ export interface NeumorphismTreeNodeProps {
   selectedKeys: string[]
   expandedKeys: string[]
   searchText: string
+  focusedKey?: string | null
   level?: number
 }
 
@@ -24,6 +25,7 @@ const emit = defineEmits<{
 
 const isExpanded = computed(() => props.expandedKeys.includes(props.node.key))
 const isSelected = computed(() => props.selectedKeys.includes(props.node.key))
+const isFocused = computed(() => props.focusedKey === props.node.key)
 const hasChildren = computed(() => !!props.node.children?.length)
 
 const searchLower = computed(() => props.searchText.toLowerCase().trim())
@@ -69,15 +71,18 @@ function handleSelect() {
 <template>
   <li
     v-if="matchesSearch"
+    :id="`nm-tree-node-${node.key}`"
     class="nm-tree-node"
     :class="{
       'nm-tree-node--selected': isSelected,
       'nm-tree-node--disabled': node.disabled,
       'nm-tree-node--leaf': !hasChildren,
       'nm-tree-node--expanded': isExpanded,
+      'nm-tree-node--focused': isFocused,
     }"
     :style="{ paddingLeft: `calc(${level} * var(--nm-tree-node-indent, 8px) + 4px)` }"
     role="treeitem"
+    tabindex="-1"
     :aria-expanded="hasChildren ? isExpanded : undefined"
     :aria-selected="isSelected"
     :aria-disabled="node.disabled"
@@ -157,6 +162,7 @@ function handleSelect() {
           :selected-keys="selectedKeys"
           :expanded-keys="expandedKeys"
           :search-text="searchText"
+          :focused-key="focusedKey"
           :level="level + 1"
           @toggle-expand="k => emit('toggle-expand', k)"
           @select="k => emit('select', k)"
@@ -177,12 +183,17 @@ function handleSelect() {
   &--disabled {
     opacity: 0.45;
   }
+
+  &--focused > .nm-tree-node__row {
+    outline: 2px solid var(--nm-primary-color);
+    outline-offset: 2px;
+  }
 }
 
 .nm-tree-node__row {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--nm-spacing-xs);
   padding: 5px 8px;
   white-space: nowrap;
   border-radius: var(--nm-border-radius-sm);
@@ -225,7 +236,7 @@ function handleSelect() {
   background: transparent;
   cursor: pointer;
   color: var(--nm-text-placeholder);
-  border-radius: 4px;
+  border-radius: var(--nm-border-radius-xs);
   padding: 0;
   flex-shrink: 0;
   transition:
@@ -264,13 +275,13 @@ function handleSelect() {
 }
 
 .nm-tree-node__icon {
-  font-size: 14px;
+  font-size: var(--nm-font-base);
   flex-shrink: 0;
   line-height: 1;
 }
 
 .nm-tree-node__label {
-  font-size: 13px;
+  font-size: var(--nm-font-md);
   color: var(--nm-text-secondary);
   transition: color 0.25s $nm-ease-ambient;
   line-height: 1.5;
@@ -280,7 +291,7 @@ function handleSelect() {
 .nm-tree-node__label--highlight {
   color: var(--nm-primary-color);
   font-weight: 600;
-  background-color: rgba(108, 122, 224, 0.12);
+  background-color: color-mix(in srgb, var(--nm-primary-color) 12%, transparent);
   border-radius: 2px;
   padding: 0 1px;
   animation: nm-tree-highlight-pop 0.35s $nm-ease-bounce;
@@ -308,7 +319,7 @@ function handleSelect() {
 }
 
 .nm-tree-node--selected > .nm-tree-node__row {
-  background-color: rgba(108, 122, 224, 0.08);
+  background-color: color-mix(in srgb, var(--nm-primary-color) 8%, transparent);
 }
 
 .nm-tree-node__children {

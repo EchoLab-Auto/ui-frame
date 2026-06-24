@@ -10,7 +10,7 @@ export interface FormFieldConfig {
   disabled: boolean
   error?: string | boolean
   /** generateId 前缀  */
-  prefix: 'input' | 'textarea' | 'select'
+  prefix: 'input' | 'textarea' | 'select' | 'datepicker'
 }
 
 /**

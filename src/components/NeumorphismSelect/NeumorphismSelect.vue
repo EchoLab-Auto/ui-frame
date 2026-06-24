@@ -104,7 +104,7 @@ const dropdownRef = ref<HTMLElement>()
 const dropdownPosition = ref({ top: 0, left: 0, width: 0 })
 
 function updateDropdownPosition() {
-  if (!triggerRef.value) return
+  if (!triggerRef.value || typeof window === 'undefined') return
   const rect = triggerRef.value.getBoundingClientRect()
   dropdownPosition.value = {
     top: rect.bottom + window.scrollY + 6,
@@ -116,11 +116,15 @@ function updateDropdownPosition() {
 watch(isOpen, open => {
   if (open) {
     nextTick(updateDropdownPosition)
-    window.addEventListener('scroll', updateDropdownPosition, true)
-    window.addEventListener('resize', updateDropdownPosition)
+    if (typeof window !== 'undefined') {
+      window.addEventListener('scroll', updateDropdownPosition, true)
+      window.addEventListener('resize', updateDropdownPosition)
+    }
   } else {
-    window.removeEventListener('scroll', updateDropdownPosition, true)
-    window.removeEventListener('resize', updateDropdownPosition)
+    if (typeof window !== 'undefined') {
+      window.removeEventListener('scroll', updateDropdownPosition, true)
+      window.removeEventListener('resize', updateDropdownPosition)
+    }
   }
 })
 
@@ -287,7 +291,7 @@ function onContainerBlur(e: FocusEvent) {
 
 .nm-select__value {
   flex: 1;
-  font-size: 14px;
+  font-size: var(--nm-font-base);
   color: var(--nm-text-primary);
   white-space: nowrap;
   overflow: hidden;
@@ -301,7 +305,7 @@ function onContainerBlur(e: FocusEvent) {
 .nm-select__actions {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--nm-spacing-xs);
   flex-shrink: 0;
 }
 
@@ -314,7 +318,7 @@ function onContainerBlur(e: FocusEvent) {
   background: none;
   cursor: pointer;
   color: var(--nm-text-secondary);
-  border-radius: 50%;
+  border-radius: var(--nm-border-radius-full);
   transition: color var(--nm-transition-fast);
   &:hover {
     color: var(--nm-text-primary);
@@ -340,14 +344,14 @@ function onContainerBlur(e: FocusEvent) {
   background-color: var(--nm-surface-color);
   border-radius: var(--nm-border-radius-md);
   @include nm-raised(4px, 12px);
-  padding: 4px;
+  padding: var(--nm-spacing-xs);
 }
 
 .nm-select__option {
   display: flex;
   align-items: center;
-  padding: 10px 14px;
-  font-size: 14px;
+  padding: var(--nm-select-option-padding-y) var(--nm-select-option-padding-x);
+  font-size: var(--nm-select-option-font);
   color: var(--nm-text-primary);
   border-radius: var(--nm-border-radius-sm);
   cursor: pointer;
@@ -376,9 +380,9 @@ function onContainerBlur(e: FocusEvent) {
     right: 12px;
     width: 6px;
     height: 6px;
-    border-radius: 50%;
+    border-radius: var(--nm-border-radius-full);
     background-color: var(--nm-primary-color);
-    box-shadow: 0 0 6px rgba(108, 122, 224, 0.4);
+    box-shadow: 0 0 6px color-mix(in srgb, var(--nm-primary-color) 40%, transparent);
     animation: nm-select-dot-pop 0.35s $nm-ease-bounce;
   }
 
@@ -395,23 +399,23 @@ function onContainerBlur(e: FocusEvent) {
 
 // Sizes
 .nm-select--small {
-  min-height: 36px;
-  padding: 6px 12px;
+  min-height: var(--nm-field-min-height-sm);
+  padding: var(--nm-field-padding-y-sm) var(--nm-field-padding-x-sm);
   .nm-select__value {
-    font-size: 13px;
+    font-size: var(--nm-field-font-sm);
   }
 }
 
 .nm-select--medium {
-  min-height: 48px;
-  padding: 10px 16px;
+  min-height: var(--nm-field-min-height-md);
+  padding: var(--nm-field-padding-y-md) var(--nm-field-padding-x-md);
 }
 
 .nm-select--large {
-  min-height: 60px;
-  padding: 14px 20px;
+  min-height: var(--nm-field-min-height-lg);
+  padding: var(--nm-field-padding-y-lg) var(--nm-field-padding-x-lg);
   .nm-select__value {
-    font-size: 16px;
+    font-size: var(--nm-field-font-lg);
   }
 }
 

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useLocale } from '@/composables/useLocale'
+import { useNeumorphismSetup } from '@/extensions/createComponent'
 
 export type TagVariant = 'default' | 'primary' | 'success' | 'warning' | 'error' | 'info'
 
@@ -23,6 +24,14 @@ const props = withDefaults(defineProps<NeumorphismTagProps>(), {
   closeLabel: '',
 })
 
+const { config, resolveProp } = useNeumorphismSetup()
+
+const resolvedVariant = computed(() =>
+  resolveProp(props.variant, config.value.tag?.variant, 'default')
+)
+const resolvedSize = computed(() => resolveProp(props.size, config.value.tag?.size, 'medium'))
+const resolvedRounded = computed(() => resolveProp(props.rounded, config.value.tag?.rounded, false))
+
 const emit = defineEmits<{
   (e: 'close', event: MouseEvent): void
   (e: 'click', event: MouseEvent): void
@@ -39,10 +48,10 @@ function handleClose(event: MouseEvent) {
 
 const classList = computed(() => [
   'nm-tag',
-  `nm-tag--${props.variant}`,
-  `nm-tag--${props.size}`,
+  `nm-tag--${resolvedVariant.value}`,
+  `nm-tag--${resolvedSize.value}`,
   {
-    'nm-tag--rounded': props.rounded,
+    'nm-tag--rounded': resolvedRounded.value,
     'nm-tag--disabled': props.disabled,
     'nm-tag--closable': props.closable,
   },
@@ -61,7 +70,9 @@ const variantColors: Record<TagVariant, string> = {
 <template>
   <span
     :class="classList"
-    :style="variant !== 'default' ? { '--tag-color': variantColors[variant] } : undefined"
+    :style="
+      resolvedVariant !== 'default' ? { '--tag-color': variantColors[resolvedVariant] } : undefined
+    "
     role="status"
     @click="emit('click', $event)"
   >
@@ -95,7 +106,7 @@ const variantColors: Record<TagVariant, string> = {
 .nm-tag {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--nm-tag-gap);
   background-color: var(--nm-surface-color);
   border-radius: var(--nm-border-radius-sm);
   @include nm-raised(1px, 3px);
@@ -142,23 +153,23 @@ const variantColors: Record<TagVariant, string> = {
   &--error,
   &--info {
     background-color: var(--tag-color);
-    color: #fff;
+    color: var(--nm-text-on-primary);
     box-shadow:
-      2px 2px 4px rgba(0, 0, 0, 0.15),
-      -1px -1px 3px rgba(255, 255, 255, 0.2);
+      2px 2px 4px var(--nm-shadow-dark),
+      -1px -1px 3px var(--nm-shadow-light-ambient-lg);
 
     .nm-tag__close {
-      color: rgba(255, 255, 255, 0.7);
+      color: color-mix(in srgb, var(--nm-text-on-primary) 70%, transparent);
     }
     .nm-tag__close:hover {
-      color: #fff;
+      color: var(--nm-text-on-primary);
     }
 
     @media (hover: hover) {
       &:hover:not(.nm-tag--disabled) {
         box-shadow:
-          3px 3px 8px rgba(0, 0, 0, 0.25),
-          -2px -2px 6px rgba(255, 255, 255, 0.15);
+          3px 3px 8px color-mix(in srgb, black 25%, transparent),
+          -2px -2px 6px var(--nm-shadow-light-ambient-md);
         filter: brightness(1.05);
       }
     }
@@ -166,7 +177,7 @@ const variantColors: Record<TagVariant, string> = {
 }
 
 .nm-tag__text {
-  font-size: 13px;
+  font-size: var(--nm-font-md);
   font-weight: 500;
   line-height: 1;
 }
@@ -183,7 +194,7 @@ const variantColors: Record<TagVariant, string> = {
   transition:
     color 0.2s ease,
     transform 0.25s $nm-ease-spring;
-  border-radius: 50%;
+  border-radius: var(--nm-border-radius-full);
 
   &:hover {
     color: var(--nm-text-primary);
@@ -206,18 +217,18 @@ const variantColors: Record<TagVariant, string> = {
 
 // Sizes
 .nm-tag--small {
-  padding: 2px 8px;
-  font-size: 11px;
+  padding: var(--nm-tag-padding-y-sm) var(--nm-tag-padding-x-sm);
+  font-size: var(--nm-tag-font-sm);
   height: 22px;
 }
 .nm-tag--medium {
-  padding: 4px 12px;
-  font-size: 13px;
+  padding: var(--nm-tag-padding-y-md) var(--nm-tag-padding-x-md);
+  font-size: var(--nm-tag-font-md);
   height: 28px;
 }
 .nm-tag--large {
-  padding: 6px 16px;
-  font-size: 14px;
+  padding: var(--nm-tag-padding-y-lg) var(--nm-tag-padding-x-lg);
+  font-size: var(--nm-tag-font-lg);
   height: 34px;
 }
 </style>

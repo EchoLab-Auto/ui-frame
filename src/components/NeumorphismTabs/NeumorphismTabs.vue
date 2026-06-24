@@ -161,8 +161,8 @@ const classList = computed(() => [
 
 .nm-tabs__nav {
   display: flex;
-  gap: 4px;
-  padding: 4px;
+  gap: var(--nm-spacing-xs);
+  padding: var(--nm-spacing-xs);
 
   .nm-tabs--top &,
   .nm-tabs--bottom & {
@@ -177,10 +177,10 @@ const classList = computed(() => [
 }
 
 .nm-tabs__tab {
-  padding: 10px 20px;
+  padding: var(--nm-tabs-tab-padding-y-md) var(--nm-tabs-tab-padding-x-md);
   border: none;
   border-radius: var(--nm-border-radius-md);
-  font-size: 14px;
+  font-size: var(--nm-tabs-tab-font-md);
   font-weight: 500;
   cursor: pointer;
   color: var(--nm-text-secondary);
@@ -224,7 +224,7 @@ const classList = computed(() => [
     height: 2px;
     border-radius: 1px;
     background-color: var(--nm-primary-color);
-    box-shadow: 0 0 6px rgba(108, 122, 224, 0.4);
+    box-shadow: 0 0 6px color-mix(in srgb, var(--nm-primary-color) 40%, transparent);
     animation: nm-tab-indicator 0.4s $nm-ease-spring;
   }
 
@@ -251,16 +251,16 @@ const classList = computed(() => [
 
 // Sizes
 .nm-tabs--small .nm-tabs__tab {
-  padding: 6px 14px;
-  font-size: 12px;
+  padding: var(--nm-tabs-tab-padding-y-sm) var(--nm-tabs-tab-padding-x-sm);
+  font-size: var(--nm-tabs-tab-font-sm);
 }
 .nm-tabs--medium .nm-tabs__tab {
-  padding: 10px 20px;
-  font-size: 14px;
+  padding: var(--nm-tabs-tab-padding-y-md) var(--nm-tabs-tab-padding-x-md);
+  font-size: var(--nm-tabs-tab-font-md);
 }
 .nm-tabs--large .nm-tabs__tab {
-  padding: 14px 28px;
-  font-size: 16px;
+  padding: var(--nm-tabs-tab-padding-y-lg) var(--nm-tabs-tab-padding-x-lg);
+  font-size: var(--nm-tabs-tab-font-lg);
 }
 
 @keyframes nm-tab-active {

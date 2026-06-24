@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import { useCollapse } from '@/composables/useCollapse'
 import type { CollapseItem } from '@/composables/useCollapse'
 import { generateId } from '@/utils'
+import { useNeumorphismSetup } from '@/extensions/createComponent'
 
 export type { CollapseItem }
 
@@ -19,6 +20,13 @@ const props = withDefaults(defineProps<NeumorphismCollapseProps>(), {
   items: () => [],
   size: 'medium',
 })
+
+const { config, resolveProp } = useNeumorphismSetup()
+
+const resolvedSize = computed(() => resolveProp(props.size, config.value.collapse?.size, 'medium'))
+const resolvedAccordion = computed(() =>
+  resolveProp(props.accordion, config.value.collapse?.accordion, false)
+)
 
 const emit = defineEmits<{
   (e: 'update:modelValue', value: string[]): void
@@ -37,12 +45,12 @@ const activeKeys = computed({
 const { toggle, isActive } = useCollapse({
   modelValue: activeKeys,
   items: computed(() => props.items),
-  accordion: computed(() => props.accordion),
+  accordion: computed(() => resolvedAccordion.value),
 })
 
 const collapseId = generateId('nm-collapse')
 
-const classList = computed(() => ['nm-collapse', `nm-collapse--${props.size}`])
+const classList = computed(() => ['nm-collapse', `nm-collapse--${resolvedSize.value}`])
 </script>
 
 <template>
@@ -112,7 +120,7 @@ const classList = computed(() => ['nm-collapse', `nm-collapse--${props.size}`])
 .nm-collapse {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: var(--nm-spacing-xs);
 }
 
 .nm-collapse__item {
@@ -133,10 +141,10 @@ const classList = computed(() => ['nm-collapse', `nm-collapse--${props.size}`])
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  padding: 16px 20px;
+  padding: var(--nm-collapse-trigger-padding-y-md) var(--nm-collapse-trigger-padding-x-md);
   border: none;
   cursor: pointer;
-  font-size: 15px;
+  font-size: var(--nm-collapse-trigger-font-md);
   font-weight: 500;
   color: var(--nm-text-primary);
   background: none;
@@ -208,9 +216,9 @@ const classList = computed(() => ['nm-collapse', `nm-collapse--${props.size}`])
 }
 
 .nm-collapse__content-inner {
-  padding: 16px 20px;
+  padding: var(--nm-collapse-content-padding-y) var(--nm-collapse-content-padding-x);
   color: var(--nm-text-primary);
-  font-size: 14px;
+  font-size: var(--nm-font-base);
   line-height: 1.6;
 }
 
@@ -223,11 +231,11 @@ const classList = computed(() => ['nm-collapse', `nm-collapse--${props.size}`])
 
 // Sizes
 .nm-collapse--small .nm-collapse__trigger {
-  padding: 12px 16px;
-  font-size: 13px;
+  padding: var(--nm-collapse-trigger-padding-y-sm) var(--nm-collapse-trigger-padding-x-sm);
+  font-size: var(--nm-collapse-trigger-font-sm);
 }
 .nm-collapse--large .nm-collapse__trigger {
-  padding: 20px 28px;
-  font-size: 16px;
+  padding: var(--nm-collapse-trigger-padding-y-lg) var(--nm-collapse-trigger-padding-x-lg);
+  font-size: var(--nm-collapse-trigger-font-lg);
 }
 </style>

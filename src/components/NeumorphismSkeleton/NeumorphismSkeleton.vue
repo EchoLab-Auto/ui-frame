@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useLocale } from '@/composables/useLocale'
+import { useNeumorphismSetup } from '@/extensions/createComponent'
 
 export interface NeumorphismSkeletonProps {
   variant?: 'text' | 'circle' | 'rect'
@@ -16,6 +17,15 @@ const props = withDefaults(defineProps<NeumorphismSkeletonProps>(), {
   animation: 'pulse',
 })
 
+const { config, resolveProp } = useNeumorphismSetup()
+
+const resolvedVariant = computed(() =>
+  resolveProp(props.variant, config.value.skeleton?.variant, 'text')
+)
+const resolvedAnimation = computed(() =>
+  resolveProp(props.animation, config.value.skeleton?.animation, 'pulse')
+)
+
 const { t } = useLocale()
 
 const items = computed(() => {
@@ -25,8 +35,8 @@ const items = computed(() => {
 
 const classList = computed(() => [
   'nm-skeleton',
-  `nm-skeleton--${props.variant}`,
-  `nm-skeleton--${props.animation}`,
+  `nm-skeleton--${resolvedVariant.value}`,
+  `nm-skeleton--${resolvedAnimation.value}`,
 ])
 
 function formatSize(val?: string | number): string | undefined {
@@ -65,12 +75,12 @@ function formatSize(val?: string | number): string | undefined {
   &--text {
     height: 14px;
     width: 100%;
-    margin-bottom: 8px;
-    border-radius: 4px;
+    margin-bottom: var(--nm-spacing-sm);
+    border-radius: var(--nm-border-radius-xs);
   }
 
   &--circle {
-    border-radius: 50%;
+    border-radius: var(--nm-border-radius-full);
     width: 44px;
     height: 44px;
   }
@@ -116,6 +126,13 @@ function formatSize(val?: string | number): string | undefined {
   }
   100% {
     transform: translateX(100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
   }
 }
 </style>

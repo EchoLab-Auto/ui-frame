@@ -61,6 +61,9 @@ export const enUS: LocaleMessages = {
   // Tag
   tagClose: 'Remove tag',
 
+  // Alert
+  alertClose: 'Close alert',
+
   // Layout
   layoutExpandSider: 'Expand sidebar',
   layoutCollapseSider: 'Collapse sidebar',
@@ -79,4 +82,24 @@ export const enUS: LocaleMessages = {
 
   // Progress
   progressLabel: 'Progress {percentage}%',
+
+  // DatePicker
+  datePickerPlaceholder: 'Select date',
+  datePickerClear: 'Clear date',
+  datePickerToday: 'Today',
+  datePickerPrevMonth: 'Previous month',
+  datePickerNextMonth: 'Next month',
+  datePickerPrevYear: 'Previous year',
+  datePickerNextYear: 'Next year',
+
+  // Upload
+  uploadSelectFile: 'Click or drag to upload',
+  uploadDropFile: 'Drop files here',
+  uploadRemove: 'Remove',
+  uploadPreview: 'Preview',
+
+  // List
+  listLoading: 'Loading...',
+  listEmpty: 'No data',
+  listLabel: 'List',
 }

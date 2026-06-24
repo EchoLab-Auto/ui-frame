@@ -35,7 +35,12 @@
       "import": "./dist/composables/*.js",
       "types": "./dist/composables/*.d.ts"
     },
-    "./dist/*": "./dist/*"
+    "./locales": {
+      "import": "./dist/locales/index.js",
+      "types": "./dist/locales/index.d.ts"
+    },
+    "./dist/*": "./dist/*",
+    "./package.json": "./package.json"
   },
   "files": [
     "dist"
@@ -50,6 +55,9 @@
     "example:preview": "vite preview --config examples/vite-build.config.ts --host",
     "build": "vue-tsc --noEmit && vite build && vite build --config vite.umd.config.ts",
     "build:types": "vue-tsc --noEmit false --declaration --emitDeclarationOnly",
+    "changeset": "changeset",
+    "clean": "rm -rf dist dist-example",
+    "docs:build": "echo '📚 文档位于 docs/ 目录。如需构建演示站点，请使用: npm run example:build'",
     "preview": "vite preview",
     "typecheck": "vue-tsc --noEmit",
     "lint": "eslint . --ext .ts,.tsx,.vue",

@@ -121,7 +121,7 @@ $switch-ambient: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .nm-switch__label {
-  font-size: 14px;
+  font-size: var(--nm-font-base);
   transition: color 0.4s $switch-ambient;
 }
 
@@ -178,8 +178,8 @@ $switch-ambient: cubic-bezier(0.4, 0, 0.2, 1);
   transition: opacity 0.45s $switch-ambient;
   background: radial-gradient(
     ellipse 80% 80% at 20% 50%,
-    rgba(108, 122, 224, 0) 0%,
-    rgba(108, 122, 224, 0) 100%
+    color-mix(in srgb, var(--nm-primary-color) 0%, transparent) 0%,
+    color-mix(in srgb, var(--nm-primary-color) 0%, transparent) 100%
   );
 }
 
@@ -195,7 +195,7 @@ $switch-ambient: cubic-bezier(0.4, 0, 0.2, 1);
   opacity: 0.08;
   background: radial-gradient(
     ellipse 70% 90% at 80% 50%,
-    rgba(108, 122, 224, 0.4) 0%,
+    color-mix(in srgb, var(--nm-primary-color) 40%, transparent) 0%,
     transparent 70%
   );
 }
@@ -204,7 +204,7 @@ $switch-ambient: cubic-bezier(0.4, 0, 0.2, 1);
 // Thumb — physical toggle with spring physics
 // ==========================================
 .nm-switch__thumb {
-  --nm-switch-gap: 4px;
+  --nm-switch-gap: var(--nm-spacing-xs);
   --nm-switch-shift: 0px;
   --nm-switch-stretch: 0;
 
@@ -216,7 +216,7 @@ $switch-ambient: cubic-bezier(0.4, 0, 0.2, 1);
     scaleX(calc(1 + var(--nm-switch-stretch))) scaleY(calc(1 - var(--nm-switch-stretch) * 0.5));
   transform-origin: center center;
   background: linear-gradient(145deg, var(--nm-bg-color) 0%, var(--nm-surface-raised) 100%);
-  border-radius: 50%;
+  border-radius: var(--nm-border-radius-full);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -227,7 +227,7 @@ $switch-ambient: cubic-bezier(0.4, 0, 0.2, 1);
     width 0.25s $switch-compress,
     height 0.25s $switch-compress;
   box-shadow:
-    1px 2px 4px rgba(0, 0, 0, 0.12),
+    1px 2px 4px color-mix(in srgb, black 12%, transparent),
     2px 2px 6px var(--nm-shadow-dark),
     -1px -1px 4px var(--nm-shadow-light);
 }
@@ -236,7 +236,7 @@ $switch-ambient: cubic-bezier(0.4, 0, 0.2, 1);
 .nm-switch__thumb-dot {
   width: 36%;
   height: 36%;
-  border-radius: 50%;
+  border-radius: var(--nm-border-radius-full);
   background-color: var(--nm-switch-inactive-color, var(--nm-text-placeholder));
   transition:
     background-color 0.4s $switch-ambient,
@@ -277,11 +277,11 @@ $switch-ambient: cubic-bezier(0.4, 0, 0.2, 1);
 .nm-switch--checked .nm-switch__thumb {
   background: linear-gradient(145deg, var(--nm-surface-raised) 0%, var(--nm-bg-color) 100%);
   box-shadow:
-    2px 2px 6px rgba(0, 0, 0, 0.1),
+    2px 2px 6px var(--nm-shadow-ambient-xl),
     3px 3px 8px var(--nm-shadow-dark),
     -1px -1px 4px var(--nm-shadow-light),
-    0 0 14px rgba(108, 122, 224, 0.22),
-    0 0 4px rgba(108, 122, 224, 0.35);
+    0 0 14px color-mix(in srgb, var(--nm-primary-color) 22%, transparent),
+    0 0 4px color-mix(in srgb, var(--nm-primary-color) 35%, transparent);
 }
 
 // Thumb dot pulse on checked
@@ -295,8 +295,8 @@ $switch-ambient: cubic-bezier(0.4, 0, 0.2, 1);
 .nm-switch--small {
   .nm-switch__track {
     width: 44px;
-    height: 24px;
-    border-radius: 12px;
+    height: var(--nm-spacing-lg);
+    border-radius: calc(24px / 2);
   }
 
   .nm-switch__thumb {
@@ -313,16 +313,16 @@ $switch-ambient: cubic-bezier(0.4, 0, 0.2, 1);
   .nm-switch__track {
     width: 56px;
     height: 30px;
-    border-radius: 15px;
+    border-radius: calc(30px / 2);
   }
 
   .nm-switch__thumb {
-    width: 24px;
-    height: 24px;
+    width: var(--nm-spacing-lg);
+    height: var(--nm-spacing-lg);
   }
 
   &.nm-switch--checked .nm-switch__thumb {
-    --nm-switch-shift: 24px; // track(56) - thumb(24) - 2 * gap(4)
+    --nm-switch-shift: var(--nm-spacing-lg); // track(56) - thumb(24) - 2 * gap(4)
   }
 }
 
@@ -330,16 +330,16 @@ $switch-ambient: cubic-bezier(0.4, 0, 0.2, 1);
   .nm-switch__track {
     width: 72px;
     height: 38px;
-    border-radius: 19px;
+    border-radius: calc(38px / 2);
   }
 
   .nm-switch__thumb {
-    width: 32px;
-    height: 32px;
+    width: var(--nm-spacing-xl);
+    height: var(--nm-spacing-xl);
   }
 
   &.nm-switch--checked .nm-switch__thumb {
-    --nm-switch-shift: 32px; // track(72) - thumb(32) - 2 * gap(4)
+    --nm-switch-shift: var(--nm-spacing-xl); // track(72) - thumb(32) - 2 * gap(4)
   }
 }
 

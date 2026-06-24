@@ -79,4 +79,81 @@ describe('useTree', () => {
     await new Promise(r => setTimeout(r, 0))
     expect(parentKeys.value).toContain('1')
   })
+
+  describe('keyboard navigation', () => {
+    function keydown(key: string) {
+      return new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true })
+    }
+
+    it('ArrowDown focuses next visible node', () => {
+      const tree = useTree({ data: ref(treeData) })
+      tree.expandAll()
+      tree.handleKeydown(keydown('ArrowDown'))
+      expect(tree.focusedKey.value).toBe('1')
+      tree.handleKeydown(keydown('ArrowDown'))
+      expect(tree.focusedKey.value).toBe('1-1')
+    })
+
+    it('ArrowUp focuses previous visible node', () => {
+      const tree = useTree({ data: ref(treeData) })
+      tree.expandAll()
+      tree.focusedKey.value = '1-2'
+      tree.handleKeydown(keydown('ArrowUp'))
+      expect(tree.focusedKey.value).toBe('1-1')
+    })
+
+    it('ArrowRight expands focused parent and moves to first child', () => {
+      const tree = useTree({ data: ref(treeData) })
+      tree.focusedKey.value = '1'
+      tree.handleKeydown(keydown('ArrowRight'))
+      expect(tree.localExpandedKeys.value).toContain('1')
+      expect(tree.focusedKey.value).toBe('1-1')
+    })
+
+    it('ArrowLeft collapses expanded node or moves to parent', () => {
+      const tree = useTree({ data: ref(treeData) })
+      tree.expandAll()
+      tree.focusedKey.value = '1-1'
+      tree.handleKeydown(keydown('ArrowLeft'))
+      expect(tree.focusedKey.value).toBe('1')
+      expect(tree.localExpandedKeys.value).toContain('1')
+
+      tree.focusedKey.value = '1'
+      tree.handleKeydown(keydown('ArrowLeft'))
+      expect(tree.localExpandedKeys.value).not.toContain('1')
+    })
+
+    it('Enter selects focused node', () => {
+      const tree = useTree({ data: ref(treeData) })
+      tree.focusedKey.value = '2'
+      tree.handleKeydown(keydown('Enter'))
+      expect(tree.localSelectedKeys.value).toEqual(['2'])
+    })
+
+    it('Home focuses first visible node', () => {
+      const tree = useTree({ data: ref(treeData) })
+      tree.expandAll()
+      tree.focusedKey.value = '2'
+      tree.handleKeydown(keydown('Home'))
+      expect(tree.focusedKey.value).toBe('1')
+    })
+
+    it('End focuses last visible node', () => {
+      const tree = useTree({ data: ref(treeData) })
+      tree.expandAll()
+      tree.focusedKey.value = '1'
+      tree.handleKeydown(keydown('End'))
+      expect(tree.focusedKey.value).toBe('2')
+    })
+
+    it('typeahead jumps to matching node', () => {
+      const tree = useTree({ data: ref(treeData) })
+      tree.expandAll()
+      tree.handleKeydown(new KeyboardEvent('keydown', { key: 'N', bubbles: true }))
+      tree.handleKeydown(new KeyboardEvent('keydown', { key: 'o', bubbles: true }))
+      tree.handleKeydown(new KeyboardEvent('keydown', { key: 'd', bubbles: true }))
+      tree.handleKeydown(new KeyboardEvent('keydown', { key: 'e', bubbles: true }))
+      expect(tree.focusedKey.value).toBe('2')
+    })
+  })
 })

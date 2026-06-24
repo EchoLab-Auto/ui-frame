@@ -92,15 +92,15 @@ defineExpose({ validate, clearError, fieldId })
 
 <style scoped lang="scss">
 .nm-form-item {
-  margin-bottom: 20px;
+  margin-bottom: var(--nm-form-item-margin-bottom);
 }
 
 .nm-form-item__label {
   display: block;
-  font-size: 14px;
+  font-size: var(--nm-form-label-font);
   font-weight: 500;
   color: var(--nm-text-primary);
-  margin-bottom: 6px;
+  margin-bottom: var(--nm-form-label-margin-bottom);
 }
 
 .nm-form-item__required {
@@ -113,8 +113,15 @@ defineExpose({ validate, clearError, fieldId })
 }
 
 .nm-form-item__error {
-  font-size: 12px;
+  font-size: var(--nm-font-sm);
   color: var(--nm-color-error);
-  margin-top: 4px;
+  margin-top: var(--nm-spacing-xs);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
+  }
 }
 </style>

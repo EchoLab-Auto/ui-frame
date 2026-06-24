@@ -165,7 +165,7 @@ function handleClick(event: MouseEvent): void {
 }
 
 .nm-button--circle {
-  border-radius: 50%;
+  border-radius: var(--nm-border-radius-full);
   padding: 0;
   width: var(--nm-button-min-height);
   height: var(--nm-button-min-height);
@@ -176,7 +176,7 @@ function handleClick(event: MouseEvent): void {
 // Raised (default) — convex shadow, lifts toward finger on hover
 .nm-button--raised {
   box-shadow:
-    0 1px 2px rgba(0, 0, 0, 0.06),
+    0 1px 2px var(--nm-shadow-ambient-md),
     4px 4px 8px var(--nm-shadow-dark),
     -2px -2px 6px var(--nm-shadow-light);
   transition:
@@ -186,7 +186,7 @@ function handleClick(event: MouseEvent): void {
   &:not(.nm-button--disabled):hover {
     transform: translateY(-2px);
     box-shadow:
-      0 3px 6px rgba(0, 0, 0, 0.1),
+      0 3px 6px var(--nm-shadow-ambient-xl),
       6px 6px 14px var(--nm-shadow-dark),
       -3px -3px 10px var(--nm-shadow-light);
   }
@@ -205,7 +205,7 @@ function handleClick(event: MouseEvent): void {
 // Flat — subtle shadow, firms up on hover
 .nm-button--flat {
   box-shadow:
-    0 1px 2px rgba(0, 0, 0, 0.04),
+    0 1px 2px var(--nm-shadow-ambient-sm),
     2px 2px 4px var(--nm-shadow-dark),
     -1px -1px 3px var(--nm-shadow-light);
   transition:
@@ -215,7 +215,7 @@ function handleClick(event: MouseEvent): void {
   &:not(.nm-button--disabled):hover {
     transform: translateY(-1px);
     box-shadow:
-      0 2px 4px rgba(0, 0, 0, 0.06),
+      0 2px 4px var(--nm-shadow-ambient-md),
       4px 4px 8px var(--nm-shadow-dark),
       -2px -2px 6px var(--nm-shadow-light);
   }
@@ -289,6 +289,13 @@ function handleClick(event: MouseEvent): void {
 
   &--hidden {
     opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
   }
 }
 </style>

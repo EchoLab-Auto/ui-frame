@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useLocale } from '@/composables/useLocale'
+import { useNeumorphismSetup } from '@/extensions/createComponent'
 
 export interface NeumorphismCanvasProps {
   /** Current zoom level (1 = 100%) */
@@ -35,6 +36,18 @@ const props = withDefaults(defineProps<NeumorphismCanvasProps>(), {
   height: '500px',
 })
 
+const { config, resolveProp } = useNeumorphismSetup()
+
+const resolvedShowGrid = computed(() =>
+  resolveProp(props.showGrid, config.value.canvas?.showGrid, true)
+)
+const resolvedGridSize = computed(() =>
+  resolveProp(props.gridSize, config.value.canvas?.gridSize, 20)
+)
+const resolvedShowControls = computed(() =>
+  resolveProp(props.showControls, config.value.canvas?.showControls, true)
+)
+
 const emit = defineEmits<{
   (e: 'update:modelValue', value: number): void
   (e: 'zoom-change', value: number): void
@@ -66,8 +79,8 @@ function resetZoom() {
 
 // Grid background CSS
 const gridStyle = computed(() => {
-  if (!props.showGrid) return {}
-  const size = props.gridSize * currentZoom.value
+  if (!resolvedShowGrid.value) return {}
+  const size = resolvedGridSize.value * currentZoom.value
   return {
     backgroundImage: `
       radial-gradient(circle, var(--nm-text-placeholder) 1px, transparent 1px)
@@ -88,7 +101,7 @@ const classList = computed(() => ['nm-canvas'])
 <template>
   <div :class="classList" :style="wrapperStyle">
     <!-- Toolbar -->
-    <div v-if="showControls" class="nm-canvas__toolbar">
+    <div v-if="resolvedShowControls" class="nm-canvas__toolbar">
       <div class="nm-canvas__controls">
         <button
           type="button"
@@ -189,7 +202,7 @@ const classList = computed(() => ['nm-canvas'])
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8px 12px;
+  padding: var(--nm-spacing-sm) 12px;
   border-bottom: 1px solid rgba(128, 128, 128, 0.08);
   flex-shrink: 0;
 }
@@ -197,15 +210,15 @@ const classList = computed(() => ['nm-canvas'])
 .nm-canvas__controls {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--nm-spacing-xs);
 }
 
 .nm-canvas__btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  width: var(--nm-spacing-xl);
+  height: var(--nm-spacing-xl);
   border: none;
   border-radius: var(--nm-border-radius-sm);
   background-color: var(--nm-surface-color);
@@ -219,8 +232,8 @@ const classList = computed(() => ['nm-canvas'])
     transform 0.25s $nm-ease-spring;
 
   svg {
-    width: 16px;
-    height: 16px;
+    width: var(--nm-spacing-md);
+    height: var(--nm-spacing-md);
     transition: transform 0.3s $nm-ease-spring;
   }
 
@@ -248,7 +261,7 @@ const classList = computed(() => ['nm-canvas'])
   }
 
   &--reset {
-    margin-left: 4px;
+    margin-left: var(--nm-spacing-xs);
 
     svg {
       transition: transform 0.4s $nm-ease-spring;
@@ -265,7 +278,7 @@ const classList = computed(() => ['nm-canvas'])
 .nm-canvas__zoom-text {
   min-width: 44px;
   text-align: center;
-  font-size: 12px;
+  font-size: var(--nm-font-sm);
   font-weight: 600;
   color: var(--nm-text-secondary);
   user-select: none;

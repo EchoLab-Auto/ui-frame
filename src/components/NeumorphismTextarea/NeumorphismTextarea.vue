@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, onMounted, watch, nextTick, useAttrs } from 'vue'
 import { useFormField } from '@/composables/useFormField'
+import { useNeumorphismSetup } from '@/extensions/createComponent'
 import NeumorphismFieldLabel from '@/components/NeumorphismField/NeumorphismFieldLabel.vue'
 import NeumorphismFieldError from '@/components/NeumorphismField/NeumorphismFieldError.vue'
 
@@ -58,9 +59,13 @@ const textareaAttrs = computed(() => {
   return result
 })
 
+const { config, resolveProp } = useNeumorphismSetup()
+
+const resolvedSize = computed(() => resolveProp(props.size, config.value.textarea?.size, 'medium'))
+
 const { fieldId, errorMessage, baseClassList, handleFocus, handleBlur } = useFormField(() => ({
   id: props.id,
-  size: props.size,
+  size: resolvedSize.value,
   disabled: props.disabled,
   error: props.error,
   prefix: 'textarea',
@@ -248,7 +253,7 @@ watch(
   background: transparent;
   color: var(--nm-text-primary);
   font-family: inherit;
-  font-size: 14px;
+  font-size: var(--nm-font-base);
   line-height: 1.6;
   resize: vertical;
   width: 100%;
@@ -273,22 +278,22 @@ watch(
 }
 
 .nm-textarea__count {
-  font-size: 12px;
+  font-size: var(--nm-font-sm);
   color: var(--nm-text-placeholder);
   margin-left: auto;
 }
 
 // Sizes
 .nm-textarea--small .nm-textarea__field {
-  padding: 6px 12px;
-  font-size: 13px;
+  padding: var(--nm-field-padding-y-sm) var(--nm-field-padding-x-sm);
+  font-size: var(--nm-field-font-sm);
 }
 .nm-textarea--medium .nm-textarea__field {
-  padding: 10px 16px;
-  font-size: 14px;
+  padding: var(--nm-field-padding-y-md) var(--nm-field-padding-x-md);
+  font-size: var(--nm-field-font-md);
 }
 .nm-textarea--large .nm-textarea__field {
-  padding: 14px 20px;
-  font-size: 16px;
+  padding: var(--nm-field-padding-y-lg) var(--nm-field-padding-x-lg);
+  font-size: var(--nm-field-font-lg);
 }
 </style>

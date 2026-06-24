@@ -131,12 +131,19 @@ defineExpose({ validateAll, validateField, clearErrors })
   &--horizontal {
     flex-direction: row;
     flex-wrap: wrap;
-    gap: 16px;
+    gap: var(--nm-spacing-md);
     align-items: flex-start;
   }
 
   &--vertical {
     gap: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
   }
 }
 </style>

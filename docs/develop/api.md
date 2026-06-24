@@ -283,6 +283,158 @@ interface FormRule {
 
 ---
 
+#### NeumorphismSlider
+
+```ts
+import { NeumorphismSlider } from '@echolab/ui-frame'
+import type { NeumorphismSliderProps, SliderSize } from '@echolab/ui-frame'
+```
+
+| Props       | Type                             | Default    | Description          |
+| ----------- | -------------------------------- | ---------- | -------------------- |
+| modelValue  | `number`                         | `0`        | 绑定值               |
+| min         | `number`                         | `0`        | 最小值               |
+| max         | `number`                         | `100`      | 最大值               |
+| step        | `number`                         | `1`        | 步长                 |
+| disabled    | `boolean`                        | `false`    | 是否禁用             |
+| showTooltip | `boolean`                        | `true`     | 拖拽时显示当前值提示 |
+| showStops   | `boolean`                        | `false`    | 显示刻度标记         |
+| vertical    | `boolean`                        | `false`    | 垂直方向             |
+| size        | `'small' \| 'medium' \| 'large'` | `'medium'` | 滑块尺寸             |
+
+**Events:** `update:modelValue`, `change`
+
+---
+
+#### NeumorphismInputNumber
+
+```ts
+import { NeumorphismInputNumber } from '@echolab/ui-frame'
+import type { NeumorphismInputNumberProps, NumberInputSize } from '@echolab/ui-frame'
+```
+
+| Props       | Type                             | Default     | Description  |
+| ----------- | -------------------------------- | ----------- | ------------ |
+| modelValue  | `number`                         | `undefined` | 绑定值       |
+| min         | `number`                         | `undefined` | 最小值       |
+| max         | `number`                         | `undefined` | 最大值       |
+| step        | `number`                         | `1`         | 步长         |
+| precision   | `number`                         | `undefined` | 小数精度     |
+| disabled    | `boolean`                        | `false`     | 是否禁用     |
+| size        | `'small' \| 'medium' \| 'large'` | `'medium'`  | 尺寸         |
+| placeholder | `string`                         | `''`        | 占位符       |
+| controls    | `boolean`                        | `true`      | 显示增减按钮 |
+| label       | `string`                         | —           | 标签文字     |
+
+**Events:** `update:modelValue`, `change`, `focus`, `blur`
+
+---
+
+#### NeumorphismAutoComplete
+
+```ts
+import { NeumorphismAutoComplete } from '@echolab/ui-frame'
+import type { NeumorphismAutoCompleteProps, NeumorphismAutoCompleteOption } from '@echolab/ui-frame'
+```
+
+| Props       | Type                                               | Default     | Description          |
+| ----------- | -------------------------------------------------- | ----------- | -------------------- |
+| modelValue  | `string \| number`                                 | `undefined` | 绑定值               |
+| options     | `AutoCompleteOption[]`                             | `[]`        | 本地选项数据         |
+| placeholder | `string`                                           | `''`        | 占位符               |
+| disabled    | `boolean`                                          | `false`     | 是否禁用             |
+| size        | `'small' \| 'medium' \| 'large'`                   | `'medium'`  | 尺寸                 |
+| clearable   | `boolean`                                          | `true`      | 是否可清空           |
+| loading     | `boolean`                                          | `false`     | 外部加载状态         |
+| label       | `string`                                           | —           | 标签文字             |
+| debounce    | `number`                                           | `300`       | 异步搜索防抖延迟(ms) |
+| searchFn    | `(query: string) => Promise<AutoCompleteOption[]>` | —           | 异步搜索函数         |
+
+```ts
+interface AutoCompleteOption {
+  label: string
+  value: string | number
+  disabled?: boolean
+}
+```
+
+**Events:** `update:modelValue`, `select`, `search`, `focus`, `blur`
+
+---
+
+#### NeumorphismDatePicker
+
+```ts
+import { NeumorphismDatePicker } from '@echolab/ui-frame'
+import type { NeumorphismDatePickerProps } from '@echolab/ui-frame'
+```
+
+| Props          | Type                             | Default        | Description        |
+| -------------- | -------------------------------- | -------------- | ------------------ |
+| modelValue     | `Date \| null`                   | `null`         | 绑定值             |
+| placeholder    | `string`                         | `''`           | 占位符             |
+| format         | `string`                         | `'yyyy-MM-dd'` | 显示格式           |
+| disabled       | `boolean`                        | `false`        | 是否禁用           |
+| clearable      | `boolean`                        | `true`         | 是否可清空         |
+| size           | `'small' \| 'medium' \| 'large'` | `'medium'`     | 尺寸               |
+| minDate        | `Date`                           | —              | 最小可选日期       |
+| maxDate        | `Date`                           | —              | 最大可选日期       |
+| firstDayOfWeek | `number`                         | `0`            | 每周起始日(0=周日) |
+| label          | `string`                         | —              | 标签文字           |
+| required       | `boolean`                        | `false`        | 是否必填           |
+| error          | `string \| boolean`              | —              | 错误信息或状态     |
+| name           | `string`                         | —              | 表单字段名         |
+| id             | `string`                         | —              | 自定义 ID          |
+
+**Events:** `update:modelValue`, `change`, `focus`, `blur`
+
+---
+
+#### NeumorphismUpload
+
+```ts
+import { NeumorphismUpload } from '@echolab/ui-frame'
+import type { NeumorphismUploadProps, UploadFile, UploadStatus } from '@echolab/ui-frame'
+```
+
+| Props          | Type                                    | Default    | Description                 |
+| -------------- | --------------------------------------- | ---------- | --------------------------- |
+| modelValue     | `UploadFile[]`                          | `[]`       | 绑定文件列表                |
+| accept         | `string`                                | —          | 接受的文件类型(MIME/扩展名) |
+| maxSize        | `number`                                | —          | 最大文件大小(字节)          |
+| maxCount       | `number`                                | —          | 最大文件数量                |
+| multiple       | `boolean`                               | `false`    | 允许多选                    |
+| disabled       | `boolean`                               | `false`    | 是否禁用                    |
+| drag           | `boolean`                               | `true`     | 启用拖拽上传区域            |
+| listType       | `'text' \| 'picture' \| 'picture-card'` | `'text'`   | 文件列表展示样式            |
+| showUploadList | `boolean`                               | `true`     | 是否显示文件列表            |
+| size           | `'small' \| 'medium' \| 'large'`        | `'medium'` | 尺寸                        |
+| autoUpload     | `boolean`                               | `false`    | 选择文件后自动上传          |
+| triggerText    | `string`                                | —          | 上传触发按钮文本            |
+| dropText       | `string`                                | —          | 拖拽提示文本                |
+| removeLabel    | `string`                                | —          | 移除按钮 aria-label         |
+| previewLabel   | `string`                                | —          | 预览按钮 aria-label         |
+
+```ts
+interface UploadFile {
+  id: string
+  name: string
+  size: number
+  type: string
+  status: 'pending' | 'uploading' | 'done' | 'error'
+  progress: number
+  url?: string
+  error?: string
+  raw?: File
+}
+```
+
+**Slots:** `trigger` (scope: `{ dragOver, disabled }`)
+
+**Events:** `update:modelValue`, `change`, `preview`, `remove`, `exceed`
+
+---
+
 ### 数据展示
 
 #### NeumorphismCard
@@ -460,6 +612,149 @@ import type { NeumorphismDividerProps, DividerDirection, DividerAlign } from '@e
 
 ---
 
+#### NeumorphismList
+
+```ts
+import { NeumorphismList } from '@echolab/ui-frame'
+import type { NeumorphismListProps } from '@echolab/ui-frame'
+```
+
+| Props     | Type                             | Default    | Description      |
+| --------- | -------------------------------- | ---------- | ---------------- |
+| items     | `any[]`                          | `[]`       | 数据源列表       |
+| bordered  | `boolean`                        | `true`     | 是否显示边框     |
+| split     | `boolean`                        | `true`     | 是否显示分割线   |
+| size      | `'small' \| 'medium' \| 'large'` | `'medium'` | 尺寸             |
+| hoverable | `boolean`                        | `true`     | 是否启用悬停效果 |
+| loading   | `boolean`                        | `false`    | 是否加载中       |
+
+**Slots:** default (scope: `{ item, index }`), `header`, `footer`, `loading`, `empty`
+
+**Events:** `item-click`
+
+---
+
+#### NeumorphismVirtualList
+
+```ts
+import { NeumorphismVirtualList } from '@echolab/ui-frame'
+import type { NeumorphismVirtualListProps } from '@echolab/ui-frame'
+```
+
+| Props      | Type     | Default | Description          |
+| ---------- | -------- | ------- | -------------------- |
+| items      | `any[]`  | `[]`    | 数据源列表           |
+| itemHeight | `number` | `40`    | 每项固定高度(px)     |
+| overscan   | `number` | `5`     | 视口外额外渲染的项数 |
+| keyField   | `string` | `'id'`  | 用作 `:key` 的字段名 |
+
+**Slots:** default (scope: `{ item, index }`), `empty`
+
+**Exposed methods:** `scrollTo(index, align?)`
+
+---
+
+### 反馈
+
+#### NeumorphismPopover
+
+```ts
+import { NeumorphismPopover } from '@echolab/ui-frame'
+import type { NeumorphismPopoverProps, PopoverPosition, PopoverTrigger } from '@echolab/ui-frame'
+```
+
+| Props     | Type                                               | Default   | Description                       |
+| --------- | -------------------------------------------------- | --------- | --------------------------------- |
+| position  | `'top' \| 'bottom' \| 'left' \| 'right' \| 'auto'` | `'auto'`  | 弹出位置（auto 自动边界检测）     |
+| trigger   | `'click' \| 'hover' \| 'focus' \| 'manual'`        | `'click'` | 触发方式                          |
+| disabled  | `boolean`                                          | `false`   | 是否禁用                          |
+| offset    | `number`                                           | `8`       | 与触发元素的偏移距离(px)          |
+| width     | `'auto' \| 'trigger' \| number`                    | `'auto'`  | 弹出内容宽度                      |
+| content   | `string`                                           | —         | 文本内容（不使用 content 插槽时） |
+| showArrow | `boolean`                                          | `true`    | 是否显示指向箭头                  |
+
+**Slots:** default（触发元素）, `content`（弹出内容）
+
+**Events:** `visible-change`
+
+**Exposed methods:** `show`, `hide`, `toggle`, `isOpen`
+
+---
+
+#### NeumorphismDropdown
+
+```ts
+import { NeumorphismDropdown } from '@echolab/ui-frame'
+import type { NeumorphismDropdownProps, DropdownItem } from '@echolab/ui-frame'
+```
+
+| Props    | Type                                               | Default    | Description  |
+| -------- | -------------------------------------------------- | ---------- | ------------ |
+| items    | `DropdownItem[]`                                   | `[]`       | 下拉菜单项   |
+| position | `'top' \| 'bottom' \| 'left' \| 'right' \| 'auto'` | `'bottom'` | 弹出位置     |
+| trigger  | `'click' \| 'hover' \| 'focus' \| 'manual'`        | `'click'`  | 触发方式     |
+| disabled | `boolean`                                          | `false`    | 是否禁用     |
+| offset   | `number`                                           | `4`        | 偏移距离(px) |
+
+```ts
+interface DropdownItem {
+  key: string
+  label: string
+  icon?: string
+  disabled?: boolean
+  divided?: boolean
+  danger?: boolean
+}
+```
+
+**Slots:** default（触发元素）, `items`（自定义菜单内容）
+
+**Events:** `select`, `visible-change`
+
+---
+
+#### NeumorphismAlert
+
+```ts
+import { NeumorphismAlert } from '@echolab/ui-frame'
+import type { NeumorphismAlertProps, AlertType } from '@echolab/ui-frame'
+```
+
+| Props      | Type                                          | Default    | Description                    |
+| ---------- | --------------------------------------------- | ---------- | ------------------------------ |
+| type       | `'info' \| 'success' \| 'warning' \| 'error'` | `'info'`   | 提示类型                       |
+| title      | `string`                                      | `''`       | 标题                           |
+| message    | `string`                                      | `''`       | 描述内容                       |
+| closable   | `boolean`                                     | `true`     | 是否可关闭                     |
+| duration   | `number`                                      | `0`        | 自动关闭延迟(ms)，0 需手动关闭 |
+| icon       | `boolean`                                     | `true`     | 是否显示类型图标               |
+| bordered   | `boolean`                                     | `true`     | 是否显示左侧色条               |
+| size       | `'small' \| 'medium' \| 'large'`              | `'medium'` | 尺寸                           |
+| closeLabel | `string`                                      | `''`       | 关闭按钮 aria-label            |
+
+**Slots:** `icon`, default（覆盖 title + message）
+
+**Events:** `close`
+
+---
+
+#### NeumorphismEmpty
+
+```ts
+import { NeumorphismEmpty } from '@echolab/ui-frame'
+import type { NeumorphismEmptyProps, EmptySize } from '@echolab/ui-frame'
+```
+
+| Props       | Type                             | Default    | Description  |
+| ----------- | -------------------------------- | ---------- | ------------ |
+| image       | `string`                         | —          | 自定义占位图 |
+| description | `string`                         | —          | 描述文字     |
+| size        | `'small' \| 'medium' \| 'large'` | `'medium'` | 尺寸         |
+
+**Slots:** `image`, default（底部操作区）
+
+---
+
 ### 导航
 
 #### NeumorphismTabs
@@ -535,6 +830,113 @@ import type { NeumorphismPaginationProps } from '@echolab/ui-frame'
 **Slots:** `page-item` (scope: `{ page, active }`)
 
 **Events:** `update:modelValue`, `change`
+
+---
+
+#### NeumorphismMenu
+
+```ts
+import { NeumorphismMenu } from '@echolab/ui-frame'
+import type { NeumorphismMenuProps, MenuItem } from '@echolab/ui-frame'
+```
+
+| Props           | Type                             | Default      | Description                  |
+| --------------- | -------------------------------- | ------------ | ---------------------------- |
+| items           | `MenuItem[]`                     | `[]`         | 菜单项（支持子菜单）         |
+| mode            | `'vertical' \| 'horizontal'`     | `'vertical'` | 布局方向                     |
+| defaultActive   | `string`                         | —            | 默认激活项 key               |
+| defaultExpanded | `string[]`                       | `[]`         | 默认展开的子菜单 keys        |
+| collapsed       | `boolean`                        | `false`      | 折叠模式（仅显示图标）       |
+| selectable      | `boolean`                        | `true`       | 是否可选中（跟踪 activeKey） |
+| theme           | `'light' \| 'dark'`              | —            | 主题覆盖（默认跟随全局主题） |
+| size            | `'small' \| 'medium' \| 'large'` | `'medium'`   | 尺寸                         |
+
+```ts
+interface MenuItem {
+  key: string
+  label: string
+  icon?: string
+  disabled?: boolean
+  children?: MenuItem[]
+  divided?: boolean
+}
+```
+
+**Events:** `select`, `item-click`
+
+---
+
+#### NeumorphismNavMenu
+
+```ts
+import { NeumorphismNavMenu } from '@echolab/ui-frame'
+import type { NeumorphismNavMenuProps, MenuItem } from '@echolab/ui-frame'
+```
+
+| Props         | Type                             | Default        | Description                  |
+| ------------- | -------------------------------- | -------------- | ---------------------------- |
+| items         | `MenuItem[]`                     | `[]`           | 导航菜单项（支持下拉子菜单） |
+| defaultActive | `string`                         | —              | 默认激活项 key               |
+| mode          | `'horizontal' \| 'vertical'`     | `'horizontal'` | 布局方向                     |
+| showIndicator | `boolean`                        | `true`         | 是否显示激活指示条           |
+| theme         | `'light' \| 'dark'`              | —              | 主题覆盖                     |
+| size          | `'small' \| 'medium' \| 'large'` | `'medium'`     | 尺寸                         |
+
+**Events:** `select`, `item-click`
+
+---
+
+#### NeumorphismDrawer
+
+```ts
+import { NeumorphismDrawer } from '@echolab/ui-frame'
+import type { NeumorphismDrawerProps, DrawerPosition } from '@echolab/ui-frame'
+```
+
+| Props          | Type                                     | Default   | Description                   |
+| -------------- | ---------------------------------------- | --------- | ----------------------------- |
+| modelValue     | `boolean`                                | `false`   | 是否显示                      |
+| position       | `'left' \| 'right' \| 'top' \| 'bottom'` | `'right'` | 抽屉方向                      |
+| title          | `string`                                 | —         | 标题                          |
+| width          | `number \| string`                       | —         | 宽度/高度（根据方向自动适配） |
+| maskClosable   | `boolean`                                | `true`    | 点击遮罩关闭                  |
+| closable       | `boolean`                                | `true`    | 是否可关闭                    |
+| showClose      | `boolean`                                | `true`    | 显示关闭按钮                  |
+| destroyOnClose | `boolean`                                | `false`   | 关闭时销毁内容                |
+
+**Slots:** `header`, default, `footer`
+
+**Events:** `update:modelValue`, `open`, `close`
+
+---
+
+#### NeumorphismSteps
+
+```ts
+import { NeumorphismSteps } from '@echolab/ui-frame'
+import type { NeumorphismStepsProps, StepItem, StepStatus } from '@echolab/ui-frame'
+```
+
+| Props     | Type                             | Default        | Description           |
+| --------- | -------------------------------- | -------------- | --------------------- |
+| steps     | `StepItem[]`                     | `[]`           | 步骤项列表            |
+| current   | `number`                         | `0`            | 当前步骤索引(0-based) |
+| direction | `'horizontal' \| 'vertical'`     | `'horizontal'` | 布局方向              |
+| size      | `'small' \| 'medium' \| 'large'` | `'medium'`     | 尺寸                  |
+| center    | `boolean`                        | `false`        | 标题和描述是否居中    |
+
+```ts
+interface StepItem {
+  key: string
+  title: string
+  description?: string
+  status?: 'wait' | 'process' | 'finish' | 'error'
+}
+```
+
+**Slots:** `empty`
+
+**Events:** `update:current`, `change`, `stepClick`
 
 ---
 
@@ -1277,6 +1679,345 @@ interface UseTooltipReturn {
 
 ---
 
+### usePopover
+
+```ts
+import { usePopover } from '@echolab/ui-frame'
+import type {
+  UsePopoverOptions,
+  UsePopoverReturn,
+  PopoverPosition,
+  PopoverTrigger,
+} from '@echolab/ui-frame'
+```
+
+```ts
+interface UsePopoverOptions {
+  position?: Ref<PopoverPosition>
+  trigger?: Ref<PopoverTrigger>
+  disabled?: Ref<boolean>
+  offset?: Ref<number> | number
+  delay?: number
+}
+
+interface UsePopoverReturn {
+  isOpen: Ref<boolean>
+  show: () => void
+  hide: () => void
+  toggle: () => void
+  handleKeydown: (event: KeyboardEvent) => void
+  handleClickOutside: (event: MouseEvent) => void
+}
+```
+
+---
+
+### useAlert
+
+```ts
+import { useAlert } from '@echolab/ui-frame'
+import type { UseAlertOptions, UseAlertReturn, AlertType } from '@echolab/ui-frame'
+```
+
+```ts
+interface UseAlertOptions {
+  duration?: number
+}
+
+interface UseAlertReturn {
+  isVisible: Ref<boolean>
+  close: () => void
+  leaving: Ref<boolean>
+}
+```
+
+---
+
+### useSlider
+
+```ts
+import { useSlider, coordinateToValue } from '@echolab/ui-frame'
+import type { UseSliderOptions, UseSliderReturn } from '@echolab/ui-frame'
+```
+
+```ts
+interface UseSliderOptions {
+  modelValue: Ref<number>
+  min: number
+  max: number
+  step: number
+  disabled?: Ref<boolean>
+  vertical?: Ref<boolean>
+}
+
+interface UseSliderReturn {
+  sliderValue: ComputedRef<number>
+  percentage: ComputedRef<number>
+  setValue: (value: number) => void
+  handleKeydown: (event: KeyboardEvent) => void
+  isDragging: Ref<boolean>
+}
+```
+
+---
+
+### useNumberInput
+
+```ts
+import { useNumberInput, formatNumber, parseNumber } from '@echolab/ui-frame'
+import type { UseNumberInputOptions, UseNumberInputReturn } from '@echolab/ui-frame'
+```
+
+```ts
+interface UseNumberInputOptions {
+  modelValue: Ref<number | undefined>
+  min?: number
+  max?: number
+  step?: number
+  precision?: number
+  disabled?: Ref<boolean>
+}
+
+interface UseNumberInputReturn {
+  displayValue: ComputedRef<string>
+  increment: () => void
+  decrement: () => void
+  setValue: (value: number) => void
+  handleKeydown: (event: KeyboardEvent) => void
+  handleInput: (event: Event) => void
+  handleBlur: () => void
+}
+```
+
+---
+
+### useDrawer
+
+```ts
+import { useDrawer } from '@echolab/ui-frame'
+import type { UseDrawerOptions, UseDrawerReturn, DrawerPosition } from '@echolab/ui-frame'
+```
+
+```ts
+interface UseDrawerOptions {
+  modelValue: Ref<boolean>
+  maskClosable?: Ref<boolean>
+  closable?: Ref<boolean>
+  destroyOnClose?: Ref<boolean>
+}
+
+interface UseDrawerReturn {
+  isOpen: Ref<boolean>
+  rendered: Ref<boolean>
+  open: () => void
+  close: () => void
+  handleKeydown: (event: KeyboardEvent, drawerEl: HTMLElement | undefined) => void
+  handleMaskClick: () => void
+  focusDrawer: (drawerEl: HTMLElement | undefined) => void
+}
+```
+
+---
+
+### useMenu
+
+```ts
+import { useMenu } from '@echolab/ui-frame'
+import type { UseMenuOptions, UseMenuReturn, MenuItem } from '@echolab/ui-frame'
+```
+
+```ts
+interface UseMenuOptions {
+  items: Ref<MenuItem[]> | ComputedRef<MenuItem[]>
+  mode?: Ref<'vertical' | 'horizontal'>
+  activeKey?: Ref<string | null>
+  expandedKeys?: Ref<string[]>
+  onSelect?: (item: MenuItem) => void
+  disabled?: Ref<boolean>
+}
+
+interface UseMenuReturn {
+  activeKey: Ref<string | null>
+  expandedKeys: Ref<string[]>
+  allKeys: ComputedRef<string[]>
+  handleKeydown: (event: KeyboardEvent) => void
+  handleItemClick: (item: MenuItem) => void
+  handleItemEnter: (item: MenuItem) => void
+  handleItemLeave: (item: MenuItem) => void
+  isExpanded: (key: string) => boolean
+  isActive: (key: string) => boolean
+  expand: (key: string) => void
+  collapse: (key: string) => void
+  toggleExpand: (key: string) => void
+}
+```
+
+---
+
+### useSteps
+
+```ts
+import { useSteps } from '@echolab/ui-frame'
+import type { UseStepsOptions, UseStepsReturn, StepItem, StepStatus } from '@echolab/ui-frame'
+```
+
+```ts
+interface UseStepsOptions {
+  steps: Ref<StepItem[]> | ComputedRef<StepItem[]>
+  current: Ref<number>
+}
+
+interface UseStepsReturn {
+  currentStep: ComputedRef<StepItem | undefined>
+  setCurrent: (index: number) => void
+  next: (beforeNext?: () => boolean | Promise<boolean>) => Promise<void>
+  prev: () => void
+  setStepStatus: (key: string, status: StepStatus) => void
+}
+```
+
+---
+
+### useVirtualList
+
+```ts
+import { useVirtualList } from '@echolab/ui-frame'
+import type { UseVirtualListOptions, UseVirtualListReturn } from '@echolab/ui-frame'
+```
+
+```ts
+interface UseVirtualListOptions {
+  items: Ref<any[]>
+  itemHeight: Ref<number | ((index: number) => number)> | number | ((index: number) => number)
+  overscan?: Ref<number> | number
+}
+
+interface UseVirtualListReturn {
+  containerRef: Ref<HTMLElement | null>
+  visibleItems: ComputedRef<any[]>
+  totalHeight: Ref<number>
+  offsetY: Ref<number>
+  startIndex: Ref<number>
+  endIndex: Ref<number>
+  scrollTo: (index: number, align?: 'top' | 'center') => void
+  handleScroll: () => void
+}
+```
+
+---
+
+### useDatePicker
+
+```ts
+import { useDatePicker } from '@echolab/ui-frame'
+import type { UseDatePickerOptions, UseDatePickerReturn, DayCell } from '@echolab/ui-frame'
+```
+
+```ts
+interface UseDatePickerOptions {
+  modelValue: Ref<Date | null>
+  minDate?: Ref<Date | undefined> | Date
+  maxDate?: Ref<Date | undefined> | Date
+  format?: Ref<string | undefined> | string
+  firstDayOfWeek?: Ref<number | undefined> | number
+}
+
+interface UseDatePickerReturn {
+  currentYear: Ref<number>
+  currentMonth: Ref<number>
+  calendarDays: ComputedRef<DayCell[]>
+  weekdays: ComputedRef<string[]>
+  selectedDate: ComputedRef<Date | null>
+  selectDate: (date: Date) => void
+  prevMonth: () => void
+  nextMonth: () => void
+  prevYear: () => void
+  nextYear: () => void
+  isSelected: (date: Date) => boolean
+  isToday: (date: Date) => boolean
+  isInRange: (date: Date) => boolean
+  isDisabled: (date: Date) => boolean
+  formatDate: (date: Date | null) => string
+  goToToday: () => void
+}
+```
+
+---
+
+### useUpload
+
+```ts
+import { useUpload } from '@echolab/ui-frame'
+import type { UseUploadOptions, UseUploadReturn, UploadFile, UploadStatus } from '@echolab/ui-frame'
+```
+
+```ts
+interface UseUploadOptions {
+  accept?: Ref<string | undefined> | ComputedRef<string | undefined>
+  maxSize?: Ref<number | undefined> | ComputedRef<number | undefined>
+  maxCount?: Ref<number | undefined> | ComputedRef<number | undefined>
+  multiple?: Ref<boolean> | ComputedRef<boolean>
+  autoUpload?: Ref<boolean> | ComputedRef<boolean>
+  onExceed?: (excessCount: number) => void
+  onSizeExceed?: (file: File) => void
+  onTypeError?: (file: File) => void
+  uploadFn?: (file: UploadFile) => Promise<void>
+}
+
+interface UseUploadReturn {
+  files: Ref<UploadFile[]>
+  dragOver: Ref<boolean>
+  addFiles: (fileList: FileList | File[]) => void
+  removeFile: (id: string) => void
+  clearFiles: () => void
+  upload: () => Promise<void>
+  fileInputRef: Ref<HTMLInputElement | null>
+  handleDrag: (event: DragEvent) => void
+  handleDragLeave: (event: DragEvent) => void
+  handleDrop: (event: DragEvent) => void
+  handleFileInput: (event: Event) => void
+}
+```
+
+---
+
+### useAutoComplete
+
+```ts
+import { useAutoComplete } from '@echolab/ui-frame'
+import type {
+  UseAutoCompleteOptions,
+  UseAutoCompleteReturn,
+  AutoCompleteOption,
+} from '@echolab/ui-frame'
+```
+
+```ts
+interface UseAutoCompleteOptions {
+  modelValue: Ref<string | number | undefined>
+  options?: Ref<AutoCompleteOption[]>
+  searchFn?: (query: string) => Promise<AutoCompleteOption[]>
+  loading?: Ref<boolean>
+  debounceMs?: number
+}
+
+interface UseAutoCompleteReturn {
+  inputValue: Ref<string>
+  isOpen: Ref<boolean>
+  filteredOptions: ComputedRef<AutoCompleteOption[]>
+  activeIndex: Ref<number>
+  highlightMatch: (label: string) => string
+  selectOption: (option: AutoCompleteOption) => void
+  handleKeydown: (event: KeyboardEvent) => void
+  handleInput: (value: string) => void
+  open: () => void
+  close: () => void
+  cleanupTimers: () => void
+}
+```
+
+---
+
 ## 组合式函数
 
 ### useTheme
@@ -1432,6 +2173,21 @@ function validateFieldValue(value: unknown, rules: FormRule[]): string | undefin
 | `NeumorphismTreeProps`          | Tree          |
 | `NeumorphismTreeNodeProps`      | TreeNode      |
 | `NeumorphismCanvasProps`        | Canvas        |
+| `NeumorphismPopoverProps`       | Popover       |
+| `NeumorphismDropdownProps`      | Dropdown      |
+| `NeumorphismAlertProps`         | Alert         |
+| `NeumorphismEmptyProps`         | Empty         |
+| `NeumorphismSliderProps`        | Slider        |
+| `NeumorphismInputNumberProps`   | InputNumber   |
+| `NeumorphismDrawerProps`        | Drawer        |
+| `NeumorphismMenuProps`          | Menu          |
+| `NeumorphismNavMenuProps`       | NavMenu       |
+| `NeumorphismStepsProps`         | Steps         |
+| `NeumorphismVirtualListProps`   | VirtualList   |
+| `NeumorphismDatePickerProps`    | DatePicker    |
+| `NeumorphismUploadProps`        | Upload        |
+| `NeumorphismListProps`          | List          |
+| `NeumorphismAutoCompleteProps`  | AutoComplete  |
 
 ### 通用类型
 
@@ -1613,6 +2369,33 @@ interface NeumorphismGlobalConfig {
   themeToggle?: { size?: ThemeToggleSize }
   tree?: { showSearch?: boolean; multiple?: boolean }
   canvas?: { showGrid?: boolean; gridSize?: number }
+  popover?: { position?: PopoverPosition; trigger?: PopoverTrigger }
+  dropdown?: { position?: PopoverPosition; trigger?: PopoverTrigger }
+  alert?: {
+    type?: AlertType
+    closable?: boolean
+    icon?: boolean
+    bordered?: boolean
+    size?: AlertSize
+  }
+  empty?: { size?: EmptySize }
+  slider?: { size?: SliderSize; showTooltip?: boolean; showStops?: boolean }
+  inputNumber?: { size?: NumberInputSize }
+  drawer?: { position?: DrawerPosition; maskClosable?: boolean; closable?: boolean }
+  menu?: { mode?: 'vertical' | 'horizontal'; size?: MenuSize; selectable?: boolean }
+  navMenu?: { mode?: 'horizontal' | 'vertical'; size?: NavMenuSize; showIndicator?: boolean }
+  steps?: { direction?: 'horizontal' | 'vertical'; size?: StepsSize; center?: boolean }
+  virtualList?: { itemHeight?: number; overscan?: number }
+  datePicker?: { size?: DatePickerSize; format?: string; clearable?: boolean }
+  upload?: {
+    size?: UploadSize
+    drag?: boolean
+    showUploadList?: boolean
+    listType?: 'text' | 'picture' | 'picture-card'
+    autoUpload?: boolean
+  }
+  list?: { size?: ListSize; bordered?: boolean; split?: boolean; hoverable?: boolean }
+  autoComplete?: { size?: AutoCompleteSize; clearable?: boolean }
 }
 ```
 

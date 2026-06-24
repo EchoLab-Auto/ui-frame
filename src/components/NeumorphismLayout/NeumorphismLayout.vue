@@ -2,6 +2,7 @@
 import { computed, ref } from 'vue'
 import { useLocale } from '@/composables/useLocale'
 import { useTouchDevice } from '@/composables/useTouchDevice'
+import { useNeumorphismSetup } from '@/extensions/createComponent'
 
 export interface NeumorphismLayoutProps {
   /** 是否显示顶部导航 */
@@ -30,6 +31,27 @@ const props = withDefaults(defineProps<NeumorphismLayoutProps>(), {
   mobileAutoCollapse: true,
 })
 
+const { config, resolveProp } = useNeumorphismSetup()
+
+const resolvedShowHeader = computed(() =>
+  resolveProp(props.showHeader, config.value.layout?.showHeader, true)
+)
+const resolvedShowSider = computed(() =>
+  resolveProp(props.showSider, config.value.layout?.showSider, false)
+)
+const resolvedSiderWidth = computed(() =>
+  resolveProp(props.siderWidth, config.value.layout?.siderWidth, 240)
+)
+const resolvedCollapsible = computed(() =>
+  resolveProp(props.collapsible, config.value.layout?.collapsible, false)
+)
+const resolvedCollapsedWidth = computed(() =>
+  resolveProp(props.collapsedWidth, config.value.layout?.collapsedWidth, 64)
+)
+const resolvedMobileAutoCollapse = computed(() =>
+  resolveProp(props.mobileAutoCollapse, config.value.layout?.mobileAutoCollapse, true)
+)
+
 const emit = defineEmits<{
   (e: 'collapse', collapsed: boolean): void
 }>()
@@ -40,7 +62,7 @@ const collapsed = ref(props.defaultCollapsed)
 const mobileDrawerOpen = ref(false)
 
 const effectiveCollapsed = computed(() => {
-  if (props.mobileAutoCollapse && isMobile.value) return true
+  if (resolvedMobileAutoCollapse.value && isMobile.value) return true
   return collapsed.value
 })
 
@@ -68,7 +90,7 @@ function handleContentClick() {
 const classList = computed(() => [
   'nm-layout',
   {
-    'nm-layout--has-sider': props.showSider,
+    'nm-layout--has-sider': resolvedShowSider.value,
     'nm-layout--sider-collapsed': effectiveCollapsed.value,
     'nm-layout--mobile': isMobile.value,
     'nm-layout--drawer-open': mobileDrawerOpen.value,
@@ -76,17 +98,19 @@ const classList = computed(() => [
 ])
 
 const siderStyle = computed(() => ({
-  width: effectiveCollapsed.value ? `${props.collapsedWidth}px` : `${props.siderWidth}px`,
+  width: effectiveCollapsed.value
+    ? `${resolvedCollapsedWidth.value}px`
+    : `${resolvedSiderWidth.value}px`,
 }))
 </script>
 
 <template>
   <div :class="classList">
     <!-- Header -->
-    <header v-if="showHeader" class="nm-layout__header">
+    <header v-if="resolvedShowHeader" class="nm-layout__header">
       <div class="nm-layout__header-left">
         <button
-          v-if="showSider && collapsible"
+          v-if="resolvedShowSider && resolvedCollapsible"
           class="nm-layout__collapse-btn"
           type="button"
           :aria-label="effectiveCollapsed ? t('layoutExpandSider') : t('layoutCollapseSider')"
@@ -127,7 +151,7 @@ const siderStyle = computed(() => ({
 
       <!-- Sider -->
       <aside
-        v-if="showSider"
+        v-if="resolvedShowSider"
         class="nm-layout__sider"
         :class="{
           'nm-layout__sider--drawer': isMobile,
@@ -322,7 +346,7 @@ const siderStyle = computed(() => ({
 .nm-layout__drawer-overlay {
   position: fixed;
   inset: 0;
-  background-color: rgba(0, 0, 0, 0.35);
+  background-color: var(--nm-overlay-bg);
   z-index: 150;
 }
 
@@ -363,13 +387,13 @@ const siderStyle = computed(() => ({
 // ---- Footer ----
 .nm-layout__footer {
   flex-shrink: 0;
-  padding: 16px;
+  padding: var(--nm-spacing-md);
   text-align: center;
   color: var(--nm-text-secondary);
-  font-size: 13px;
+  font-size: var(--nm-font-md);
 
   @include nm-screen-md {
-    padding: 20px 24px;
+    padding: 20px var(--nm-spacing-lg);
   }
 }
 </style>

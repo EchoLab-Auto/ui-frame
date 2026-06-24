@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, watch, nextTick } from 'vue'
 import { useTooltip } from '@/composables/useTooltip'
+import { useNeumorphismSetup } from '@/extensions/createComponent'
 import type { TooltipPosition, TooltipTrigger } from '@/composables/useTooltip'
 
 export type { TooltipPosition, TooltipTrigger }
@@ -22,6 +23,17 @@ const props = withDefaults(defineProps<NeumorphismTooltipProps>(), {
   delay: 150,
 })
 
+const { config, resolveProp } = useNeumorphismSetup()
+
+const resolvedPosition = computed(() =>
+  resolveProp(props.position, config.value.tooltip?.position, 'top')
+)
+const resolvedTrigger = computed(() =>
+  resolveProp(props.trigger, config.value.tooltip?.trigger, 'hover')
+)
+const resolvedOffset = computed(() => resolveProp(props.offset, config.value.tooltip?.offset, 8))
+const resolvedDelay = computed(() => resolveProp(props.delay, config.value.tooltip?.delay, 150))
+
 // Use headless tooltip composable for all behavioral logic
 const {
   isVisible,
@@ -31,39 +43,39 @@ const {
   handleKeydown: onKeydown,
 } = useTooltip({
   disabled: computed(() => props.disabled),
-  delay: props.delay,
-  trigger: computed(() => props.trigger),
+  delay: resolvedDelay.value,
+  trigger: resolvedTrigger,
 })
 
-const offsetPx = computed(() => `${props.offset}px`)
+const offsetPx = computed(() => `${resolvedOffset.value}px`)
 
 const triggerRef = ref<HTMLElement>()
-const actualPosition = ref<TooltipPosition>(props.position)
+const actualPosition = ref<TooltipPosition>(resolvedPosition.value)
 
 function checkBoundary(): TooltipPosition {
   const el = triggerRef.value
-  if (!el) return props.position
+  if (!el || typeof window === 'undefined') return resolvedPosition.value
 
   const rect = el.getBoundingClientRect()
   const contentEl = el.querySelector('.nm-tooltip') as HTMLElement | null
   const contentHeight = contentEl?.offsetHeight ?? 40
   const contentWidth = contentEl?.offsetWidth ?? 120
 
-  switch (props.position) {
+  switch (resolvedPosition.value) {
     case 'top':
-      if (rect.top < contentHeight + props.offset + 8) return 'bottom'
+      if (rect.top < contentHeight + resolvedOffset.value + 8) return 'bottom'
       break
     case 'bottom':
-      if (rect.bottom + contentHeight + props.offset + 8 > window.innerHeight) return 'top'
+      if (rect.bottom + contentHeight + resolvedOffset.value + 8 > window.innerHeight) return 'top'
       break
     case 'left':
-      if (rect.left < contentWidth + props.offset + 8) return 'right'
+      if (rect.left < contentWidth + resolvedOffset.value + 8) return 'right'
       break
     case 'right':
-      if (rect.right + contentWidth + props.offset + 8 > window.innerWidth) return 'left'
+      if (rect.right + contentWidth + resolvedOffset.value + 8 > window.innerWidth) return 'left'
       break
   }
-  return props.position
+  return resolvedPosition.value
 }
 
 function handleWindowChange() {
@@ -76,13 +88,17 @@ watch(isVisible, visible => {
   if (visible) {
     nextTick(() => {
       actualPosition.value = checkBoundary()
-      window.addEventListener('scroll', handleWindowChange, { passive: true })
-      window.addEventListener('resize', handleWindowChange)
+      if (typeof window !== 'undefined') {
+        window.addEventListener('scroll', handleWindowChange, { passive: true })
+        window.addEventListener('resize', handleWindowChange)
+      }
     })
   } else {
-    actualPosition.value = props.position
-    window.removeEventListener('scroll', handleWindowChange)
-    window.removeEventListener('resize', handleWindowChange)
+    actualPosition.value = resolvedPosition.value
+    if (typeof window !== 'undefined') {
+      window.removeEventListener('scroll', handleWindowChange)
+      window.removeEventListener('resize', handleWindowChange)
+    }
   }
 })
 
@@ -98,11 +114,11 @@ const classList = computed(() => [
     ref="triggerRef"
     class="nm-tooltip-wrapper"
     :class="{ 'nm-tooltip-wrapper--disabled': disabled }"
-    @mouseenter="trigger === 'hover' ? show() : undefined"
-    @mouseleave="trigger === 'hover' ? hide() : undefined"
-    @click="trigger === 'click' ? toggle() : undefined"
-    @focusin="trigger === 'focus' ? show() : undefined"
-    @focusout="trigger === 'focus' ? hide() : undefined"
+    @mouseenter="resolvedTrigger === 'hover' ? show() : undefined"
+    @mouseleave="resolvedTrigger === 'hover' ? hide() : undefined"
+    @click="resolvedTrigger === 'click' ? toggle() : undefined"
+    @focusin="resolvedTrigger === 'focus' ? show() : undefined"
+    @focusout="resolvedTrigger === 'focus' ? hide() : undefined"
     @keydown="onKeydown"
   >
     <slot />
@@ -113,8 +129,8 @@ const classList = computed(() => [
         :class="classList"
         role="tooltip"
         :aria-hidden="!isVisible"
-        @mouseenter="trigger === 'hover' ? show() : undefined"
-        @mouseleave="trigger === 'hover' ? hide() : undefined"
+        @mouseenter="resolvedTrigger === 'hover' ? show() : undefined"
+        @mouseleave="resolvedTrigger === 'hover' ? hide() : undefined"
       >
         <span class="nm-tooltip__arrow" />
         <span class="nm-tooltip__content">
@@ -141,8 +157,8 @@ const classList = computed(() => [
 
   .nm-tooltip__content {
     display: block;
-    padding: 8px 14px;
-    font-size: 13px;
+    padding: var(--nm-tooltip-padding-y) var(--nm-tooltip-padding-x);
+    font-size: var(--nm-font-md);
     line-height: 1.4;
     white-space: nowrap;
     color: var(--nm-text-primary);
@@ -153,8 +169,8 @@ const classList = computed(() => [
 
   .nm-tooltip__arrow {
     position: absolute;
-    width: 8px;
-    height: 8px;
+    width: var(--nm-spacing-sm);
+    height: var(--nm-spacing-sm);
     background-color: var(--nm-surface-color);
     transform: rotate(45deg);
     box-shadow: 1px 1px 3px var(--nm-shadow-dark);
@@ -244,5 +260,12 @@ const classList = computed(() => [
 .nm-tooltip--right.nm-tooltip-fade-enter-from,
 .nm-tooltip--right.nm-tooltip-fade-leave-to {
   transform: translateY(-50%) translateX(-4px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
+  }
 }
 </style>

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useNeumorphismSetup } from '@/extensions/createComponent'
 
 export type DividerDirection = 'horizontal' | 'vertical'
 export type DividerAlign = 'left' | 'center' | 'right'
@@ -18,19 +19,32 @@ const props = withDefaults(defineProps<NeumorphismDividerProps>(), {
   inset: false,
 })
 
+const { config, resolveProp } = useNeumorphismSetup()
+
+const resolvedDirection = computed(() =>
+  resolveProp(props.direction, config.value.divider?.direction, 'horizontal')
+)
+const resolvedAlign = computed(() =>
+  resolveProp(props.align, config.value.divider?.align, 'center')
+)
+const resolvedDashed = computed(() =>
+  resolveProp(props.dashed, config.value.divider?.dashed, false)
+)
+const resolvedInset = computed(() => resolveProp(props.inset, config.value.divider?.inset, false))
+
 const classList = computed(() => [
   'nm-divider',
-  `nm-divider--${props.direction}`,
-  ...(props.direction === 'horizontal' ? [`nm-divider--${props.align}`] : []),
+  `nm-divider--${resolvedDirection.value}`,
+  ...(resolvedDirection.value === 'horizontal' ? [`nm-divider--${resolvedAlign.value}`] : []),
   {
-    'nm-divider--dashed': props.dashed,
-    'nm-divider--inset': props.inset,
+    'nm-divider--dashed': resolvedDashed.value,
+    'nm-divider--inset': resolvedInset.value,
   },
 ])
 </script>
 
 <template>
-  <div :class="classList" role="separator" :aria-orientation="direction">
+  <div :class="classList" role="separator" :aria-orientation="resolvedDirection">
     <span v-if="$slots.default" class="nm-divider__text">
       <slot />
     </span>
@@ -44,9 +58,9 @@ const classList = computed(() => [
   display: flex;
   align-items: center;
   border: none;
-  margin: 16px 0;
+  margin: var(--nm-spacing-md) 0;
   color: var(--nm-text-placeholder);
-  font-size: 14px;
+  font-size: var(--nm-font-base);
 
   &--horizontal {
     width: 100%;
@@ -115,5 +129,12 @@ const classList = computed(() => [
 .nm-divider--left.nm-divider--horizontal .nm-divider__text::before,
 .nm-divider--right.nm-divider--horizontal .nm-divider__text::after {
   content: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
+  }
 }
 </style>

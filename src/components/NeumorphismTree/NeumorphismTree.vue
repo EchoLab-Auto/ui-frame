@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import { useLocale } from '@/composables/useLocale'
 import { useTree } from '@/composables/useTree'
+import { useNeumorphismSetup } from '@/extensions/createComponent'
 import type { TreeNodeData } from '@/composables/useTree'
 import NeumorphismTreeNode from './NeumorphismTreeNode.vue'
 
@@ -23,6 +24,18 @@ const props = withDefaults(defineProps<NeumorphismTreeProps>(), {
   showSearch: false,
   multiple: false,
 })
+
+const { config, resolveProp } = useNeumorphismSetup()
+
+const resolvedShowSearch = computed(() =>
+  resolveProp(props.showSearch, config.value.tree?.showSearch, false)
+)
+const resolvedMultiple = computed(() =>
+  resolveProp(props.multiple, config.value.tree?.multiple, false)
+)
+const resolvedSearchPlaceholder = computed(() =>
+  resolveProp(props.searchPlaceholder, config.value.tree?.searchPlaceholder, '搜索...')
+)
 
 const emit = defineEmits<{
   (e: 'update:selectedKeys', value: string[]): void
@@ -46,17 +59,19 @@ const {
   localExpandedKeys,
   localSelectedKeys,
   searchText: searchTextRef,
+  focusedKey,
   toggleExpand,
   select,
   findNode,
   expandAll,
   collapseAll,
   onSearchInput,
+  handleKeydown,
 } = useTree({
   data: computed(() => props.data),
   selectedKeys: selectedKeysRef,
   expandedKeys: expandedKeysRef,
-  multiple: computed(() => props.multiple),
+  multiple: computed(() => resolvedMultiple.value),
 })
 
 // Expose searchText ref directly for template binding
@@ -89,13 +104,24 @@ function handleCollapseAll() {
   emit('update:expandedKeys', [])
 }
 
+const activeDescendant = computed(() =>
+  focusedKey.value ? `nm-tree-node-${focusedKey.value}` : undefined
+)
+
 const classList = computed(() => ['nm-tree'])
 </script>
 
 <template>
-  <div :class="classList" role="tree" :aria-label="t('treeLabel')">
+  <div
+    :class="classList"
+    role="tree"
+    tabindex="0"
+    :aria-label="t('treeLabel')"
+    :aria-activedescendant="activeDescendant"
+    @keydown="handleKeydown"
+  >
     <!-- Search bar -->
-    <div v-if="showSearch" class="nm-tree__search">
+    <div v-if="resolvedShowSearch" class="nm-tree__search">
       <svg
         class="nm-tree__search-icon"
         viewBox="0 0 24 24"
@@ -108,7 +134,7 @@ const classList = computed(() => ['nm-tree'])
       <input
         type="text"
         class="nm-tree__search-input"
-        :placeholder="searchPlaceholder"
+        :placeholder="resolvedSearchPlaceholder"
         :value="searchText"
         @input="onSearchInput(($event.target as HTMLInputElement).value)"
       />
@@ -150,6 +176,7 @@ const classList = computed(() => ['nm-tree'])
         :selected-keys="localSelectedKeys"
         :expanded-keys="localExpandedKeys"
         :search-text="searchText"
+        :focused-key="focusedKey"
         :level="0"
         @toggle-expand="handleToggleExpand"
         @select="handleSelect"
@@ -172,7 +199,7 @@ const classList = computed(() => ['nm-tree'])
 // Search
 .nm-tree__search {
   position: relative;
-  margin-bottom: 8px;
+  margin-bottom: var(--nm-spacing-sm);
 }
 
 .nm-tree__search-icon {
@@ -180,8 +207,8 @@ const classList = computed(() => ['nm-tree'])
   left: 10px;
   top: 50%;
   transform: translateY(-50%);
-  width: 16px;
-  height: 16px;
+  width: var(--nm-spacing-md);
+  height: var(--nm-spacing-md);
   color: var(--nm-text-placeholder);
   pointer-events: none;
 }
@@ -193,7 +220,7 @@ const classList = computed(() => ['nm-tree'])
   border-radius: var(--nm-border-radius-sm);
   background-color: var(--nm-surface-color);
   color: var(--nm-text-primary);
-  font-size: 13px;
+  font-size: var(--nm-font-md);
   outline: none;
   @include nm-inset-strong(2px, 4px);
   @include nm-theme-transition;
@@ -222,7 +249,7 @@ const classList = computed(() => ['nm-tree'])
   background: transparent;
   cursor: pointer;
   color: var(--nm-text-placeholder);
-  border-radius: 50%;
+  border-radius: var(--nm-border-radius-full);
   padding: 0;
 
   svg {
@@ -238,19 +265,19 @@ const classList = computed(() => ['nm-tree'])
 // Actions
 .nm-tree__actions {
   display: flex;
-  gap: 4px;
+  gap: var(--nm-spacing-xs);
   margin-bottom: 6px;
   padding: 0 4px;
 }
 
 .nm-tree__action-btn {
-  font-size: 11px;
+  font-size: var(--nm-font-xs);
   color: var(--nm-text-placeholder);
   background: transparent;
   border: none;
   cursor: pointer;
   padding: 2px 6px;
-  border-radius: 4px;
+  border-radius: var(--nm-border-radius-xs);
   transition: color var(--nm-transition-fast);
 
   &:hover {
@@ -269,8 +296,15 @@ const classList = computed(() => ['nm-tree'])
 // Empty
 .nm-tree__empty {
   text-align: center;
-  padding: 24px 12px;
-  font-size: 13px;
+  padding: var(--nm-spacing-lg) 12px;
+  font-size: var(--nm-font-md);
   color: var(--nm-text-placeholder);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
+  }
 }
 </style>

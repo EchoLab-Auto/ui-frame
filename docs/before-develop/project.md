@@ -9,6 +9,7 @@
 | 文件                                                 | 职责                         | 必读时机           |
 | ---------------------------------------------------- | ---------------------------- | ------------------ |
 | [design-philosophy.md](./design-philosophy.md)       | 六条核心设计原则             | **任何修改前**     |
+| [design-patterns.md](./design-patterns.md)           | 源码中使用的具体设计模式     | 新增组件/功能前    |
 | [develop-pipeline.md](./develop-pipeline.md)         | 从编码到提交的完整验证流程   | 理解规范后开始编码 |
 | [documentation-guide.md](./documentation-guide.md)   | 文档分层结构与撰写规范       | 需要写/改文档时    |
 | [readme-specification.md](./readme-specification.md) | 项目 README 的内容结构与标准 | 修改 README 时     |
@@ -29,6 +30,17 @@
 6. **无障碍是基本要求** — 键盘、ARIA、焦点管理、reduced-motion
 
 详细阐述与示例见 [design-philosophy.md](./design-philosophy.md)。
+
+## 设计模式速查
+
+源码层面的具体模式与实现对应关系见 [design-patterns.md](./design-patterns.md)。常用模式包括：
+
+- **Headless UI 分离** — 逻辑在 `composables/`，UI 在 `.vue`
+- **级联配置** — `显式 prop > 全局配置 > 硬编码默认值`
+- **类型化 Provide/Inject** — `injectionKeys.ts` 定义组件间协议
+- **Plugin 注册 + 组件覆盖** — `app.use()` 与 `ComponentRegistry`
+- **Design Token** — `src/styles/tokens.scss` 中的 CSS 变量
+- **Barrel Export** — 各模块 `index.ts` 统一导出
 
 ---
 
@@ -70,6 +82,7 @@ npm run build && npm run example:build
 docs/
 ├── before-develop/    # 约束层 — "该怎么写"（面向开发者）
 │   ├── design-philosophy.md
+│   ├── design-patterns.md
 │   ├── develop-pipeline.md
 │   ├── documentation-guide.md
 │   └── readme-specification.md

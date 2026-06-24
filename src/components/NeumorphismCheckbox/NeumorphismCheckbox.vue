@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, watch, useAttrs } from 'vue'
 import { useCheckable } from '@/composables/useCheckable'
+import { useNeumorphismSetup } from '@/extensions/createComponent'
 
 export interface NeumorphismCheckboxProps {
   modelValue?: boolean
@@ -18,6 +19,10 @@ const props = withDefaults(defineProps<NeumorphismCheckboxProps>(), {
   size: 'medium',
   indeterminate: false,
 })
+
+const { config, resolveProp } = useNeumorphismSetup()
+
+const resolvedSize = computed(() => resolveProp(props.size, config.value.checkbox?.size, 'medium'))
 
 const emit = defineEmits<{
   (e: 'update:modelValue', value: boolean): void
@@ -52,7 +57,7 @@ const { inputId, classList } = useCheckable(() => ({
   prefix: 'checkbox',
   isChecked: isChecked.value,
   isDisabled: props.disabled,
-  size: props.size,
+  size: resolvedSize.value,
   extraClasses: { 'nm-checkbox--indeterminate': props.indeterminate },
 }))
 
@@ -123,7 +128,7 @@ function handleChange(event: Event): void {
 
 // Checkbox-specific
 .nm-checkbox__box {
-  border-radius: 6px;
+  border-radius: var(--nm-border-radius-sm);
   position: relative;
   overflow: hidden;
 }
@@ -134,7 +139,11 @@ function handleChange(event: Event): void {
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  background: radial-gradient(circle at center, rgba(255, 255, 255, 0.4) 0%, transparent 70%);
+  background: radial-gradient(
+    circle at center,
+    color-mix(in srgb, var(--nm-text-on-primary) 40%, transparent) 0%,
+    transparent 70%
+  );
   opacity: 0;
   transform: scale(0);
   transition: none;
@@ -149,14 +158,14 @@ function handleChange(event: Event): void {
 .nm-checkbox--indeterminate .nm-checkbox__box {
   background-color: var(--nm-primary-color);
   box-shadow:
-    inset 1px 1px 2px rgba(0, 0, 0, 0.2),
-    inset -1px -1px 2px rgba(255, 255, 255, 0.2);
+    inset 1px 1px 2px var(--nm-shadow-dark-strong),
+    inset -1px -1px 2px var(--nm-shadow-light-ambient-lg);
 }
 
 .nm-checkbox__icon {
   width: 65%;
   height: 65%;
-  color: #fff;
+  color: var(--nm-text-on-primary);
   transform: scale(0);
   transition: transform 0.35s $nm-ease-bounce;
 }

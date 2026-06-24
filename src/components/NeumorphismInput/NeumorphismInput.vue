@@ -247,7 +247,7 @@ function handleKeydown(event: KeyboardEvent): void {
   background: transparent;
   color: var(--nm-text-primary);
   font-family: inherit;
-  font-size: 14px;
+  font-size: var(--nm-font-base);
   width: 100%;
 
   &::placeholder {
@@ -261,38 +261,38 @@ function handleKeydown(event: KeyboardEvent): void {
 
 // Size variants
 .nm-input--small {
-  min-height: 36px;
+  min-height: var(--nm-field-min-height-sm);
   .nm-input__field {
-    padding: 6px 12px;
-    font-size: 13px;
+    padding: var(--nm-field-padding-y-sm) var(--nm-field-padding-x-sm);
+    font-size: var(--nm-field-font-sm);
   }
   .nm-input__prefix,
   .nm-input__suffix {
-    padding: 6px 10px;
+    padding: var(--nm-field-padding-y-sm) var(--nm-field-affix-padding-x-sm);
   }
 }
 
 .nm-input--medium {
-  min-height: 48px;
+  min-height: var(--nm-field-min-height-md);
   .nm-input__field {
-    padding: 10px 16px;
-    font-size: 14px;
+    padding: var(--nm-field-padding-y-md) var(--nm-field-padding-x-md);
+    font-size: var(--nm-field-font-md);
   }
   .nm-input__prefix,
   .nm-input__suffix {
-    padding: 10px 14px;
+    padding: var(--nm-field-padding-y-md) var(--nm-field-affix-padding-x-md);
   }
 }
 
 .nm-input--large {
-  min-height: 60px;
+  min-height: var(--nm-field-min-height-lg);
   .nm-input__field {
-    padding: 14px 20px;
-    font-size: 16px;
+    padding: var(--nm-field-padding-y-lg) var(--nm-field-padding-x-lg);
+    font-size: var(--nm-field-font-lg);
   }
   .nm-input__prefix,
   .nm-input__suffix {
-    padding: 14px 16px;
+    padding: var(--nm-field-padding-y-lg) var(--nm-field-affix-padding-x-lg);
   }
 }
 

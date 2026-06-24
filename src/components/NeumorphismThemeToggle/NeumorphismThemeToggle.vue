@@ -2,6 +2,7 @@
 import { computed, watch } from 'vue'
 import { useTheme } from '@/composables/useTheme'
 import { useLocale } from '@/composables/useLocale'
+import { useNeumorphismSetup } from '@/extensions/createComponent'
 import type { Theme } from '@/composables/useTheme'
 
 export interface NeumorphismThemeToggleProps {
@@ -22,6 +23,15 @@ const props = withDefaults(defineProps<NeumorphismThemeToggleProps>(), {
   disabled: false,
 })
 
+const { config, resolveProp } = useNeumorphismSetup()
+
+const resolvedSize = computed(() =>
+  resolveProp(props.size, config.value.themeToggle?.size, 'medium')
+)
+const resolvedDisableAuto = computed(() =>
+  resolveProp(props.disableAuto, config.value.themeToggle?.disableAuto, false)
+)
+
 const emit = defineEmits<{
   (e: 'update:modelValue', value: Theme): void
   (e: 'change', value: Theme): void
@@ -35,7 +45,7 @@ const options = computed<{ value: Theme; label: string }[]>(() => {
     { value: 'auto' as Theme, label: t('themeToggleAuto') },
     { value: 'dark' as Theme, label: t('themeToggleDark') },
   ]
-  if (props.disableAuto) {
+  if (resolvedDisableAuto.value) {
     return items.filter(i => i.value !== 'auto')
   }
   return items
@@ -56,7 +66,7 @@ watch(
 
 const classList = computed(() => [
   'nm-theme-toggle',
-  `nm-theme-toggle--${props.size}`,
+  `nm-theme-toggle--${resolvedSize.value}`,
   {
     'nm-theme-toggle--disabled': props.disabled,
   },
@@ -208,7 +218,11 @@ function selectTheme(value: Theme) {
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  background: radial-gradient(circle at center, rgba(108, 122, 224, 0.1) 0%, transparent 70%);
+  background: radial-gradient(
+    circle at center,
+    color-mix(in srgb, var(--nm-primary-color) 10%, transparent) 0%,
+    transparent 70%
+  );
   opacity: 0;
   transform: scale(0);
   transition: none;
@@ -219,8 +233,8 @@ function selectTheme(value: Theme) {
 }
 
 .nm-theme-toggle__icon {
-  width: 16px;
-  height: 16px;
+  width: var(--nm-spacing-md);
+  height: var(--nm-spacing-md);
   flex-shrink: 0;
   transition: transform 0.35s $nm-ease-spring;
 }
@@ -230,7 +244,7 @@ function selectTheme(value: Theme) {
 }
 
 .nm-theme-toggle__label {
-  font-size: 12px;
+  font-size: var(--nm-font-sm);
   font-weight: 500;
 }
 
@@ -258,11 +272,11 @@ function selectTheme(value: Theme) {
 }
 
 .nm-theme-toggle--large {
-  padding: 4px;
+  padding: var(--nm-spacing-xs);
 
   .nm-theme-toggle__btn {
-    padding: 8px 16px;
-    gap: 8px;
+    padding: var(--nm-spacing-sm) var(--nm-spacing-md);
+    gap: var(--nm-spacing-sm);
   }
 
   .nm-theme-toggle__icon {
@@ -271,7 +285,7 @@ function selectTheme(value: Theme) {
   }
 
   .nm-theme-toggle__label {
-    font-size: 14px;
+    font-size: var(--nm-font-base);
   }
 }
 

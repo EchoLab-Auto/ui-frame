@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import { useLocale } from '@/composables/useLocale'
 import { usePagination } from '@/composables/usePagination'
+import { useNeumorphismSetup } from '@/extensions/createComponent'
 
 export interface NeumorphismPaginationProps {
   modelValue?: number
@@ -31,6 +32,24 @@ const props = withDefaults(defineProps<NeumorphismPaginationProps>(), {
   totalLabel: '共',
 })
 
+const { config, resolveProp } = useNeumorphismSetup()
+
+const resolvedSize = computed(() =>
+  resolveProp(props.size, config.value.pagination?.size, 'medium')
+)
+const resolvedShowTotal = computed(() =>
+  resolveProp(props.showTotal, config.value.pagination?.showTotal, false)
+)
+const resolvedShowJumper = computed(() =>
+  resolveProp(props.showJumper, config.value.pagination?.showJumper, false)
+)
+const resolvedMaxVisiblePages = computed(() =>
+  resolveProp(props.maxVisiblePages, config.value.pagination?.maxVisiblePages, 7)
+)
+const resolvedPageSize = computed(() =>
+  resolveProp(props.pageSize, config.value.pagination?.pageSize, 10)
+)
+
 const emit = defineEmits<{
   (e: 'update:modelValue', value: number): void
   (e: 'change', value: number): void
@@ -49,14 +68,14 @@ const { totalPages, visiblePages, changePage, prevPage, nextPage, isPrevDisabled
   usePagination({
     modelValue: currentPage,
     total: computed(() => props.total),
-    pageSize: computed(() => props.pageSize),
-    maxVisiblePages: computed(() => props.maxVisiblePages),
+    pageSize: computed(() => resolvedPageSize.value),
+    maxVisiblePages: computed(() => resolvedMaxVisiblePages.value),
     disabled: computed(() => props.disabled),
   })
 
 const classList = computed(() => [
   'nm-pagination',
-  `nm-pagination--${props.size}`,
+  `nm-pagination--${resolvedSize.value}`,
   { 'nm-pagination--disabled': props.disabled },
 ])
 
@@ -69,7 +88,7 @@ const { t } = useLocale()
 
 <template>
   <nav :class="classList" role="navigation" :aria-label="t('paginationLabel')">
-    <span v-if="showTotal" class="nm-pagination__total">
+    <span v-if="resolvedShowTotal" class="nm-pagination__total">
       {{ t('paginationTotal', { total }) }}
     </span>
 
@@ -143,7 +162,7 @@ const { t } = useLocale()
       </li>
     </ul>
 
-    <div v-if="showJumper" class="nm-pagination__jumper">
+    <div v-if="resolvedShowJumper" class="nm-pagination__jumper">
       跳至
       <input
         class="nm-pagination__jumper-input"
@@ -175,7 +194,7 @@ const { t } = useLocale()
 }
 
 .nm-pagination__total {
-  font-size: 14px;
+  font-size: var(--nm-font-base);
   color: var(--nm-text-secondary);
 }
 
@@ -185,7 +204,7 @@ const { t } = useLocale()
   list-style: none;
   margin: 0;
   padding: 0;
-  gap: 4px;
+  gap: var(--nm-spacing-xs);
 }
 
 .nm-pagination__btn {
@@ -198,7 +217,7 @@ const { t } = useLocale()
   border: none;
   border-radius: var(--nm-border-radius-sm);
   cursor: pointer;
-  font-size: 14px;
+  font-size: var(--nm-font-base);
   color: var(--nm-text-primary);
   background-color: var(--nm-surface-color);
   @include nm-raised(2px, 4px);
@@ -215,7 +234,7 @@ const { t } = useLocale()
   }
 
   &--active {
-    color: #fff;
+    color: var(--nm-text-on-primary);
     background-color: var(--nm-primary-color);
     @include nm-inset(1px, 3px);
     animation: nm-pagination-active 0.4s $nm-ease-bounce;
@@ -227,7 +246,11 @@ const { t } = useLocale()
     position: absolute;
     inset: 0;
     border-radius: inherit;
-    background: radial-gradient(circle at center, rgba(255, 255, 255, 0.15) 0%, transparent 70%);
+    background: radial-gradient(
+      circle at center,
+      var(--nm-shadow-light-ambient-md) 0%,
+      transparent 70%
+    );
     opacity: 0;
     animation: nm-pagination-glow 0.5s $nm-ease-decelerate;
   }
@@ -250,14 +273,14 @@ const { t } = useLocale()
   min-width: 38px;
   height: 38px;
   color: var(--nm-text-placeholder);
-  font-size: 14px;
+  font-size: var(--nm-font-base);
 }
 
 .nm-pagination__jumper {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 14px;
+  font-size: var(--nm-font-base);
   color: var(--nm-text-secondary);
 }
 
@@ -269,7 +292,7 @@ const { t } = useLocale()
   border-radius: var(--nm-border-radius-sm);
   background-color: var(--nm-surface-color);
   color: var(--nm-text-primary);
-  font-size: 14px;
+  font-size: var(--nm-font-base);
   @include nm-inset(2px, 4px);
   outline: none;
 
@@ -286,14 +309,14 @@ const { t } = useLocale()
   .nm-pagination__btn {
     min-width: 30px;
     height: 30px;
-    font-size: 12px;
+    font-size: var(--nm-font-sm);
   }
 }
 .nm-pagination--large {
   .nm-pagination__btn {
     min-width: 46px;
     height: 46px;
-    font-size: 16px;
+    font-size: var(--nm-font-xl);
   }
 }
 

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { useLocale } from '@/composables/useLocale'
+import { useNeumorphismSetup } from '@/extensions/createComponent'
 
 export type AvatarSize = 'small' | 'medium' | 'large'
 
@@ -17,6 +18,11 @@ const props = withDefaults(defineProps<NeumorphismAvatarProps>(), {
   size: 'medium',
   shape: 'circle',
 })
+
+const { config, resolveProp } = useNeumorphismSetup()
+
+const resolvedSize = computed(() => resolveProp(props.size, config.value.avatar?.size, 'medium'))
+const resolvedShape = computed(() => resolveProp(props.shape, config.value.avatar?.shape, 'circle'))
 
 const emit = defineEmits<{
   (e: 'error'): void
@@ -41,8 +47,8 @@ function onImageError() {
 
 const classList = computed(() => [
   'nm-avatar',
-  `nm-avatar--${props.size}`,
-  `nm-avatar--${props.shape}`,
+  `nm-avatar--${resolvedSize.value}`,
+  `nm-avatar--${resolvedShape.value}`,
 ])
 
 const fallbackContent = computed(() => {
@@ -85,7 +91,7 @@ const fallbackContent = computed(() => {
     transform 0.35s $nm-ease-spring;
 
   &--circle {
-    border-radius: 50%;
+    border-radius: var(--nm-border-radius-full);
   }
   &--rounded {
     border-radius: var(--nm-border-radius-md);

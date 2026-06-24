@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, provide } from 'vue'
 import { RowGutterKey } from '@/composables/injectionKeys'
+import { useNeumorphismSetup } from '@/extensions/createComponent'
 
 export type RowAlign = 'start' | 'center' | 'end' | 'stretch' | 'baseline'
 export type RowJustify =
@@ -25,8 +26,21 @@ const props = withDefaults(defineProps<NeumorphismRowProps>(), {
   wrap: true,
 })
 
-const gutterX = computed(() => (Array.isArray(props.gutter) ? props.gutter[0] : props.gutter))
-const gutterY = computed(() => (Array.isArray(props.gutter) ? props.gutter[1] : props.gutter))
+const { config, resolveProp } = useNeumorphismSetup()
+
+const resolvedGutter = computed(() => resolveProp(props.gutter, config.value.grid?.gutter, 0))
+const resolvedJustify = computed(() =>
+  resolveProp(props.justify, config.value.grid?.justify, 'start')
+)
+const resolvedAlign = computed(() => resolveProp(props.align, config.value.grid?.align, 'stretch'))
+const resolvedWrap = computed(() => resolveProp(props.wrap, config.value.grid?.wrap, true))
+
+const gutterX = computed(() =>
+  Array.isArray(resolvedGutter.value) ? resolvedGutter.value[0] : resolvedGutter.value
+)
+const gutterY = computed(() =>
+  Array.isArray(resolvedGutter.value) ? resolvedGutter.value[1] : resolvedGutter.value
+)
 
 provide(RowGutterKey, { x: gutterX, y: gutterY })
 
@@ -58,13 +72,16 @@ const style = computed(() => {
   }
 })
 
-const classList = computed(() => ['nm-row', { 'nm-row--nowrap': !props.wrap }])
+const classList = computed(() => ['nm-row', { 'nm-row--nowrap': !resolvedWrap.value }])
 </script>
 
 <template>
   <div
     :class="classList"
-    :style="[style, { justifyContent: justifyMap[justify], alignItems: alignMap[align] }]"
+    :style="[
+      style,
+      { justifyContent: justifyMap[resolvedJustify], alignItems: alignMap[resolvedAlign] },
+    ]"
   >
     <slot />
   </div>
@@ -78,6 +95,13 @@ const classList = computed(() => ['nm-row', { 'nm-row--nowrap': !props.wrap }])
 
   &--nowrap {
     flex-wrap: nowrap;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
   }
 }
 </style>

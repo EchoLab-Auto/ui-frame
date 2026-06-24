@@ -16,6 +16,14 @@ export interface NeumorphismGlobalConfig {
   input?: {
     size?: 'small' | 'medium' | 'large'
   }
+  /** Default date picker props */
+  datePicker?: {
+    size?: 'small' | 'medium' | 'large'
+    format?: string
+    clearable?: boolean
+    firstDayOfWeek?: number
+    placeholder?: string
+  }
   /** Default select props */
   select?: {
     size?: 'small' | 'medium' | 'large'
@@ -104,6 +112,117 @@ export interface NeumorphismGlobalConfig {
   table?: {
     size?: 'small' | 'medium' | 'large'
     striped?: boolean
+    hoverable?: boolean
+  }
+  /** Default card props */
+  card?: {
+    radius?: 'small' | 'medium' | 'large' | 'xl'
+    hoverable?: boolean | 'bulge' | 'sink'
+  }
+  /** Default badge props */
+  badge?: {
+    max?: number
+    dot?: boolean
+    showZero?: boolean
+  }
+  /** Default breadcrumb props */
+  breadcrumb?: {
+    size?: 'small' | 'medium' | 'large'
+    separator?: string
+  }
+  /** Default checkbox props */
+  checkbox?: {
+    size?: 'small' | 'medium' | 'large'
+  }
+  /** Default radio props */
+  radio?: {
+    size?: 'small' | 'medium' | 'large'
+  }
+  /** Default radio group props */
+  radioGroup?: {
+    size?: 'small' | 'medium' | 'large'
+    direction?: 'horizontal' | 'vertical'
+  }
+  /** Default textarea props */
+  textarea?: {
+    size?: 'small' | 'medium' | 'large'
+    rows?: number
+    autoResize?: boolean
+    showCount?: boolean
+  }
+  /** Default divider props */
+  divider?: {
+    direction?: 'horizontal' | 'vertical'
+    align?: 'left' | 'center' | 'right'
+    dashed?: boolean
+    inset?: boolean
+  }
+  /** Default container props */
+  container?: {
+    mode?: 'fixed' | 'fluid'
+    noPadding?: boolean
+  }
+  /** Default layout props */
+  layout?: {
+    showHeader?: boolean
+    showSider?: boolean
+    siderWidth?: number
+    collapsible?: boolean
+    collapsedWidth?: number
+    mobileAutoCollapse?: boolean
+  }
+  /** Default theme toggle props */
+  themeToggle?: {
+    size?: 'small' | 'medium' | 'large'
+    disableAuto?: boolean
+  }
+  /** Default canvas props */
+  canvas?: {
+    showGrid?: boolean
+    gridSize?: number
+    showControls?: boolean
+  }
+  /** Default skeleton props */
+  skeleton?: {
+    variant?: 'text' | 'circle' | 'rect'
+    animation?: 'pulse' | 'wave' | 'none'
+  }
+  /** Default grid props */
+  grid?: {
+    gutter?: number | [number, number]
+    justify?: 'start' | 'center' | 'end' | 'space-between' | 'space-around' | 'space-evenly'
+    align?: 'start' | 'center' | 'end' | 'stretch' | 'baseline'
+    wrap?: boolean
+  }
+  /** Default field props */
+  field?: {
+    labelWidth?: string
+  }
+  /** Default slider props */
+  slider?: {
+    size?: 'small' | 'medium' | 'large'
+    showTooltip?: boolean
+    showStops?: boolean
+  }
+  /** Default steps props */
+  steps?: {
+    direction?: 'horizontal' | 'vertical'
+    size?: 'small' | 'medium' | 'large'
+    center?: boolean
+  }
+  /** Default upload props */
+  upload?: {
+    size?: 'small' | 'medium' | 'large'
+    drag?: boolean
+    showUploadList?: boolean
+    listType?: 'text' | 'picture' | 'picture-card'
+    autoUpload?: boolean
+  }
+  /** Default list props */
+  list?: {
+    bordered?: boolean
+    split?: boolean
+    size?: 'small' | 'medium' | 'large'
     hoverable?: boolean
   }
   /** Locale configuration */

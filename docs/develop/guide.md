@@ -17,6 +17,11 @@
 - [子路径导出](#子路径导出)
 - [扩展组件](#扩展组件)
 - [国际化](#国际化)
+- [弹出层与下拉菜单](#弹出层与下拉菜单)
+- [提示与空状态](#提示与空状态)
+- [文件上传](#文件上传)
+- [导航模式](#导航模式)
+- [步骤流程](#步骤流程)
 - [最佳实践](#最佳实践)
 
 ---
@@ -471,6 +476,239 @@ function switchLanguage() {
 | -------- | -------- |
 | `zh-CN`  | 简体中文 |
 | `en-US`  | 英文     |
+
+---
+
+## 弹出层与下拉菜单
+
+### Popover
+
+`NeumorphismPopover` 是一个通用的弹出层容器，支持 hover / click / focus 等多种触发方式，并自动检测边界避免溢出。
+
+```vue
+<template>
+  <NeumorphismPopover position="bottom" trigger="click">
+    <NeumorphismButton>点击打开</NeumorphismButton>
+
+    <template #content>
+      <div style="padding: 12px">
+        <p>这是弹出的内容</p>
+        <NeumorphismButton size="small">确认</NeumorphismButton>
+      </div>
+    </template>
+  </NeumorphismPopover>
+</template>
+```
+
+**常用场景：**
+
+| 场景     | 推荐配置                                    |
+| -------- | ------------------------------------------- |
+| 文字提示 | `position="auto" trigger="hover"`           |
+| 操作菜单 | `position="bottom" trigger="click"`         |
+| 表单帮助 | `position="right" trigger="focus"`          |
+| 完全手动 | `trigger="manual"` + 调用 `show()`/`hide()` |
+
+### Dropdown
+
+`NeumorphismDropdown` 基于 Popover 封装，专用于下拉菜单场景：
+
+```vue
+<script setup>
+const items = [
+  { key: 'edit', label: '编辑', icon: '✏️' },
+  { key: 'share', label: '分享', icon: '🔗', divided: true },
+  { key: 'delete', label: '删除', icon: '🗑', danger: true, disabled: false },
+]
+</script>
+
+<template>
+  <NeumorphismDropdown :items="items" @select="handleAction">
+    <NeumorphismButton>操作 ▼</NeumorphismButton>
+  </NeumorphismDropdown>
+</template>
+```
+
+---
+
+## 提示与空状态
+
+### Alert 提示条
+
+有四种语义类型：`info`、`success`、`warning`、`error`。支持自动关闭和手动关闭。
+
+```vue
+<template>
+  <NeumorphismAlert
+    type="success"
+    title="操作成功"
+    message="您的更改已保存"
+    :duration="5000"
+    @close="handleClose"
+  />
+
+  <NeumorphismAlert type="error" message="提交失败，请检查网络后重试" />
+</template>
+```
+
+**Alert 模式：**
+
+- **持久提示**：`duration="0"`（默认），用户手动关闭
+- **自动消失**：设置 `duration`（毫秒），到期自动淡出
+- **无图标**：`:icon="false"`
+- **无边框色条**：`:bordered="false"`
+
+### Empty 空状态
+
+```vue
+<template>
+  <NeumorphismEmpty description="暂无数据">
+    <NeumorphismButton variant="flat">刷新</NeumorphismButton>
+  </NeumorphismEmpty>
+</template>
+```
+
+---
+
+## 文件上传
+
+`NeumorphismUpload` 支持拖拽上传、文件列表展示、图片预览：
+
+```vue
+<script setup>
+import { ref } from 'vue'
+
+const fileList = ref([])
+
+function handleChange(files) {
+  console.log('文件列表变更:', files)
+}
+function handleRemove(file) {
+  console.log('移除文件:', file.name)
+}
+</script>
+
+<template>
+  <!-- 拖拽上传区域 -->
+  <NeumorphismUpload
+    v-model="fileList"
+    accept="image/*,.pdf"
+    :max-size="5 * 1024 * 1024"
+    :max-count="5"
+    multiple
+    list-type="picture"
+    @change="handleChange"
+    @remove="handleRemove"
+  />
+
+  <!-- 仅按钮触发 -->
+  <NeumorphismUpload v-model="fileList" :drag="false" />
+</template>
+```
+
+**三种列表展示样式：**
+
+| listType         | 说明                     |
+| ---------------- | ------------------------ |
+| `'text'`         | 文本行，显示文件名和大小 |
+| `'picture'`      | 显示缩略图 + 文件信息    |
+| `'picture-card'` | 卡片式缩略图网格         |
+
+---
+
+## 导航模式
+
+### 使用 Menu 构建侧边菜单
+
+```vue
+<script setup>
+const menuItems = [
+  { key: 'dashboard', label: '仪表盘', icon: '📊' },
+  {
+    key: 'settings',
+    label: '设置',
+    icon: '⚙️',
+    children: [
+      { key: 'profile', label: '个人资料' },
+      { key: 'security', label: '安全设置' },
+    ],
+  },
+  { key: 'help', label: '帮助', icon: '❓', divided: true },
+]
+</script>
+
+<template>
+  <NeumorphismMenu
+    :items="menuItems"
+    mode="vertical"
+    default-active="dashboard"
+    @select="handleMenuSelect"
+  />
+</template>
+```
+
+### 使用 NavMenu 构建顶部导航
+
+```vue
+<template>
+  <NeumorphismNavMenu
+    :items="navItems"
+    mode="horizontal"
+    show-indicator
+    @select="handleNavSelect"
+  />
+</template>
+```
+
+NavMenu 在 `horizontal` 模式下，子菜单以 Popover 下拉形式展开；`vertical` 模式下以内联展开子菜单。
+
+### 使用 Drawer 构建侧边抽屉
+
+```vue
+<script setup>
+const visible = ref(false)
+</script>
+
+<template>
+  <NeumorphismButton @click="visible = true">打开抽屉</NeumorphismButton>
+
+  <NeumorphismDrawer v-model="visible" title="用户设置" position="right" :width="400">
+    <p>抽屉内容...</p>
+
+    <template #footer>
+      <NeumorphismButton variant="flat" @click="visible = false">取消</NeumorphismButton>
+      <NeumorphismButton @click="saveSettings">保存</NeumorphismButton>
+    </template>
+  </NeumorphismDrawer>
+</template>
+```
+
+Drawer 支持四个方向 (`left` / `right` / `top` / `bottom`)，具备焦点锁定和 Escape 关闭。
+
+---
+
+## 步骤流程
+
+```vue
+<script setup>
+const current = ref(0)
+
+const steps = [
+  { key: 'info', title: '填写信息', description: '输入基本信息' },
+  { key: 'verify', title: '验证身份', description: '通过邮箱验证' },
+  { key: 'done', title: '完成', description: '提交注册' },
+]
+</script>
+
+<template>
+  <NeumorphismSteps :steps="steps" v-model:current="current" />
+
+  <NeumorphismButton @click="current--" :disabled="current === 0">上一步</NeumorphismButton>
+  <NeumorphismButton @click="current++" :disabled="current === steps.length - 1"
+    >下一步</NeumorphismButton
+  >
+</template>
+```
 
 ---
 
