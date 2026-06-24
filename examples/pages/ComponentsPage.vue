@@ -160,14 +160,13 @@ function scrollToSection(id: string) {
 }
 
 // ---- 滚动监听（scroll-spy） ----
-// 思路：监听所有 .nm-layout__content 的 scroll 事件（覆盖嵌套 Layout 场景），
-// 每次滚动时直接扫描所有 section 的 getBoundingClientRect 来确定当前激活项。
-// 不依赖 IntersectionObserver 的缓存值，不用 rootMargin，与 DOM 层级解耦。
+// scroll 事件不冒泡，因此在 document 上以 capture 模式捕获所有子元素的
+// scroll 事件。配合 getBoundingClientRect (始终基于视口) 确定当前激活
+// 的 section，完全与 Layout 嵌套层级、scoped CSS、class 名无关。
 const HEADER_OFFSET = 120 // 外层 + 内层 Layout header 的累计高度
 const activeSection = ref('buttons')
 const allSectionIds = computed(() => navCategories.flatMap(c => c.items.map(i => i.id)))
 
-let scrollContainers: NodeListOf<HTMLElement> | null = null
 let scrollTicking = false
 
 function updateActiveSection() {
@@ -175,7 +174,6 @@ function updateActiveSection() {
   for (const id of allSectionIds.value) {
     const el = document.getElementById(id)
     if (!el) continue
-    // getBoundingClientRect 始终返回相对于视口的坐标，与滚动容器无关
     if (el.getBoundingClientRect().top <= HEADER_OFFSET + 10) {
       current = id
     }
@@ -194,19 +192,15 @@ function onScroll() {
 }
 
 onMounted(() => {
-  // 找到所有滚动容器（嵌套 Layout 场景下有多个），全部监听
   nextTick(() => {
-    scrollContainers = document.querySelectorAll('.nm-layout__content')
-    scrollContainers.forEach(c => c.addEventListener('scroll', onScroll, { passive: true }))
-    // 首次计算
+    // 捕获阶段拦截所有后代元素的 scroll 事件，绕过"不冒泡"限制
+    document.addEventListener('scroll', onScroll, { passive: true, capture: true })
     updateActiveSection()
   })
 })
 
 onBeforeUnmount(() => {
-  if (scrollContainers) {
-    scrollContainers.forEach(c => c.removeEventListener('scroll', onScroll))
-  }
+  document.removeEventListener('scroll', onScroll, { capture: true })
 })
 
 // ---- 开关示例 ----
