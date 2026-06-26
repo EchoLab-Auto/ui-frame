@@ -1,0 +1,35 @@
+# 排除源码和构建配置（只保留 dist 产物）
+src/
+tsconfig.json
+tsconfig.node.json
+vite.config.ts
+vite.umd.config.ts
+vitest.config.ts
+*.tsbuildinfo
+
+# 排除 node_modules
+node_modules/
+
+# 示例和文档源码（不纳入发布包）
+examples/
+docs/
+
+# CI/CD 配置
+.github/
+
+# 开发配置文件
+.husky/
+.claude/
+.changeset/
+commitlint.config.js
+eslint.config.js
+.prettierrc
+.prettierignore
+skills-lock.json
+AGENT.md
+
+# 杂项
+.git/
+.cache/
+*.log
+*.tgz

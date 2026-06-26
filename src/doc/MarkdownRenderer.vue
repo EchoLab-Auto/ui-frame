@@ -45,13 +45,6 @@ const activeHeading = ref('')
 const showMobileToc = ref(false)
 const collapsedGroups = ref<Set<string>>(new Set())
 
-/** TOC fixed 定位相关状态 */
-const isTocFixed = ref(false)
-const tocFixedStyle = ref<Record<string, string>>({})
-let tocResizeObserver: ResizeObserver | null = null
-let tocMeasureRafId: number | null = null
-let onWindowResize: (() => void) | null = null
-
 /** 实例级唯一前缀，避免多实例 id 冲突 */
 const tocPrefix = generateId('toc')
 
@@ -318,103 +311,33 @@ function handleContentClick(e: MouseEvent) {
   }
 }
 
-/** 解析滚动容器：优先使用 prop，其次查找 .nm-layout__content */
-function resolveScrollContainer(): HTMLElement | null {
-  if (!contentRef.value) return null
+/**
+ * 从给定元素向上查找滚动容器。
+ * 接受可选 fromEl 用于组件卸载/切换时基于旧 DOM 节点清理。
+ */
+function resolveScrollContainer(fromEl?: HTMLElement): HTMLElement | null {
+  const el = fromEl ?? contentRef.value
+  if (!el) return null
   if (props.scrollContainer instanceof HTMLElement) {
     return props.scrollContainer
   }
   if (typeof props.scrollContainer === 'string') {
-    return contentRef.value.closest(props.scrollContainer) as HTMLElement | null
+    return el.closest(props.scrollContainer) as HTMLElement | null
   }
-  return contentRef.value.closest('.nm-layout__content') as HTMLElement | null
+  return el.closest('.nm-layout__content') as HTMLElement | null
 }
 
-/** 动态获取 header 高度 */
-function getHeaderHeight(): number {
-  const scrollContainer = resolveScrollContainer()
-  if (!scrollContainer) return 64
+/** 动态获取 header 高度（用于 scroll-spy 偏移计算） */
+function getHeaderHeight(scrollContainer?: HTMLElement): number {
+  const container = scrollContainer ?? resolveScrollContainer()
+  if (!container) return 64
 
-  const layout = scrollContainer.closest('.nm-layout') as HTMLElement | null
+  const layout = container.closest('.nm-layout') as HTMLElement | null
   const header = layout?.querySelector('.nm-layout__header') as HTMLElement | null
   if (header) {
     return header.getBoundingClientRect().height
   }
   return 64
-}
-
-/** 动态滚动视差检测偏移量 */
-function getScrollSpyOffset(): number {
-  return getHeaderHeight() + 20
-}
-
-/** 计算并应用 fixed TOC 的 CSS 定位 */
-function updateTocFixedPosition() {
-  const tocEl = tocNavRef.value
-  if (!tocEl) return
-
-  // 移动端不用 fixed 模式
-  if (window.innerWidth <= 1100) {
-    isTocFixed.value = false
-    tocFixedStyle.value = {}
-    return
-  }
-
-  const scrollContainer = resolveScrollContainer()
-  if (!scrollContainer) {
-    isTocFixed.value = false
-    return
-  }
-
-  isTocFixed.value = true
-
-  const headerHeight = getHeaderHeight()
-  const containerRect = scrollContainer.getBoundingClientRect()
-  const rightOffset = Math.max(0, window.innerWidth - containerRect.right)
-
-  tocFixedStyle.value = {
-    position: 'fixed',
-    top: `${headerHeight + 20}px`,
-    maxHeight: `calc(100vh - ${headerHeight + 40}px)`,
-    right: `${rightOffset}px`,
-    width: '220px',
-    zIndex: '10',
-  }
-}
-
-/** 设置 ResizeObserver 监听布局变化 */
-function setupTocObserver() {
-  cleanupTocObserver()
-
-  const scrollContainer = resolveScrollContainer()
-  if (!scrollContainer) return
-
-  tocResizeObserver = new ResizeObserver(() => {
-    if (tocMeasureRafId !== null) {
-      cancelAnimationFrame(tocMeasureRafId)
-    }
-    tocMeasureRafId = requestAnimationFrame(() => {
-      tocMeasureRafId = null
-      updateTocFixedPosition()
-      handleScroll()
-    })
-  })
-
-  tocResizeObserver.observe(scrollContainer)
-
-  const header = scrollContainer
-    .closest('.nm-layout')
-    ?.querySelector('.nm-layout__header') as HTMLElement | null
-  if (header) {
-    tocResizeObserver.observe(header)
-  }
-}
-
-function cleanupTocObserver() {
-  if (tocResizeObserver) {
-    tocResizeObserver.disconnect()
-    tocResizeObserver = null
-  }
 }
 
 /** 监听滚动，高亮当前目录项并同步 TOC 滚动位置 */
@@ -423,11 +346,12 @@ function handleScroll() {
   if (!main) return
   const headings = contentRef.value?.querySelectorAll('h1, h2, h3')
   if (!headings) return
+  const scrollSpyOffset = getHeaderHeight(main) + 20
   let current = ''
   for (const h of headings) {
     const rect = h.getBoundingClientRect()
     const containerRect = main.getBoundingClientRect()
-    if (rect.top - containerRect.top <= getScrollSpyOffset()) {
+    if (rect.top - containerRect.top <= scrollSpyOffset) {
       current = h.id
     } else {
       break
@@ -463,31 +387,15 @@ const throttledHandleScroll = throttle(handleScroll, 80)
 let activeScrollContainer: HTMLElement | null = null
 
 watch(contentRef, (el, oldEl) => {
+  // 基于旧 DOM 节点清理，修复组件切换时 ref 已置 null 导致清理失败的 bug
   if (oldEl) {
-    const oldContainer = resolveScrollContainer()
+    const oldContainer = resolveScrollContainer(oldEl)
     oldContainer?.removeEventListener('scroll', throttledHandleScroll)
-    cleanupTocObserver()
-    if (onWindowResize) {
-      window.removeEventListener('resize', onWindowResize)
-      onWindowResize = null
-    }
   }
   if (el) {
     nextTick(() => {
       activeScrollContainer = resolveScrollContainer()
       activeScrollContainer?.addEventListener('scroll', throttledHandleScroll)
-      // 初始化 fixed TOC 定位 + 监听
-      updateTocFixedPosition()
-      setupTocObserver()
-      // 监听 window resize 处理 1100px 断点切换
-      onWindowResize = () => {
-        if (tocMeasureRafId !== null) cancelAnimationFrame(tocMeasureRafId)
-        tocMeasureRafId = requestAnimationFrame(() => {
-          tocMeasureRafId = null
-          updateTocFixedPosition()
-        })
-      }
-      window.addEventListener('resize', onWindowResize, { passive: true })
       // 初始同步高亮
       handleScroll()
     })
@@ -497,15 +405,6 @@ watch(contentRef, (el, oldEl) => {
 // 卸载时清理
 onBeforeUnmount(() => {
   activeScrollContainer?.removeEventListener('scroll', throttledHandleScroll)
-  cleanupTocObserver()
-  if (tocMeasureRafId !== null) {
-    cancelAnimationFrame(tocMeasureRafId)
-    tocMeasureRafId = null
-  }
-  if (onWindowResize) {
-    window.removeEventListener('resize', onWindowResize)
-    onWindowResize = null
-  }
 })
 
 /** autoHeading 变化时，自动展开被折叠的祖先节点 */
@@ -548,8 +447,6 @@ watch(activeHeading, newId => {
       v-if="showToc && toc.length > 0"
       ref="tocNavRef"
       class="neumorphism-toc"
-      :class="{ 'neumorphism-toc--fixed': isTocFixed }"
-      :style="isTocFixed ? tocFixedStyle : {}"
       aria-label="文档目录"
     >
       <NeumorphismCard :elevation="-2" no-padding class="neumorphism-toc-card">
@@ -671,13 +568,6 @@ watch(activeHeading, newId => {
   /* Scrollbar styling for the TOC itself */
   scrollbar-width: thin;
   scrollbar-color: var(--nm-surface-raised) transparent;
-}
-
-/* Fixed-position mode: JS 驱动 top/max-height/right（inline style）。
-   保留 sticky fallback 用于 JS 未初始化时的降级场景。 */
-.neumorphism-toc--fixed {
-  position: fixed;
-  /* top, max-height, right, width, z-index 由 JS 通过 inline style 注入 */
 }
 
 .neumorphism-toc-card {
