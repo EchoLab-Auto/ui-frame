@@ -1,4 +1,4 @@
-# @echolab/ui-frame — Agent 构建指南
+# @echolab-auto/ui-frame — Agent 构建指南
 
 > **一句话**：Vue 3 新拟态（Neumorphism）组件库，通过多层阴影模拟 3D 浮雕效果。Agent 构建 UI 时，只需知道**组件名 + props + slot**即可使用，无需阅读源码。
 
@@ -8,8 +8,8 @@
 
 ```ts
 import { createApp } from 'vue'
-import NeumorphismUI from '@echolab/ui-frame'
-import '@echolab/ui-frame/dist/style.css'
+import NeumorphismUI from '@echolab-auto/ui-frame'
+import '@echolab-auto/ui-frame/dist/style.css'
 
 const app = createApp(App)
 app.use(NeumorphismUI) // 全局注册所有 46 个组件
@@ -19,8 +19,8 @@ app.mount('#app')
 **按需引入**（tree-shaking）：
 
 ```ts
-import { NeumorphismButton, NeumorphismCard, useTheme } from '@echolab/ui-frame'
-import '@echolab/ui-frame/dist/style.css'
+import { NeumorphismButton, NeumorphismCard, useTheme } from '@echolab-auto/ui-frame'
+import '@echolab-auto/ui-frame/dist/style.css'
 ```
 
 ---
@@ -75,7 +75,7 @@ import '@echolab/ui-frame/dist/style.css'
 
 ```vue
 <script setup>
-import { provideTheme } from '@echolab/ui-frame'
+import { provideTheme } from '@echolab-auto/ui-frame'
 const { theme, isDark, toggleTheme } = provideTheme()
 </script>
 
@@ -267,7 +267,7 @@ import {
   useDatePicker, // 日历计算
   useVirtualList, // 虚拟滚动
   // ... 共 29 个
-} from '@echolab/ui-frame'
+} from '@echolab-auto/ui-frame'
 ```
 
 **典型用法**：`const { isOpen, toggle, close } = useModal({ maskClosable: true })`

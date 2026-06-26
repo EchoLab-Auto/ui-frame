@@ -59,8 +59,8 @@ export function useLocale(): {
  *
  * @example
  * ```ts
- * import { provideLocale } from '@echolab/ui-frame'
- * import { zhCN } from '@echolab/ui-frame/locales'
+ * import { provideLocale } from '@echolab-auto/ui-frame'
+ * import { zhCN } from '@echolab-auto/ui-frame/locales'
  *
  * provideLocale(zhCN)
  * ```

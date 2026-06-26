@@ -1,6 +1,6 @@
 # API 文档
 
-> 本文档面向使用 `@echolab/ui-frame` 进行 UI 构建的开发者，完整列举所有可被外部使用的代码模块、类型定义和接口。
+> 本文档面向使用 `@echolab-auto/ui-frame` 进行 UI 构建的开发者，完整列举所有可被外部使用的代码模块、类型定义和接口。
 
 ---
 
@@ -25,14 +25,14 @@
 ## 安装与引入
 
 ```bash
-npm install @echolab/ui-frame
+npm install @echolab-auto/ui-frame
 ```
 
 ```ts
 // 全量引入
 import { createApp } from 'vue'
-import NeumorphismUI from '@echolab/ui-frame'
-import '@echolab/ui-frame/dist/style.css'
+import NeumorphismUI from '@echolab-auto/ui-frame'
+import '@echolab-auto/ui-frame/dist/style.css'
 
 const app = createApp(App)
 app.use(NeumorphismUI)
@@ -40,8 +40,8 @@ app.use(NeumorphismUI)
 
 ```ts
 // 按需引入
-import { NeumorphismButton, NeumorphismCard, useTheme } from '@echolab/ui-frame'
-import '@echolab/ui-frame/dist/style.css'
+import { NeumorphismButton, NeumorphismCard, useTheme } from '@echolab-auto/ui-frame'
+import '@echolab-auto/ui-frame/dist/style.css'
 ```
 
 ---
@@ -52,12 +52,12 @@ import '@echolab/ui-frame/dist/style.css'
 
 | 子路径                            | 用途                    | 示例                                                                  |
 | --------------------------------- | ----------------------- | --------------------------------------------------------------------- |
-| `@echolab/ui-frame/composables/*` | 单独引入某个 composable | `import { useSelect } from '@echolab/ui-frame/composables/useSelect'` |
-| `@echolab/ui-frame/extensions`    | 扩展系统                | `import { ComponentRegistry } from '@echolab/ui-frame/extensions'`    |
-| `@echolab/ui-frame/utils`         | 工具函数                | `import { debounce } from '@echolab/ui-frame/utils'`                  |
-| `@echolab/ui-frame/doc`           | 文档渲染模块            | `import { DocViewer } from '@echolab/ui-frame/doc'`                   |
+| `@echolab-auto/ui-frame/composables/*` | 单独引入某个 composable | `import { useSelect } from '@echolab-auto/ui-frame/composables/useSelect'` |
+| `@echolab-auto/ui-frame/extensions`    | 扩展系统                | `import { ComponentRegistry } from '@echolab-auto/ui-frame/extensions'`    |
+| `@echolab-auto/ui-frame/utils`         | 工具函数                | `import { debounce } from '@echolab-auto/ui-frame/utils'`                  |
+| `@echolab-auto/ui-frame/doc`           | 文档渲染模块            | `import { DocViewer } from '@echolab-auto/ui-frame/doc'`                   |
 
-> 使用子路径导出时仍需引入样式文件：`import '@echolab/ui-frame/dist/style.css'`
+> 使用子路径导出时仍需引入样式文件：`import '@echolab-auto/ui-frame/dist/style.css'`
 
 ---
 
@@ -68,13 +68,13 @@ import '@echolab/ui-frame/dist/style.css'
 #### NeumorphismButton
 
 ```ts
-import { NeumorphismButton } from '@echolab/ui-frame'
+import { NeumorphismButton } from '@echolab-auto/ui-frame'
 import type {
   NeumorphismButtonProps,
   ButtonVariant,
   ButtonSize,
   ButtonShape,
-} from '@echolab/ui-frame'
+} from '@echolab-auto/ui-frame'
 ```
 
 | Props    | Type                              | Default     | Description  |
@@ -93,8 +93,8 @@ import type {
 #### NeumorphismSwitch
 
 ```ts
-import { NeumorphismSwitch } from '@echolab/ui-frame'
-import type { NeumorphismSwitchProps } from '@echolab/ui-frame'
+import { NeumorphismSwitch } from '@echolab-auto/ui-frame'
+import type { NeumorphismSwitchProps } from '@echolab-auto/ui-frame'
 ```
 
 | Props        | Type                             | Default    | Description  |
@@ -112,8 +112,8 @@ import type { NeumorphismSwitchProps } from '@echolab/ui-frame'
 #### NeumorphismCheckbox
 
 ```ts
-import { NeumorphismCheckbox } from '@echolab/ui-frame'
-import type { NeumorphismCheckboxProps } from '@echolab/ui-frame'
+import { NeumorphismCheckbox } from '@echolab-auto/ui-frame'
+import type { NeumorphismCheckboxProps } from '@echolab-auto/ui-frame'
 ```
 
 | Props         | Type                             | Default    | Description |
@@ -131,8 +131,8 @@ import type { NeumorphismCheckboxProps } from '@echolab/ui-frame'
 #### NeumorphismRadio
 
 ```ts
-import { NeumorphismRadio, NeumorphismRadioGroup } from '@echolab/ui-frame'
-import type { NeumorphismRadioProps, NeumorphismRadioGroupProps } from '@echolab/ui-frame'
+import { NeumorphismRadio, NeumorphismRadioGroup } from '@echolab-auto/ui-frame'
+import type { NeumorphismRadioProps, NeumorphismRadioGroupProps } from '@echolab-auto/ui-frame'
 ```
 
 **NeumorphismRadio:**
@@ -160,8 +160,8 @@ import type { NeumorphismRadioProps, NeumorphismRadioGroupProps } from '@echolab
 #### NeumorphismInput
 
 ```ts
-import { NeumorphismInput } from '@echolab/ui-frame'
-import type { NeumorphismInputProps, InputSize } from '@echolab/ui-frame'
+import { NeumorphismInput } from '@echolab-auto/ui-frame'
+import type { NeumorphismInputProps, InputSize } from '@echolab-auto/ui-frame'
 ```
 
 | Props       | Type                             | Default    | Description    |
@@ -185,8 +185,8 @@ import type { NeumorphismInputProps, InputSize } from '@echolab/ui-frame'
 #### NeumorphismTextarea
 
 ```ts
-import { NeumorphismTextarea } from '@echolab/ui-frame'
-import type { NeumorphismTextareaProps } from '@echolab/ui-frame'
+import { NeumorphismTextarea } from '@echolab-auto/ui-frame'
+import type { NeumorphismTextareaProps } from '@echolab-auto/ui-frame'
 ```
 
 | Props       | Type                             | Default    | Description      |
@@ -211,8 +211,8 @@ import type { NeumorphismTextareaProps } from '@echolab/ui-frame'
 #### NeumorphismSelect
 
 ```ts
-import { NeumorphismSelect } from '@echolab/ui-frame'
-import type { NeumorphismSelectProps, NeumorphismSelectOption } from '@echolab/ui-frame'
+import { NeumorphismSelect } from '@echolab-auto/ui-frame'
+import type { NeumorphismSelectProps, NeumorphismSelectOption } from '@echolab-auto/ui-frame'
 ```
 
 | Props       | Type                             | Default    | Description    |
@@ -246,8 +246,8 @@ interface SelectOption {
 #### NeumorphismForm / NeumorphismFormItem
 
 ```ts
-import { NeumorphismForm, NeumorphismFormItem } from '@echolab/ui-frame'
-import type { NeumorphismFormProps, NeumorphismFormItemProps, FormRule } from '@echolab/ui-frame'
+import { NeumorphismForm, NeumorphismFormItem } from '@echolab-auto/ui-frame'
+import type { NeumorphismFormProps, NeumorphismFormItemProps, FormRule } from '@echolab-auto/ui-frame'
 ```
 
 **NeumorphismForm:**
@@ -286,8 +286,8 @@ interface FormRule {
 #### NeumorphismSlider
 
 ```ts
-import { NeumorphismSlider } from '@echolab/ui-frame'
-import type { NeumorphismSliderProps, SliderSize } from '@echolab/ui-frame'
+import { NeumorphismSlider } from '@echolab-auto/ui-frame'
+import type { NeumorphismSliderProps, SliderSize } from '@echolab-auto/ui-frame'
 ```
 
 | Props       | Type                             | Default    | Description          |
@@ -309,8 +309,8 @@ import type { NeumorphismSliderProps, SliderSize } from '@echolab/ui-frame'
 #### NeumorphismInputNumber
 
 ```ts
-import { NeumorphismInputNumber } from '@echolab/ui-frame'
-import type { NeumorphismInputNumberProps, NumberInputSize } from '@echolab/ui-frame'
+import { NeumorphismInputNumber } from '@echolab-auto/ui-frame'
+import type { NeumorphismInputNumberProps, NumberInputSize } from '@echolab-auto/ui-frame'
 ```
 
 | Props       | Type                             | Default     | Description  |
@@ -333,8 +333,8 @@ import type { NeumorphismInputNumberProps, NumberInputSize } from '@echolab/ui-f
 #### NeumorphismAutoComplete
 
 ```ts
-import { NeumorphismAutoComplete } from '@echolab/ui-frame'
-import type { NeumorphismAutoCompleteProps, NeumorphismAutoCompleteOption } from '@echolab/ui-frame'
+import { NeumorphismAutoComplete } from '@echolab-auto/ui-frame'
+import type { NeumorphismAutoCompleteProps, NeumorphismAutoCompleteOption } from '@echolab-auto/ui-frame'
 ```
 
 | Props       | Type                                               | Default     | Description          |
@@ -365,8 +365,8 @@ interface AutoCompleteOption {
 #### NeumorphismDatePicker
 
 ```ts
-import { NeumorphismDatePicker } from '@echolab/ui-frame'
-import type { NeumorphismDatePickerProps } from '@echolab/ui-frame'
+import { NeumorphismDatePicker } from '@echolab-auto/ui-frame'
+import type { NeumorphismDatePickerProps } from '@echolab-auto/ui-frame'
 ```
 
 | Props          | Type                             | Default        | Description        |
@@ -393,8 +393,8 @@ import type { NeumorphismDatePickerProps } from '@echolab/ui-frame'
 #### NeumorphismUpload
 
 ```ts
-import { NeumorphismUpload } from '@echolab/ui-frame'
-import type { NeumorphismUploadProps, UploadFile, UploadStatus } from '@echolab/ui-frame'
+import { NeumorphismUpload } from '@echolab-auto/ui-frame'
+import type { NeumorphismUploadProps, UploadFile, UploadStatus } from '@echolab-auto/ui-frame'
 ```
 
 | Props          | Type                                    | Default    | Description                 |
@@ -440,8 +440,8 @@ interface UploadFile {
 #### NeumorphismCard
 
 ```ts
-import { NeumorphismCard } from '@echolab/ui-frame'
-import type { NeumorphismCardProps, CardVariant, CardDepth } from '@echolab/ui-frame'
+import { NeumorphismCard } from '@echolab-auto/ui-frame'
+import type { NeumorphismCardProps, CardVariant, CardDepth } from '@echolab-auto/ui-frame'
 ```
 
 | Props     | Type                                     | Default   | Description                        |
@@ -472,8 +472,8 @@ import type { NeumorphismCardProps, CardVariant, CardDepth } from '@echolab/ui-f
 #### NeumorphismAvatar
 
 ```ts
-import { NeumorphismAvatar } from '@echolab/ui-frame'
-import type { NeumorphismAvatarProps, AvatarSize } from '@echolab/ui-frame'
+import { NeumorphismAvatar } from '@echolab-auto/ui-frame'
+import type { NeumorphismAvatarProps, AvatarSize } from '@echolab-auto/ui-frame'
 ```
 
 | Props    | Type                             | Default    | Description |
@@ -491,8 +491,8 @@ import type { NeumorphismAvatarProps, AvatarSize } from '@echolab/ui-frame'
 #### NeumorphismBadge
 
 ```ts
-import { NeumorphismBadge } from '@echolab/ui-frame'
-import type { NeumorphismBadgeProps } from '@echolab/ui-frame'
+import { NeumorphismBadge } from '@echolab-auto/ui-frame'
+import type { NeumorphismBadgeProps } from '@echolab-auto/ui-frame'
 ```
 
 | Props    | Type               | Default | Description         |
@@ -507,8 +507,8 @@ import type { NeumorphismBadgeProps } from '@echolab/ui-frame'
 #### NeumorphismTag
 
 ```ts
-import { NeumorphismTag } from '@echolab/ui-frame'
-import type { NeumorphismTagProps, TagVariant } from '@echolab/ui-frame'
+import { NeumorphismTag } from '@echolab-auto/ui-frame'
+import type { NeumorphismTagProps, TagVariant } from '@echolab-auto/ui-frame'
 ```
 
 | Props    | Type                                                                    | Default     | Description |
@@ -526,8 +526,8 @@ import type { NeumorphismTagProps, TagVariant } from '@echolab/ui-frame'
 #### NeumorphismProgress
 
 ```ts
-import { NeumorphismProgress } from '@echolab/ui-frame'
-import type { NeumorphismProgressProps, ProgressVariant } from '@echolab/ui-frame'
+import { NeumorphismProgress } from '@echolab-auto/ui-frame'
+import type { NeumorphismProgressProps, ProgressVariant } from '@echolab-auto/ui-frame'
 ```
 
 | Props         | Type                                                          | Default     | Description    |
@@ -545,8 +545,8 @@ import type { NeumorphismProgressProps, ProgressVariant } from '@echolab/ui-fram
 #### NeumorphismSkeleton
 
 ```ts
-import { NeumorphismSkeleton } from '@echolab/ui-frame'
-import type { NeumorphismSkeletonProps } from '@echolab/ui-frame'
+import { NeumorphismSkeleton } from '@echolab-auto/ui-frame'
+import type { NeumorphismSkeletonProps } from '@echolab-auto/ui-frame'
 ```
 
 | Props     | Type                           | Default   | Description |
@@ -562,8 +562,8 @@ import type { NeumorphismSkeletonProps } from '@echolab/ui-frame'
 #### NeumorphismTable
 
 ```ts
-import { NeumorphismTable } from '@echolab/ui-frame'
-import type { NeumorphismTableProps } from '@echolab/ui-frame'
+import { NeumorphismTable } from '@echolab-auto/ui-frame'
+import type { NeumorphismTableProps } from '@echolab-auto/ui-frame'
 ```
 
 | Props        | Type                             | Default      | Description    |
@@ -597,8 +597,8 @@ interface TableColumn {
 #### NeumorphismDivider
 
 ```ts
-import { NeumorphismDivider } from '@echolab/ui-frame'
-import type { NeumorphismDividerProps, DividerDirection, DividerAlign } from '@echolab/ui-frame'
+import { NeumorphismDivider } from '@echolab-auto/ui-frame'
+import type { NeumorphismDividerProps, DividerDirection, DividerAlign } from '@echolab-auto/ui-frame'
 ```
 
 | Props     | Type                            | Default        | Description |
@@ -615,8 +615,8 @@ import type { NeumorphismDividerProps, DividerDirection, DividerAlign } from '@e
 #### NeumorphismList
 
 ```ts
-import { NeumorphismList } from '@echolab/ui-frame'
-import type { NeumorphismListProps } from '@echolab/ui-frame'
+import { NeumorphismList } from '@echolab-auto/ui-frame'
+import type { NeumorphismListProps } from '@echolab-auto/ui-frame'
 ```
 
 | Props     | Type                             | Default    | Description      |
@@ -637,8 +637,8 @@ import type { NeumorphismListProps } from '@echolab/ui-frame'
 #### NeumorphismVirtualList
 
 ```ts
-import { NeumorphismVirtualList } from '@echolab/ui-frame'
-import type { NeumorphismVirtualListProps } from '@echolab/ui-frame'
+import { NeumorphismVirtualList } from '@echolab-auto/ui-frame'
+import type { NeumorphismVirtualListProps } from '@echolab-auto/ui-frame'
 ```
 
 | Props      | Type     | Default | Description          |
@@ -659,8 +659,8 @@ import type { NeumorphismVirtualListProps } from '@echolab/ui-frame'
 #### NeumorphismPopover
 
 ```ts
-import { NeumorphismPopover } from '@echolab/ui-frame'
-import type { NeumorphismPopoverProps, PopoverPosition, PopoverTrigger } from '@echolab/ui-frame'
+import { NeumorphismPopover } from '@echolab-auto/ui-frame'
+import type { NeumorphismPopoverProps, PopoverPosition, PopoverTrigger } from '@echolab-auto/ui-frame'
 ```
 
 | Props     | Type                                               | Default   | Description                       |
@@ -684,8 +684,8 @@ import type { NeumorphismPopoverProps, PopoverPosition, PopoverTrigger } from '@
 #### NeumorphismDropdown
 
 ```ts
-import { NeumorphismDropdown } from '@echolab/ui-frame'
-import type { NeumorphismDropdownProps, DropdownItem } from '@echolab/ui-frame'
+import { NeumorphismDropdown } from '@echolab-auto/ui-frame'
+import type { NeumorphismDropdownProps, DropdownItem } from '@echolab-auto/ui-frame'
 ```
 
 | Props    | Type                                               | Default    | Description  |
@@ -716,8 +716,8 @@ interface DropdownItem {
 #### NeumorphismAlert
 
 ```ts
-import { NeumorphismAlert } from '@echolab/ui-frame'
-import type { NeumorphismAlertProps, AlertType } from '@echolab/ui-frame'
+import { NeumorphismAlert } from '@echolab-auto/ui-frame'
+import type { NeumorphismAlertProps, AlertType } from '@echolab-auto/ui-frame'
 ```
 
 | Props      | Type                                          | Default    | Description                    |
@@ -741,8 +741,8 @@ import type { NeumorphismAlertProps, AlertType } from '@echolab/ui-frame'
 #### NeumorphismEmpty
 
 ```ts
-import { NeumorphismEmpty } from '@echolab/ui-frame'
-import type { NeumorphismEmptyProps, EmptySize } from '@echolab/ui-frame'
+import { NeumorphismEmpty } from '@echolab-auto/ui-frame'
+import type { NeumorphismEmptyProps, EmptySize } from '@echolab-auto/ui-frame'
 ```
 
 | Props       | Type                             | Default    | Description  |
@@ -760,8 +760,8 @@ import type { NeumorphismEmptyProps, EmptySize } from '@echolab/ui-frame'
 #### NeumorphismTabs
 
 ```ts
-import { NeumorphismTabs } from '@echolab/ui-frame'
-import type { NeumorphismTabsProps, TabItem } from '@echolab/ui-frame'
+import { NeumorphismTabs } from '@echolab-auto/ui-frame'
+import type { NeumorphismTabsProps, TabItem } from '@echolab-auto/ui-frame'
 ```
 
 | Props      | Type                                     | Default    | Description    |
@@ -787,8 +787,8 @@ interface TabItem {
 #### NeumorphismBreadcrumb
 
 ```ts
-import { NeumorphismBreadcrumb } from '@echolab/ui-frame'
-import type { NeumorphismBreadcrumbProps, BreadcrumbItem } from '@echolab/ui-frame'
+import { NeumorphismBreadcrumb } from '@echolab-auto/ui-frame'
+import type { NeumorphismBreadcrumbProps, BreadcrumbItem } from '@echolab-auto/ui-frame'
 ```
 
 | Props     | Type                             | Default    | Description |
@@ -812,8 +812,8 @@ interface BreadcrumbItem {
 #### NeumorphismPagination
 
 ```ts
-import { NeumorphismPagination } from '@echolab/ui-frame'
-import type { NeumorphismPaginationProps } from '@echolab/ui-frame'
+import { NeumorphismPagination } from '@echolab-auto/ui-frame'
+import type { NeumorphismPaginationProps } from '@echolab-auto/ui-frame'
 ```
 
 | Props           | Type                             | Default    | Description    |
@@ -836,8 +836,8 @@ import type { NeumorphismPaginationProps } from '@echolab/ui-frame'
 #### NeumorphismMenu
 
 ```ts
-import { NeumorphismMenu } from '@echolab/ui-frame'
-import type { NeumorphismMenuProps, MenuItem } from '@echolab/ui-frame'
+import { NeumorphismMenu } from '@echolab-auto/ui-frame'
+import type { NeumorphismMenuProps, MenuItem } from '@echolab-auto/ui-frame'
 ```
 
 | Props           | Type                             | Default      | Description                  |
@@ -869,8 +869,8 @@ interface MenuItem {
 #### NeumorphismNavMenu
 
 ```ts
-import { NeumorphismNavMenu } from '@echolab/ui-frame'
-import type { NeumorphismNavMenuProps, MenuItem } from '@echolab/ui-frame'
+import { NeumorphismNavMenu } from '@echolab-auto/ui-frame'
+import type { NeumorphismNavMenuProps, MenuItem } from '@echolab-auto/ui-frame'
 ```
 
 | Props         | Type                             | Default        | Description                  |
@@ -889,8 +889,8 @@ import type { NeumorphismNavMenuProps, MenuItem } from '@echolab/ui-frame'
 #### NeumorphismDrawer
 
 ```ts
-import { NeumorphismDrawer } from '@echolab/ui-frame'
-import type { NeumorphismDrawerProps, DrawerPosition } from '@echolab/ui-frame'
+import { NeumorphismDrawer } from '@echolab-auto/ui-frame'
+import type { NeumorphismDrawerProps, DrawerPosition } from '@echolab-auto/ui-frame'
 ```
 
 | Props          | Type                                     | Default   | Description                   |
@@ -913,8 +913,8 @@ import type { NeumorphismDrawerProps, DrawerPosition } from '@echolab/ui-frame'
 #### NeumorphismSteps
 
 ```ts
-import { NeumorphismSteps } from '@echolab/ui-frame'
-import type { NeumorphismStepsProps, StepItem, StepStatus } from '@echolab/ui-frame'
+import { NeumorphismSteps } from '@echolab-auto/ui-frame'
+import type { NeumorphismStepsProps, StepItem, StepStatus } from '@echolab-auto/ui-frame'
 ```
 
 | Props     | Type                             | Default        | Description           |
@@ -945,8 +945,8 @@ interface StepItem {
 #### NeumorphismModal
 
 ```ts
-import { NeumorphismModal } from '@echolab/ui-frame'
-import type { NeumorphismModalProps } from '@echolab/ui-frame'
+import { NeumorphismModal } from '@echolab-auto/ui-frame'
+import type { NeumorphismModalProps } from '@echolab-auto/ui-frame'
 ```
 
 | Props          | Type                             | Default    | Description    |
@@ -972,14 +972,14 @@ import type { NeumorphismModalProps } from '@echolab/ui-frame'
 #### NeumorphismToastProvider
 
 ```ts
-import { NeumorphismToastProvider } from '@echolab/ui-frame'
+import { NeumorphismToastProvider } from '@echolab-auto/ui-frame'
 import type {
   NeumorphismToastProviderProps,
   ToastOptions,
   ToastType,
   ToastPosition,
   ToastItem,
-} from '@echolab/ui-frame'
+} from '@echolab-auto/ui-frame'
 ```
 
 | Props      | Type            | Default       | Description    |
@@ -1025,8 +1025,8 @@ interface ToastItem extends ToastOptions {
 #### NeumorphismTooltip
 
 ```ts
-import { NeumorphismTooltip } from '@echolab/ui-frame'
-import type { NeumorphismTooltipProps, TooltipPosition, TooltipTrigger } from '@echolab/ui-frame'
+import { NeumorphismTooltip } from '@echolab-auto/ui-frame'
+import type { NeumorphismTooltipProps, TooltipPosition, TooltipTrigger } from '@echolab-auto/ui-frame'
 ```
 
 | Props    | Type              | Default   | Description  |
@@ -1050,8 +1050,8 @@ type TooltipTrigger = 'hover' | 'click' | 'focus'
 #### NeumorphismCollapse
 
 ```ts
-import { NeumorphismCollapse } from '@echolab/ui-frame'
-import type { NeumorphismCollapseProps, CollapseItem } from '@echolab/ui-frame'
+import { NeumorphismCollapse } from '@echolab-auto/ui-frame'
+import type { NeumorphismCollapseProps, CollapseItem } from '@echolab-auto/ui-frame'
 ```
 
 | Props      | Type                             | Default    | Description |
@@ -1080,8 +1080,8 @@ interface CollapseItem {
 #### NeumorphismContainer
 
 ```ts
-import { NeumorphismContainer } from '@echolab/ui-frame'
-import type { NeumorphismContainerProps } from '@echolab/ui-frame'
+import { NeumorphismContainer } from '@echolab-auto/ui-frame'
+import type { NeumorphismContainerProps } from '@echolab-auto/ui-frame'
 ```
 
 | Props     | Type                 | Default   | Description                                  |
@@ -1095,7 +1095,7 @@ import type { NeumorphismContainerProps } from '@echolab/ui-frame'
 #### NeumorphismRow / NeumorphismCol
 
 ```ts
-import { NeumorphismRow, NeumorphismCol } from '@echolab/ui-frame'
+import { NeumorphismRow, NeumorphismCol } from '@echolab-auto/ui-frame'
 import type {
   NeumorphismRowProps,
   RowAlign,
@@ -1103,7 +1103,7 @@ import type {
   NeumorphismColProps,
   ColSpan,
   ColOffset,
-} from '@echolab/ui-frame'
+} from '@echolab-auto/ui-frame'
 ```
 
 **NeumorphismRow:**
@@ -1133,8 +1133,8 @@ import type {
 #### NeumorphismLayout
 
 ```ts
-import { NeumorphismLayout } from '@echolab/ui-frame'
-import type { NeumorphismLayoutProps } from '@echolab/ui-frame'
+import { NeumorphismLayout } from '@echolab-auto/ui-frame'
+import type { NeumorphismLayoutProps } from '@echolab-auto/ui-frame'
 ```
 
 | Props              | Type      | Default | Description              |
@@ -1157,8 +1157,8 @@ import type { NeumorphismLayoutProps } from '@echolab/ui-frame'
 #### NeumorphismThemeToggle
 
 ```ts
-import { NeumorphismThemeToggle } from '@echolab/ui-frame'
-import type { NeumorphismThemeToggleProps } from '@echolab/ui-frame'
+import { NeumorphismThemeToggle } from '@echolab-auto/ui-frame'
+import type { NeumorphismThemeToggleProps } from '@echolab-auto/ui-frame'
 ```
 
 | Props       | Type                             | Default    | Description      |
@@ -1175,12 +1175,12 @@ import type { NeumorphismThemeToggleProps } from '@echolab/ui-frame'
 #### NeumorphismTree / NeumorphismTreeNode
 
 ```ts
-import { NeumorphismTree, NeumorphismTreeNode } from '@echolab/ui-frame'
+import { NeumorphismTree, NeumorphismTreeNode } from '@echolab-auto/ui-frame'
 import type {
   NeumorphismTreeProps,
   NeumorphismTreeNodeProps,
   TreeNodeData,
-} from '@echolab/ui-frame'
+} from '@echolab-auto/ui-frame'
 ```
 
 | Props             | Type             | Default | Description    |
@@ -1208,8 +1208,8 @@ interface TreeNodeData {
 #### NeumorphismCanvas
 
 ```ts
-import { NeumorphismCanvas } from '@echolab/ui-frame'
-import type { NeumorphismCanvasProps } from '@echolab/ui-frame'
+import { NeumorphismCanvas } from '@echolab-auto/ui-frame'
+import type { NeumorphismCanvasProps } from '@echolab-auto/ui-frame'
 ```
 
 | Props        | Type      | Default   | Description      |
@@ -1233,8 +1233,8 @@ import type { NeumorphismCanvasProps } from '@echolab/ui-frame'
 #### ThemeProvider
 
 ```ts
-import { ThemeProvider } from '@echolab/ui-frame'
-import type { ThemeProviderProps } from '@echolab/ui-frame'
+import { ThemeProvider } from '@echolab-auto/ui-frame'
+import type { ThemeProviderProps } from '@echolab-auto/ui-frame'
 ```
 
 | Props        | Type                          | Default                 | Description         |
@@ -1254,8 +1254,8 @@ import type { ThemeProviderProps } from '@echolab/ui-frame'
 ### DocViewer
 
 ```ts
-import { DocViewer } from '@echolab/ui-frame/doc'
-import type { DocViewerProps } from '@echolab/ui-frame/doc'
+import { DocViewer } from '@echolab-auto/ui-frame/doc'
+import type { DocViewerProps } from '@echolab-auto/ui-frame/doc'
 ```
 
 文档查看器组件，提供侧边栏树形导航 + Markdown 内容渲染的完整文档浏览体验。
@@ -1273,8 +1273,8 @@ import type { DocViewerProps } from '@echolab/ui-frame/doc'
 ### DocEditor
 
 ```ts
-import { DocEditor } from '@echolab/ui-frame/doc'
-import type { DocEditorProps } from '@echolab/ui-frame/doc'
+import { DocEditor } from '@echolab-auto/ui-frame/doc'
+import type { DocEditorProps } from '@echolab-auto/ui-frame/doc'
 ```
 
 文档编辑器组件，在 DocViewer 基础上增加 Markdown 编辑能力，支持编辑/预览/分栏三种模式。
@@ -1292,8 +1292,8 @@ import type { DocEditorProps } from '@echolab/ui-frame/doc'
 ### MarkdownRenderer
 
 ```ts
-import { MarkdownRenderer } from '@echolab/ui-frame/doc'
-import type { MarkdownRendererProps } from '@echolab/ui-frame/doc'
+import { MarkdownRenderer } from '@echolab-auto/ui-frame/doc'
+import type { MarkdownRendererProps } from '@echolab-auto/ui-frame/doc'
 ```
 
 Markdown 渲染组件，支持目录（TOC）、代码高亮、内部链接跳转。
@@ -1312,8 +1312,8 @@ Markdown 渲染组件，支持目录（TOC）、代码高亮、内部链接跳�
 ### MarkdownEditor
 
 ```ts
-import { MarkdownEditor } from '@echolab/ui-frame/doc'
-import type { MarkdownEditorProps } from '@echolab/ui-frame/doc'
+import { MarkdownEditor } from '@echolab-auto/ui-frame/doc'
+import type { MarkdownEditorProps } from '@echolab-auto/ui-frame/doc'
 ```
 
 Markdown 编辑器组件，提供编辑/预览/分栏三种模式，支持分栏同步滚动。
@@ -1330,7 +1330,7 @@ Markdown 编辑器组件，提供编辑/预览/分栏三种模式，支持分栏
 ### Doc 类型定义
 
 ```ts
-import type { ProDocNode, DocTree, ProDocOptions, DocTreeNode } from '@echolab/ui-frame/doc'
+import type { ProDocNode, DocTree, ProDocOptions, DocTreeNode } from '@echolab-auto/ui-frame/doc'
 ```
 
 ```ts
@@ -1381,7 +1381,7 @@ import {
   getAncestors,
   getNodeIcon,
   nodeToTreeData,
-} from '@echolab/ui-frame/doc'
+} from '@echolab-auto/ui-frame/doc'
 ```
 
 | 函数               | 签名                                            | 说明                         |
@@ -1402,8 +1402,8 @@ import {
 ### useDocLayout
 
 ```ts
-import { useDocLayout } from '@echolab/ui-frame/doc'
-import type { UseDocLayoutOptions, UseDocLayoutReturn } from '@echolab/ui-frame/doc'
+import { useDocLayout } from '@echolab-auto/ui-frame/doc'
+import type { UseDocLayoutOptions, UseDocLayoutReturn } from '@echolab-auto/ui-frame/doc'
 ```
 
 DocViewer / DocEditor 共享的布局逻辑 composable，管理树节点选择、主题切换、节点查找等。
@@ -1437,8 +1437,8 @@ Headless Composables 将业务逻辑与 UI 完全解耦，封装了键盘导航�
 ### useSelect
 
 ```ts
-import { useSelect } from '@echolab/ui-frame'
-import type { UseSelectOptions, UseSelectReturn, SelectOption } from '@echolab/ui-frame'
+import { useSelect } from '@echolab-auto/ui-frame'
+import type { UseSelectOptions, UseSelectReturn, SelectOption } from '@echolab-auto/ui-frame'
 ```
 
 ```ts
@@ -1469,8 +1469,8 @@ interface UseSelectReturn {
 ### useTabs
 
 ```ts
-import { useTabs } from '@echolab/ui-frame'
-import type { UseTabsOptions, UseTabsReturn } from '@echolab/ui-frame'
+import { useTabs } from '@echolab-auto/ui-frame'
+import type { UseTabsOptions, UseTabsReturn } from '@echolab-auto/ui-frame'
 ```
 
 ```ts
@@ -1491,8 +1491,8 @@ interface UseTabsReturn {
 ### usePagination
 
 ```ts
-import { usePagination } from '@echolab/ui-frame'
-import type { UsePaginationOptions, UsePaginationReturn } from '@echolab/ui-frame'
+import { usePagination } from '@echolab-auto/ui-frame'
+import type { UsePaginationOptions, UsePaginationReturn } from '@echolab-auto/ui-frame'
 ```
 
 ```ts
@@ -1519,8 +1519,8 @@ interface UsePaginationReturn {
 ### useTree
 
 ```ts
-import { useTree } from '@echolab/ui-frame'
-import type { UseTreeOptions, UseTreeReturn } from '@echolab/ui-frame'
+import { useTree } from '@echolab-auto/ui-frame'
+import type { UseTreeOptions, UseTreeReturn } from '@echolab-auto/ui-frame'
 ```
 
 ```ts
@@ -1548,14 +1548,14 @@ interface UseTreeReturn {
 ### useTable
 
 ```ts
-import { useTable } from '@echolab/ui-frame'
+import { useTable } from '@echolab-auto/ui-frame'
 import type {
   UseTableOptions,
   UseTableReturn,
   TableColumn,
   SortDirection,
   SortState,
-} from '@echolab/ui-frame'
+} from '@echolab-auto/ui-frame'
 ```
 
 ```ts
@@ -1590,8 +1590,8 @@ interface UseTableReturn {
 ### useCollapse
 
 ```ts
-import { useCollapse } from '@echolab/ui-frame'
-import type { UseCollapseOptions, UseCollapseReturn } from '@echolab/ui-frame'
+import { useCollapse } from '@echolab-auto/ui-frame'
+import type { UseCollapseOptions, UseCollapseReturn } from '@echolab-auto/ui-frame'
 ```
 
 ```ts
@@ -1612,8 +1612,8 @@ interface UseCollapseReturn {
 ### useModal
 
 ```ts
-import { useModal } from '@echolab/ui-frame'
-import type { UseModalOptions, UseModalReturn } from '@echolab/ui-frame'
+import { useModal } from '@echolab-auto/ui-frame'
+import type { UseModalOptions, UseModalReturn } from '@echolab-auto/ui-frame'
 ```
 
 ```ts
@@ -1636,8 +1636,8 @@ interface UseModalReturn {
 ### useToast
 
 ```ts
-import { useToast } from '@echolab/ui-frame'
-import type { UseToastOptions, UseToastReturn, ToastOptions, ToastItem } from '@echolab/ui-frame'
+import { useToast } from '@echolab-auto/ui-frame'
+import type { UseToastOptions, UseToastReturn, ToastOptions, ToastItem } from '@echolab-auto/ui-frame'
 ```
 
 ```ts
@@ -1657,8 +1657,8 @@ interface UseToastReturn {
 ### useTooltip
 
 ```ts
-import { useTooltip } from '@echolab/ui-frame'
-import type { UseTooltipOptions, UseTooltipReturn } from '@echolab/ui-frame'
+import { useTooltip } from '@echolab-auto/ui-frame'
+import type { UseTooltipOptions, UseTooltipReturn } from '@echolab-auto/ui-frame'
 ```
 
 ```ts
@@ -1682,13 +1682,13 @@ interface UseTooltipReturn {
 ### usePopover
 
 ```ts
-import { usePopover } from '@echolab/ui-frame'
+import { usePopover } from '@echolab-auto/ui-frame'
 import type {
   UsePopoverOptions,
   UsePopoverReturn,
   PopoverPosition,
   PopoverTrigger,
-} from '@echolab/ui-frame'
+} from '@echolab-auto/ui-frame'
 ```
 
 ```ts
@@ -1715,8 +1715,8 @@ interface UsePopoverReturn {
 ### useAlert
 
 ```ts
-import { useAlert } from '@echolab/ui-frame'
-import type { UseAlertOptions, UseAlertReturn, AlertType } from '@echolab/ui-frame'
+import { useAlert } from '@echolab-auto/ui-frame'
+import type { UseAlertOptions, UseAlertReturn, AlertType } from '@echolab-auto/ui-frame'
 ```
 
 ```ts
@@ -1736,8 +1736,8 @@ interface UseAlertReturn {
 ### useSlider
 
 ```ts
-import { useSlider, coordinateToValue } from '@echolab/ui-frame'
-import type { UseSliderOptions, UseSliderReturn } from '@echolab/ui-frame'
+import { useSlider, coordinateToValue } from '@echolab-auto/ui-frame'
+import type { UseSliderOptions, UseSliderReturn } from '@echolab-auto/ui-frame'
 ```
 
 ```ts
@@ -1764,8 +1764,8 @@ interface UseSliderReturn {
 ### useNumberInput
 
 ```ts
-import { useNumberInput, formatNumber, parseNumber } from '@echolab/ui-frame'
-import type { UseNumberInputOptions, UseNumberInputReturn } from '@echolab/ui-frame'
+import { useNumberInput, formatNumber, parseNumber } from '@echolab-auto/ui-frame'
+import type { UseNumberInputOptions, UseNumberInputReturn } from '@echolab-auto/ui-frame'
 ```
 
 ```ts
@@ -1794,8 +1794,8 @@ interface UseNumberInputReturn {
 ### useDrawer
 
 ```ts
-import { useDrawer } from '@echolab/ui-frame'
-import type { UseDrawerOptions, UseDrawerReturn, DrawerPosition } from '@echolab/ui-frame'
+import { useDrawer } from '@echolab-auto/ui-frame'
+import type { UseDrawerOptions, UseDrawerReturn, DrawerPosition } from '@echolab-auto/ui-frame'
 ```
 
 ```ts
@@ -1822,8 +1822,8 @@ interface UseDrawerReturn {
 ### useMenu
 
 ```ts
-import { useMenu } from '@echolab/ui-frame'
-import type { UseMenuOptions, UseMenuReturn, MenuItem } from '@echolab/ui-frame'
+import { useMenu } from '@echolab-auto/ui-frame'
+import type { UseMenuOptions, UseMenuReturn, MenuItem } from '@echolab-auto/ui-frame'
 ```
 
 ```ts
@@ -1857,8 +1857,8 @@ interface UseMenuReturn {
 ### useSteps
 
 ```ts
-import { useSteps } from '@echolab/ui-frame'
-import type { UseStepsOptions, UseStepsReturn, StepItem, StepStatus } from '@echolab/ui-frame'
+import { useSteps } from '@echolab-auto/ui-frame'
+import type { UseStepsOptions, UseStepsReturn, StepItem, StepStatus } from '@echolab-auto/ui-frame'
 ```
 
 ```ts
@@ -1881,8 +1881,8 @@ interface UseStepsReturn {
 ### useVirtualList
 
 ```ts
-import { useVirtualList } from '@echolab/ui-frame'
-import type { UseVirtualListOptions, UseVirtualListReturn } from '@echolab/ui-frame'
+import { useVirtualList } from '@echolab-auto/ui-frame'
+import type { UseVirtualListOptions, UseVirtualListReturn } from '@echolab-auto/ui-frame'
 ```
 
 ```ts
@@ -1909,8 +1909,8 @@ interface UseVirtualListReturn {
 ### useDatePicker
 
 ```ts
-import { useDatePicker } from '@echolab/ui-frame'
-import type { UseDatePickerOptions, UseDatePickerReturn, DayCell } from '@echolab/ui-frame'
+import { useDatePicker } from '@echolab-auto/ui-frame'
+import type { UseDatePickerOptions, UseDatePickerReturn, DayCell } from '@echolab-auto/ui-frame'
 ```
 
 ```ts
@@ -1947,8 +1947,8 @@ interface UseDatePickerReturn {
 ### useUpload
 
 ```ts
-import { useUpload } from '@echolab/ui-frame'
-import type { UseUploadOptions, UseUploadReturn, UploadFile, UploadStatus } from '@echolab/ui-frame'
+import { useUpload } from '@echolab-auto/ui-frame'
+import type { UseUploadOptions, UseUploadReturn, UploadFile, UploadStatus } from '@echolab-auto/ui-frame'
 ```
 
 ```ts
@@ -1984,12 +1984,12 @@ interface UseUploadReturn {
 ### useAutoComplete
 
 ```ts
-import { useAutoComplete } from '@echolab/ui-frame'
+import { useAutoComplete } from '@echolab-auto/ui-frame'
 import type {
   UseAutoCompleteOptions,
   UseAutoCompleteReturn,
   AutoCompleteOption,
-} from '@echolab/ui-frame'
+} from '@echolab-auto/ui-frame'
 ```
 
 ```ts
@@ -2023,8 +2023,8 @@ interface UseAutoCompleteReturn {
 ### useTheme
 
 ```ts
-import { useTheme } from '@echolab/ui-frame'
-import type { Theme, ThemeOptions, ThemeContext } from '@echolab/ui-frame'
+import { useTheme } from '@echolab-auto/ui-frame'
+import type { Theme, ThemeOptions, ThemeContext } from '@echolab-auto/ui-frame'
 ```
 
 ```ts
@@ -2053,7 +2053,7 @@ interface ThemeContext {
 ### useTouchDevice
 
 ```ts
-import { useTouchDevice } from '@echolab/ui-frame'
+import { useTouchDevice } from '@echolab-auto/ui-frame'
 ```
 
 ```ts
@@ -2068,8 +2068,8 @@ function useTouchDevice(): {
 ### useCheckable
 
 ```ts
-import { useCheckable } from '@echolab/ui-frame'
-import type { UseCheckableOptions } from '@echolab/ui-frame'
+import { useCheckable } from '@echolab-auto/ui-frame'
+import type { UseCheckableOptions } from '@echolab-auto/ui-frame'
 ```
 
 ```ts
@@ -2091,8 +2091,8 @@ function useCheckable(opts: UseCheckableOptions): {
 ### useFormField
 
 ```ts
-import { useFormField } from '@echolab/ui-frame'
-import type { FormFieldConfig, FieldSize } from '@echolab/ui-frame'
+import { useFormField } from '@echolab-auto/ui-frame'
+import type { FormFieldConfig, FieldSize } from '@echolab-auto/ui-frame'
 ```
 
 ```ts
@@ -2116,8 +2116,8 @@ function useFormField(config: FormFieldConfig): {
 ### validateFieldValue
 
 ```ts
-import { validateFieldValue } from '@echolab/ui-frame'
-import type { FormRule } from '@echolab/ui-frame'
+import { validateFieldValue } from '@echolab-auto/ui-frame'
+import type { FormRule } from '@echolab-auto/ui-frame'
 ```
 
 ```ts
@@ -2217,7 +2217,7 @@ function validateFieldValue(value: unknown, rules: FormRule[]): string | undefin
 ## 工具函数
 
 ```ts
-import { generateId, debounce, isEmpty } from '@echolab/ui-frame'
+import { generateId, debounce, isEmpty } from '@echolab-auto/ui-frame'
 ```
 
 | 函数       | 签名                                                                  | 说明                                                    |
@@ -2233,7 +2233,7 @@ import { generateId, debounce, isEmpty } from '@echolab/ui-frame'
 ### ComponentRegistry
 
 ```ts
-import { ComponentRegistry } from '@echolab/ui-frame'
+import { ComponentRegistry } from '@echolab-auto/ui-frame'
 ```
 
 组件注册表，用于管理自定义组件覆盖。
@@ -2249,7 +2249,7 @@ class ComponentRegistry {
 **使用示例：**
 
 ```ts
-import { ComponentRegistry } from '@echolab/ui-frame'
+import { ComponentRegistry } from '@echolab-auto/ui-frame'
 
 const registry = new ComponentRegistry()
 
@@ -2265,8 +2265,8 @@ if (registry.has('NeumorphismButton')) {
 ### useNeumorphismSetup
 
 ```ts
-import { useNeumorphismSetup } from '@echolab/ui-frame'
-import type { NeumorphismSetupContext } from '@echolab/ui-frame'
+import { useNeumorphismSetup } from '@echolab-auto/ui-frame'
+import type { NeumorphismSetupContext } from '@echolab-auto/ui-frame'
 ```
 
 ```ts
@@ -2284,7 +2284,7 @@ import type {
   NeumorphismPluginOptions,
   ComponentOverrides,
   ExtendedConfig,
-} from '@echolab/ui-frame'
+} from '@echolab-auto/ui-frame'
 ```
 
 ```ts
@@ -2325,8 +2325,8 @@ app.use(NeumorphismUI, {
 ### useConfig
 
 ```ts
-import { useConfig, ConfigKey } from '@echolab/ui-frame'
-import type { NeumorphismGlobalConfig } from '@echolab/ui-frame'
+import { useConfig, ConfigKey } from '@echolab-auto/ui-frame'
+import type { NeumorphismGlobalConfig } from '@echolab-auto/ui-frame'
 ```
 
 ```ts
@@ -2404,8 +2404,8 @@ interface NeumorphismGlobalConfig {
 ## 注入键
 
 ```ts
-import { RadioGroupKey, FormKey, RowGutterKey } from '@echolab/ui-frame'
-import type { RadioGroupContext, FormContext, RowGutterContext } from '@echolab/ui-frame'
+import { RadioGroupKey, FormKey, RowGutterKey } from '@echolab-auto/ui-frame'
+import type { RadioGroupContext, FormContext, RowGutterContext } from '@echolab-auto/ui-frame'
 ```
 
 用于构建自定义组件时参与本库的协议通信。
@@ -2449,8 +2449,8 @@ import {
   LocaleKey,
   zhCN,
   enUS,
-} from '@echolab/ui-frame'
-import type { LocaleMessages, Locale } from '@echolab/ui-frame'
+} from '@echolab-auto/ui-frame'
+import type { LocaleMessages, Locale } from '@echolab-auto/ui-frame'
 ```
 
 | API               | 签名                                 | 说明               |
@@ -2480,8 +2480,8 @@ function useLocale(): {
 本库提供以下 SCSS 资源供自定义组件使用：
 
 ```scss
-@use '@echolab/ui-frame/src/styles/variables.scss' as *;
-@use '@echolab/ui-frame/src/styles/mixins.scss' as *;
+@use '@echolab-auto/ui-frame/src/styles/variables.scss' as *;
+@use '@echolab-auto/ui-frame/src/styles/mixins.scss' as *;
 ```
 
 ### 变量

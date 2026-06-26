@@ -1,6 +1,6 @@
 # 文档分层与撰写规范
 
-> 本文档说明 @echolab/ui-frame 项目的文档组织结构，以及 Agent 在撰写或修改文档时应遵循的原则和规范。
+> 本文档说明 @echolab-auto/ui-frame 项目的文档组织结构，以及 Agent 在撰写或修改文档时应遵循的原则和规范。
 
 ---
 
@@ -95,8 +95,8 @@ docs/
 
 **每个组件/函数的条目必须包含**：
 
-1. **导入语句** — `import { Xxx } from '@echolab/ui-frame'`
-2. **类型导入**（如有）— `import type { XxxProps } from '@echolab/ui-frame'`
+1. **导入语句** — `import { Xxx } from '@echolab-auto/ui-frame'`
+2. **类型导入**（如有）— `import type { XxxProps } from '@echolab-auto/ui-frame'`
 3. **Props / 参数表格** — 列：名称、类型、默认值、说明
 4. **事件表格**（如有）— 列：事件名、参数、说明
 5. **插槽表格**（如有）— 列：名称、说明、作用域参数

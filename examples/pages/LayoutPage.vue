@@ -425,7 +425,7 @@ const containerModes = [
       <!-- 页脚 -->
       <footer class="doc-footer">
         <NeumorphismDivider />
-        <p>@echolab/ui-frame · 排版系统展示</p>
+        <p>@echolab-auto/ui-frame · 排版系统展示</p>
       </footer>
     </div>
   </div>

@@ -1,6 +1,6 @@
 # 项目 README 内容规范
 
-> 本文档严格定义 @echolab/ui-frame 项目根目录 `README.md` 的内容结构与撰写标准。Agent 在创建或修改 README 时必须逐项对照。
+> 本文档严格定义 @echolab-auto/ui-frame 项目根目录 `README.md` 的内容结构与撰写标准。Agent 在创建或修改 README 时必须逐项对照。
 
 ---
 
@@ -22,7 +22,7 @@
 
 ### 2.1 项目标识
 
-- **标题**：`@echolab/ui-frame`（npm 包名）
+- **标题**：`@echolab-auto/ui-frame`（npm 包名）
 - **一句话描述**：以新拟态（Neumorphism）设计语言为核心的 Vue 3 组件库
 - **徽章行**（可选但推荐）：npm 版本、license、build status
 
@@ -39,7 +39,7 @@
 ### 2.3 安装
 
 ```bash
-npm install @echolab/ui-frame
+npm install @echolab-auto/ui-frame
 ```
 
 ### 2.4 快速开始
@@ -48,8 +48,8 @@ npm install @echolab/ui-frame
 
 ```vue
 <script setup>
-import { NeumorphismButton } from '@echolab/ui-frame'
-import '@echolab/ui-frame/dist/style.css'
+import { NeumorphismButton } from '@echolab-auto/ui-frame'
+import '@echolab-auto/ui-frame/dist/style.css'
 </script>
 
 <template>

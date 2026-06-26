@@ -1,7 +1,7 @@
-# @echolab/ui-frame
+# @echolab-auto/ui-frame
 
-[![npm version](https://img.shields.io/npm/v/@echolab/ui-frame)](https://www.npmjs.com/package/@echolab/ui-frame)
-[![license](https://img.shields.io/npm/l/@echolab/ui-frame)](LICENSE)
+[![npm version](https://img.shields.io/npm/v/@echolab-auto/ui-frame)](https://www.npmjs.com/package/@echolab-auto/ui-frame)
+[![license](https://img.shields.io/npm/l/@echolab-auto/ui-frame)](LICENSE)
 [![build status](https://img.shields.io/github/actions/workflow/status/EchoLab-Auto/ui-frame/ci.yml?branch=main)](https://github.com/EchoLab-Auto/ui-frame/actions)
 
 基于 **新拟态（Neumorphism / Soft UI）** 设计风格的 Vue 3 UI 组件库，通过多层柔和阴影和统一台阶高度模型营造真实的 3D 浮雕与凹陷效果。
@@ -21,7 +21,7 @@
 ### npm
 
 ```bash
-npm install @echolab/ui-frame
+npm install @echolab-auto/ui-frame
 ```
 
 ### GitHub
@@ -36,8 +36,8 @@ npm install EchoLab-Auto/ui-frame
 
 ```ts
 import { createApp } from 'vue'
-import NeumorphismUI from '@echolab/ui-frame'
-import '@echolab/ui-frame/dist/style.css'
+import NeumorphismUI from '@echolab-auto/ui-frame'
+import '@echolab-auto/ui-frame/dist/style.css'
 import App from './App.vue'
 
 const app = createApp(App)
@@ -49,8 +49,8 @@ app.mount('#app')
 
 ```vue
 <script setup>
-import { NeumorphismButton } from '@echolab/ui-frame'
-import '@echolab/ui-frame/dist/style.css'
+import { NeumorphismButton } from '@echolab-auto/ui-frame'
+import '@echolab-auto/ui-frame/dist/style.css'
 </script>
 
 <template>

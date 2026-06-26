@@ -1,13 +1,13 @@
 /**
- * @echolab/ui-frame/doc — 文档渲染模块
+ * @echolab-auto/ui-frame/doc — 文档渲染模块
  *
  * 提供 Markdown 渲染、文档查看器和编辑器组件，
  * 以及文档解析和树形结构工具。
  *
  * @example
  * ```ts
- * import { DocViewer, MarkdownRenderer, DocEditor, MarkdownEditor } from '@echolab/ui-frame/doc'
- * import type { ProDocNode, DocTree, DocViewerProps, MarkdownRendererProps } from '@echolab/ui-frame/doc'
+ * import { DocViewer, MarkdownRenderer, DocEditor, MarkdownEditor } from '@echolab-auto/ui-frame/doc'
+ * import type { ProDocNode, DocTree, DocViewerProps, MarkdownRendererProps } from '@echolab-auto/ui-frame/doc'
  * ```
  */
 

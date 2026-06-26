@@ -21,7 +21,7 @@ const navItems = [
     <NeumorphismLayout show-header :sider-width="0">
       <!-- ===== HEADER ===== -->
       <template #header-left>
-        <span class="brand">@echolab/ui-frame</span>
+        <span class="brand">@echolab-auto/ui-frame</span>
         <nav class="top-nav">
           <router-link
             v-for="item in navItems"

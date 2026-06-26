@@ -78,7 +78,7 @@ export interface UseUploadReturn {
  * @example
  * ```vue
  * <script setup lang="ts">
- * import { useUpload } from '@echolab/ui-frame'
+ * import { useUpload } from '@echolab-auto/ui-frame'
  * const { files, dragOver, fileInputRef, addFiles, removeFile, clearFiles, upload, handleDrag, handleDrop, handleFileInput } = useUpload({})
  * </script>
  * ```

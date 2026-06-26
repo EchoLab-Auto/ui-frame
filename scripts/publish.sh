@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# 发布 @echolab/ui-frame 到 npm registry
+# 发布 @echolab-auto/ui-frame 到 npm registry
 #
 # 用法：
 #   bash scripts/publish.sh
@@ -14,7 +14,7 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
 echo "============================================"
-echo "  发布 @echolab/ui-frame 到 npm"
+echo "  发布 @echolab-auto/ui-frame 到 npm"
 echo "============================================"
 echo ""
 
@@ -52,7 +52,7 @@ if NPM_CONFIG_USERCONFIG="$NPM_CONFIG_FILE" npm publish --access public --regist
   echo "✅ 发布成功！"
   echo ""
   echo "   用户可以安装："
-  echo "   npm install @echolab/ui-frame"
+  echo "   npm install @echolab-auto/ui-frame"
 else
   echo ""
   echo "❌ 发布失败，请检查 token 权限（需开启 2FA bypass + @echolab 读写权限）。"

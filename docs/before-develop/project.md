@@ -1,4 +1,4 @@
-# @echolab/ui-frame 开发前必读索引
+# @echolab-auto/ui-frame 开发前必读索引
 
 > 本文档是 `docs/before-develop/` 的入口索引，汇总所有开发前必读文件的职责与快速参考。开发任何功能前，请按以下顺序阅读。
 
@@ -147,7 +147,7 @@ docs/
 ### README 检查
 
 ```
-□ 标题是否为 npm 包名 @echolab/ui-frame？
+□ 标题是否为 npm 包名 @echolab-auto/ui-frame？
 □ 一句话描述是否准确传达项目定位？
 □ 特性列表是否包含新拟态、主题切换、TypeScript、无障碍？
 □ 安装命令是否正确？

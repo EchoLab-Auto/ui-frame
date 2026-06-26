@@ -1,6 +1,6 @@
 # Agent 开发验证 Pipeline
 
-> 本 pipeline 适用于 AI Agent 参与 @echolab/ui-frame 项目开发时的标准化验证流程。
+> 本 pipeline 适用于 AI Agent 参与 @echolab-auto/ui-frame 项目开发时的标准化验证流程。
 
 ---
 

@@ -463,7 +463,7 @@ function calcEdgePath(
     <NeumorphismLayout show-header show-sider :sider-width="220" collapsible>
       <!-- ===== HEADER ===== -->
       <template #header-left>
-        <span class="brand">@echolab/ui-frame</span>
+        <span class="brand">@echolab-auto/ui-frame</span>
       </template>
 
       <template #header-right>
@@ -493,7 +493,7 @@ function calcEdgePath(
         <div class="content-inner">
           <!-- Hero / 简介 -->
           <section class="hero">
-            <h1 class="hero-title">@echolab/ui-frame</h1>
+            <h1 class="hero-title">@echolab-auto/ui-frame</h1>
             <p class="hero-desc">
               Vue 3 新拟态（Soft UI）UI 组件库，共
               <strong>30</strong> 个组件。<strong>8 个 Headless Composables</strong> 支持业务逻辑与
@@ -503,7 +503,7 @@ function calcEdgePath(
             <div class="hero-links">
               <a href="https://github.com/EchoLab-Auto/ui-frame" target="_blank">GitHub</a>
               <span class="hero-links-sep">·</span>
-              <a href="https://www.npmjs.com/package/@echolab/ui-frame" target="_blank">npm</a>
+              <a href="https://www.npmjs.com/package/@echolab-auto/ui-frame" target="_blank">npm</a>
             </div>
           </section>
 
@@ -586,7 +586,7 @@ function calcEdgePath(
                 <!-- 代码示意 -->
                 <div style="flex: 1; min-width: 280px">
                   <h4 class="demo-label">使用方式</h4>
-                  <pre class="code-block"><code>import { useSelect } from '@echolab/ui-frame'
+                  <pre class="code-block"><code>import { useSelect } from '@echolab-auto/ui-frame'
 
 const { isOpen, selectedOption, toggleOpen,
   selectOption, handleKeydown } = useSelect({
@@ -655,7 +655,7 @@ const { isOpen, selectedOption, toggleOpen,
                 <!-- 代码示意 -->
                 <div style="flex: 1; min-width: 260px">
                   <h4 class="demo-label">使用方式</h4>
-                  <pre class="code-block"><code>import { usePagination } from '@echolab/ui-frame'
+                  <pre class="code-block"><code>import { usePagination } from '@echolab-auto/ui-frame'
 
 const {
   currentPage, totalPages, visiblePages,
@@ -730,7 +730,7 @@ const {
               <pre
                 class="code-block"
                 style="margin-top: 14px"
-              ><code>import { useToast } from '@echolab/ui-frame'
+              ><code>import { useToast } from '@echolab-auto/ui-frame'
 
 const { toasts, addToast, removeToast } = useToast({ maxCount: 5 })
 
@@ -1786,7 +1786,7 @@ addToast({ message: '已保存!', type: 'success', duration: 3000 })
                 </template>
                 <template #item2>
                   <p>
-                    通过 <code>npm install @echolab/ui-frame</code> 安装，然后按需引入组件或使用
+                    通过 <code>npm install @echolab-auto/ui-frame</code> 安装，然后按需引入组件或使用
                     <code>app.use(NeumorphismUI)</code> 全局注册。
                   </p>
                 </template>
@@ -2223,10 +2223,10 @@ addToast({ message: '已保存!', type: 'success', duration: 3000 })
           <!-- ===== 页脚 ===== -->
           <footer class="doc-footer">
             <NeumorphismDivider />
-            <p>@echolab/ui-frame · MIT 许可证 · 共 {{ 30 }} 个组件</p>
+            <p>@echolab-auto/ui-frame · MIT 许可证 · 共 {{ 30 }} 个组件</p>
             <p style="margin-top: 4px">
               <a href="https://github.com/EchoLab-Auto/ui-frame" target="_blank">GitHub</a> ·
-              <a href="https://www.npmjs.com/package/@echolab/ui-frame" target="_blank">npm</a>
+              <a href="https://www.npmjs.com/package/@echolab-auto/ui-frame" target="_blank">npm</a>
             </p>
           </footer>
         </div>

@@ -24,7 +24,7 @@ const sampleMarkdown = ref(`# MarkdownRenderer 组件
 ## 代码高亮
 
 \`\`\`typescript
-import { MarkdownRenderer } from '@echolab/ui-frame'
+import { MarkdownRenderer } from '@echolab-auto/ui-frame'
 
 // 基本用法
 const content = ref('# Hello World')
@@ -177,13 +177,13 @@ order: 1
 ## 安装
 
 \`\`\`bash
-npm install @echolab/ui-frame
+npm install @echolab-auto/ui-frame
 \`\`\`
 
 ## 使用
 
 \`\`\`typescript
-import { DocViewer } from '@echolab/ui-frame/doc'
+import { DocViewer } from '@echolab-auto/ui-frame/doc'
 \`\`\`
 
 ## 配置
@@ -276,7 +276,7 @@ function scrollToSection(id: string) {
     <NeumorphismLayout show-header show-sider :sider-width="220" collapsible>
       <!-- ===== HEADER ===== -->
       <template #header-left>
-        <span class="brand">@echolab/ui-frame</span>
+        <span class="brand">@echolab-auto/ui-frame</span>
       </template>
 
       <template #header-right>
@@ -422,7 +422,7 @@ function scrollToSection(id: string) {
           <!-- Footer -->
           <footer class="doc-footer">
             <NeumorphismDivider />
-            <p>@echolab/ui-frame · 文档组件演示</p>
+            <p>@echolab-auto/ui-frame · 文档组件演示</p>
           </footer>
         </div>
       </template>

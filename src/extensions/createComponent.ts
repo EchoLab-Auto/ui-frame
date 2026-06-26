@@ -35,7 +35,7 @@ export interface NeumorphismSetupContext {
  * ```vue
  * <script setup lang="ts">
  * import { computed } from 'vue'
- * import { useNeumorphismSetup } from '@echolab/ui-frame'
+ * import { useNeumorphismSetup } from '@echolab-auto/ui-frame'
  *
  * const props = withDefaults(defineProps<{ size?: 'sm' | 'md' | 'lg' }>(), { size: 'md' })
  * const { config, resolveProp } = useNeumorphismSetup()
