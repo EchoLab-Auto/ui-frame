@@ -288,8 +288,10 @@ const visibleToc = computed(() => {
   return result
 })
 
-/** 滚动到指定 heading */
+/** 滚动到指定 heading 并立即高亮（类似 sidebar 的点击选中行为） */
 function scrollToHeading(id: string) {
+  // 立即设置高亮，提供点击反馈（scroll-spy 会在滚动结束后接管）
+  activeHeading.value = id
   contentRef.value?.querySelector(`[id="${id}"]`)?.scrollIntoView({ behavior: 'smooth' })
 }
 
