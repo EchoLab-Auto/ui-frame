@@ -17,6 +17,8 @@ export interface NeumorphismButtonProps {
   disabled?: boolean
   /** Whether the button is in loading state */
   loading?: boolean
+  /** Whether the button is in a pressed/toggled state (sets aria-pressed) */
+  pressed?: boolean
   /** HTML button type attribute */
   type?: 'button' | 'submit' | 'reset'
   /** Native button form attribute */
@@ -71,6 +73,8 @@ function handleClick(event: MouseEvent): void {
     :disabled="isDisabled"
     :aria-label="ariaLabel"
     :aria-busy="loading ? true : undefined"
+    :aria-pressed="pressed !== undefined ? pressed : undefined"
+    :aria-disabled="isDisabled ? true : undefined"
     @click="handleClick"
   >
     <span v-if="loading" class="nm-button__spinner">

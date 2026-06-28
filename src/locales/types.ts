@@ -47,6 +47,9 @@ export interface LocaleMessages {
   modalCancel?: string
   modalConfirm?: string
 
+  /** Drawer */
+  drawerClose?: string
+
   /** Pagination */
   paginationPrev?: string
   paginationNext?: string
@@ -69,6 +72,8 @@ export interface LocaleMessages {
   /** Layout */
   layoutExpandSider?: string
   layoutCollapseSider?: string
+  layoutSiderLabel?: string
+  layoutSkipNav?: string
 
   /** Breadcrumb */
   breadcrumbLabel?: string

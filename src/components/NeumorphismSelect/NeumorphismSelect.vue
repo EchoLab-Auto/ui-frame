@@ -155,7 +155,9 @@ function onContainerBlur(e: FocusEvent) {
       :tabindex="disabled ? -1 : 0"
       role="combobox"
       :aria-expanded="isOpen"
-      :aria-haspopup="'listbox'"
+      aria-haspopup="listbox"
+      :aria-controls="`${fieldId}-listbox`"
+      :aria-activedescendant="selectedOption ? `${fieldId}-opt-${selectedOption.value}` : undefined"
       :aria-labelledby="label ? fieldId : undefined"
       @click="toggleOpen"
       @focus="(e: FocusEvent) => handleFocus(e, emit)"
@@ -205,6 +207,7 @@ function onContainerBlur(e: FocusEvent) {
         <transition name="nm-select-dropdown">
           <div
             v-if="isOpen"
+            :id="`${fieldId}-listbox`"
             ref="dropdownRef"
             class="nm-select__dropdown"
             role="listbox"
@@ -222,6 +225,7 @@ function onContainerBlur(e: FocusEvent) {
               :select="selectOption"
             >
               <div
+                :id="`${fieldId}-opt-${option.value}`"
                 class="nm-select__option"
                 :class="{
                   'nm-select__option--selected': option.value === modelValue,

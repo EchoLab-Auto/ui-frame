@@ -61,7 +61,14 @@ export function useTabs(opts: UseTabsOptions): UseTabsReturn {
     const idx = activeTabs.findIndex(t => t.key === currentKey)
     let nextIdx: number
 
-    if (orientation.value === 'vertical') {
+    // Home/End — jump to first/last tab (works in both orientations)
+    if (event.key === 'Home') {
+      event.preventDefault()
+      nextIdx = 0
+    } else if (event.key === 'End') {
+      event.preventDefault()
+      nextIdx = activeTabs.length - 1
+    } else if (orientation.value === 'vertical') {
       if (event.key === 'ArrowDown') {
         event.preventDefault()
         nextIdx = idx + 1 < activeTabs.length ? idx + 1 : 0

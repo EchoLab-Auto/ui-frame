@@ -87,6 +87,16 @@ function handleKeydown(event: KeyboardEvent) {
       }
       break
     }
+    case 'Home': {
+      event.preventDefault()
+      activeIndex.value = 0
+      break
+    }
+    case 'End': {
+      event.preventDefault()
+      activeIndex.value = enabledItems.length - 1
+      break
+    }
     case 'Escape': {
       popoverRef.value?.hide?.()
       break
@@ -127,7 +137,7 @@ const classList = computed(() => ['nm-dropdown'])
 
     <!-- Content slot -->
     <template #content>
-      <div :class="classList" role="menu" @keydown="handleKeydown">
+      <div :class="classList" role="menu" aria-label="Menu" @keydown="handleKeydown">
         <template v-for="(item, index) in items" :key="item.key">
           <div v-if="item.divided && index > 0" class="nm-dropdown__divider" role="separator" />
           <div

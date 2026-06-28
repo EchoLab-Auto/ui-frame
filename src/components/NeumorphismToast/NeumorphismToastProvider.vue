@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onMounted, onBeforeUnmount } from 'vue'
 import { useToast } from '@/composables/useToast'
 import { useLocale } from '@/composables/useLocale'
 import { useNeumorphismSetup } from '@/extensions/createComponent'
@@ -38,6 +38,21 @@ const { toasts, addToast, removeToast, clearAll } = useToast({
 
 defineExpose({ addToast, removeToast, clearAll, toasts })
 
+// Escape key dismisses all toasts
+function handleEscape(event: KeyboardEvent) {
+  if (event.key === 'Escape') {
+    clearAll()
+  }
+}
+
+onMounted(() => {
+  document.addEventListener('keydown', handleEscape)
+})
+
+onBeforeUnmount(() => {
+  document.removeEventListener('keydown', handleEscape)
+})
+
 const classList = computed(() => [
   'nm-toast-container',
   `nm-toast-container--${resolvedPosition.value}`,
@@ -59,7 +74,7 @@ const classList = computed(() => [
           <div
             class="nm-toast"
             :class="[`nm-toast--${toast.type}`, { 'nm-toast--leaving': toast.leaving }]"
-            role="status"
+            :role="toast.type === 'error' || toast.type === 'warning' ? 'alert' : 'status'"
           >
             <span class="nm-toast__icon">
               <svg

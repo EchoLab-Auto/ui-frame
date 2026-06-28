@@ -75,6 +75,7 @@ function handleChange(event: Event): void {
         class="nm-switch__input"
         :checked="isChecked"
         :disabled="disabled"
+        :aria-label="activeText || inactiveText || undefined"
         @change="handleChange"
       />
       <span class="nm-switch__track" aria-hidden="true" :style="trackStyle">

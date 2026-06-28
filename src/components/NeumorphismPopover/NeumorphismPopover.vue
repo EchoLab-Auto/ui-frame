@@ -306,7 +306,7 @@ function onTriggerFocusOut(_event: FocusEvent) {
           v-if="isOpen && (content || $slots.content)"
           ref="popoverRef"
           :class="classList"
-          role="dialog"
+          :role="resolvedTrigger === 'hover' || resolvedTrigger === 'focus' ? 'tooltip' : 'dialog'"
           :aria-hidden="!isOpen"
           :style="computedStyle"
           @keydown="handlePopoverKeydown"

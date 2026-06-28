@@ -70,6 +70,13 @@ export function provideLocale(messages: LocaleMessages): void {
     LocaleKey,
     computed(() => messages)
   )
+  // Set document language for screen readers
+  if (typeof document !== 'undefined' && typeof window !== 'undefined') {
+    document.documentElement.lang =
+      ((messages as Record<string, unknown>)._localeCode as string) ||
+      document.documentElement.lang ||
+      'zh-CN'
+  }
 }
 
 /**

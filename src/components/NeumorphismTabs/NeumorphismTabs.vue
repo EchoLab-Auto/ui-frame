@@ -106,6 +106,7 @@ const classList = computed(() => [
           role="tab"
           :aria-selected="modelValue === tab.key"
           :aria-disabled="tab.disabled"
+          :aria-controls="panelId"
           :tabindex="modelValue === tab.key ? 0 : -1"
           :disabled="tab.disabled"
           @click="activate(tab.key)"

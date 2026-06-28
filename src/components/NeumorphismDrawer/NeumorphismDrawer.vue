@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, watch, nextTick } from 'vue'
 import { useDrawer, type DrawerPosition } from '@/composables/useDrawer'
+import { useLocale } from '@/composables/useLocale'
 import { generateId } from '@/utils'
 
 export interface NeumorphismDrawerProps {
@@ -50,6 +51,10 @@ const {
 
 const drawerRef = ref<HTMLDivElement>()
 const titleId = `nm-drawer-title-${generateId()}`
+const contentId = `nm-drawer-content-${generateId()}`
+
+const { t } = useLocale()
+const resolvedCloseLabel = computed(() => t('drawerClose'))
 
 // Resolve default width based on position
 const resolvedWidth = computed(() => {
@@ -120,6 +125,8 @@ const sizeStyle = computed(() => {
             role="dialog"
             aria-modal="true"
             :aria-labelledby="title ? titleId : undefined"
+            :aria-label="!title ? resolvedCloseLabel || 'Drawer' : undefined"
+            :aria-describedby="contentId"
             tabindex="-1"
             @keydown="handleKeydown"
           >
@@ -129,7 +136,7 @@ const sizeStyle = computed(() => {
               <button
                 v-if="showClose && closable"
                 class="nm-drawer__close"
-                aria-label="关闭"
+                :aria-label="resolvedCloseLabel"
                 type="button"
                 @click="onCloseClick"
               >
@@ -146,7 +153,7 @@ const sizeStyle = computed(() => {
               </button>
             </div>
 
-            <div class="nm-drawer__body">
+            <div :id="contentId" class="nm-drawer__body">
               <slot />
             </div>
 

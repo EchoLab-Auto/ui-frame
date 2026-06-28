@@ -106,6 +106,11 @@ const siderStyle = computed(() => ({
 
 <template>
   <div :class="classList">
+    <!-- Skip navigation link (hidden until focused, for keyboard users) -->
+    <a v-if="$slots['skip-nav'] || true" class="nm-layout__skip-nav" href="#nm-layout-content">
+      <slot name="skip-nav">{{ t('layoutSkipNav') || '跳转到主内容' }}</slot>
+    </a>
+
     <!-- Header -->
     <header v-if="resolvedShowHeader" class="nm-layout__header">
       <div class="nm-layout__header-left">
@@ -153,6 +158,8 @@ const siderStyle = computed(() => ({
       <aside
         v-if="resolvedShowSider"
         class="nm-layout__sider"
+        role="navigation"
+        :aria-label="t('layoutSiderLabel')"
         :class="{
           'nm-layout__sider--drawer': isMobile,
           'nm-layout__sider--open': mobileDrawerOpen,
@@ -165,7 +172,12 @@ const siderStyle = computed(() => ({
       </aside>
 
       <!-- Content -->
-      <main class="nm-layout__content" @click="handleContentClick">
+      <main
+        id="nm-layout-content"
+        class="nm-layout__content"
+        tabindex="-1"
+        @click="handleContentClick"
+      >
         <slot />
       </main>
     </div>
@@ -180,6 +192,29 @@ const siderStyle = computed(() => ({
 <style scoped lang="scss">
 @use '@/styles/variables.scss' as *;
 @use '@/styles/mixins.scss' as *;
+
+// ---- Skip navigation (visually hidden until focused) ----
+.nm-layout__skip-nav {
+  position: absolute;
+  top: -100%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  padding: 8px 16px;
+  background-color: var(--nm-primary-color);
+  color: var(--nm-text-on-primary);
+  border-radius: 0 0 var(--nm-border-radius-md) var(--nm-border-radius-md);
+  font-size: var(--nm-font-base);
+  font-weight: 500;
+  text-decoration: none;
+  transition: top 0.2s ease;
+
+  &:focus {
+    top: 0;
+    outline: 2px solid var(--nm-primary-color);
+    outline-offset: 2px;
+  }
+}
 
 .nm-layout {
   display: flex;

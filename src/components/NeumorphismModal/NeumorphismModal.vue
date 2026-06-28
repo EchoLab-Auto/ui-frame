@@ -70,6 +70,7 @@ const {
 
 const dialogRef = ref<HTMLDivElement>()
 const titleId = `nm-modal-title-${generateId()}`
+const contentId = `nm-modal-content-${generateId()}`
 
 // Auto-focus when modal becomes visible
 watch(visible, async v => {
@@ -120,6 +121,8 @@ const classList = computed(() => ['nm-modal', `nm-modal--${resolvedSize.value}`]
             role="dialog"
             aria-modal="true"
             :aria-labelledby="title ? titleId : undefined"
+            :aria-label="!title ? resolvedCloseLabel || 'Dialog' : undefined"
+            :aria-describedby="contentId"
             tabindex="-1"
             @keydown="handleKeydown"
           >
@@ -146,7 +149,7 @@ const classList = computed(() => ['nm-modal', `nm-modal--${resolvedSize.value}`]
               </button>
             </div>
 
-            <div class="nm-modal__body">
+            <div :id="contentId" class="nm-modal__body">
               <slot />
             </div>
 

@@ -45,6 +45,9 @@ export const zhCN: LocaleMessages = {
   modalCancel: '取消',
   modalConfirm: '确认',
 
+  // Drawer
+  drawerClose: '关闭',
+
   // Pagination
   paginationPrev: '上一页',
   paginationNext: '下一页',
@@ -67,6 +70,8 @@ export const zhCN: LocaleMessages = {
   // Layout
   layoutExpandSider: '展开侧边栏',
   layoutCollapseSider: '折叠侧边栏',
+  layoutSiderLabel: '侧边导航',
+  layoutSkipNav: '跳转到主内容',
 
   // Breadcrumb
   breadcrumbLabel: '面包屑导航',

@@ -45,6 +45,9 @@ export const enUS: LocaleMessages = {
   modalCancel: 'Cancel',
   modalConfirm: 'Confirm',
 
+  // Drawer
+  drawerClose: 'Close',
+
   // Pagination
   paginationPrev: 'Previous',
   paginationNext: 'Next',
@@ -67,6 +70,8 @@ export const enUS: LocaleMessages = {
   // Layout
   layoutExpandSider: 'Expand sidebar',
   layoutCollapseSider: 'Collapse sidebar',
+  layoutSiderLabel: 'Side navigation',
+  layoutSkipNav: 'Skip to main content',
 
   // Breadcrumb
   breadcrumbLabel: 'Breadcrumb navigation',
