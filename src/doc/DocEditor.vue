@@ -208,6 +208,10 @@ function handleKeyDown(e: KeyboardEvent) {
   height: 100vh;
   width: 100vw;
   overflow: hidden;
+  transition:
+    background-color var(--nm-transition-slow),
+    color var(--nm-transition-slow),
+    border-color var(--nm-transition-slow);
 }
 
 /* Header */

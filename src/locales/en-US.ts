@@ -107,4 +107,12 @@ export const enUS: LocaleMessages = {
   listLoading: 'Loading...',
   listEmpty: 'No data',
   listLabel: 'List',
+
+  // Markdown
+  markdownCodeCopied: 'Copied!',
+  markdownTocLabel: 'Table of Contents',
+  markdownTocToggle: 'Toggle table of contents',
+  markdownTocClose: 'Close table of contents',
+  markdownTocExpand: 'Expand sub-headings',
+  markdownTocCollapse: 'Collapse sub-headings',
 }

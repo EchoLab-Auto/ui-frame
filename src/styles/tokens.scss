@@ -308,6 +308,7 @@
   // -- Doc module design tokens --
   --nm-border-subtle: color-mix(in srgb, var(--nm-text-placeholder) 12%, transparent);
   --nm-border-medium: color-mix(in srgb, var(--nm-text-placeholder) 15%, transparent);
+  --nm-font-mono: 'SF Mono', 'Cascadia Code', Monaco, 'Fira Code', 'Cousine', monospace;
   --nm-selection-bg: color-mix(in srgb, var(--nm-primary-color) 30%, transparent);
 }
 

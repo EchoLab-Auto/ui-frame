@@ -130,6 +130,11 @@
     border-color var(--nm-transition-slow);
 }
 
+// ---- Global text selection ----
+::selection {
+  background-color: var(--nm-selection-bg);
+}
+
 // ---- Reduced motion global override ----
 @media (prefers-reduced-motion: reduce) {
   .nm-root,

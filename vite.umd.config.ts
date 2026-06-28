@@ -24,7 +24,7 @@ export default defineConfig({
       fileName: () => 'ui-frame.umd.cjs',
     },
     rollupOptions: {
-      external: ['vue', 'marked'],
+      external: ['vue', 'marked', 'mermaid'],
       output: {
         exports: 'named',
         globals: {

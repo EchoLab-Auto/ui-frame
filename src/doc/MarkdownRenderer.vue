@@ -4,6 +4,7 @@ import { marked } from 'marked'
 import NeumorphismCard from '@/components/NeumorphismCard/NeumorphismCard.vue'
 import NeumorphismBadge from '@/components/NeumorphismBadge/NeumorphismBadge.vue'
 import { generateId } from '@/utils'
+import { useLocale } from '@/composables/useLocale'
 
 export interface MarkdownRendererProps {
   /** Markdown 内容 */
@@ -44,6 +45,8 @@ const tocNavRef = ref<HTMLElement | null>(null)
 const activeHeading = ref('')
 const showMobileToc = ref(false)
 const collapsedGroups = ref<Set<string>>(new Set())
+
+const { t } = useLocale()
 
 /** 实例级唯一前缀，避免多实例 id 冲突 */
 const tocPrefix = generateId('toc')
@@ -135,6 +138,12 @@ renderer.heading = ({ tokens, depth }) => {
 
 renderer.code = ({ text, lang }) => {
   const language = lang || 'text'
+
+  // Mermaid diagram support (optional, loaded dynamically on-mounted)
+  if (lang === 'mermaid') {
+    return `<div class="mermaid-diagram" data-mermaid="${escapeHtml(text)}"><pre><code>${escapeHtml(text)}</code></pre></div>`
+  }
+
   const highlighted = highlightCode(text, lang)
   const lines = text.split('\n').length
   const lineNumbers = Array.from({ length: lines }, (_, i) => i + 1)
@@ -178,14 +187,54 @@ renderer.listitem = ({ text, task, checked }) => {
   return `<li>${text}</li>`
 }
 
+/** 渲染错误状态 */
+const renderError = ref<string | null>(null)
+
 /** 渲染后的 HTML */
-const renderedHtml = computed(() => {
-  return marked.parse(props.content, {
-    async: false,
-    gfm: true,
-    breaks: false,
-    renderer,
-  }) as string
+const renderedHtml = ref('')
+
+function doRender() {
+  renderError.value = null
+  try {
+    renderedHtml.value = marked.parse(props.content, {
+      async: false,
+      gfm: true,
+      breaks: false,
+      renderer,
+    }) as string
+  } catch (err) {
+    renderError.value = (err as Error).message || 'Unknown error rendering markdown'
+    renderedHtml.value = ''
+  }
+}
+
+watch(() => props.content, doRender, { immediate: true })
+
+/** 动态加载 Mermaid 并渲染图表 */
+async function renderMermaidDiagrams() {
+  if (!contentRef.value) return
+  const diagrams = contentRef.value.querySelectorAll('.mermaid-diagram')
+  if (diagrams.length === 0) return
+
+  try {
+    // 动态加载 mermaid（可选 peer dependency，未安装时静默回退）
+    // @ts-expect-error - mermaid is an optional peer dependency, may not be installed
+    const mermaid = await import('mermaid').catch(() => null)
+    if (!mermaid?.default) return
+
+    await mermaid.default.run({
+      nodes: Array.from(diagrams),
+    })
+  } catch {
+    // Mermaid 不可用时，保留原始的 <pre><code> 回退
+  }
+}
+
+// content 或 renderedHtml 变化后尝试渲染 mermaid 图表
+watch(renderedHtml, () => {
+  nextTick(() => {
+    renderMermaidDiagrams()
+  })
 })
 
 /** 目录 */
@@ -291,7 +340,7 @@ function handleContentClick(e: MouseEvent) {
       e.preventDefault()
       navigator.clipboard.writeText(code).then(() => {
         const originalText = copyBtn.textContent
-        copyBtn.textContent = '已复制!'
+        copyBtn.textContent = t('markdownCodeCopied')
         setTimeout(() => {
           if (copyBtn) copyBtn.textContent = originalText
         }, 1500)
@@ -434,7 +483,12 @@ watch(activeHeading, newId => {
   <div :class="`neumorphism-markdown ${props.className}`">
     <!-- Markdown 内容 -->
     <div class="neumorphism-markdown-body">
+      <div v-if="renderError" class="neumorphism-markdown-error" role="alert">
+        <p class="neumorphism-markdown-error-title">⚠️ 渲染错误</p>
+        <pre class="neumorphism-markdown-error-msg">{{ renderError }}</pre>
+      </div>
       <div
+        v-else
         ref="contentRef"
         class="neumorphism-markdown-content"
         @click="handleContentClick"
@@ -447,11 +501,11 @@ watch(activeHeading, newId => {
       v-if="showToc && toc.length > 0"
       ref="tocNavRef"
       class="neumorphism-toc"
-      aria-label="文档目录"
+      :aria-label="t('markdownTocLabel')"
     >
       <NeumorphismCard :elevation="-2" no-padding class="neumorphism-toc-card">
         <div class="neumorphism-toc-header">
-          <span>📑 目录</span>
+          <span>📑 {{ t('markdownTocLabel') }}</span>
           <NeumorphismBadge :value="toc.length" />
         </div>
         <ul class="neumorphism-toc-list" role="list">
@@ -470,7 +524,9 @@ watch(activeHeading, newId => {
               <button
                 v-if="item.hasChildren"
                 class="toc-toggle"
-                :aria-label="isCollapsed(item.id) ? '展开子标题' : '折叠子标题'"
+                :aria-label="
+                  isCollapsed(item.id) ? t('markdownTocExpand') : t('markdownTocCollapse')
+                "
                 @click.stop.prevent="toggleCollapse(item.id)"
               >
                 {{ isCollapsed(item.id) ? '▸' : '▾' }}
@@ -487,7 +543,7 @@ watch(activeHeading, newId => {
       v-if="showToc && toc.length > 0"
       class="neumorphism-toc-mobile-btn"
       :class="{ active: showMobileToc }"
-      aria-label="切换目录"
+      :aria-label="t('markdownTocToggle')"
       @click="showMobileToc = !showMobileToc"
     >
       📑
@@ -502,10 +558,10 @@ watch(activeHeading, newId => {
       >
         <NeumorphismCard :elevation="0" class="neumorphism-toc-mobile-panel">
           <div class="neumorphism-toc-mobile-header">
-            <span class="neumorphism-toc-mobile-title">📑 目录</span>
+            <span class="neumorphism-toc-mobile-title">📑 {{ t('markdownTocLabel') }}</span>
             <button
               class="neumorphism-toc-mobile-close"
-              aria-label="关闭目录"
+              :aria-label="t('markdownTocClose')"
               @click="showMobileToc = false"
             >
               ✕
@@ -527,7 +583,9 @@ watch(activeHeading, newId => {
                 <button
                   v-if="item.hasChildren"
                   class="toc-toggle"
-                  :aria-label="isCollapsed(item.id) ? '展开子标题' : '折叠子标题'"
+                  :aria-label="
+                    isCollapsed(item.id) ? t('markdownTocExpand') : t('markdownTocCollapse')
+                  "
                   @click.stop.prevent="toggleCollapse(item.id)"
                 >
                   {{ isCollapsed(item.id) ? '▸' : '▾' }}
@@ -547,6 +605,10 @@ watch(activeHeading, newId => {
   display: flex;
   gap: 28px;
   align-items: flex-start;
+  transition:
+    background-color var(--nm-transition-slow),
+    color var(--nm-transition-slow),
+    border-color var(--nm-transition-slow);
 }
 
 .neumorphism-markdown-body {
@@ -568,6 +630,19 @@ watch(activeHeading, newId => {
   /* Scrollbar styling for the TOC itself */
   scrollbar-width: thin;
   scrollbar-color: var(--nm-surface-raised) transparent;
+}
+.neumorphism-toc::-webkit-scrollbar {
+  width: 5px;
+}
+.neumorphism-toc::-webkit-scrollbar-track {
+  background: transparent;
+}
+.neumorphism-toc::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--nm-text-placeholder) 25%, transparent);
+  border-radius: 3px;
+}
+.neumorphism-toc::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--nm-text-secondary) 40%, transparent);
 }
 
 .neumorphism-toc-card {
@@ -678,6 +753,32 @@ watch(activeHeading, newId => {
   color: var(--nm-primary-color);
   border-right-color: var(--nm-primary-color);
   background: color-mix(in srgb, var(--nm-primary-color) 12%, transparent);
+}
+
+/* Markdown render error */
+.neumorphism-markdown-error {
+  padding: 32px;
+  background: var(--nm-surface-color);
+  border-radius: var(--nm-border-radius-lg);
+  border: 1px solid var(--nm-color-error);
+}
+
+.neumorphism-markdown-error-title {
+  font-weight: 600;
+  color: var(--nm-color-error);
+  margin: 0 0 12px;
+}
+
+.neumorphism-markdown-error-msg {
+  font-family: var(--nm-font-mono);
+  font-size: 13px;
+  color: var(--nm-text-secondary);
+  white-space: pre-wrap;
+  word-break: break-word;
+  margin: 0;
+  padding: 12px;
+  background: var(--nm-bg-color);
+  border-radius: var(--nm-border-radius-sm);
 }
 
 /* Markdown content */
@@ -850,7 +951,7 @@ watch(activeHeading, newId => {
   padding: 3px 8px;
   border-radius: var(--nm-border-radius-sm);
   font-size: 0.88em;
-  font-family: 'SF Mono', 'Cascadia Code', Monaco, 'Fira Code', 'Cousine', monospace;
+  font-family: var(--nm-font-mono);
   color: var(--nm-primary-color);
   border: 1px solid var(--nm-border-subtle);
 }
@@ -877,13 +978,13 @@ watch(activeHeading, newId => {
   color: var(--nm-primary-color);
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  font-family: 'SF Mono', 'Cascadia Code', Monaco, 'Fira Code', 'Cousine', monospace;
+  font-family: var(--nm-font-mono);
 }
 
 .code-lines {
   font-size: 11px;
   color: var(--nm-text-placeholder);
-  font-family: 'SF Mono', 'Cascadia Code', Monaco, 'Fira Code', 'Cousine', monospace;
+  font-family: var(--nm-font-mono);
   margin-left: auto;
   margin-right: 12px;
 }
@@ -929,7 +1030,7 @@ watch(activeHeading, newId => {
   font-size: 12px;
   line-height: 1.65;
   color: var(--nm-text-placeholder);
-  font-family: 'SF Mono', 'Cascadia Code', Monaco, 'Fira Code', 'Cousine', monospace;
+  font-family: var(--nm-font-mono);
   text-align: right;
   padding-right: 14px;
   min-width: 28px;
@@ -948,7 +1049,7 @@ watch(activeHeading, newId => {
   display: block;
   font-size: 13px;
   line-height: 1.65;
-  font-family: 'SF Mono', 'Cascadia Code', Monaco, 'Fira Code', 'Cousine', monospace;
+  font-family: var(--nm-font-mono);
   background: transparent;
   padding: 0;
   box-shadow: none;
@@ -1202,6 +1303,59 @@ watch(activeHeading, newId => {
   .neumorphism-toc-mobile-btn,
   .neumorphism-toc-mobile-overlay {
     display: block;
+  }
+}
+
+/* ==========================================
+   Print stylesheet
+   ========================================== */
+@media print {
+  .neumorphism-toc,
+  .neumorphism-toc-mobile-btn,
+  .neumorphism-toc-mobile-overlay,
+  .code-copy-btn,
+  .code-block-header .code-copy-btn,
+  .heading-anchor {
+    display: none !important;
+  }
+
+  .code-block-wrapper {
+    break-inside: avoid;
+    border: 1px solid #ccc;
+  }
+
+  .neumorphism-markdown {
+    display: block;
+  }
+
+  .neumorphism-markdown-body {
+    max-width: none;
+  }
+
+  .neumorphism-markdown-content {
+    font-size: 13px;
+    line-height: 1.6;
+    color: #000;
+  }
+
+  .neumorphism-markdown-content a {
+    color: #000;
+    text-decoration: underline;
+  }
+
+  .neumorphism-markdown-content pre,
+  .neumorphism-markdown-content code {
+    background: #f5f5f5;
+    border: 1px solid #ddd;
+  }
+
+  .neumorphism-markdown-content table {
+    border: 1px solid #ddd;
+  }
+
+  .neumorphism-markdown-content th,
+  .neumorphism-markdown-content td {
+    border-bottom: 1px solid #ddd;
   }
 }
 

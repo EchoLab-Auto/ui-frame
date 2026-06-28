@@ -69,7 +69,7 @@ export default defineConfig({
       fileName: (format, entryName) => `${entryName}.js`,
     },
     rollupOptions: {
-      external: ['vue', 'marked'],
+      external: ['vue', 'marked', 'mermaid'],
       output: {
         exports: 'named',
         globals: {

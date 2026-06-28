@@ -9,6 +9,7 @@ import NeumorphismTree from '@/components/NeumorphismTree/NeumorphismTree.vue'
 import NeumorphismDivider from '@/components/NeumorphismDivider/NeumorphismDivider.vue'
 import NeumorphismTag from '@/components/NeumorphismTag/NeumorphismTag.vue'
 import NeumorphismContainer from '@/components/NeumorphismContainer/NeumorphismContainer.vue'
+import NeumorphismInput from '@/components/NeumorphismInput/NeumorphismInput.vue'
 import MarkdownRenderer from './MarkdownRenderer.vue'
 
 export interface DocViewerProps {
@@ -35,8 +36,11 @@ const {
   treeData,
   displayNode,
   themeModel,
+  searchQuery,
+  searchResults,
   handleTreeSelect,
   handleDocLink,
+  handleSearchSelect,
 } = useDocLayout({ root: props.root, initialPath: props.initialPath })
 
 function onDocLink(path: string) {
@@ -53,6 +57,28 @@ function onDocLink(path: string) {
       </template>
 
       <template #header-right>
+        <div class="neumorphism-header-search">
+          <NeumorphismInput
+            v-model="searchQuery"
+            size="small"
+            placeholder="搜索文档..."
+            class="neumorphism-search-input"
+          />
+          <!-- Search results dropdown -->
+          <div v-if="searchResults.length > 0" class="neumorphism-search-dropdown">
+            <ul class="neumorphism-search-list">
+              <li
+                v-for="node in searchResults"
+                :key="node.id"
+                class="neumorphism-search-item"
+                @click="handleSearchSelect(node)"
+              >
+                <span class="neumorphism-search-title">{{ node.title }}</span>
+                <span class="neumorphism-search-path">{{ node.path }}</span>
+              </li>
+            </ul>
+          </div>
+        </div>
         <NeumorphismThemeToggle v-model="themeModel" size="small" />
       </template>
 
@@ -135,6 +161,10 @@ function onDocLink(path: string) {
   height: 100vh;
   width: 100vw;
   overflow: hidden;
+  transition:
+    background-color var(--nm-transition-slow),
+    color var(--nm-transition-slow),
+    border-color var(--nm-transition-slow);
 }
 
 /* Header */
@@ -257,6 +287,63 @@ function onDocLink(path: string) {
   .neumorphism-doc-switch-enter-active,
   .neumorphism-doc-switch-leave-active {
     transition: none !important;
+  }
+
+  /* Header search */
+  .neumorphism-header-search {
+    position: relative;
+  }
+
+  .neumorphism-search-input {
+    width: 220px;
+  }
+
+  .neumorphism-search-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 50;
+    margin-top: 4px;
+    background-color: var(--nm-surface-raised);
+    border-radius: var(--nm-border-radius-md);
+    box-shadow:
+      6px 6px 12px var(--nm-shadow-dark),
+      -6px -6px 12px var(--nm-shadow-light);
+    max-height: 320px;
+    overflow-y: auto;
+  }
+
+  .neumorphism-search-list {
+    list-style: none;
+    margin: 0;
+    padding: 4px;
+  }
+
+  .neumorphism-search-item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 10px 14px;
+    cursor: pointer;
+    border-radius: var(--nm-border-radius-sm);
+    transition: background-color 0.15s ease;
+  }
+
+  .neumorphism-search-item:hover {
+    background-color: var(--nm-bg-color);
+  }
+
+  .neumorphism-search-title {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--nm-text-primary);
+  }
+
+  .neumorphism-search-path {
+    font-size: 11px;
+    color: var(--nm-text-placeholder);
+    font-family: var(--nm-font-mono);
   }
 
   .neumorphism-doc-switch-enter-from,

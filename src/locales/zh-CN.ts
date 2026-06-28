@@ -107,4 +107,12 @@ export const zhCN: LocaleMessages = {
   listLoading: '加载中...',
   listEmpty: '暂无数据',
   listLabel: '列表',
+
+  // Markdown
+  markdownCodeCopied: '已复制!',
+  markdownTocLabel: '文档目录',
+  markdownTocToggle: '切换目录',
+  markdownTocClose: '关闭目录',
+  markdownTocExpand: '展开子标题',
+  markdownTocCollapse: '折叠子标题',
 }

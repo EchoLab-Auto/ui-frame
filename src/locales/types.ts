@@ -109,6 +109,14 @@ export interface LocaleMessages {
   listLoading?: string
   listEmpty?: string
   listLabel?: string
+
+  /** Markdown */
+  markdownCodeCopied?: string
+  markdownTocLabel?: string
+  markdownTocToggle?: string
+  markdownTocClose?: string
+  markdownTocExpand?: string
+  markdownTocCollapse?: string
 }
 
 export type Locale = 'zh-CN' | 'en-US'
