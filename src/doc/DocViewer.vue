@@ -173,6 +173,63 @@ function onDocLink(path: string) {
   font-size: 17px;
 }
 
+/* Header search */
+.neumorphism-header-search {
+  position: relative;
+}
+
+.neumorphism-search-input {
+  width: 220px;
+}
+
+.neumorphism-search-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  margin-top: 4px;
+  background-color: var(--nm-surface-raised);
+  border-radius: var(--nm-border-radius-md);
+  box-shadow:
+    6px 6px 12px var(--nm-shadow-dark),
+    -6px -6px 12px var(--nm-shadow-light);
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.neumorphism-search-list {
+  list-style: none;
+  margin: 0;
+  padding: 4px;
+}
+
+.neumorphism-search-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 14px;
+  cursor: pointer;
+  border-radius: var(--nm-border-radius-sm);
+  transition: background-color 0.15s ease;
+}
+
+.neumorphism-search-item:hover {
+  background-color: var(--nm-bg-color);
+}
+
+.neumorphism-search-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--nm-text-primary);
+}
+
+.neumorphism-search-path {
+  font-size: 11px;
+  color: var(--nm-text-placeholder);
+  font-family: var(--nm-font-mono);
+}
+
 /* Sider */
 .neumorphism-sider-content {
   padding: 12px;
@@ -287,63 +344,6 @@ function onDocLink(path: string) {
   .neumorphism-doc-switch-enter-active,
   .neumorphism-doc-switch-leave-active {
     transition: none !important;
-  }
-
-  /* Header search */
-  .neumorphism-header-search {
-    position: relative;
-  }
-
-  .neumorphism-search-input {
-    width: 220px;
-  }
-
-  .neumorphism-search-dropdown {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    z-index: 50;
-    margin-top: 4px;
-    background-color: var(--nm-surface-raised);
-    border-radius: var(--nm-border-radius-md);
-    box-shadow:
-      6px 6px 12px var(--nm-shadow-dark),
-      -6px -6px 12px var(--nm-shadow-light);
-    max-height: 320px;
-    overflow-y: auto;
-  }
-
-  .neumorphism-search-list {
-    list-style: none;
-    margin: 0;
-    padding: 4px;
-  }
-
-  .neumorphism-search-item {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    padding: 10px 14px;
-    cursor: pointer;
-    border-radius: var(--nm-border-radius-sm);
-    transition: background-color 0.15s ease;
-  }
-
-  .neumorphism-search-item:hover {
-    background-color: var(--nm-bg-color);
-  }
-
-  .neumorphism-search-title {
-    font-size: 14px;
-    font-weight: 500;
-    color: var(--nm-text-primary);
-  }
-
-  .neumorphism-search-path {
-    font-size: 11px;
-    color: var(--nm-text-placeholder);
-    font-family: var(--nm-font-mono);
   }
 
   .neumorphism-doc-switch-enter-from,

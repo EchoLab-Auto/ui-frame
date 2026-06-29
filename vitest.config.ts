@@ -7,6 +7,8 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': resolve(__dirname, 'src'),
+      // mermaid 是可选 peer dependency，测试环境未安装，使用 noop stub
+      mermaid: resolve(__dirname, 'examples/_mermaid-stub.ts'),
     },
   },
   test: {

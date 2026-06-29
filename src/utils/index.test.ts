@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { generateId, debounce, isEmpty } from './index'
+import { generateId, debounce, isEmpty, escapeHtml, slugify } from './index'
 
 describe('utils', () => {
   describe('generateId', () => {
@@ -100,6 +100,60 @@ describe('utils', () => {
 
     it('should return false for booleans', () => {
       expect(isEmpty(false)).toBe(false)
+    })
+  })
+
+  describe('escapeHtml', () => {
+    it('escapes special HTML characters', () => {
+      expect(escapeHtml('<script>alert("x")</script>')).toBe(
+        '&lt;script&gt;alert(&quot;x&quot;)&lt;/script&gt;'
+      )
+    })
+
+    it('escapes single quotes', () => {
+      expect(escapeHtml("it's")).toBe('it&#039;s')
+    })
+
+    it('leaves plain text unchanged', () => {
+      expect(escapeHtml('hello world')).toBe('hello world')
+    })
+  })
+
+  describe('slugify', () => {
+    it('lowercases ASCII text and replaces spaces with dashes', () => {
+      expect(slugify('Hello World')).toBe('hello-world')
+    })
+
+    it('preserves Chinese characters', () => {
+      expect(slugify('你好世界')).toBe('你好世界')
+    })
+
+    it('handles mixed Chinese and ASCII', () => {
+      expect(slugify('Hello 世界')).toBe('hello-世界')
+    })
+
+    it('normalizes whitespace and consecutive dashes', () => {
+      expect(slugify('a   b--c')).toBe('a-b-c')
+    })
+
+    it('trims punctuation and leading/trailing dashes', () => {
+      expect(slugify('---hello---')).toBe('hello')
+    })
+
+    it('returns empty string for pure punctuation', () => {
+      expect(slugify('!!!')).toBe('')
+    })
+
+    it('handles Japanese hiragana', () => {
+      expect(slugify('こんにちは')).toBe('こんにちは')
+    })
+
+    it('handles Korean hangul', () => {
+      expect(slugify('안녕하세요')).toBe('안녕하세요')
+    })
+
+    it('handles Arabic text', () => {
+      expect(slugify('مرحبا')).toBe('مرحبا')
     })
   })
 })

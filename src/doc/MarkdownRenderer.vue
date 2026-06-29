@@ -2,8 +2,9 @@
 import { ref, computed, watch, nextTick, onBeforeUnmount } from 'vue'
 import { marked } from 'marked'
 import NeumorphismCard from '@/components/NeumorphismCard/NeumorphismCard.vue'
-import { generateId } from '@/utils'
+import { generateId, escapeHtml, slugify } from '@/utils'
 import { useLocale } from '@/composables/useLocale'
+import TocNodeItem from './TocNodeItem.vue'
 
 export interface MarkdownRendererProps {
   /** Markdown 内容 */
@@ -16,18 +17,11 @@ export interface MarkdownRendererProps {
   scrollContainer?: HTMLElement | string
 }
 
-interface TocNode {
+export interface TocNode {
   level: number
   text: string
   id: string
   children: TocNode[]
-}
-
-interface FlatTocItem {
-  level: number
-  text: string
-  id: string
-  hasChildren: boolean
 }
 
 const props = withDefaults(defineProps<MarkdownRendererProps>(), {
@@ -81,22 +75,6 @@ function highlightCode(code: string, lang?: string): string {
   return html
 }
 
-function escapeHtml(text: string): string {
-  return text
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;')
-}
-
-function slugify(text: string): string {
-  return text
-    .toLowerCase()
-    .replace(/[^\w\s-]/g, '')
-    .replace(/\s+/g, '-')
-}
-
 function extractTextFromTokens(tokens: unknown[]): string {
   return tokens
     .map(t => {
@@ -110,14 +88,24 @@ function extractTextFromTokens(tokens: unknown[]): string {
 
 function extractToc(content: string): { level: number; text: string; id: string }[] {
   const headings: { level: number; text: string; id: string }[] = []
+  const usedIds = new Set<string>()
   const tokens = marked.lexer(content)
   for (const token of tokens) {
     if (token.type === 'heading') {
       const text = extractTextFromTokens(token.tokens as unknown[])
+      let baseSlug = slugify(text)
+      if (!baseSlug) baseSlug = 'heading'
+      let id = `${tocPrefix}-${baseSlug}`
+      let suffix = 1
+      while (usedIds.has(id)) {
+        id = `${tocPrefix}-${baseSlug}-${suffix}`
+        suffix++
+      }
+      usedIds.add(id)
       headings.push({
         level: token.depth,
         text,
-        id: makeUniqueId(text),
+        id,
       })
     }
   }
@@ -128,12 +116,6 @@ function extractToc(content: string): { level: number; text: string; id: string 
 // 预创建 Renderer 实例 — 避免每次 content 变化都重建
 // ==========================================
 const renderer = new marked.Renderer()
-
-renderer.heading = ({ tokens, depth }) => {
-  const text = extractTextFromTokens(tokens as unknown[])
-  const id = makeUniqueId(text)
-  return `<h${depth} id="${id}"><a href="#${id}" class="heading-anchor" aria-hidden="true">#</a>${text}</h${depth}>`
-}
 
 renderer.code = ({ text, lang }) => {
   const language = lang || 'text'
@@ -168,7 +150,7 @@ renderer.codespan = ({ text }) => {
 }
 
 renderer.image = ({ href, title, text }) => {
-  return `<img src="${href}" alt="${text}" title="${title || ''}" loading="lazy" />`
+  return `<img src="${href}" alt="${escapeHtml(text)}" title="${escapeHtml(title || '')}" loading="lazy" />`
 }
 
 renderer.listitem = ({ text, task, checked }) => {
@@ -192,14 +174,28 @@ const renderError = ref<string | null>(null)
 /** 渲染后的 HTML */
 const renderedHtml = ref('')
 
+/** 目录 */
+const toc = computed(() => extractToc(props.content))
+
 function doRender() {
   renderError.value = null
   try {
+    // 使用 extractToc 预计算的 heading ID，确保目录与渲染标题 ID 一致（含碰撞后缀）
+    const headingIds = toc.value.map(h => h.id)
+    let headingIndex = 0
+
+    const renderRenderer = Object.create(renderer)
+    renderRenderer.heading = ({ tokens, depth }: { tokens: unknown[]; depth: number }) => {
+      const text = extractTextFromTokens(tokens)
+      const id = headingIds[headingIndex++] ?? makeUniqueId(text)
+      return `<h${depth} id="${id}"><a href="#" data-heading-id="${id}" class="heading-anchor" aria-hidden="true">#</a>${text}</h${depth}>`
+    }
+
     renderedHtml.value = marked.parse(props.content, {
       async: false,
       gfm: true,
       breaks: false,
-      renderer,
+      renderer: renderRenderer,
     }) as string
   } catch (err) {
     renderError.value = (err as Error).message || 'Unknown error rendering markdown'
@@ -208,6 +204,14 @@ function doRender() {
 }
 
 watch(() => props.content, doRender, { immediate: true })
+
+/** 文档内容切换时重置 TOC 折叠状态，避免旧文档状态污染新文档 */
+watch(
+  () => props.content,
+  () => {
+    collapsedGroups.value = new Set()
+  }
+)
 
 /** 动态加载 Mermaid 并渲染图表 */
 async function renderMermaidDiagrams() {
@@ -236,9 +240,6 @@ watch(renderedHtml, () => {
   })
 })
 
-/** 目录 */
-const toc = computed(() => extractToc(props.content))
-
 /** 将扁平 TOC 构建为层级树 */
 const tocTree = computed(() => {
   const items = toc.value
@@ -265,28 +266,6 @@ const tocTree = computed(() => {
   return root
 })
 
-/** 将树展平为可见项列表（尊重折叠状态） */
-const visibleToc = computed(() => {
-  const result: FlatTocItem[] = []
-
-  function walk(nodes: TocNode[]) {
-    for (const node of nodes) {
-      result.push({
-        level: node.level,
-        text: node.text,
-        id: node.id,
-        hasChildren: node.children.length > 0,
-      })
-      if (node.children.length > 0 && !collapsedGroups.value.has(node.id)) {
-        walk(node.children)
-      }
-    }
-  }
-
-  walk(tocTree.value)
-  return result
-})
-
 /** 点击导航标志 — smooth scroll 期间屏蔽 scroll-spy，避免动画中途高亮闪烁 */
 let isClickScrolling = false
 let clickScrollTimer: ReturnType<typeof setTimeout> | null = null
@@ -298,7 +277,7 @@ function clearClickScroll() {
     clearTimeout(clickScrollTimer)
     clickScrollTimer = null
   }
-  handleScroll()
+  syncActiveHeading()
 }
 
 /** 滚动到指定 heading 并立即高亮（类似 sidebar 的点击选中行为） */
@@ -335,11 +314,6 @@ function toggleCollapse(id: string) {
   collapsedGroups.value = next
 }
 
-/** 查询 TOC 节点是否已折叠 */
-function isCollapsed(id: string): boolean {
-  return collapsedGroups.value.has(id)
-}
-
 /** 将 TOC 侧边栏滚动到当前激活项（仅桌面端可见时执行） */
 function scrollTocToActive() {
   if (!tocNavRef.value) return
@@ -353,7 +327,7 @@ function scrollTocToActive() {
   }
 }
 
-/** 统一处理内容区点击：复制按钮 + 文档链接 */
+/** 统一处理内容区点击：复制按钮 + heading 锚点 + 文档链接 */
 function handleContentClick(e: MouseEvent) {
   const target = e.target as HTMLElement
 
@@ -364,21 +338,39 @@ function handleContentClick(e: MouseEvent) {
     if (code) {
       e.preventDefault()
       navigator.clipboard.writeText(code).then(() => {
-        const originalText = copyBtn.textContent
+        const originalText = copyBtn.dataset.originalText ?? copyBtn.textContent
+        if (copyBtn.dataset.originalText == null) {
+          copyBtn.dataset.originalText = originalText ?? ''
+        }
         copyBtn.textContent = t('markdownCodeCopied')
         setTimeout(() => {
-          if (copyBtn) copyBtn.textContent = originalText
+          if (copyBtn) copyBtn.textContent = copyBtn.dataset.originalText ?? originalText
         }, 1500)
       })
     }
     return
   }
 
-  // 2. 处理文档链接拦截
+  // 2. 处理 heading 锚点点击（阻止 hash 变更，改为平滑滚动）
+  const anchor = target.closest('.heading-anchor') as HTMLAnchorElement | null
+  if (anchor) {
+    const id = anchor.dataset.headingId
+    if (id) {
+      e.preventDefault()
+      scrollToHeading(id)
+    }
+    return
+  }
+
+  // 3. 处理文档链接拦截
   const link = target.closest('a')
   if (link) {
     const href = link.getAttribute('href')
-    if (href && (href.startsWith('/') || href.startsWith('.') || href.endsWith('.md'))) {
+    if (
+      href &&
+      !href.startsWith('//') &&
+      (href.startsWith('/') || href.startsWith('.') || href.endsWith('.md'))
+    ) {
       e.preventDefault()
       emit('docLink', href)
     }
@@ -414,21 +406,18 @@ function getHeaderHeight(scrollContainer?: HTMLElement): number {
   return 64
 }
 
-/** 监听滚动，高亮当前目录项并同步 TOC 滚动位置 */
-function handleScroll() {
-  // 点击导航时的 smooth scroll 动画期间不更新高亮，避免中途闪烁
-  if (isClickScrolling) return
-
+/** 根据当前视口位置手动同步 activeHeading（用于 smooth scroll 结束后兜底） */
+function syncActiveHeading() {
   const main = resolveScrollContainer()
   if (!main) return
   const headings = contentRef.value?.querySelectorAll('h1, h2, h3')
   if (!headings) return
-  const scrollSpyOffset = getHeaderHeight(main) + 20
+  const offset = getHeaderHeight(main) + 20
   let current = ''
   for (const h of headings) {
     const rect = h.getBoundingClientRect()
     const containerRect = main.getBoundingClientRect()
-    if (rect.top - containerRect.top <= scrollSpyOffset) {
+    if (rect.top - containerRect.top <= offset) {
       current = h.id
     } else {
       break
@@ -440,48 +429,92 @@ function handleScroll() {
   }
 }
 
-/** 节流 */
-function throttle(fn: () => void, wait: number): () => void {
-  let lastTime = 0
-  let rafId: number | null = null
-  return () => {
-    const now = Date.now()
-    if (now - lastTime >= wait) {
-      lastTime = now
-      fn()
-    } else if (rafId === null) {
-      rafId = requestAnimationFrame(() => {
-        rafId = null
-        fn()
-      })
+/** 监听滚动，高亮当前目录项并同步 TOC 滚动位置（IntersectionObserver 实现） */
+let headingObserver: IntersectionObserver | null = null
+let headerResizeObserver: ResizeObserver | null = null
+
+function disconnectObservers() {
+  headingObserver?.disconnect()
+  headingObserver = null
+  headerResizeObserver?.disconnect()
+  headerResizeObserver = null
+}
+
+function setupHeadingObserver() {
+  disconnectObservers()
+
+  const main = resolveScrollContainer()
+  if (!main || !contentRef.value) return
+
+  const headerHeight = getHeaderHeight(main)
+  const headings = Array.from(contentRef.value.querySelectorAll('h1, h2, h3'))
+  if (headings.length === 0) return
+
+  // 跟踪当前在观察区域（offset 以下、底部 60% 以上）内的 heading
+  const topMap = new Map<Element, number>()
+
+  headingObserver = new IntersectionObserver(
+    entries => {
+      if (isClickScrolling) return
+
+      for (const entry of entries) {
+        if (entry.isIntersecting) {
+          topMap.set(entry.target, entry.boundingClientRect.top)
+        } else {
+          topMap.delete(entry.target)
+        }
+      }
+
+      let current = ''
+      let maxTop = -Infinity
+      for (const [el, top] of topMap) {
+        if (top > maxTop) {
+          maxTop = top
+          current = el.id
+        }
+      }
+
+      if (current && current !== activeHeading.value) {
+        activeHeading.value = current
+        nextTick(() => scrollTocToActive())
+      }
+    },
+    {
+      root: main,
+      rootMargin: `-${headerHeight + 20}px 0px -60% 0px`,
+      threshold: 0,
     }
+  )
+
+  for (const h of headings) {
+    headingObserver.observe(h)
+  }
+
+  // 监听 header 高度变化，动态调整 rootMargin
+  const layout = main.closest('.nm-layout') as HTMLElement | null
+  const header = layout?.querySelector('.nm-layout__header') as HTMLElement | null
+  if (header && typeof ResizeObserver !== 'undefined') {
+    headerResizeObserver = new ResizeObserver(() => {
+      nextTick(() => setupHeadingObserver())
+    })
+    headerResizeObserver.observe(header)
   }
 }
 
-const throttledHandleScroll = throttle(handleScroll, 80)
-
-// 挂载后监听滚动
-let activeScrollContainer: HTMLElement | null = null
-
-watch(contentRef, (el, oldEl) => {
-  // 基于旧 DOM 节点清理，修复组件切换时 ref 已置 null 导致清理失败的 bug
-  if (oldEl) {
-    const oldContainer = resolveScrollContainer(oldEl)
-    oldContainer?.removeEventListener('scroll', throttledHandleScroll)
-  }
+// content 或 renderedHtml 变化后重新设置 observer
+watch([contentRef, renderedHtml], ([el]) => {
   if (el) {
     nextTick(() => {
-      activeScrollContainer = resolveScrollContainer()
-      activeScrollContainer?.addEventListener('scroll', throttledHandleScroll)
-      // 初始同步高亮
-      handleScroll()
+      setupHeadingObserver()
     })
+  } else {
+    disconnectObservers()
   }
 })
 
 // 卸载时清理
 onBeforeUnmount(() => {
-  activeScrollContainer?.removeEventListener('scroll', throttledHandleScroll)
+  disconnectObservers()
   if (clickScrollTimer) clearTimeout(clickScrollTimer)
 })
 
@@ -537,35 +570,15 @@ watch(activeHeading, newId => {
           <span>📑 {{ t('markdownTocLabel') }}</span>
         </div>
         <ul class="neumorphism-toc-list" role="list">
-          <li
-            v-for="item in visibleToc"
-            :key="item.id"
-            :class="`neumorphism-toc-item level-${item.level} ${activeHeading === item.id ? 'active' : ''} ${item.hasChildren ? 'has-children' : ''}`"
-            role="listitem"
-          >
-            <a
-              href="#"
-              role="button"
-              :aria-current="activeHeading === item.id ? 'location' : undefined"
-              @click.prevent="scrollToHeading(item.id)"
-            >
-              <span
-                v-if="item.hasChildren"
-                class="toc-toggle"
-                role="button"
-                tabindex="0"
-                :aria-label="
-                  isCollapsed(item.id) ? t('markdownTocExpand') : t('markdownTocCollapse')
-                "
-                @click.stop.prevent="toggleCollapse(item.id)"
-                @keydown.space.prevent="toggleCollapse(item.id)"
-                @keydown.enter.prevent="toggleCollapse(item.id)"
-              >
-                {{ isCollapsed(item.id) ? '▸' : '▾' }}
-              </span>
-              <span class="toc-text">{{ item.text }}</span>
-            </a>
-          </li>
+          <TocNodeItem
+            v-for="node in tocTree"
+            :key="node.id"
+            :node="node"
+            :active-heading="activeHeading"
+            :collapsed-groups="collapsedGroups"
+            @toggle="toggleCollapse"
+            @select="scrollToHeading"
+          />
         </ul>
       </NeumorphismCard>
     </nav>
@@ -600,35 +613,15 @@ watch(activeHeading, newId => {
             </button>
           </div>
           <ul class="neumorphism-toc-list" role="list">
-            <li
-              v-for="item in visibleToc"
-              :key="item.id"
-              :class="`neumorphism-toc-item level-${item.level} ${activeHeading === item.id ? 'active' : ''} ${item.hasChildren ? 'has-children' : ''}`"
-              role="listitem"
-            >
-              <a
-                href="#"
-                role="button"
-                :aria-current="activeHeading === item.id ? 'location' : undefined"
-                @click.prevent="scrollToHeadingAndClose(item.id)"
-              >
-                <span
-                  v-if="item.hasChildren"
-                  class="toc-toggle"
-                  role="button"
-                  tabindex="0"
-                  :aria-label="
-                    isCollapsed(item.id) ? t('markdownTocExpand') : t('markdownTocCollapse')
-                  "
-                  @click.stop.prevent="toggleCollapse(item.id)"
-                  @keydown.space.prevent="toggleCollapse(item.id)"
-                  @keydown.enter.prevent="toggleCollapse(item.id)"
-                >
-                  {{ isCollapsed(item.id) ? '▸' : '▾' }}
-                </span>
-                <span class="toc-text">{{ item.text }}</span>
-              </a>
-            </li>
+            <TocNodeItem
+              v-for="node in tocTree"
+              :key="node.id"
+              :node="node"
+              :active-heading="activeHeading"
+              :collapsed-groups="collapsedGroups"
+              @toggle="toggleCollapse"
+              @select="scrollToHeadingAndClose"
+            />
           </ul>
         </NeumorphismCard>
       </div>
@@ -705,11 +698,27 @@ watch(activeHeading, newId => {
   padding: 0;
 }
 
-.neumorphism-toc-item a {
+.neumorphism-toc-item {
+  margin: 0;
+}
+
+/* 嵌套列表缩进：每一级增加 16px */
+.neumorphism-toc-list .neumorphism-toc-list {
+  padding-left: 16px;
+}
+
+.toc-item-row {
   display: flex;
   align-items: center;
   gap: 4px;
-  padding: 5px 12px 5px 0;
+}
+
+.neumorphism-toc-item a {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 12px 5px 4px;
   font-size: 13px;
   color: var(--nm-text-secondary);
   text-decoration: none;
@@ -723,34 +732,17 @@ watch(activeHeading, newId => {
   text-overflow: ellipsis;
 }
 
-/* 层级左侧缩进 */
-.neumorphism-toc-item.level-1 a {
-  padding-left: 16px;
-}
-.neumorphism-toc-item.level-2 a {
-  padding-left: 32px;
-}
-.neumorphism-toc-item.level-3 a {
-  padding-left: 48px;
-}
-.neumorphism-toc-item.level-4 a {
-  padding-left: 64px;
-}
-.neumorphism-toc-item.level-5 a {
-  padding-left: 80px;
-}
-.neumorphism-toc-item.level-6 a {
-  padding-left: 96px;
-}
-
 /* 有子项的标题略微加粗 */
-.neumorphism-toc-item.has-children > a .toc-text {
+.neumorphism-toc-item.has-children > .toc-item-row > a .toc-text {
   font-weight: 500;
 }
 
 /* TOC 折叠/展开按钮 */
 .toc-toggle {
   flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   width: 16px;
   height: 16px;
   padding: 0;

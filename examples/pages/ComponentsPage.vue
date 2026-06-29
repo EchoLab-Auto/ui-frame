@@ -655,7 +655,9 @@ const { isOpen, selectedOption, toggleOpen,
                 <!-- 代码示意 -->
                 <div style="flex: 1; min-width: 260px">
                   <h4 class="demo-label">使用方式</h4>
-                  <pre class="code-block"><code>import { usePagination } from '@echolab-auto/ui-frame'
+                  <pre
+                    class="code-block"
+                  ><code>import { usePagination } from '@echolab-auto/ui-frame'
 
 const {
   currentPage, totalPages, visiblePages,
@@ -1786,7 +1788,8 @@ addToast({ message: '已保存!', type: 'success', duration: 3000 })
                 </template>
                 <template #item2>
                   <p>
-                    通过 <code>npm install @echolab-auto/ui-frame</code> 安装，然后按需引入组件或使用
+                    通过
+                    <code>npm install @echolab-auto/ui-frame</code> 安装，然后按需引入组件或使用
                     <code>app.use(NeumorphismUI)</code> 全局注册。
                   </p>
                 </template>
