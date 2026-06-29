@@ -298,18 +298,24 @@ function clearClickScroll() {
     clearTimeout(clickScrollTimer)
     clickScrollTimer = null
   }
-  // 滚动结束后精确结算当前高亮
   handleScroll()
 }
 
 /** 滚动到指定 heading 并立即高亮（类似 sidebar 的点击选中行为） */
 function scrollToHeading(id: string) {
-  clearClickScroll()
+  // 取消之前的等待
+  if (clickScrollTimer) clearTimeout(clickScrollTimer)
+
   isClickScrolling = true
   activeHeading.value = id
-  contentRef.value?.querySelector(`[id="${id}"]`)?.scrollIntoView({ behavior: 'smooth' })
-  // 双重保险：scrollend 事件 + 2s 超时兜底
-  clickScrollTimer = setTimeout(clearClickScroll, 2000)
+
+  const target = contentRef.value?.querySelector(`[id="${id}"]`)
+  if (target) {
+    target.scrollIntoView({ behavior: 'smooth' })
+  }
+
+  // 800ms 后恢复 scroll-spy（smooth scroll 动画通常在 300-500ms 内完成）
+  clickScrollTimer = setTimeout(clearClickScroll, 800)
 }
 
 /** 滚动到指定 heading 并关闭移动端 TOC */
@@ -434,11 +440,6 @@ function handleScroll() {
   }
 }
 
-/** smooth scroll 结束后重新启用 scroll-spy 并精确结算当前高亮 */
-function handleScrollEnd() {
-  clearClickScroll()
-}
-
 /** 节流 */
 function throttle(fn: () => void, wait: number): () => void {
   let lastTime = 0
@@ -467,13 +468,11 @@ watch(contentRef, (el, oldEl) => {
   if (oldEl) {
     const oldContainer = resolveScrollContainer(oldEl)
     oldContainer?.removeEventListener('scroll', throttledHandleScroll)
-    oldContainer?.removeEventListener('scrollend', handleScrollEnd)
   }
   if (el) {
     nextTick(() => {
       activeScrollContainer = resolveScrollContainer()
       activeScrollContainer?.addEventListener('scroll', throttledHandleScroll)
-      activeScrollContainer?.addEventListener('scrollend', handleScrollEnd)
       // 初始同步高亮
       handleScroll()
     })
@@ -483,7 +482,6 @@ watch(contentRef, (el, oldEl) => {
 // 卸载时清理
 onBeforeUnmount(() => {
   activeScrollContainer?.removeEventListener('scroll', throttledHandleScroll)
-  activeScrollContainer?.removeEventListener('scrollend', handleScrollEnd)
   if (clickScrollTimer) clearTimeout(clickScrollTimer)
 })
 
@@ -551,16 +549,20 @@ watch(activeHeading, newId => {
               :aria-current="activeHeading === item.id ? 'location' : undefined"
               @click.prevent="scrollToHeading(item.id)"
             >
-              <button
+              <span
                 v-if="item.hasChildren"
                 class="toc-toggle"
+                role="button"
+                tabindex="0"
                 :aria-label="
                   isCollapsed(item.id) ? t('markdownTocExpand') : t('markdownTocCollapse')
                 "
                 @click.stop.prevent="toggleCollapse(item.id)"
+                @keydown.space.prevent="toggleCollapse(item.id)"
+                @keydown.enter.prevent="toggleCollapse(item.id)"
               >
                 {{ isCollapsed(item.id) ? '▸' : '▾' }}
-              </button>
+              </span>
               <span class="toc-text">{{ item.text }}</span>
             </a>
           </li>
@@ -610,16 +612,20 @@ watch(activeHeading, newId => {
                 :aria-current="activeHeading === item.id ? 'location' : undefined"
                 @click.prevent="scrollToHeadingAndClose(item.id)"
               >
-                <button
+                <span
                   v-if="item.hasChildren"
                   class="toc-toggle"
+                  role="button"
+                  tabindex="0"
                   :aria-label="
                     isCollapsed(item.id) ? t('markdownTocExpand') : t('markdownTocCollapse')
                   "
                   @click.stop.prevent="toggleCollapse(item.id)"
+                  @keydown.space.prevent="toggleCollapse(item.id)"
+                  @keydown.enter.prevent="toggleCollapse(item.id)"
                 >
                   {{ isCollapsed(item.id) ? '▸' : '▾' }}
-                </button>
+                </span>
                 <span class="toc-text">{{ item.text }}</span>
               </a>
             </li>
