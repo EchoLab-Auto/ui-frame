@@ -2,7 +2,6 @@
 import { ref, computed, watch, nextTick, onBeforeUnmount } from 'vue'
 import { marked } from 'marked'
 import NeumorphismCard from '@/components/NeumorphismCard/NeumorphismCard.vue'
-import NeumorphismBadge from '@/components/NeumorphismBadge/NeumorphismBadge.vue'
 import { generateId } from '@/utils'
 import { useLocale } from '@/composables/useLocale'
 
@@ -288,11 +287,29 @@ const visibleToc = computed(() => {
   return result
 })
 
+/** 点击导航标志 — smooth scroll 期间屏蔽 scroll-spy，避免动画中途高亮闪烁 */
+let isClickScrolling = false
+let clickScrollTimer: ReturnType<typeof setTimeout> | null = null
+
+/** 清除点击导航标志，重新启用 scroll-spy */
+function clearClickScroll() {
+  isClickScrolling = false
+  if (clickScrollTimer) {
+    clearTimeout(clickScrollTimer)
+    clickScrollTimer = null
+  }
+  // 滚动结束后精确结算当前高亮
+  handleScroll()
+}
+
 /** 滚动到指定 heading 并立即高亮（类似 sidebar 的点击选中行为） */
 function scrollToHeading(id: string) {
-  // 立即设置高亮，提供点击反馈（scroll-spy 会在滚动结束后接管）
+  clearClickScroll()
+  isClickScrolling = true
   activeHeading.value = id
   contentRef.value?.querySelector(`[id="${id}"]`)?.scrollIntoView({ behavior: 'smooth' })
+  // 双重保险：scrollend 事件 + 2s 超时兜底
+  clickScrollTimer = setTimeout(clearClickScroll, 2000)
 }
 
 /** 滚动到指定 heading 并关闭移动端 TOC */
@@ -393,6 +410,9 @@ function getHeaderHeight(scrollContainer?: HTMLElement): number {
 
 /** 监听滚动，高亮当前目录项并同步 TOC 滚动位置 */
 function handleScroll() {
+  // 点击导航时的 smooth scroll 动画期间不更新高亮，避免中途闪烁
+  if (isClickScrolling) return
+
   const main = resolveScrollContainer()
   if (!main) return
   const headings = contentRef.value?.querySelectorAll('h1, h2, h3')
@@ -412,6 +432,11 @@ function handleScroll() {
     activeHeading.value = current
     nextTick(() => scrollTocToActive())
   }
+}
+
+/** smooth scroll 结束后重新启用 scroll-spy 并精确结算当前高亮 */
+function handleScrollEnd() {
+  clearClickScroll()
 }
 
 /** 节流 */
@@ -442,11 +467,13 @@ watch(contentRef, (el, oldEl) => {
   if (oldEl) {
     const oldContainer = resolveScrollContainer(oldEl)
     oldContainer?.removeEventListener('scroll', throttledHandleScroll)
+    oldContainer?.removeEventListener('scrollend', handleScrollEnd)
   }
   if (el) {
     nextTick(() => {
       activeScrollContainer = resolveScrollContainer()
       activeScrollContainer?.addEventListener('scroll', throttledHandleScroll)
+      activeScrollContainer?.addEventListener('scrollend', handleScrollEnd)
       // 初始同步高亮
       handleScroll()
     })
@@ -456,6 +483,8 @@ watch(contentRef, (el, oldEl) => {
 // 卸载时清理
 onBeforeUnmount(() => {
   activeScrollContainer?.removeEventListener('scroll', throttledHandleScroll)
+  activeScrollContainer?.removeEventListener('scrollend', handleScrollEnd)
+  if (clickScrollTimer) clearTimeout(clickScrollTimer)
 })
 
 /** autoHeading 变化时，自动展开被折叠的祖先节点 */
@@ -508,7 +537,6 @@ watch(activeHeading, newId => {
       <NeumorphismCard :elevation="-2" no-padding class="neumorphism-toc-card">
         <div class="neumorphism-toc-header">
           <span>📑 {{ t('markdownTocLabel') }}</span>
-          <NeumorphismBadge :value="toc.length" />
         </div>
         <ul class="neumorphism-toc-list" role="list">
           <li

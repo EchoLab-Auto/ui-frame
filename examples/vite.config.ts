@@ -17,6 +17,8 @@ export default defineConfig({
       '@': resolve(__dirname, '../src'),
       '@echolab-auto/ui-frame': resolve(__dirname, '../src/index.ts'),
       '@echolab-auto/ui-frame/doc': resolve(__dirname, '../src/doc/index.ts'),
+      // mermaid is an optional peer dependency — stub it in dev
+      mermaid: resolve(__dirname, '_mermaid-stub.ts'),
     },
   },
 })
