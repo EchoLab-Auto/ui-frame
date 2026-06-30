@@ -50,8 +50,8 @@ import '@echolab-auto/ui-frame/dist/style.css'
 
 除主入口外，本库还提供以下子路径导出，支持更细粒度的按需引入：
 
-| 子路径                            | 用途                    | 示例                                                                  |
-| --------------------------------- | ----------------------- | --------------------------------------------------------------------- |
+| 子路径                                 | 用途                    | 示例                                                                       |
+| -------------------------------------- | ----------------------- | -------------------------------------------------------------------------- |
 | `@echolab-auto/ui-frame/composables/*` | 单独引入某个 composable | `import { useSelect } from '@echolab-auto/ui-frame/composables/useSelect'` |
 | `@echolab-auto/ui-frame/extensions`    | 扩展系统                | `import { ComponentRegistry } from '@echolab-auto/ui-frame/extensions'`    |
 | `@echolab-auto/ui-frame/utils`         | 工具函数                | `import { debounce } from '@echolab-auto/ui-frame/utils'`                  |
@@ -247,7 +247,11 @@ interface SelectOption {
 
 ```ts
 import { NeumorphismForm, NeumorphismFormItem } from '@echolab-auto/ui-frame'
-import type { NeumorphismFormProps, NeumorphismFormItemProps, FormRule } from '@echolab-auto/ui-frame'
+import type {
+  NeumorphismFormProps,
+  NeumorphismFormItemProps,
+  FormRule,
+} from '@echolab-auto/ui-frame'
 ```
 
 **NeumorphismForm:**
@@ -334,7 +338,10 @@ import type { NeumorphismInputNumberProps, NumberInputSize } from '@echolab-auto
 
 ```ts
 import { NeumorphismAutoComplete } from '@echolab-auto/ui-frame'
-import type { NeumorphismAutoCompleteProps, NeumorphismAutoCompleteOption } from '@echolab-auto/ui-frame'
+import type {
+  NeumorphismAutoCompleteProps,
+  NeumorphismAutoCompleteOption,
+} from '@echolab-auto/ui-frame'
 ```
 
 | Props       | Type                                               | Default     | Description          |
@@ -598,7 +605,11 @@ interface TableColumn {
 
 ```ts
 import { NeumorphismDivider } from '@echolab-auto/ui-frame'
-import type { NeumorphismDividerProps, DividerDirection, DividerAlign } from '@echolab-auto/ui-frame'
+import type {
+  NeumorphismDividerProps,
+  DividerDirection,
+  DividerAlign,
+} from '@echolab-auto/ui-frame'
 ```
 
 | Props     | Type                            | Default        | Description |
@@ -660,7 +671,11 @@ import type { NeumorphismVirtualListProps } from '@echolab-auto/ui-frame'
 
 ```ts
 import { NeumorphismPopover } from '@echolab-auto/ui-frame'
-import type { NeumorphismPopoverProps, PopoverPosition, PopoverTrigger } from '@echolab-auto/ui-frame'
+import type {
+  NeumorphismPopoverProps,
+  PopoverPosition,
+  PopoverTrigger,
+} from '@echolab-auto/ui-frame'
 ```
 
 | Props     | Type                                               | Default   | Description                       |
@@ -1026,7 +1041,11 @@ interface ToastItem extends ToastOptions {
 
 ```ts
 import { NeumorphismTooltip } from '@echolab-auto/ui-frame'
-import type { NeumorphismTooltipProps, TooltipPosition, TooltipTrigger } from '@echolab-auto/ui-frame'
+import type {
+  NeumorphismTooltipProps,
+  TooltipPosition,
+  TooltipTrigger,
+} from '@echolab-auto/ui-frame'
 ```
 
 | Props    | Type              | Default   | Description  |
@@ -1637,7 +1656,12 @@ interface UseModalReturn {
 
 ```ts
 import { useToast } from '@echolab-auto/ui-frame'
-import type { UseToastOptions, UseToastReturn, ToastOptions, ToastItem } from '@echolab-auto/ui-frame'
+import type {
+  UseToastOptions,
+  UseToastReturn,
+  ToastOptions,
+  ToastItem,
+} from '@echolab-auto/ui-frame'
 ```
 
 ```ts
@@ -1948,7 +1972,12 @@ interface UseDatePickerReturn {
 
 ```ts
 import { useUpload } from '@echolab-auto/ui-frame'
-import type { UseUploadOptions, UseUploadReturn, UploadFile, UploadStatus } from '@echolab-auto/ui-frame'
+import type {
+  UseUploadOptions,
+  UseUploadReturn,
+  UploadFile,
+  UploadStatus,
+} from '@echolab-auto/ui-frame'
 ```
 
 ```ts
