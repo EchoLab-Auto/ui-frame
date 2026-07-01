@@ -108,6 +108,17 @@ export const zhCN: LocaleMessages = {
   listEmpty: '暂无数据',
   listLabel: '列表',
 
+  // Chart
+  chartNoData: '暂无数据',
+  chartLegend: '图例',
+  chartTooltipValue: '值：{value}',
+  chartTooltipPercentage: '占比：{percentage}%',
+  chartOhlcOpen: '开盘',
+  chartOhlcHigh: '最高',
+  chartOhlcLow: '最低',
+  chartOhlcClose: '收盘',
+  chartVolume: '成交量',
+
   // Markdown
   markdownCodeCopied: '已复制!',
   markdownTocLabel: '文档目录',

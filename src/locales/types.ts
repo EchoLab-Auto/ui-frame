@@ -110,6 +110,17 @@ export interface LocaleMessages {
   listEmpty?: string
   listLabel?: string
 
+  /** Chart */
+  chartNoData?: string
+  chartLegend?: string
+  chartTooltipValue?: string
+  chartTooltipPercentage?: string
+  chartOhlcOpen?: string
+  chartOhlcHigh?: string
+  chartOhlcLow?: string
+  chartOhlcClose?: string
+  chartVolume?: string
+
   /** Markdown */
   markdownCodeCopied?: string
   markdownTocLabel?: string

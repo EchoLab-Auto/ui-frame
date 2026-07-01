@@ -310,6 +310,40 @@
   --nm-border-medium: color-mix(in srgb, var(--nm-text-placeholder) 15%, transparent);
   --nm-font-mono: 'SF Mono', 'Cascadia Code', Monaco, 'Fira Code', 'Cousine', monospace;
   --nm-selection-bg: color-mix(in srgb, var(--nm-primary-color) 30%, transparent);
+
+  // -- Chart --
+  --nm-chart-color-1: #6c7ae0;
+  --nm-chart-color-2: #27ae60;
+  --nm-chart-color-3: #f39c12;
+  --nm-chart-color-4: #e74c3c;
+  --nm-chart-color-5: #3498db;
+  --nm-chart-color-6: #9b59b6;
+  --nm-chart-grid-color: color-mix(in srgb, var(--nm-text-placeholder) 20%, transparent);
+  --nm-chart-axis-color: var(--nm-text-placeholder);
+  --nm-chart-label-color: var(--nm-text-secondary);
+  --nm-chart-tooltip-bg: var(--nm-surface-raised);
+  --nm-chart-tooltip-text: var(--nm-text-primary);
+  --nm-chart-axis-font-size: var(--nm-font-xs);
+  --nm-chart-label-font-size: var(--nm-font-sm);
+  --nm-chart-line-width: 2.5px;
+  --nm-chart-point-size: 6px;
+  --nm-chart-bar-radius: 4px;
+  --nm-chart-animate-duration: 0.5s;
+  --nm-chart-legend-gap: 16px;
+  --nm-chart-legend-marker-size: 12px;
+
+  // Candlestick / Stock
+  --nm-chart-up-color: #e74c3c;
+  --nm-chart-down-color: #27ae60;
+  --nm-chart-wick-color: var(--nm-text-secondary);
+  --nm-chart-volume-up-color: color-mix(in srgb, var(--nm-chart-up-color) 40%, transparent);
+  --nm-chart-volume-down-color: color-mix(in srgb, var(--nm-chart-down-color) 40%, transparent);
+  --nm-chart-candlestick-body-width-ratio: 0.6;
+  --nm-chart-ma-line-width: 1.5px;
+  --nm-chart-ma-color-5: #f39c12;
+  --nm-chart-ma-color-10: #3498db;
+  --nm-chart-ma-color-20: #9b59b6;
+  --nm-chart-ma-color-60: #e74c3c;
 }
 
 // ---------- Dark Mode Tokens ----------
@@ -368,4 +402,21 @@
   --nm-code-punctuation: #808080;
 
   --nm-selection-bg: color-mix(in srgb, var(--nm-primary-color) 50%, transparent);
+
+  // -- Chart (dark mode — brighter colors for visibility against dark background) --
+  --nm-chart-color-1: #8b9af0;
+  --nm-chart-color-2: #2ecc71;
+  --nm-chart-color-3: #f5b041;
+  --nm-chart-color-4: #ec7063;
+  --nm-chart-color-5: #5dade2;
+  --nm-chart-color-6: #af7ac5;
+  --nm-chart-grid-color: color-mix(in srgb, var(--nm-text-placeholder) 15%, transparent);
+
+  // Candlestick / Stock (dark mode — brighter for visibility)
+  --nm-chart-up-color: #ef5350;
+  --nm-chart-down-color: #2ecc71;
+  --nm-chart-ma-color-5: #f5b041;
+  --nm-chart-ma-color-10: #5dade2;
+  --nm-chart-ma-color-20: #af7ac5;
+  --nm-chart-ma-color-60: #ef5350;
 }

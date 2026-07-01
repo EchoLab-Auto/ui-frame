@@ -108,6 +108,17 @@ export const enUS: LocaleMessages = {
   listEmpty: 'No data',
   listLabel: 'List',
 
+  // Chart
+  chartNoData: 'No data',
+  chartLegend: 'Legend',
+  chartTooltipValue: 'Value: {value}',
+  chartTooltipPercentage: 'Percentage: {percentage}%',
+  chartOhlcOpen: 'Open',
+  chartOhlcHigh: 'High',
+  chartOhlcLow: 'Low',
+  chartOhlcClose: 'Close',
+  chartVolume: 'Volume',
+
   // Markdown
   markdownCodeCopied: 'Copied!',
   markdownTocLabel: 'Table of Contents',

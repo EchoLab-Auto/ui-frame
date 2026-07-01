@@ -237,6 +237,40 @@ export interface NeumorphismGlobalConfig {
   }
   /** Whether to use RTL (right-to-left) direction */
   rtl?: boolean
+  /** Default chart props */
+  chart?: {
+    showGrid?: boolean
+    showTooltip?: boolean
+    showLegend?: boolean
+    showAxis?: boolean
+    animate?: boolean
+    colorPalette?: string[]
+    bar?: {
+      orientation?: 'vertical' | 'horizontal'
+      stacked?: boolean
+      barGap?: number
+    }
+    line?: {
+      curve?: 'linear' | 'smooth' | 'step'
+      area?: boolean
+      showPoints?: boolean
+      lineWidth?: number
+    }
+    pie?: {
+      innerRadius?: number
+      labelPosition?: 'inside' | 'outside' | 'none'
+      roundedCorners?: boolean
+    }
+    /** Candlestick / stock chart defaults */
+    candlestick?: {
+      upColor?: string
+      downColor?: string
+      showVolume?: boolean
+      showMA?: boolean
+      maPeriods?: number[]
+      bodyWidthRatio?: number
+    }
+  }
   /** Extension: consumers can add custom component config sections. */
   [configSection: string]: unknown
 }

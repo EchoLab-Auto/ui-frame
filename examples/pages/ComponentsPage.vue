@@ -114,6 +114,7 @@ const navCategories = [
       { id: 'progress', label: '进度条 Progress' },
       { id: 'skeleton', label: '骨架屏 Skeleton' },
       { id: 'divider', label: '分割线 Divider' },
+      { id: 'chart', label: '图表 Chart' },
     ],
   },
   {
@@ -456,6 +457,151 @@ function calcEdgePath(
   const mx = (x1 + x2) / 2
   return `M ${x1} ${y1} C ${mx} ${y1}, ${mx} ${y2}, ${x2} ${y2}`
 }
+
+// ---- 图表示例数据 ----
+const chartBarData = ref([
+  {
+    name: '产品A',
+    data: [
+      { label: 'Q1', value: 40 },
+      { label: 'Q2', value: 70 },
+      { label: 'Q3', value: 55 },
+      { label: 'Q4', value: 90 },
+    ],
+  },
+  {
+    name: '产品B',
+    data: [
+      { label: 'Q1', value: 30 },
+      { label: 'Q2', value: 50 },
+      { label: 'Q3', value: 45 },
+      { label: 'Q4', value: 65 },
+    ],
+  },
+])
+
+const chartBarDataStacked = ref([
+  {
+    name: '线上',
+    data: [
+      { label: '1月', value: 120 },
+      { label: '2月', value: 150 },
+      { label: '3月', value: 180 },
+      { label: '4月', value: 140 },
+    ],
+  },
+  {
+    name: '线下',
+    data: [
+      { label: '1月', value: 80 },
+      { label: '2月', value: 90 },
+      { label: '3月', value: 100 },
+      { label: '4月', value: 110 },
+    ],
+  },
+])
+
+const chartLineData = ref([
+  {
+    name: '访问量',
+    data: [
+      { label: '1月', value: 400 },
+      { label: '2月', value: 600 },
+      { label: '3月', value: 550 },
+      { label: '4月', value: 720 },
+      { label: '5月', value: 680 },
+      { label: '6月', value: 810 },
+    ],
+  },
+  {
+    name: '注册量',
+    data: [
+      { label: '1月', value: 100 },
+      { label: '2月', value: 180 },
+      { label: '3月', value: 150 },
+      { label: '4月', value: 220 },
+      { label: '5月', value: 200 },
+      { label: '6月', value: 260 },
+    ],
+  },
+])
+
+const chartPieData = ref([
+  { label: 'Vue 3', value: 45 },
+  { label: 'React', value: 30 },
+  { label: 'Angular', value: 15 },
+  { label: '其他', value: 10 },
+])
+
+const chartDonutData = ref([
+  { label: '已完成', value: 65 },
+  { label: '进行中', value: 25 },
+  { label: '未开始', value: 10 },
+])
+
+// ---- K 线图示例数据 (模拟 60 个交易日) ----
+const chartStockData = ref([
+  { date: '2024-07-01', open: 102, high: 106, low: 101, close: 105, volume: 82000 },
+  { date: '2024-07-02', open: 105, high: 108, low: 104, close: 106, volume: 95000 },
+  { date: '2024-07-03', open: 106, high: 110, low: 105, close: 109, volume: 110000 },
+  { date: '2024-07-04', open: 109, high: 111, low: 107, close: 108, volume: 78000 },
+  { date: '2024-07-05', open: 108, high: 112, low: 107, close: 111, volume: 88000 },
+  { date: '2024-07-08', open: 111, high: 114, low: 110, close: 113, volume: 92000 },
+  { date: '2024-07-09', open: 113, high: 115, low: 109, close: 110, volume: 105000 },
+  { date: '2024-07-10', open: 110, high: 112, low: 107, close: 108, volume: 120000 },
+  { date: '2024-07-11', open: 108, high: 109, low: 103, close: 104, volume: 140000 },
+  { date: '2024-07-12', open: 104, high: 108, low: 102, close: 107, volume: 115000 },
+  { date: '2024-07-15', open: 107, high: 113, low: 106, close: 112, volume: 98000 },
+  { date: '2024-07-16', open: 112, high: 116, low: 111, close: 115, volume: 130000 },
+  { date: '2024-07-17', open: 115, high: 118, low: 113, close: 114, volume: 125000 },
+  { date: '2024-07-18', open: 114, high: 117, low: 112, close: 116, volume: 108000 },
+  { date: '2024-07-19', open: 116, high: 120, low: 115, close: 119, volume: 135000 },
+  { date: '2024-07-22', open: 119, high: 122, low: 118, close: 121, volume: 142000 },
+  { date: '2024-07-23', open: 121, high: 124, low: 119, close: 120, volume: 118000 },
+  { date: '2024-07-24', open: 120, high: 121, low: 116, close: 117, volume: 155000 },
+  { date: '2024-07-25', open: 117, high: 118, low: 113, close: 114, volume: 160000 },
+  { date: '2024-07-26', open: 114, high: 117, low: 113, close: 116, volume: 128000 },
+  { date: '2024-07-29', open: 116, high: 120, low: 115, close: 118, volume: 105000 },
+  { date: '2024-07-30', open: 118, high: 121, low: 117, close: 120, volume: 112000 },
+  { date: '2024-07-31', open: 120, high: 123, low: 119, close: 122, volume: 138000 },
+  { date: '2024-08-01', open: 122, high: 125, low: 120, close: 121, volume: 145000 },
+  { date: '2024-08-02', open: 121, high: 122, low: 117, close: 118, volume: 160000 },
+  { date: '2024-08-05', open: 118, high: 119, low: 114, close: 115, volume: 180000 },
+  { date: '2024-08-06', open: 115, high: 117, low: 112, close: 116, volume: 155000 },
+  { date: '2024-08-07', open: 116, high: 120, low: 115, close: 119, volume: 142000 },
+  { date: '2024-08-08', open: 119, high: 122, low: 118, close: 121, volume: 130000 },
+  { date: '2024-08-09', open: 121, high: 124, low: 120, close: 123, volume: 148000 },
+  { date: '2024-08-12', open: 123, high: 127, low: 122, close: 126, volume: 165000 },
+  { date: '2024-08-13', open: 126, high: 128, low: 124, close: 125, volume: 138000 },
+  { date: '2024-08-14', open: 125, high: 129, low: 124, close: 128, volume: 152000 },
+  { date: '2024-08-15', open: 128, high: 130, low: 126, close: 129, volume: 170000 },
+  { date: '2024-08-16', open: 129, high: 132, low: 128, close: 131, volume: 185000 },
+  { date: '2024-08-19', open: 131, high: 134, low: 130, close: 133, volume: 175000 },
+  { date: '2024-08-20', open: 133, high: 136, low: 132, close: 134, volume: 168000 },
+  { date: '2024-08-21', open: 134, high: 135, low: 130, close: 131, volume: 155000 },
+  { date: '2024-08-22', open: 131, high: 132, low: 127, close: 128, volume: 180000 },
+  { date: '2024-08-23', open: 128, high: 131, low: 127, close: 130, volume: 162000 },
+  { date: '2024-08-26', open: 130, high: 133, low: 129, close: 132, volume: 148000 },
+  { date: '2024-08-27', open: 132, high: 135, low: 131, close: 134, volume: 158000 },
+  { date: '2024-08-28', open: 134, high: 137, low: 133, close: 136, volume: 172000 },
+  { date: '2024-08-29', open: 136, high: 138, low: 134, close: 135, volume: 145000 },
+  { date: '2024-08-30', open: 135, high: 139, low: 134, close: 138, volume: 190000 },
+  { date: '2024-09-02', open: 138, high: 141, low: 137, close: 140, volume: 178000 },
+  { date: '2024-09-03', open: 140, high: 142, low: 138, close: 139, volume: 165000 },
+  { date: '2024-09-04', open: 139, high: 140, low: 135, close: 136, volume: 168000 },
+  { date: '2024-09-05', open: 136, high: 138, low: 134, close: 137, volume: 152000 },
+  { date: '2024-09-06', open: 137, high: 138, low: 133, close: 134, volume: 170000 },
+  { date: '2024-09-09', open: 134, high: 137, low: 132, close: 136, volume: 160000 },
+  { date: '2024-09-10', open: 136, high: 139, low: 135, close: 138, volume: 155000 },
+  { date: '2024-09-11', open: 138, high: 140, low: 136, close: 139, volume: 148000 },
+  { date: '2024-09-12', open: 139, high: 142, low: 138, close: 141, volume: 175000 },
+  { date: '2024-09-13', open: 141, high: 144, low: 140, close: 143, volume: 188000 },
+  { date: '2024-09-16', open: 143, high: 145, low: 141, close: 142, volume: 165000 },
+  { date: '2024-09-17', open: 142, high: 145, low: 141, close: 144, volume: 172000 },
+  { date: '2024-09-18', open: 144, high: 147, low: 143, close: 146, volume: 195000 },
+  { date: '2024-09-19', open: 146, high: 148, low: 144, close: 145, volume: 180000 },
+  { date: '2024-09-20', open: 145, high: 148, low: 144, close: 147, volume: 188000 },
+])
 </script>
 
 <template>
@@ -2078,6 +2224,88 @@ addToast({ message: '已保存!', type: 'success', duration: 3000 })
               </div>
             </NeumorphismCard>
 
+            <!-- 图表 -->
+            <NeumorphismCard id="chart" :elevation="1" class="demo-card demo-card--full">
+              <template #header>
+                <div class="demo-header">
+                  <h3 class="demo-title">NeumorphismChart 图表</h3>
+                  <span class="demo-badge">柱状图 · 折线图 · 饼图 · K 线图</span>
+                </div>
+              </template>
+
+              <div class="demo-block">
+                <h4 class="demo-label">柱状图（分组）</h4>
+                <NeumorphismChartBar :series="chartBarData" title="季度销售对比" height="280px" />
+              </div>
+
+              <div class="demo-block">
+                <h4 class="demo-label">柱状图（堆叠）</h4>
+                <NeumorphismChartBar
+                  :series="chartBarDataStacked"
+                  title="月度渠道销售"
+                  :stacked="true"
+                  height="280px"
+                />
+              </div>
+
+              <div class="demo-block">
+                <h4 class="demo-label">折线图（平滑曲线 + 面积填充）</h4>
+                <NeumorphismChartLine
+                  :series="chartLineData"
+                  title="月度访客趋势"
+                  :area="true"
+                  :area-opacity="0.08"
+                  curve="smooth"
+                  height="280px"
+                />
+              </div>
+
+              <div class="demo-block">
+                <h4 class="demo-label">饼图（带标签）</h4>
+                <div class="demo-row">
+                  <div style="width: 45%">
+                    <NeumorphismChartPie
+                      :data="chartPieData"
+                      title="框架使用占比"
+                      label-position="outside"
+                      height="280px"
+                    />
+                  </div>
+                  <div style="width: 45%">
+                    <NeumorphismChartPie
+                      :data="chartDonutData"
+                      title="项目进度"
+                      :inner-radius="50"
+                      label-position="inside"
+                      height="280px"
+                    >
+                      <template #center="{ total }">
+                        <div style="text-align: center">
+                          <div
+                            style="font-size: 20px; font-weight: 700; color: var(--nm-text-primary)"
+                          >
+                            {{ total }}
+                          </div>
+                          <div style="font-size: 11px; color: var(--nm-text-secondary)">总任务</div>
+                        </div>
+                      </template>
+                    </NeumorphismChartPie>
+                  </div>
+                </div>
+              </div>
+              <div class="demo-block">
+                <h4 class="demo-label">K 线图（OHLC + 成交量 + MA 均线）</h4>
+                <NeumorphismChartCandlestick
+                  :data="chartStockData"
+                  title="股价走势"
+                  :show-volume="true"
+                  :show-ma="true"
+                  :ma-periods="[5, 10, 20]"
+                  height="420px"
+                />
+              </div>
+            </NeumorphismCard>
+
             <!-- 画布 -->
             <NeumorphismCard id="canvas" :elevation="1" class="demo-card demo-card--full">
               <template #header>
@@ -2226,7 +2454,7 @@ addToast({ message: '已保存!', type: 'success', duration: 3000 })
           <!-- ===== 页脚 ===== -->
           <footer class="doc-footer">
             <NeumorphismDivider />
-            <p>@echolab-auto/ui-frame · MIT 许可证 · 共 {{ 30 }} 个组件</p>
+            <p>@echolab-auto/ui-frame · MIT 许可证 · 共 50+ 个组件</p>
             <p style="margin-top: 4px">
               <a href="https://github.com/EchoLab-Auto/ui-frame" target="_blank">GitHub</a> ·
               <a href="https://www.npmjs.com/package/@echolab-auto/ui-frame" target="_blank">npm</a>

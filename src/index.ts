@@ -56,6 +56,10 @@ import {
   NeumorphismList,
   NeumorphismUpload,
   NeumorphismAutoComplete,
+  NeumorphismChartBar,
+  NeumorphismChartLine,
+  NeumorphismChartPie,
+  NeumorphismChartCandlestick,
 } from './components'
 
 import './styles/index.scss'
@@ -190,6 +194,39 @@ export type {
 export { validateFieldValue } from './composables/useFormValidation'
 export type { FormRule as HeadlessFormRule } from './composables/useFormValidation'
 
+// Composables — chart (headless chart logic)
+export { useChart } from './composables/useChart'
+export type {
+  UseChartOptions,
+  ChartSeries,
+  ChartDataPoint,
+  ChartMargin,
+  TooltipState,
+} from './composables/useChart'
+export type { UseChartReturn } from './composables/useChart'
+
+export { useBarChart } from './composables/useBarChart'
+export type { UseBarChartOptions, BarRect } from './composables/useBarChart'
+export type { UseBarChartReturn } from './composables/useBarChart'
+
+export { useLineChart } from './composables/useLineChart'
+export type { UseLineChartOptions, LineSeries, ChartPoint } from './composables/useLineChart'
+export type { UseLineChartReturn } from './composables/useLineChart'
+
+export { usePieChart } from './composables/usePieChart'
+export type { UsePieChartOptions, PieArc } from './composables/usePieChart'
+export type { UsePieChartReturn } from './composables/usePieChart'
+
+export { useCandlestickChart } from './composables/useCandlestickChart'
+export type {
+  UseCandlestickChartOptions,
+  CandleRect,
+  VolumeBar,
+  MALine,
+} from './composables/useCandlestickChart'
+export type { UseCandlestickChartReturn } from './composables/useCandlestickChart'
+export type { OhlcDataPoint } from './composables/useChart'
+
 // Locales
 export { useLocale, provideLocale, getLocaleMessages, LocaleKey } from './composables/useLocale'
 export type { LocaleMessages, Locale } from './locales'
@@ -269,6 +306,10 @@ const NAME_TO_COMPONENT = {
   NeumorphismList,
   NeumorphismUpload,
   NeumorphismAutoComplete,
+  NeumorphismChartBar,
+  NeumorphismChartLine,
+  NeumorphismChartPie,
+  NeumorphismChartCandlestick,
 } as const
 
 /**
