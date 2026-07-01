@@ -41,6 +41,9 @@ export interface PieArc {
   labelAnchor?: 'start' | 'end'
 }
 
+/** Pie charts don't have axes — use symmetric margins so the pie is centered */
+const PIE_MARGIN: ChartMargin = { top: 24, right: 24, bottom: 24, left: 24 }
+
 // ==========================================
 // usePieChart — Pie chart logic (Layer 2)
 // ==========================================
@@ -73,7 +76,7 @@ export function usePieChart(options: UsePieChartOptions) {
   const chart = useChart({
     containerRef,
     series: wrappedSeries,
-    margin,
+    margin: margin ?? PIE_MARGIN,
     showTooltip,
     showLegend,
     animate,

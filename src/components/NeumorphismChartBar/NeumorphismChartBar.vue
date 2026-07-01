@@ -331,6 +331,7 @@ const zeroY = computed(() => {
     flex: 1;
     min-height: 0;
     @include nm-inset-deep(6px, 12px);
+    border-radius: var(--nm-border-radius-md);
     padding: 8px;
     cursor: crosshair;
     contain: layout style;

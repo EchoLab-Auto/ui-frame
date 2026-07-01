@@ -77,8 +77,8 @@ const svgHeight = computed(
   () => plotSize.value.height + resolvedMargin.value.top + resolvedMargin.value.bottom
 )
 
-const cx = computed(() => resolvedMargin.value.left + plotSize.value.width / 2)
-const cy = computed(() => resolvedMargin.value.top + plotSize.value.height / 2)
+const cx = computed(() => plotSize.value.width / 2)
+const cy = computed(() => plotSize.value.height / 2)
 
 const containerStyle = computed(() => ({
   width: typeof props.width === 'number' ? `${props.width}px` : props.width,
@@ -153,105 +153,107 @@ function getColor(index: number, pointColor?: unknown): string {
         aria-hidden="true"
         preserveAspectRatio="xMidYMid meet"
       >
-        <!-- Arcs -->
-        <g v-if="total > 0">
-          <path
-            v-for="(arc, ai) in arcs"
-            :key="ai"
-            :d="arc.path"
-            :fill="arc.color"
-            stroke="var(--nm-surface-color)"
-            stroke-width="2"
-            :class="[
-              'nm-chart__arc',
-              {
-                'nm-chart__arc--hovered': hoveredArcIndex === arc.index,
-                'nm-chart__arc--focused': arc.isFocused,
-                'nm-chart__arc--animate': shouldAnimate,
-              },
-            ]"
-            :style="
-              shouldAnimate
-                ? { transformOrigin: `${cx}px ${cy}px`, animationDelay: `${ai * 100}ms` }
-                : {}
-            "
-            role="img"
-            :aria-label="`${arc.label}: ${arc.percentage}%`"
-            @click="onArcClick(arc)"
-            @mouseenter="onArcMouseEnter(arc, $event)"
-            @mouseleave="onArcMouseLeave"
-          />
-
-          <!-- Outside labels -->
-          <template v-if="resolvedLabelPosition === 'outside'">
-            <line
+        <g :transform="`translate(${resolvedMargin.left}, ${resolvedMargin.top})`">
+          <!-- Arcs -->
+          <g v-if="total > 0">
+            <path
               v-for="(arc, ai) in arcs"
-              :key="'line' + ai"
-              :x1="arc.centroidX"
-              :y1="arc.centroidY"
-              :x2="arc.labelX"
-              :y2="arc.labelY"
-              stroke="var(--nm-chart-axis-color)"
-              stroke-width="0.5"
+              :key="ai"
+              :d="arc.path"
+              :fill="arc.color"
+              stroke="var(--nm-surface-color)"
+              stroke-width="2"
+              :class="[
+                'nm-chart__arc',
+                {
+                  'nm-chart__arc--hovered': hoveredArcIndex === arc.index,
+                  'nm-chart__arc--focused': arc.isFocused,
+                  'nm-chart__arc--animate': shouldAnimate,
+                },
+              ]"
+              :style="
+                shouldAnimate
+                  ? { transformOrigin: `${cx}px ${cy}px`, animationDelay: `${ai * 100}ms` }
+                  : {}
+              "
+              role="img"
+              :aria-label="`${arc.label}: ${arc.percentage}%`"
+              @click="onArcClick(arc)"
+              @mouseenter="onArcMouseEnter(arc, $event)"
+              @mouseleave="onArcMouseLeave"
             />
+
+            <!-- Outside labels -->
+            <template v-if="resolvedLabelPosition === 'outside'">
+              <line
+                v-for="(arc, ai) in arcs"
+                :key="'line' + ai"
+                :x1="arc.centroidX"
+                :y1="arc.centroidY"
+                :x2="arc.labelX"
+                :y2="arc.labelY"
+                stroke="var(--nm-chart-axis-color)"
+                stroke-width="0.5"
+              />
+              <text
+                v-for="(arc, ai) in arcs"
+                :key="'lbl' + ai"
+                :x="(arc.labelX ?? 0) + (arc.labelAnchor === 'start' ? 4 : -4)"
+                :y="arc.labelY"
+                :text-anchor="arc.labelAnchor"
+                dominant-baseline="middle"
+                fill="var(--nm-chart-label-color)"
+                font-size="11"
+                class="nm-chart__tick-label"
+              >
+                {{ arc.label || `${arc.percentage}%` }}
+              </text>
+            </template>
+
+            <!-- Inside labels -->
             <text
               v-for="(arc, ai) in arcs"
-              :key="'lbl' + ai"
-              :x="(arc.labelX ?? 0) + (arc.labelAnchor === 'start' ? 4 : -4)"
-              :y="arc.labelY"
-              :text-anchor="arc.labelAnchor"
+              v-show="resolvedLabelPosition === 'inside'"
+              :key="'ilbl' + ai"
+              :x="arc.centroidX"
+              :y="arc.centroidY"
+              text-anchor="middle"
               dominant-baseline="middle"
-              fill="var(--nm-chart-label-color)"
+              fill="var(--nm-text-on-primary)"
               font-size="11"
+              font-weight="600"
               class="nm-chart__tick-label"
             >
-              {{ arc.label || `${arc.percentage}%` }}
+              {{ arc.percentage }}%
             </text>
-          </template>
+          </g>
 
-          <!-- Inside labels -->
+          <!-- Empty state -->
           <text
-            v-for="(arc, ai) in arcs"
-            v-show="resolvedLabelPosition === 'inside'"
-            :key="'ilbl' + ai"
-            :x="arc.centroidX"
-            :y="arc.centroidY"
+            v-if="total === 0"
+            :x="cx"
+            :y="cy"
             text-anchor="middle"
             dominant-baseline="middle"
-            fill="var(--nm-text-on-primary)"
-            font-size="11"
-            font-weight="600"
-            class="nm-chart__tick-label"
+            fill="var(--nm-text-placeholder)"
+            font-size="13"
           >
-            {{ arc.percentage }}%
+            {{ t('chartNoData') }}
           </text>
+
+          <!-- Center slot (for donut charts) -->
+          <foreignObject
+            v-if="resolvedInnerRadius > 0"
+            :x="cx - resolvedInnerRadius"
+            :y="cy - resolvedInnerRadius"
+            :width="resolvedInnerRadius * 2"
+            :height="resolvedInnerRadius * 2"
+          >
+            <div class="nm-chart__center-slot" xmlns="http://www.w3.org/1999/xhtml">
+              <slot name="center" :total="total" />
+            </div>
+          </foreignObject>
         </g>
-
-        <!-- Empty state -->
-        <text
-          v-if="total === 0"
-          :x="cx"
-          :y="cy"
-          text-anchor="middle"
-          dominant-baseline="middle"
-          fill="var(--nm-text-placeholder)"
-          font-size="13"
-        >
-          {{ t('chartNoData') }}
-        </text>
-
-        <!-- Center slot (for donut charts) -->
-        <foreignObject
-          v-if="resolvedInnerRadius > 0"
-          :x="cx - resolvedInnerRadius"
-          :y="cy - resolvedInnerRadius"
-          :width="resolvedInnerRadius * 2"
-          :height="resolvedInnerRadius * 2"
-        >
-          <div class="nm-chart__center-slot" xmlns="http://www.w3.org/1999/xhtml">
-            <slot name="center" :total="total" />
-          </div>
-        </foreignObject>
       </svg>
 
       <!-- Tooltip -->
@@ -302,6 +304,7 @@ function getColor(index: number, pointColor?: unknown): string {
     flex: 1;
     min-height: 0;
     @include nm-inset-deep(6px, 12px);
+    border-radius: var(--nm-border-radius-md);
     padding: 8px;
     cursor: default;
     contain: layout style;
