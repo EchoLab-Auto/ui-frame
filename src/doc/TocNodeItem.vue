@@ -54,6 +54,7 @@ import TocNodeItem from './TocNodeItem.vue'
       </button>
       <a
         href="#"
+        :data-toc-id="node.id"
         role="button"
         :aria-current="isActive ? 'location' : undefined"
         @click="handleSelect"

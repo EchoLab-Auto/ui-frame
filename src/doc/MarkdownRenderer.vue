@@ -290,7 +290,7 @@ function scrollToHeading(id: string) {
 
   const target = contentRef.value?.querySelector(`[id="${id}"]`)
   if (target) {
-    target.scrollIntoView({ behavior: 'smooth' })
+    target.scrollIntoView({ behavior: getTocScrollBehavior() })
   }
 
   // 800ms 后恢复 scroll-spy（smooth scroll 动画通常在 300-500ms 内完成）
@@ -303,15 +303,64 @@ function scrollToHeadingAndClose(id: string) {
   showMobileToc.value = false
 }
 
-/** 切换 TOC 节点折叠状态 */
+/** 切换 TOC 节点折叠状态，展开时自动滚动以显示子项 */
 function toggleCollapse(id: string) {
   const next = new Set(collapsedGroups.value)
-  if (next.has(id)) {
+  const wasCollapsed = next.has(id)
+  if (wasCollapsed) {
     next.delete(id)
   } else {
     next.add(id)
   }
   collapsedGroups.value = next
+
+  // 展开时自动滚动 TOC，确保新显示的子项可见
+  if (wasCollapsed) {
+    nextTick(() => scrollTocToNode(id))
+  }
+}
+
+/** 将 TOC 侧边栏滚动到指定节点，确保展开后的子项可见 */
+function scrollTocToNode(id: string) {
+  if (!tocNavRef.value) return
+  if (window.innerWidth <= 1100) return
+
+  const container = tocNavRef.value
+  const nodeEl = container.querySelector(`[data-toc-id="${CSS.escape(id)}"]`) as HTMLElement | null
+  if (!nodeEl) return
+
+  // 检查子列表是否已在 TOC 视口内完全可见
+  const containerRect = container.getBoundingClientRect()
+  const listItem = nodeEl.closest('.neumorphism-toc-item') as HTMLElement | null
+  const childList = Array.from(listItem?.children ?? []).find(child =>
+    child.classList.contains('neumorphism-toc-list')
+  ) as HTMLElement | null
+
+  if (childList) {
+    const childRect = childList.getBoundingClientRect()
+    // 如果子列表底部未超出 TOC 底部（+10px 容差），则无需滚动
+    if (childRect.bottom <= containerRect.bottom + 10) {
+      return
+    }
+  }
+
+  // 直接操作容器 scrollTop，避免 scrollIntoView 在 sticky 容器中的浏览器兼容问题
+  const elTop = nodeEl.getBoundingClientRect().top - containerRect.top + container.scrollTop
+  container.scrollTo({
+    top: Math.max(0, elTop),
+    behavior: getTocScrollBehavior(),
+  })
+}
+
+/** 返回 'smooth' 或 'auto'，取决于用户的 reduced-motion 偏好 */
+function getTocScrollBehavior(): ScrollBehavior {
+  if (
+    typeof window !== 'undefined' &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  ) {
+    return 'auto'
+  }
+  return 'smooth'
 }
 
 /** 将 TOC 侧边栏滚动到当前激活项（仅桌面端可见时执行） */
@@ -319,12 +368,29 @@ function scrollTocToActive() {
   if (!tocNavRef.value) return
   // 桌面端 TOC 隐藏时（移动端），跳过滚动
   if (window.innerWidth <= 1100) return
-  const activeEl = tocNavRef.value.querySelector(
-    '.neumorphism-toc-item.active'
-  ) as HTMLElement | null
-  if (activeEl) {
-    activeEl.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
+
+  const container = tocNavRef.value
+  const activeEl = container.querySelector('.neumorphism-toc-item.active') as HTMLElement | null
+  if (!activeEl) return
+
+  const containerRect = container.getBoundingClientRect()
+  const elRect = activeEl.getBoundingClientRect()
+
+  // 滞回区间：激活项在视口中间 50% 区域时不滚动，减少抖动
+  const upperThreshold = containerRect.top + containerRect.height * 0.25
+  const lowerThreshold = containerRect.top + containerRect.height * 0.75
+
+  if (elRect.top >= upperThreshold && elRect.bottom <= lowerThreshold) {
+    return // 已在舒适区域，无需滚动
   }
+
+  // 直接操作容器 scrollTop，避免 scrollIntoView 在 sticky 容器中触发祖先滚动
+  const elCenter = elRect.top - containerRect.top + container.scrollTop - elRect.height / 2
+  const targetScrollTop = elCenter - containerRect.height / 2
+  container.scrollTo({
+    top: Math.max(0, targetScrollTop),
+    behavior: getTocScrollBehavior(),
+  })
 }
 
 /** 统一处理内容区点击：复制按钮 + heading 锚点 + 文档链接 */
@@ -506,6 +572,8 @@ watch([contentRef, renderedHtml], ([el]) => {
   if (el) {
     nextTick(() => {
       setupHeadingObserver()
+      // 初始同步 TOC 滚动位置，确保挂载时即正确高亮当前区域
+      syncActiveHeading()
     })
   } else {
     disconnectObservers()
@@ -656,6 +724,8 @@ watch(activeHeading, newId => {
   max-height: calc(100vh - 100px);
   overflow-y: auto;
   z-index: 10;
+  /* 防止 TOC 触顶/触底时滚轮事件链接到页面滚动 */
+  overscroll-behavior-y: contain;
   /* Scrollbar styling for the TOC itself */
   scrollbar-width: thin;
   scrollbar-color: var(--nm-surface-raised) transparent;

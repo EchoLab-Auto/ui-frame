@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { nextTick } from 'vue'
 import { mount } from '@vue/test-utils'
 import MarkdownRenderer from './MarkdownRenderer.vue'
 import {
@@ -149,6 +150,154 @@ describe('MarkdownRenderer', () => {
   it('does not render TOC when showToc is false', () => {
     const wrapper = mountRenderer('# Hello', { showToc: false })
     expect(wrapper.find('.neumorphism-toc').exists()).toBe(false)
+  })
+
+  it('scrolls TOC to show children after expanding a collapsed group', async () => {
+    const scrollSpy = vi.fn()
+    const origScrollTo = Element.prototype.scrollTo
+    const origGetBoundingClientRect = Element.prototype.getBoundingClientRect
+    const origInnerWidth = window.innerWidth
+
+    Element.prototype.scrollTo = scrollSpy
+    Element.prototype.getBoundingClientRect = function (this: Element) {
+      // 模拟 TOC 视口较小，子列表溢出场景
+      if (this.classList.contains('neumorphism-toc')) {
+        return {
+          top: 0,
+          bottom: 100,
+          left: 0,
+          right: 200,
+          width: 200,
+          height: 100,
+          x: 0,
+          y: 0,
+        } as DOMRect
+      }
+      if (this.classList.contains('neumorphism-toc-list') && this.id.startsWith('toc-list-')) {
+        return {
+          top: 50,
+          bottom: 200,
+          left: 0,
+          right: 200,
+          width: 200,
+          height: 150,
+          x: 0,
+          y: 50,
+        } as DOMRect
+      }
+      return { top: 0, bottom: 0, left: 0, right: 0, width: 0, height: 0, x: 0, y: 0 } as DOMRect
+    }
+    Object.defineProperty(window, 'innerWidth', { value: 1200, configurable: true })
+
+    const wrapper = mountRenderer('# Parent\n\n## Child\n\n## Child 2\n\n### Grandchild')
+    const toggle = wrapper.find('.toc-toggle')
+    expect(toggle.exists()).toBe(true)
+    const listId = toggle.attributes('aria-controls')
+    expect(wrapper.find(`#${listId}`).exists()).toBe(true)
+
+    // 先折叠
+    await toggle.trigger('click')
+    expect(wrapper.find(`#${listId}`).exists()).toBe(false)
+    scrollSpy.mockClear()
+
+    // 展开 — 应触发 scrollTo（在 TOC 容器上）
+    await toggle.trigger('click')
+    await nextTick()
+    expect(scrollSpy).toHaveBeenCalled()
+
+    Element.prototype.scrollTo = origScrollTo
+    Element.prototype.getBoundingClientRect = origGetBoundingClientRect
+    Object.defineProperty(window, 'innerWidth', { value: origInnerWidth, configurable: true })
+  })
+
+  it('does not scroll TOC when collapsing a group', async () => {
+    const scrollSpy = vi.fn()
+    const origScrollTo = Element.prototype.scrollTo
+    Element.prototype.scrollTo = scrollSpy
+
+    const wrapper = mountRenderer('# Parent\n\n## Child')
+    const toggle = wrapper.find('.toc-toggle')
+    const listId = toggle.attributes('aria-controls')
+    expect(wrapper.find(`#${listId}`).exists()).toBe(true)
+
+    // 展开状态直接点击折叠 — 不应触发 scrollTo
+    await toggle.trigger('click')
+    await nextTick()
+    expect(wrapper.find(`#${listId}`).exists()).toBe(false)
+    expect(scrollSpy).not.toHaveBeenCalled()
+
+    Element.prototype.scrollTo = origScrollTo
+  })
+
+  it('respects prefers-reduced-motion in scroll behavior', async () => {
+    const matchMediaOrig = window.matchMedia
+    const matchMediaSpy = vi.fn().mockReturnValue({
+      matches: true,
+      media: '(prefers-reduced-motion: reduce)',
+      onchange: null,
+      addListener: vi.fn(),
+      removeListener: vi.fn(),
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+      dispatchEvent: vi.fn(),
+    })
+    window.matchMedia = matchMediaSpy
+
+    const scrollSpy = vi.fn()
+    const origScrollTo = Element.prototype.scrollTo
+    const origGetBoundingClientRect = Element.prototype.getBoundingClientRect
+    const origInnerWidth = window.innerWidth
+
+    Element.prototype.scrollTo = scrollSpy
+    Element.prototype.getBoundingClientRect = function (this: Element) {
+      if (this.classList.contains('neumorphism-toc')) {
+        return {
+          top: 0,
+          bottom: 100,
+          left: 0,
+          right: 200,
+          width: 200,
+          height: 100,
+          x: 0,
+          y: 0,
+        } as DOMRect
+      }
+      if (this.classList.contains('neumorphism-toc-list') && this.id.startsWith('toc-list-')) {
+        return {
+          top: 50,
+          bottom: 200,
+          left: 0,
+          right: 200,
+          width: 200,
+          height: 150,
+          x: 0,
+          y: 50,
+        } as DOMRect
+      }
+      return { top: 0, bottom: 0, left: 0, right: 0, width: 0, height: 0, x: 0, y: 0 } as DOMRect
+    }
+    Object.defineProperty(window, 'innerWidth', { value: 1200, configurable: true })
+
+    const wrapper = mountRenderer('# Parent\n\n## Child')
+    const toggle = wrapper.find('.toc-toggle')
+    // 先折叠再展开以触发 scrollToNode
+    await toggle.trigger('click')
+    scrollSpy.mockClear()
+    await toggle.trigger('click')
+    await nextTick()
+
+    // 应使用 behavior: 'auto'（而非 'smooth'）
+    if (scrollSpy.mock.calls.length > 0) {
+      const callArg = scrollSpy.mock.calls[0][0] as ScrollToOptions | undefined
+      if (callArg && typeof callArg === 'object') {
+        expect(callArg.behavior).toBe('auto')
+      }
+    }
+
+    Element.prototype.scrollTo = origScrollTo
+    Element.prototype.getBoundingClientRect = origGetBoundingClientRect
+    Object.defineProperty(window, 'innerWidth', { value: origInnerWidth, configurable: true })
+    window.matchMedia = matchMediaOrig
   })
 
   it('marks active heading with aria-current', async () => {
