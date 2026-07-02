@@ -176,4 +176,10 @@ npm run example
 npm run example:build
 ```
 
-MIT
+## 发布
+
+```bash
+export NPM_TOKEN=npm_xxxxxxxx
+npm config set //registry.npmjs.org/:_authToken=${NPM_TOKEN}
+npm publish
+```
