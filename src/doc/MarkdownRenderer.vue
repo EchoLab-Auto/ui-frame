@@ -177,6 +177,42 @@ const renderedHtml = ref('')
 /** 目录 */
 const toc = computed(() => extractToc(props.content))
 
+/**
+ * 可选 XSS 净化：动态加载 DOMPurify（可选 peer dependency）对 marked 输出净化。
+ * marked 默认放行原始 HTML，对外部/不可信 markdown 必须净化后再 v-html。
+ * 未安装时回退到原始 HTML 并警告一次；DOMPurify 不在主包入口，主包体积不受影响。
+ */
+let purify: ((html: string) => string) | null = null
+let purifyLoaded = false
+let purifyWarned = false
+
+function loadPurify(): void {
+  if (purifyLoaded) return
+  purifyLoaded = true
+  // @ts-expect-error - dompurify is an optional peer dependency, may not be installed
+  import('dompurify')
+    .then(mod => {
+      const dp = mod?.default
+      if (dp && typeof dp.sanitize === 'function') {
+        purify = (html: string) =>
+          dp.sanitize(html, {
+            // Preserve the data-* hooks emitted by this renderer.
+            ADD_ATTR: ['data-mermaid', 'data-code', 'data-heading-id', 'target'],
+          })
+        // Re-render now that sanitization is available.
+        doRender()
+      }
+    })
+    .catch(() => {
+      if (!purifyWarned) {
+        purifyWarned = true
+        console.warn(
+          '[MarkdownRenderer] dompurify 未安装，markdown 输出未做 XSS 净化；建议安装 dompurify 作为可选依赖以渲染不可信内容。'
+        )
+      }
+    })
+}
+
 function doRender() {
   renderError.value = null
   try {
@@ -191,18 +227,22 @@ function doRender() {
       return `<h${depth} id="${id}"><a href="#" data-heading-id="${id}" class="heading-anchor" aria-hidden="true">#</a>${text}</h${depth}>`
     }
 
-    renderedHtml.value = marked.parse(props.content, {
+    const raw = marked.parse(props.content, {
       async: false,
       gfm: true,
       breaks: false,
       renderer: renderRenderer,
     }) as string
+    // Sanitize before assigning — renderedHtml is rendered via v-html.
+    renderedHtml.value = purify ? purify(raw) : raw
   } catch (err) {
     renderError.value = (err as Error).message || 'Unknown error rendering markdown'
     renderedHtml.value = ''
   }
 }
 
+// Kick off the optional DOMPurify load; once ready it re-renders sanitized.
+loadPurify()
 watch(() => props.content, doRender, { immediate: true })
 
 /** 文档内容切换时重置 TOC 折叠状态，避免旧文档状态污染新文档 */

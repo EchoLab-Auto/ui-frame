@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, onBeforeUnmount } from 'vue'
 import { useLineChart } from '@/composables/useLineChart'
 import type { ChartSeries } from '@/composables/useLineChart'
 import { useLocale } from '@/composables/useLocale'
@@ -77,9 +77,6 @@ const {
   showPoints: props.showPoints,
   pointSize: props.pointSize,
   lineWidth: props.lineWidth,
-  showTooltip: props.showTooltip,
-  showLegend: props.showLegend,
-  animate: props.animate,
   yMin: props.yMin,
   yMax: props.yMax,
 })
@@ -103,12 +100,27 @@ const ariaLabel = computed(() => {
 
 const shouldAnimate = computed(() => props.animate && !reducedMotion.value)
 
+// Cached container rect, refreshed on each mousemove. Calling
+// getBoundingClientRect() inside this computed would force a synchronous
+// reflow on every tooltip state change, so we snapshot it in the mousemove
+// handler and let the computed depend on the snapshot.
+const containerRect = ref({ left: 0, top: 0 })
+
+// Structured tooltip payload. This replaces an HTML string that was rendered
+// with v-html — interpolating series names/values as text means untrusted
+// series data can no longer inject markup (XSS).
+interface LineTooltipRow {
+  name: string
+  value: number
+  color: string
+}
+const tooltipData = ref<{ header: string; rows: LineTooltipRow[] } | null>(null)
+
 const tooltipStyle = computed(() => {
   if (!containerRef.value) return { display: 'none' }
-  const rect = containerRef.value.getBoundingClientRect()
   return {
-    left: `${tooltip.value.x - rect.left + 12}px`,
-    top: `${tooltip.value.y - rect.top - 8}px`,
+    left: `${tooltip.value.x - containerRect.value.left + 12}px`,
+    top: `${tooltip.value.y - containerRect.value.top - 8}px`,
   }
 })
 
@@ -156,15 +168,22 @@ function findNearestIndex(svgX: number): number {
   return nearest
 }
 
-function onBodyMouseMove(event: MouseEvent): void {
+// Coalesce high-frequency mousemove events into a single calculation per
+// animation frame to avoid per-move reflow + O(n) scans.
+let pendingFrame: number | null = null
+let lastMoveEvent: MouseEvent | null = null
+
+function processMouseMove(event: MouseEvent): void {
   if (!containerRef.value || !props.showTooltip) return
   const rect = containerRef.value.getBoundingClientRect()
+  containerRect.value = { left: rect.left, top: rect.top }
   const svgX = event.clientX - rect.left - resolvedMargin.value.left
 
   if (svgX < 0 || svgX > plotSize.value.width) {
     crosshairX.value = null
     nearestIndex.value = -1
     isHovering.value = false
+    tooltipData.value = null
     hideTooltip()
     return
   }
@@ -176,39 +195,60 @@ function onBodyMouseMove(event: MouseEvent): void {
   nearestIndex.value = idx
   crosshairX.value = dataPointXs.value[idx] ?? svgX
 
-  // Build rich tooltip content
-  const dateLabel = xAxisLabels.value[idx] ?? `#${idx + 1}`
-  const parts: string[] = []
+  // Build a structured tooltip payload rendered via template interpolation.
+  const header = xAxisLabels.value[idx] ?? `#${idx + 1}`
+  const rows: LineTooltipRow[] = []
   for (let si = 0; si < props.series.length; si++) {
     const s = props.series[si]
     const d = s.data[idx]
     if (d) {
-      const color = s.color ?? palette.value[si % palette.value.length]
-      parts.push(
-        `<span class="nm-chart__tooltip-row">` +
-          `<span class="nm-chart__tooltip-dot" style="background:${color}"></span>` +
-          `${s.name}: <strong>${d.value}</strong>` +
-          `</span>`
-      )
+      rows.push({
+        name: s.name,
+        value: d.value,
+        color: s.color ?? palette.value[si % palette.value.length],
+      })
     }
   }
-
+  tooltipData.value = { header, rows }
   tooltip.value = {
     visible: true,
     x: event.clientX,
     y: event.clientY,
-    content: `<div class="nm-chart__tooltip-header">${dateLabel}</div>${parts.join('')}`,
+    content: '',
     dataIndex: idx,
     seriesIndex: 0,
   }
 }
 
+function onBodyMouseMove(event: MouseEvent): void {
+  if (!props.showTooltip) return
+  lastMoveEvent = event
+  if (pendingFrame !== null) return
+  pendingFrame = requestAnimationFrame(() => {
+    pendingFrame = null
+    if (lastMoveEvent) processMouseMove(lastMoveEvent)
+  })
+}
+
 function onBodyMouseLeave(): void {
+  if (pendingFrame !== null) {
+    cancelAnimationFrame(pendingFrame)
+    pendingFrame = null
+  }
+  lastMoveEvent = null
   crosshairX.value = null
   nearestIndex.value = -1
   isHovering.value = false
+  tooltipData.value = null
   hideTooltip()
 }
+
+onBeforeUnmount(() => {
+  if (pendingFrame !== null) {
+    cancelAnimationFrame(pendingFrame)
+    pendingFrame = null
+  }
+})
 
 function onPointClick(pt: { dataIndex: number; seriesIndex: number; value: number }): void {
   emit('point-click', {
@@ -445,11 +485,18 @@ function onPointClick(pt: { dataIndex: number; seriesIndex: number; value: numbe
       <!-- Tooltip -->
       <Transition name="nm-chart-tooltip">
         <div
-          v-if="tooltip.visible && showTooltip"
+          v-if="tooltip.visible && showTooltip && tooltipData"
           class="nm-chart__tooltip"
           :style="tooltipStyle"
-          v-html="tooltip.content"
-        />
+        >
+          <div class="nm-chart__tooltip-header">{{ tooltipData.header }}</div>
+          <div v-for="(row, ri) in tooltipData.rows" :key="ri" class="nm-chart__tooltip-row">
+            <span class="nm-chart__tooltip-dot" :style="{ background: row.color }" />
+            <span
+              >{{ row.name }}: <strong>{{ row.value }}</strong></span
+            >
+          </div>
+        </div>
       </Transition>
     </div>
 
