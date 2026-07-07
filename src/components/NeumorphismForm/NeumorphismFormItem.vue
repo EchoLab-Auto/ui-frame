@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, inject, onMounted, onBeforeUnmount, watch } from 'vue'
+import { computed, ref, inject, onBeforeUnmount, watch } from 'vue'
 import { validateFieldValue } from '@/composables/useFormValidation'
 import type { FormRule } from '@/composables/useFormValidation'
 import { FormKey } from '@/composables/injectionKeys'
@@ -45,13 +45,10 @@ function clearError() {
   localError.value = ''
 }
 
-// Register with parent form when name is provided
-onMounted(() => {
-  if (props.name && form) {
-    form.registerField(props.name, validate)
-  }
-})
-
+// Register with parent form when name is provided (and re-register if the
+// name changes at runtime). The immediate watch covers both initial mount
+// and subsequent name changes, so a separate onMounted registration would
+// only double-register the same field.
 watch(
   () => props.name,
   (newName, oldName) => {

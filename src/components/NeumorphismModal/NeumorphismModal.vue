@@ -121,7 +121,7 @@ const classList = computed(() => ['nm-modal', `nm-modal--${resolvedSize.value}`]
             role="dialog"
             aria-modal="true"
             :aria-labelledby="title ? titleId : undefined"
-            :aria-label="!title ? resolvedCloseLabel || 'Dialog' : undefined"
+            :aria-label="!title ? 'Dialog' : undefined"
             :aria-describedby="contentId"
             tabindex="-1"
             @keydown="handleKeydown"

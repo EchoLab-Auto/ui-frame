@@ -1,4 +1,4 @@
-import { ref, computed, type Ref, type ComputedRef } from 'vue'
+import { ref, computed, onBeforeUnmount, type Ref, type ComputedRef } from 'vue'
 
 export interface SelectOption {
   label: string
@@ -48,6 +48,10 @@ export function useSelect(opts: UseSelectOptions): UseSelectReturn {
       typeaheadTimer = null
     }
   }
+
+  // Clear any pending typeahead timer if the component unmounts mid-keystroke,
+  // so the 500ms callback can't fire on a disposed instance.
+  onBeforeUnmount(resetTypeahead)
 
   function appendTypeahead(char: string) {
     typeaheadBuffer.value += char.toLowerCase()

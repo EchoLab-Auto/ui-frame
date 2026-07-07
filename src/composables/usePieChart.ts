@@ -12,9 +12,6 @@ export interface UsePieChartOptions {
   containerRef: Ref<HTMLElement | null>
   data: Ref<ChartDataPoint[]> | ComputedRef<ChartDataPoint[]>
   margin?: ChartMargin
-  showTooltip?: boolean
-  showLegend?: boolean
-  animate?: boolean
   innerRadius?: number
   outerRadius?: number
   padAngle?: number
@@ -53,9 +50,6 @@ export function usePieChart(options: UsePieChartOptions) {
     containerRef,
     data,
     margin,
-    showTooltip,
-    showLegend,
-    animate,
     innerRadius = 0,
     outerRadius: outerRadiusOpt,
     padAngle = 0.02,
@@ -77,9 +71,6 @@ export function usePieChart(options: UsePieChartOptions) {
     containerRef,
     series: wrappedSeries,
     margin: margin ?? PIE_MARGIN,
-    showTooltip,
-    showLegend,
-    animate,
   })
 
   const resolvedInnerRadius = computed(
@@ -260,13 +251,23 @@ function describeArc(
   rounded: boolean
 ): string {
   const largeArc = endAngle - startAngle > Math.PI ? 1 : 0
+  const sweep = endAngle - startAngle
+
+  // Rounded corner radius, clamped so the two corners of a slice never
+  // overlap and never exceed 18% of the outer radius. For very thin slices
+  // this collapses to 0 and we fall back to sharp corners.
+  const cornerR =
+    rounded && sweep > 0 ? Math.max(0, Math.min(outerR * 0.18, (sweep * outerR) / 2 - 1)) : 0
+  const useRounded = cornerR > 0
+  // Angular size of each rounded corner along the outer arc.
+  const da = useRounded ? cornerR / outerR : 0
 
   if (innerR <= 0) {
     // Standard pie (no hole)
     const start = polarToCartesian(cx, cy, outerR, startAngle)
     const end = polarToCartesian(cx, cy, outerR, endAngle)
 
-    if (rounded) {
+    if (!useRounded) {
       return [
         `M${cx},${cy}`,
         `L${start.x},${start.y}`,
@@ -275,10 +276,16 @@ function describeArc(
       ].join(' ')
     }
 
+    // Rounded "petal" corners: each straight edge stops `da` short of the
+    // outer arc, and a small arc (radius cornerR) rounds the transition.
+    const startBase = polarToCartesian(cx, cy, outerR, startAngle + da)
+    const endBase = polarToCartesian(cx, cy, outerR, endAngle - da)
     return [
       `M${cx},${cy}`,
-      `L${start.x},${start.y}`,
+      `L${startBase.x},${startBase.y}`,
+      `A${cornerR},${cornerR} 0 0 1 ${start.x},${start.y}`,
       `A${outerR},${outerR} 0 ${largeArc} 1 ${end.x},${end.y}`,
+      `A${cornerR},${cornerR} 0 0 1 ${endBase.x},${endBase.y}`,
       'Z',
     ].join(' ')
   }
@@ -289,9 +296,25 @@ function describeArc(
   const innerStart = polarToCartesian(cx, cy, innerR, endAngle)
   const innerEnd = polarToCartesian(cx, cy, innerR, startAngle)
 
+  if (!useRounded) {
+    return [
+      `M${outerStart.x},${outerStart.y}`,
+      `A${outerR},${outerR} 0 ${largeArc} 1 ${outerEnd.x},${outerEnd.y}`,
+      `L${innerStart.x},${innerStart.y}`,
+      `A${innerR},${innerR} 0 ${largeArc} 0 ${innerEnd.x},${innerEnd.y}`,
+      'Z',
+    ].join(' ')
+  }
+
+  // Rounded donut: round the two OUTER corners only (inner edge stays sharp,
+  // matching the common convention used by most chart libraries).
+  const outerStartBase = polarToCartesian(cx, cy, outerR, startAngle + da)
+  const outerEndBase = polarToCartesian(cx, cy, outerR, endAngle - da)
   return [
-    `M${outerStart.x},${outerStart.y}`,
+    `M${outerStartBase.x},${outerStartBase.y}`,
+    `A${cornerR},${cornerR} 0 0 1 ${outerStart.x},${outerStart.y}`,
     `A${outerR},${outerR} 0 ${largeArc} 1 ${outerEnd.x},${outerEnd.y}`,
+    `A${cornerR},${cornerR} 0 0 1 ${outerEndBase.x},${outerEndBase.y}`,
     `L${innerStart.x},${innerStart.y}`,
     `A${innerR},${innerR} 0 ${largeArc} 0 ${innerEnd.x},${innerEnd.y}`,
     'Z',

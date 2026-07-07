@@ -280,6 +280,10 @@ export const ConfigKey: InjectionKey<ComputedRef<NeumorphismGlobalConfig>> =
 
 const DEFAULT_CONFIG: NeumorphismGlobalConfig = {}
 
+// Module-level default so inject() doesn't allocate a fresh computed on every
+// useConfig() call (the default argument is eagerly evaluated each call).
+const DEFAULT_CONFIG_REF: ComputedRef<NeumorphismGlobalConfig> = computed(() => DEFAULT_CONFIG)
+
 /**
  * Returns the global config merged with component-level defaults.
  * Components should use this to resolve their props.
@@ -291,9 +295,5 @@ const DEFAULT_CONFIG: NeumorphismGlobalConfig = {}
  * ```
  */
 export function useConfig(): ComputedRef<NeumorphismGlobalConfig> {
-  const config = inject(
-    ConfigKey,
-    computed(() => DEFAULT_CONFIG)
-  )
-  return config
+  return inject(ConfigKey, DEFAULT_CONFIG_REF)
 }

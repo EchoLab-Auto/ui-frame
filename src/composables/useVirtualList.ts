@@ -146,7 +146,7 @@ export function useVirtualList(opts: UseVirtualListOptions): UseVirtualListRetur
     const cached = dynamicCache.get(index)
     if (cached !== undefined) return cached
     const h = fn(index)
-    dynamicCache.set(index, cached !== undefined ? cached : h)
+    dynamicCache.set(index, h)
     return h
   }
 
@@ -216,17 +216,27 @@ export function useVirtualList(opts: UseVirtualListOptions): UseVirtualListRetur
     offsetY.value = offsets[rawStart]
   }
 
-  // Invalidate dynamic height cache when the items array identity changes
+  // Invalidate dynamic height cache + recompute when the data changes.
+  // Watch BOTH the array reference (covers `items.value = newArr`) and its
+  // length (covers in-place mutation like push/splice/unshift, which keeps
+  // the same reference and so wouldn't trigger a plain reference watch).
+  watch([() => items.value, () => items.value.length], () => {
+    dynamicCache = new Map()
+    recalc()
+  })
+
+  // Recalculate when scroll position, viewport size, overscan, or the
+  // resolved item-height function changes. Clearing the cache on an
+  // item-height change matters for dynamic heights whose measured values
+  // depend on it; otherwise stale cached heights would linger.
   watch(
-    () => items.value,
+    [scrollTop, viewportHeight, overscan, itemHeightFn],
     () => {
       dynamicCache = new Map()
       recalc()
-    }
+    },
+    { deep: false, immediate: false }
   )
-
-  // Recalculate when scroll position, viewport size, or overscan changes
-  watch([scrollTop, viewportHeight, overscan], () => recalc(), { deep: false, immediate: false })
 
   const visibleItems = computed(() => {
     return items.value.slice(startIndex.value, endIndex.value)

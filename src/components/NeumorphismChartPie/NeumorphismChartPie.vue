@@ -64,9 +64,6 @@ const {
   startAngle: props.startAngle,
   labelPosition: props.labelPosition,
   roundedCorners: props.roundedCorners,
-  showTooltip: props.showTooltip,
-  showLegend: props.showLegend,
-  animate: props.animate,
   colorPalette: props.colorPalette,
 })
 
@@ -86,8 +83,13 @@ const containerStyle = computed(() => ({
 }))
 
 const ariaLabel = computed(() => {
-  const items = props.data.map(d => `${d.label ?? ''}: ${d.value}`).join(', ')
-  return `Pie chart: ${items}`
+  // Keep the label concise for screen readers — concatenating every segment
+  // produces an unwieldy run-on sentence. Detailed values remain available
+  // visually and via the hover tooltip.
+  const count = props.data.length
+  if (count === 0) return 'Pie chart: empty'
+  const total = props.data.reduce((sum, d) => sum + d.value, 0)
+  return `Pie chart with ${count} ${count === 1 ? 'segment' : 'segments'}, total ${total}`
 })
 
 const shouldAnimate = computed(() => props.animate && !reducedMotion.value)

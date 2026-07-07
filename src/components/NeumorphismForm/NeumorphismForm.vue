@@ -101,8 +101,15 @@ provide(FormKey, {
     return props.rules
   },
   errors,
-  labelWidth: props.labelWidth,
-  size: props.size,
+  // Use getters (like model/rules above) so children read the latest values
+  // when the parent updates these props at runtime, instead of a setup-time
+  // snapshot.
+  get labelWidth() {
+    return props.labelWidth
+  },
+  get size() {
+    return props.size
+  },
   validateField,
   registerField,
   unregisterField,

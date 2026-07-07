@@ -90,6 +90,16 @@ describe('createTheme', () => {
     theme.dispose()
   })
 
+  it('should ignore an invalid stored theme and fall back to default', () => {
+    // A stale/tampered localStorage value must not be cast to a live theme,
+    // or isDark would silently degrade to a permanent light theme.
+    localStorage.setItem('nm-theme-preference', 'not-a-real-theme')
+    const theme = createTheme({ defaultTheme: 'light' })
+    expect(theme.theme.value).toBe('light')
+    expect(theme.isDark.value).toBe(false)
+    theme.dispose()
+  })
+
   it('should use custom storage key', () => {
     localStorage.setItem('my-app-theme', 'dark')
     const theme = createTheme({ storageKey: 'my-app-theme' })

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watch, nextTick } from 'vue'
+import { computed, ref, watch, nextTick, onBeforeUnmount } from 'vue'
 import { useSelect } from '@/composables/useSelect'
 import type { SelectOption } from '@/composables/useSelect'
 import { useFormField } from '@/composables/useFormField'
@@ -106,9 +106,12 @@ const dropdownPosition = ref({ top: 0, left: 0, width: 0 })
 function updateDropdownPosition() {
   if (!triggerRef.value || typeof window === 'undefined') return
   const rect = triggerRef.value.getBoundingClientRect()
+  // The dropdown uses position:fixed and is teleported to <body>, so
+  // getBoundingClientRect() already returns viewport coordinates — adding
+  // window.scrollY/scrollX here would shift the dropdown by the scroll offset.
   dropdownPosition.value = {
-    top: rect.bottom + window.scrollY + 6,
-    left: rect.left + window.scrollX,
+    top: rect.bottom + 6,
+    left: rect.left,
     width: rect.width,
   }
 }
@@ -125,6 +128,17 @@ watch(isOpen, open => {
       window.removeEventListener('scroll', updateDropdownPosition, true)
       window.removeEventListener('resize', updateDropdownPosition)
     }
+  }
+})
+
+// Remove listeners even if the component unmounts while the dropdown is open.
+// The watch above only runs its cleanup branch when isOpen flips to false,
+// so an open dropdown destroyed via v-if / route change would otherwise leak
+// the window scroll/resize listeners (and the triggerRef closure they hold).
+onBeforeUnmount(() => {
+  if (typeof window !== 'undefined') {
+    window.removeEventListener('scroll', updateDropdownPosition, true)
+    window.removeEventListener('resize', updateDropdownPosition)
   }
 })
 

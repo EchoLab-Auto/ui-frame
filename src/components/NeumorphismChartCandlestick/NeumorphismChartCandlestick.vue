@@ -83,10 +83,8 @@ const {
   maPeriods: props.maPeriods,
   upColor: props.upColor,
   downColor: props.downColor,
-  showTooltip: props.showTooltip,
   showGrid: props.showGrid,
   showAxis: props.showAxis,
-  animate: props.animate,
 })
 
 const svgWidth = computed(

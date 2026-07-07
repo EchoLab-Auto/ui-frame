@@ -44,11 +44,11 @@
 @keyframes nm-pulse-glow {
   0%,
   100% {
-    box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 0 4px var(--nm-shadow-ambient-xl);
   }
   50% {
     box-shadow:
-      0 0 12px rgba(0, 0, 0, 0.2),
+      0 0 12px var(--nm-shadow-dark-strong),
       0 0 20px var(--nm-primary-color);
   }
 }

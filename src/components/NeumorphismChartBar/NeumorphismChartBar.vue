@@ -56,9 +56,6 @@ const {
 } = useBarChart({
   containerRef,
   series: computed(() => props.series),
-  showTooltip: props.showTooltip,
-  showLegend: props.showLegend,
-  animate: props.animate,
   yMin: props.yMin,
   yMax: props.yMax,
 })

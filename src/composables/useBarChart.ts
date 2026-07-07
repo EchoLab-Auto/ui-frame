@@ -12,9 +12,6 @@ export interface UseBarChartOptions {
   containerRef: Ref<HTMLElement | null>
   series: Ref<ChartSeries[]> | ComputedRef<ChartSeries[]>
   margin?: ChartMargin
-  showTooltip?: boolean
-  showLegend?: boolean
-  animate?: boolean
   orientation?: 'vertical' | 'horizontal'
   barGap?: number
   stacked?: boolean
@@ -44,9 +41,6 @@ export function useBarChart(options: UseBarChartOptions) {
     containerRef,
     series,
     margin,
-    showTooltip,
-    showLegend,
-    animate,
     orientation = 'vertical',
     barGap = 0.2,
     stacked = false,
@@ -58,9 +52,6 @@ export function useBarChart(options: UseBarChartOptions) {
     containerRef,
     series,
     margin,
-    showTooltip,
-    showLegend,
-    animate,
   })
 
   const resolvedOrientation = computed(

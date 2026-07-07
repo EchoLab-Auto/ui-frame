@@ -46,7 +46,12 @@ function getSystemTheme(): 'light' | 'dark' {
 function getStoredTheme(storageKey: string): Theme | null {
   if (typeof window === 'undefined') return null
   try {
-    return localStorage.getItem(storageKey) as Theme | null
+    const stored = localStorage.getItem(storageKey)
+    // Validate against the known set — a stale/tampered value must not be
+    // treated as a live theme, or isDark would silently degrade to a
+    // permanent light theme.
+    if (stored === 'light' || stored === 'dark' || stored === 'auto') return stored
+    return null
   } catch {
     return null
   }

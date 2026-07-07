@@ -60,12 +60,10 @@ export interface UseChartOptions {
   series: Ref<ChartSeries[]> | ComputedRef<ChartSeries[]>
   /** Margin around the plot area (default: { top: 24, right: 24, bottom: 40, left: 48 }) */
   margin?: ChartMargin
-  /** Show tooltip on hover (default: true) */
-  showTooltip?: boolean
-  /** Show legend (passed through to component) */
-  showLegend?: boolean
-  /** Enable animations (default: true) */
-  animate?: boolean
+  // Note: showTooltip / showLegend / animate are intentionally NOT accepted here.
+  // They are purely presentational and are enforced by the .vue components
+  // (shouldAnimate, v-if="tooltip.visible && showTooltip", v-if="showLegend").
+  // Accepting but silently ignoring them would violate the public contract.
 }
 
 const DEFAULT_MARGIN: ChartMargin = { top: 24, right: 24, bottom: 40, left: 48 }
@@ -153,11 +151,37 @@ export function useChart(options: UseChartOptions) {
   }))
 
   // ---- Palette from CSS custom properties ----
+  // CSS custom properties are not reactive, so we track the active theme via
+  // the `data-theme` attribute on <html> (toggled by useTheme) and re-read the
+  // variables whenever it changes. Without this, charts would keep their
+  // mount-time colors after a light/dark switch.
+  const themeAttr = ref('')
+  let themeObserver: MutationObserver | null = null
+
   const palette = computed<string[]>(() => {
+    void themeAttr.value // depend on theme switches
+    if (typeof document === 'undefined') return []
     const styles = getComputedStyle(document.documentElement)
     return DEFAULT_COLOR_VARS.map(varName => styles.getPropertyValue(varName).trim()).filter(
       Boolean
     )
+  })
+
+  onMounted(() => {
+    if (typeof document === 'undefined') return
+    themeAttr.value = document.documentElement.getAttribute('data-theme') ?? ''
+    themeObserver = new MutationObserver(() => {
+      themeAttr.value = document.documentElement.getAttribute('data-theme') ?? ''
+    })
+    themeObserver.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['data-theme'],
+    })
+  })
+
+  onBeforeUnmount(() => {
+    themeObserver?.disconnect()
+    themeObserver = null
   })
 
   // ---- Tooltip state ----
