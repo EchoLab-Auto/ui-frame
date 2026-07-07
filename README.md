@@ -58,7 +58,7 @@ import '@echolab-auto/ui-frame/dist/style.css'
 </template>
 ```
 
-## 组件列表（46 个）
+## 组件列表（50+ 个）
 
 ### 基础输入
 
@@ -85,18 +85,22 @@ import '@echolab-auto/ui-frame/dist/style.css'
 
 ### 数据展示
 
-| 组件                     | 说明                     | 关键属性                                  |
-| ------------------------ | ------------------------ | ----------------------------------------- |
-| `NeumorphismCard`        | 卡片容器（台阶高度模型） | `elevation`(-4~4), `hoverable`, `radius`  |
-| `NeumorphismAvatar`      | 头像                     | `src`, `size`, `shape`, `initials`        |
-| `NeumorphismBadge`       | 角标/红点                | `value`, `dot`, `max`                     |
-| `NeumorphismTag`         | 标签                     | `variant`, `size`, `rounded`              |
-| `NeumorphismProgress`    | 进度条                   | `percentage`, `variant`, `striped`        |
-| `NeumorphismSkeleton`    | 骨架屏                   | `variant`, `animation`                    |
-| `NeumorphismTable`       | 数据表格                 | `columns`, `data`, `striped`, `hoverable` |
-| `NeumorphismTree`        | 树形控件（键盘导航）     | `data`, `selectedKeys`, `showSearch`      |
-| `NeumorphismList`        | 列表                     | `items`, `bordered`, `loading`            |
-| `NeumorphismVirtualList` | 虚拟滚动列表             | `items`, `itemHeight`, `overscan`         |
+| 组件                          | 说明                     | 关键属性                                  |
+| ----------------------------- | ------------------------ | ----------------------------------------- |
+| `NeumorphismCard`             | 卡片容器（台阶高度模型） | `elevation`(-4~4), `hoverable`, `radius`  |
+| `NeumorphismAvatar`           | 头像                     | `src`, `size`, `shape`, `initials`        |
+| `NeumorphismBadge`            | 角标/红点                | `value`, `dot`, `max`                     |
+| `NeumorphismTag`              | 标签                     | `variant`, `size`, `rounded`              |
+| `NeumorphismProgress`         | 进度条                   | `percentage`, `variant`, `striped`        |
+| `NeumorphismSkeleton`         | 骨架屏                   | `variant`, `animation`                    |
+| `NeumorphismTable`            | 数据表格                 | `columns`, `data`, `striped`, `hoverable` |
+| `NeumorphismTree`             | 树形控件（键盘导航）     | `data`, `selectedKeys`, `showSearch`      |
+| `NeumorphismList`             | 列表                     | `items`, `bordered`, `loading`            |
+| `NeumorphismVirtualList`      | 虚拟滚动列表             | `items`, `itemHeight`, `overscan`         |
+| `NeumorphismChartBar`         | 柱状图                   | `series`, `stacked`, `orientation`        |
+| `NeumorphismChartLine`        | 折线图                   | `series`, `curve`, `area`, `showPoints`   |
+| `NeumorphismChartPie`         | 饼图/环图                | `data`, `innerRadius`, `roundedCorners`   |
+| `NeumorphismChartCandlestick` | K 线图                   | `data`, `showMA`, `showVolume`            |
 
 ### 反馈
 
