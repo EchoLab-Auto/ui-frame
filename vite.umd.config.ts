@@ -1,8 +1,12 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { resolve } from 'path'
+import pkg from './package.json'
 
 export default defineConfig({
+  define: {
+    __VERSION__: JSON.stringify(pkg.version),
+  },
   plugins: [vue()],
   css: {
     preprocessorOptions: {
@@ -24,7 +28,7 @@ export default defineConfig({
       fileName: () => 'ui-frame.umd.cjs',
     },
     rollupOptions: {
-      external: ['vue', 'marked', 'mermaid'],
+      external: ['vue', 'marked', 'mermaid', 'dompurify'],
       output: {
         exports: 'named',
         globals: {

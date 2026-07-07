@@ -358,5 +358,5 @@ export function install(
 // Default export (for app.use())
 export default {
   install,
-  version: '__VERSION__',
+  version: __VERSION__,
 }

@@ -4,6 +4,7 @@ import dts from 'vite-plugin-dts'
 import { libInjectCss } from 'vite-plugin-lib-inject-css'
 import { resolve } from 'path'
 import { readdirSync, existsSync } from 'fs'
+import pkg from './package.json'
 
 // ---- 自动扫描组件目录 ----
 const componentDirs = readdirSync(resolve(__dirname, 'src/components'), { withFileTypes: true })
@@ -41,6 +42,9 @@ for (const file of composableFiles) {
 }
 
 export default defineConfig({
+  define: {
+    __VERSION__: JSON.stringify(pkg.version),
+  },
   plugins: [
     vue(),
     libInjectCss(),
@@ -69,7 +73,7 @@ export default defineConfig({
       fileName: (format, entryName) => `${entryName}.js`,
     },
     rollupOptions: {
-      external: ['vue', 'marked', 'mermaid'],
+      external: ['vue', 'marked', 'mermaid', 'dompurify'],
       output: {
         exports: 'named',
         globals: {
