@@ -114,6 +114,7 @@ const navCategories = [
       { id: 'progress', label: '进度条 Progress' },
       { id: 'skeleton', label: '骨架屏 Skeleton' },
       { id: 'divider', label: '分割线 Divider' },
+      { id: 'scrollbar', label: '滚动条 Scrollbar' },
       { id: 'chart', label: '图表 Chart' },
     ],
   },
@@ -606,7 +607,7 @@ const chartStockData = ref([
 
 <template>
   <div class="showcase" :data-theme="isDark ? 'dark' : undefined">
-    <NeumorphismLayout show-header show-sider :sider-width="220" collapsible>
+    <NeumorphismLayout :show-header="false" show-sider :sider-width="220" collapsible>
       <!-- ===== HEADER ===== -->
       <template #header-left>
         <span class="brand">@echolab-auto/ui-frame</span>
@@ -636,6 +637,7 @@ const chartStockData = ref([
 
       <!-- ===== MAIN CONTENT ===== -->
       <template #default>
+        <NeumorphismScrollbar variant="dots" target=".showcase .nm-layout__content" />
         <div class="content-inner">
           <!-- Hero / 简介 -->
           <section class="hero">
@@ -728,24 +730,6 @@ const chartStockData = ref([
                   />
                   <p class="demo-hint">同一套 useSelect 逻辑驱动</p>
                 </div>
-
-                <!-- 代码示意 -->
-                <div style="flex: 1; min-width: 280px">
-                  <h4 class="demo-label">使用方式</h4>
-                  <pre class="code-block"><code>import { useSelect } from '@echolab-auto/ui-frame'
-
-const { isOpen, selectedOption, toggleOpen,
-  selectOption, handleKeydown } = useSelect({
-  modelValue: myValue,
-  options: myOptions,
-})
-
-// 用你自己的 UI 渲染！
-// &lt;div @click="toggleOpen" @keydown="handleKeydown"&gt;
-//   &lt;span&gt;{{ selectedOption?.label }}&lt;/span&gt;
-//   &lt;div v-if="isOpen"&gt;...options...&lt;/div&gt;
-// &lt;/div&gt;</code></pre>
-                </div>
               </div>
             </NeumorphismCard>
 
@@ -796,26 +780,6 @@ const { isOpen, selectedOption, toggleOpen,
                   <p class="demo-hint">
                     当前第 <strong>{{ hsCurrentPage }}</strong> / {{ hsTotalPages }} 页
                   </p>
-                </div>
-
-                <!-- 代码示意 -->
-                <div style="flex: 1; min-width: 260px">
-                  <h4 class="demo-label">使用方式</h4>
-                  <pre
-                    class="code-block"
-                  ><code>import { usePagination } from '@echolab-auto/ui-frame'
-
-const {
-  currentPage, totalPages, visiblePages,
-  changePage, prevPage, nextPage,
-  isPrevDisabled, isNextDisabled,
-} = usePagination({
-  modelValue: page,
-  total: computed(() => 100),
-  pageSize: computed(() => 10),
-})
-
-// 完全自定义 UI，省略号逻辑自动处理</code></pre>
                 </div>
               </div>
             </NeumorphismCard>
@@ -874,17 +838,6 @@ const {
                   </div>
                 </transition-group>
               </div>
-
-              <pre
-                class="code-block"
-                style="margin-top: 14px"
-              ><code>import { useToast } from '@echolab-auto/ui-frame'
-
-const { toasts, addToast, removeToast } = useToast({ maxCount: 5 })
-
-addToast({ message: '已保存!', type: 'success', duration: 3000 })
-
-// 完全自定义 Toast 外观 — emoji、颜色、动画都由你决定</code></pre>
             </NeumorphismCard>
 
             <!-- ===== Named Slot Demo ===== -->
@@ -983,62 +936,10 @@ addToast({ message: '已保存!', type: 'success', duration: 3000 })
               </template>
 
               <div class="demo-row" style="gap: 32px; align-items: flex-start; flex-wrap: wrap">
-                <div style="flex: 1; min-width: 300px">
-                  <h4 class="demo-label">配置示例（examples/main.ts）</h4>
-                  <pre class="code-block"><code>app.use(NeumorphismUI, {
-  button: { size: 'medium' },
-  input: { size: 'medium' },
-  select: { size: 'medium', clearable: true },
-  modal: { maskClosable: true },
-  toast: { position: 'top-right', maxCount: 5 },
-  pagination: { showTotal: false },
-})</code></pre>
-                  <p class="demo-hint" style="margin-top: 10px">
-                    所有通过 <code>app.use</code> 传入的配置将作为全局默认值。组件自身的 props
-                    仍可覆盖。
-                  </p>
-                </div>
-
-                <div style="flex: 1; min-width: 280px">
-                  <h4 class="demo-label">CSS 设计 Token 覆盖示例</h4>
-                  <pre class="code-block"><code>/* 在项目中覆盖任意 Token */
-:root {
-  --nm-button-padding-y-md: 16px;
-  --nm-button-font-md: 16px;
-  --nm-border-radius-md: 20px;
-  --nm-modal-max-width-md: 640px;
-  --nm-toast-min-width: 320px;
-  --nm-pagination-btn-height-md: 44px;
-}</code></pre>
-                  <p class="demo-hint" style="margin-top: 10px">
-                    120+ CSS 自定义属性覆盖组件每个尺寸细节，无需修改组件源码。
-                  </p>
-                </div>
-              </div>
-
-              <div style="margin-top: 20px">
-                <h4 class="demo-label">Headless Composables 完整导出列表</h4>
-                <div class="headless-export-grid">
-                  <code
-                    v-for="name in [
-                      'useSelect',
-                      'useTabs',
-                      'usePagination',
-                      'useTree',
-                      'useCollapse',
-                      'useModal',
-                      'useToast',
-                      'useTooltip',
-                      'useTouchDevice',
-                      'useCheckable',
-                      'useFormField',
-                      'validateFieldValue',
-                    ]"
-                    :key="name"
-                    class="headless-export-tag"
-                    >{{ name }}</code
-                  >
-                </div>
+                <p class="demo-hint">
+                  所有通过 <code>app.use</code> 传入的配置将作为全局默认值，组件自身的 props
+                  仍可覆盖。120+ CSS 自定义属性覆盖组件每个尺寸细节，无需修改组件源码。
+                </p>
               </div>
             </NeumorphismCard>
           </section>
@@ -1599,7 +1500,7 @@ addToast({ message: '已保存!', type: 'success', duration: 3000 })
               <template #header>
                 <div class="demo-header">
                   <h3 class="demo-title">NeumorphismProgress 进度条</h3>
-                  <span class="demo-badge">不确定 · 条纹 · 标签</span>
+                  <span class="demo-badge">动效 · 不确定 · 条纹 · 标签</span>
                 </div>
               </template>
 
@@ -1639,6 +1540,98 @@ addToast({ message: '已保存!', type: 'success', duration: 3000 })
                   >
                     {{ indeterminate ? '停止' : '不确定模式' }}
                   </NeumorphismButton>
+                </div>
+              </div>
+
+              <div class="demo-block">
+                <h4 class="demo-label">视觉动效</h4>
+                <div class="demo-row demo-row--stacked form-demo-width" style="gap: 14px">
+                  <div style="display: flex; align-items: center; gap: 10px; width: 100%">
+                    <span
+                      style="
+                        font-size: 12px;
+                        color: var(--nm-text-secondary);
+                        min-width: 72px;
+                        text-align: right;
+                      "
+                      >default</span
+                    >
+                    <NeumorphismProgress
+                      :model-value="progressVal"
+                      variant="primary"
+                      effect="default"
+                      :show-label="true"
+                      style="flex: 1"
+                    />
+                  </div>
+                  <div style="display: flex; align-items: center; gap: 10px; width: 100%">
+                    <span
+                      style="
+                        font-size: 12px;
+                        color: var(--nm-text-secondary);
+                        min-width: 72px;
+                        text-align: right;
+                      "
+                      >gradient</span
+                    >
+                    <NeumorphismProgress
+                      :model-value="progressVal"
+                      variant="primary"
+                      effect="gradient"
+                      style="flex: 1"
+                    />
+                  </div>
+                  <div style="display: flex; align-items: center; gap: 10px; width: 100%">
+                    <span
+                      style="
+                        font-size: 12px;
+                        color: var(--nm-text-secondary);
+                        min-width: 72px;
+                        text-align: right;
+                      "
+                      >striped</span
+                    >
+                    <NeumorphismProgress
+                      :model-value="progressVal"
+                      variant="primary"
+                      effect="striped"
+                      style="flex: 1"
+                    />
+                  </div>
+                  <div style="display: flex; align-items: center; gap: 10px; width: 100%">
+                    <span
+                      style="
+                        font-size: 12px;
+                        color: var(--nm-text-secondary);
+                        min-width: 72px;
+                        text-align: right;
+                      "
+                      >glow</span
+                    >
+                    <NeumorphismProgress
+                      :model-value="progressVal"
+                      variant="primary"
+                      effect="glow"
+                      style="flex: 1"
+                    />
+                  </div>
+                  <div style="display: flex; align-items: center; gap: 10px; width: 100%">
+                    <span
+                      style="
+                        font-size: 12px;
+                        color: var(--nm-text-secondary);
+                        min-width: 72px;
+                        text-align: right;
+                      "
+                      >segmented</span
+                    >
+                    <NeumorphismProgress
+                      :model-value="progressVal"
+                      variant="primary"
+                      effect="segmented"
+                      style="flex: 1"
+                    />
+                  </div>
                 </div>
               </div>
 
@@ -1730,6 +1723,118 @@ addToast({ message: '已保存!', type: 'success', duration: 3000 })
                   <NeumorphismDivider direction="vertical" dashed />
                   <span>右侧</span>
                 </div>
+              </div>
+            </NeumorphismCard>
+
+            <!-- 滚动条 -->
+            <NeumorphismCard id="scrollbar" :elevation="1" class="demo-card">
+              <template #header>
+                <div class="demo-header">
+                  <h3 class="demo-title">定制滚动条</h3>
+                  <span class="demo-badge">6 种预设变体 · CSS 变量可调</span>
+                </div>
+              </template>
+
+              <div class="demo-block">
+                <h4 class="demo-label">预设变体一览</h4>
+                <div class="demo-row" style="gap: 16px; flex-wrap: wrap">
+                  <template
+                    v-for="s in [
+                      { cls: 'nm-scrollbar--standard', label: 'standard' },
+                      { cls: 'nm-scrollbar--minimal', label: 'minimal' },
+                      { cls: 'nm-scrollbar--primary', label: 'primary' },
+                      { cls: 'nm-scrollbar--none', label: 'none' },
+                    ]"
+                    :key="s.label"
+                  >
+                    <div
+                      :class="s.cls"
+                      style="
+                        flex: 1;
+                        min-width: 150px;
+                        max-height: 160px;
+                        overflow-y: auto;
+                        background: var(--nm-surface-color);
+                        border-radius: var(--nm-border-radius-md);
+                        padding: 12px;
+                        font-size: 13px;
+                        color: var(--nm-text-secondary);
+                        line-height: 1.8;
+                      "
+                    >
+                      <div
+                        style="font-weight: 600; color: var(--nm-text-primary); margin-bottom: 6px"
+                      >
+                        {{ s.label }}
+                      </div>
+                      <div v-for="i in 20" :key="i">占位行 {{ i }}</div>
+                    </div>
+                  </template>
+                  <!-- dots: framework NeumorphismScrollbar with variant="dots" -->
+                  <div
+                    id="dots-demo-container"
+                    style="
+                      flex: 1;
+                      min-width: 150px;
+                      max-height: 160px;
+                      overflow-y: auto;
+                      background: var(--nm-surface-color);
+                      border-radius: var(--nm-border-radius-md);
+                      padding: 12px;
+                      font-size: 13px;
+                      color: var(--nm-text-secondary);
+                      line-height: 1.8;
+                    "
+                  >
+                    <div
+                      style="font-weight: 600; color: var(--nm-text-primary); margin-bottom: 6px"
+                    >
+                      dots
+                    </div>
+                    <div v-for="i in 20" :key="i">占位行 {{ i }}</div>
+                  </div>
+                  <NeumorphismScrollbar
+                    variant="dots"
+                    target="#dots-demo-container"
+                    dot-color="153,153,153"
+                    accent-color="205,250,78"
+                  />
+                </div>
+              </div>
+
+              <div class="demo-block" style="margin-top: 20px">
+                <h4 class="demo-label">CSS 变量定制度</h4>
+                <div
+                  class="nm-scrollbar--standard"
+                  :style="{
+                    '--nm-scrollbar-width': '8px',
+                    '--nm-scrollbar-thumb-bg': 'var(--nm-primary-color)',
+                    '--nm-scrollbar-thumb-radius': '4px',
+                    '--nm-scrollbar-thumb-shadow':
+                      '0 0 10px color-mix(in srgb, var(--nm-primary-color) 50%, transparent)',
+                  }"
+                  style="
+                    max-height: 140px;
+                    overflow-y: auto;
+                    background: var(--nm-surface-color);
+                    border-radius: var(--nm-border-radius-md);
+                    padding: 12px 16px;
+                    font-size: 13px;
+                    color: var(--nm-text-secondary);
+                    line-height: 1.8;
+                  "
+                >
+                  <div style="font-weight: 600; color: var(--nm-text-primary); margin-bottom: 6px">
+                    自定义宽度 8px · 主色 · 发光
+                  </div>
+                  <div v-for="i in 20" :key="i">通过覆盖 --nm-scrollbar-* 变量实现精确定制</div>
+                </div>
+                <pre
+                  class="code-block"
+                  style="margin-top: 12px; font-size: 11px"
+                ><code>--nm-scrollbar-width: 8px;
+--nm-scrollbar-thumb-bg: var(--nm-primary-color);
+--nm-scrollbar-thumb-shadow: 0 0 10px ...;</code></pre>
               </div>
             </NeumorphismCard>
           </section>

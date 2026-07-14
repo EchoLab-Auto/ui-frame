@@ -92,6 +92,7 @@ export interface NeumorphismGlobalConfig {
     variant?: 'primary' | 'success' | 'warning' | 'error'
     size?: 'small' | 'medium' | 'large'
     showLabel?: boolean
+    effect?: 'default' | 'gradient' | 'striped' | 'glow' | 'segmented'
   }
   /** Default avatar props */
   avatar?: {

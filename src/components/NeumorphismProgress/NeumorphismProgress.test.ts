@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
+import { ConfigKey } from '@/composables/useConfig'
 import NeumorphismProgress from './NeumorphismProgress.vue'
 
 describe('NeumorphismProgress', () => {
@@ -37,17 +38,58 @@ describe('NeumorphismProgress', () => {
     expect(wrapper.attributes('aria-valuemax')).toBe('100')
   })
 
-  it('should apply striped class', () => {
+  it('should apply striped class for backward compatibility', () => {
     const wrapper = mount(NeumorphismProgress, {
       props: { modelValue: 60, striped: true },
     })
     expect(wrapper.classes()).toContain('nm-progress--striped')
+    expect(wrapper.classes()).toContain('nm-progress--effect-striped')
   })
 
-  it('should handle indeterminate mode', () => {
+  it('should apply effect classes', () => {
+    const effects = ['gradient', 'glow', 'segmented'] as const
+    effects.forEach(effect => {
+      const wrapper = mount(NeumorphismProgress, {
+        props: { modelValue: 60, effect },
+      })
+      expect(wrapper.classes()).toContain(`nm-progress--effect-${effect}`)
+    })
+  })
+
+  it('should let explicit effect prop override striped boolean', () => {
+    const wrapper = mount(NeumorphismProgress, {
+      props: { modelValue: 60, effect: 'gradient', striped: true },
+    })
+    expect(wrapper.classes()).toContain('nm-progress--effect-gradient')
+    expect(wrapper.classes()).not.toContain('nm-progress--effect-striped')
+    expect(wrapper.classes()).not.toContain('nm-progress--striped')
+  })
+
+  it('should apply effect from global config', () => {
+    const wrapper = mount(NeumorphismProgress, {
+      props: { modelValue: 60 },
+      global: {
+        provide: {
+          [ConfigKey]: {
+            value: {
+              progress: {
+                effect: 'glow',
+              },
+            },
+          },
+        },
+      },
+    })
+    expect(wrapper.classes()).toContain('nm-progress--effect-glow')
+  })
+
+  it('should handle indeterminate mode with ARIA busy state', () => {
     const wrapper = mount(NeumorphismProgress, {
       props: { modelValue: 0, indeterminate: true },
     })
     expect(wrapper.classes()).toContain('nm-progress--indeterminate')
+    expect(wrapper.attributes('aria-busy')).toBe('true')
+    expect(wrapper.attributes('aria-valuetext')).toBeTruthy()
+    expect(wrapper.attributes('aria-valuenow')).toBeUndefined()
   })
 })

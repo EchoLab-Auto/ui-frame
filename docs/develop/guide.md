@@ -19,6 +19,7 @@
 - [国际化](#国际化)
 - [弹出层与下拉菜单](#弹出层与下拉菜单)
 - [提示与空状态](#提示与空状态)
+- [进度条动效](#进度条动效)
 - [文件上传](#文件上传)
 - [导航模式](#导航模式)
 - [步骤流程](#步骤流程)
@@ -294,7 +295,7 @@ const formRules = {
 | Token                   | 说明     | 默认值（亮色） |
 | ----------------------- | -------- | -------------- |
 | `--nm-bg-color`         | 背景色   | `#e0e0e0`      |
-| `--nm-primary-color`    | 主色     | `#6c7ae0`      |
+| `--nm-primary-color`    | 主色     | `#cdfa4e`      |
 | `--nm-border-radius-md` | 中等圆角 | `16px`         |
 | `--nm-transition-fast`  | 快速过渡 | `0.2s ease`    |
 
@@ -567,6 +568,33 @@ const items = [
   </NeumorphismEmpty>
 </template>
 ```
+
+---
+
+## 进度条动效
+
+`NeumorphismProgress` 在默认的横向进度条基础上提供多种视觉动效，通过 `effect` 属性切换。`striped` 布尔属性仍保留，等价于 `effect="striped"`。
+
+```vue
+<template>
+  <NeumorphismProgress :model-value="60" />
+  <NeumorphismProgress :model-value="60" effect="gradient" />
+  <NeumorphismProgress :model-value="60" effect="striped" />
+  <NeumorphismProgress :model-value="60" effect="glow" />
+  <NeumorphismProgress :model-value="60" effect="segmented" />
+  <NeumorphismProgress :model-value="60" indeterminate />
+</template>
+```
+
+**效果说明：**
+
+- `default`：默认效果，带柔和扫光。
+- `gradient`：渐变填充并缓慢流动。
+- `striped`：对角条纹并滚动（与 `striped` 属性等价）。
+- `glow`：发光脉冲效果。
+- `segmented`：分段块状进度。
+
+**优先级**：显式 `effect` > `striped` > 全局配置 `progress.effect` > `default`。例如 `effect="gradient" striped` 会渲染渐变效果。
 
 ---
 

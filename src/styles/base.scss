@@ -202,26 +202,36 @@
 }
 
 // ---------- Custom Scrollbar (Neumorphism) ----------
+// CSS Variables for optional granular override.
+// Each .nm-scrollbar--* preset class applies full scrollbar styles directly.
 .nm-root,
 .nm-theme-default,
 [data-theme='dark'],
 .nm-theme-dark {
+  --nm-scrollbar-width: 5px;
+  --nm-scrollbar-track-bg: transparent;
+  --nm-scrollbar-thumb-bg: var(--nm-surface-raised);
+  --nm-scrollbar-thumb-hover-bg: var(--nm-surface-color);
+  --nm-scrollbar-thumb-radius: var(--nm-border-radius-sm);
+  --nm-scrollbar-thumb-shadow:
+    4px 4px 10px var(--nm-shadow-dark-strong), -3px -3px 8px var(--nm-shadow-light-strong);
+
   // Firefox
   scrollbar-width: thin;
-  scrollbar-color: var(--nm-surface-raised) transparent;
+  scrollbar-color: var(--nm-scrollbar-thumb-bg) var(--nm-scrollbar-track-bg);
 
-  // WebKit
-  & ::-webkit-scrollbar {
+  // WebKit — hardcoded so it always works
+  &::-webkit-scrollbar {
     width: 5px;
     height: 5px;
   }
 
-  & ::-webkit-scrollbar-track {
+  &::-webkit-scrollbar-track {
     background: transparent;
     box-shadow: none;
   }
 
-  & ::-webkit-scrollbar-thumb {
+  &::-webkit-scrollbar-thumb {
     background: var(--nm-surface-raised);
     border-radius: var(--nm-border-radius-sm);
     box-shadow:
@@ -230,11 +240,83 @@
     transition: background var(--nm-transition-fast);
   }
 
-  & ::-webkit-scrollbar-thumb:hover {
+  &::-webkit-scrollbar-thumb:hover {
     background: var(--nm-surface-color);
   }
 
-  & ::-webkit-scrollbar-corner {
+  &::-webkit-scrollbar-corner {
     background: transparent;
+  }
+}
+
+// Remove the generic glue rule — each preset below writes its own
+// ::-webkit-scrollbar rules directly, avoiding CSS variable inheritance issues.
+
+// ==========================================
+// Scrollbar Preset Variants
+// Each preset writes ::-webkit-scrollbar rules directly (no CSS var inheritance).
+// ==========================================
+
+// Standard: identical to .nm-root defaults
+.nm-scrollbar--standard {
+  scrollbar-width: thin;
+}
+
+// Minimal: ultra-thin, barely visible
+.nm-scrollbar--minimal {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(128, 128, 128, 0.25) transparent;
+
+  &::-webkit-scrollbar {
+    width: 3px;
+    height: 3px;
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: rgba(128, 128, 128, 0.25);
+    border-radius: 2px;
+    box-shadow: none;
+  }
+  &::-webkit-scrollbar-thumb:hover {
+    background: rgba(128, 128, 128, 0.5);
+  }
+  &::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+}
+
+// Primary: accent-colored thumb with glow
+.nm-scrollbar--primary {
+  scrollbar-width: thin;
+  scrollbar-color: var(--nm-primary-color) transparent;
+
+  &::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: var(--nm-primary-color);
+    border-radius: var(--nm-border-radius-sm);
+    box-shadow: 0 0 8px color-mix(in srgb, var(--nm-primary-color) 70%, transparent);
+  }
+  &::-webkit-scrollbar-thumb:hover {
+    background: var(--nm-primary-dark);
+    box-shadow: 0 0 12px color-mix(in srgb, var(--nm-primary-color) 90%, transparent);
+  }
+  &::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+}
+
+// None: completely invisible (container still scrollable)
+.nm-scrollbar--none {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
   }
 }

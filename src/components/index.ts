@@ -94,7 +94,14 @@ export { default as NeumorphismTag } from './NeumorphismTag'
 export type { NeumorphismTagProps, TagVariant } from './NeumorphismTag'
 
 export { default as NeumorphismProgress } from './NeumorphismProgress'
-export type { NeumorphismProgressProps, ProgressVariant } from './NeumorphismProgress'
+export type {
+  NeumorphismProgressProps,
+  ProgressVariant,
+  ProgressEffect,
+} from './NeumorphismProgress'
+
+export { default as NeumorphismScrollbar } from './NeumorphismScrollbar'
+export type { ScrollbarVariant } from './NeumorphismScrollbar'
 
 export { default as NeumorphismSkeleton } from './NeumorphismSkeleton'
 export type { NeumorphismSkeletonProps } from './NeumorphismSkeleton'

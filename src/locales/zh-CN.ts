@@ -87,6 +87,7 @@ export const zhCN: LocaleMessages = {
 
   // Progress
   progressLabel: '进度 {percentage}%',
+  progressIndeterminate: '进行中',
 
   // DatePicker
   datePickerPlaceholder: '请选择日期',

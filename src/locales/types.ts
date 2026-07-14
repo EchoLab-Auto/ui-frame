@@ -89,6 +89,7 @@ export interface LocaleMessages {
 
   /** Progress */
   progressLabel?: string
+  progressIndeterminate?: string
 
   /** DatePicker */
   datePickerPlaceholder?: string

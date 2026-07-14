@@ -87,6 +87,7 @@ export const enUS: LocaleMessages = {
 
   // Progress
   progressLabel: 'Progress {percentage}%',
+  progressIndeterminate: 'In progress',
 
   // DatePicker
   datePickerPlaceholder: 'Select date',

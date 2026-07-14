@@ -16,10 +16,10 @@
   --nm-text-disabled: #bbbbbb;
   --nm-text-placeholder: #aaaaaa;
 
-  --nm-primary-color: #6c7ae0;
-  --nm-primary-light: #8b9af0;
-  --nm-primary-dark: #5a68c0;
-  --nm-text-on-primary: #ffffff;
+  --nm-primary-color: #cdfa4e;
+  --nm-primary-light: #d9fb75;
+  --nm-primary-dark: #b8e836;
+  --nm-text-on-primary: #000000;
 
   --nm-shadow-dark: rgba(0, 0, 0, 0.15);
   --nm-shadow-light: rgba(255, 255, 255, 0.8);
@@ -312,7 +312,7 @@
   --nm-selection-bg: color-mix(in srgb, var(--nm-primary-color) 30%, transparent);
 
   // -- Chart --
-  --nm-chart-color-1: #6c7ae0;
+  --nm-chart-color-1: #cdfa4e;
   --nm-chart-color-2: #27ae60;
   --nm-chart-color-3: #f39c12;
   --nm-chart-color-4: #e74c3c;
@@ -358,10 +358,10 @@
   --nm-text-disabled: #505050;
   --nm-text-placeholder: #666666;
 
-  --nm-primary-color: #7b8cf0;
-  --nm-primary-light: #9aacff;
-  --nm-primary-dark: #6a7ad0;
-  --nm-text-on-primary: #ffffff;
+  --nm-primary-color: #cdfa4e;
+  --nm-primary-light: #d9fb75;
+  --nm-primary-dark: #b8e836;
+  --nm-text-on-primary: #000000;
 
   --nm-shadow-dark: rgba(0, 0, 0, 0.5);
   --nm-shadow-light: rgba(255, 255, 255, 0.06);
@@ -404,7 +404,7 @@
   --nm-selection-bg: color-mix(in srgb, var(--nm-primary-color) 50%, transparent);
 
   // -- Chart (dark mode — brighter colors for visibility against dark background) --
-  --nm-chart-color-1: #8b9af0;
+  --nm-chart-color-1: #cdfa4e;
   --nm-chart-color-2: #2ecc71;
   --nm-chart-color-3: #f5b041;
   --nm-chart-color-4: #ec7063;

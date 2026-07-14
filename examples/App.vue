@@ -18,6 +18,7 @@ const navItems = [
 
 <template>
   <div class="showcase-root" :data-theme="isDark ? 'dark' : undefined">
+    <NeumorphismScrollbar variant="none" target=".showcase-root > .nm-layout .nm-layout__content" />
     <NeumorphismLayout show-header :sider-width="0">
       <!-- ===== HEADER ===== -->
       <template #header-left>

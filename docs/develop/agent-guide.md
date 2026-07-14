@@ -91,7 +91,7 @@ const { theme, isDark, toggleTheme } = provideTheme()
 
 ```css
 :root {
-  --nm-primary-color: #6c7ae0; /* 主色调 */
+  --nm-primary-color: #cdfa4e; /* 主色调 */
   --nm-bg-color: #e0e0e0; /* 背景色 */
   --nm-border-radius-md: 16px; /* 圆角 */
   --nm-shadow-dark: rgba(0, 0, 0, 0.15); /* 暗阴影强度 */
@@ -298,7 +298,7 @@ app.use(NeumorphismUI, {
 ```css
 :root {
   /* 色彩 */
-  --nm-primary-color: #6c7ae0;
+  --nm-primary-color: #cdfa4e;
   --nm-bg-color: #e0e0e0;
   --nm-surface-color: #e0e0e0;
   --nm-text-primary: #555555;

@@ -537,15 +537,16 @@ import { NeumorphismProgress } from '@echolab-auto/ui-frame'
 import type { NeumorphismProgressProps, ProgressVariant } from '@echolab-auto/ui-frame'
 ```
 
-| Props         | Type                                                          | Default     | Description    |
-| ------------- | ------------------------------------------------------------- | ----------- | -------------- |
-| modelValue    | `number`                                                      | `0`         | 当前值         |
-| max           | `number`                                                      | `100`       | 最大值         |
-| variant       | `'primary' \| 'success' \| 'warning' \| 'error' \| 'default'` | `'primary'` | 颜色变体       |
-| size          | `'small' \| 'medium' \| 'large'`                              | `'medium'`  | 尺寸           |
-| showLabel     | `boolean`                                                     | `false`     | 是否显示百分比 |
-| indeterminate | `boolean`                                                     | `false`     | 不确定模式     |
-| striped       | `boolean`                                                     | `false`     | 条纹动画       |
+| Props         | Type                                                            | Default     | Description                           |
+| ------------- | --------------------------------------------------------------- | ----------- | ------------------------------------- |
+| modelValue    | `number`                                                        | `0`         | 当前值                                |
+| max           | `number`                                                        | `100`       | 最大值                                |
+| variant       | `'primary' \| 'success' \| 'warning' \| 'error' \| 'default'`   | `'primary'` | 颜色变体                              |
+| size          | `'small' \| 'medium' \| 'large'`                                | `'medium'`  | 尺寸                                  |
+| showLabel     | `boolean`                                                       | `false`     | 是否显示百分比                        |
+| indeterminate | `boolean`                                                       | `false`     | 不确定模式                            |
+| striped       | `boolean`                                                       | `false`     | 条纹动画（等价于 `effect="striped"`） |
+| effect        | `'default' \| 'gradient' \| 'striped' \| 'glow' \| 'segmented'` | `'default'` | 进度条视觉动效                        |
 
 ---
 
