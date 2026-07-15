@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, watch, nextTick, onBeforeUnmount } from 'vue'
+// TODO(perf): Change to dynamic import for lazy-loading (~40KB saving for non-doc consumers).
+// Requires refactoring extractToc + doRender + renderer setup to async patterns.
 import { marked } from 'marked'
 import NeumorphismCard from '@/components/NeumorphismCard/NeumorphismCard.vue'
 import { generateId, escapeHtml, slugify } from '@/utils'

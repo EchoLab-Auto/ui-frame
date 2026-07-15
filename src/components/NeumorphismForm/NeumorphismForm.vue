@@ -91,6 +91,15 @@ function clearErrors() {
   Object.keys(errors).forEach(k => delete errors[k])
 }
 
+// Track which fields have been blurred at least once — incremental validation
+// only triggers after the first interaction.
+const touchedFields = new Set<string>()
+
+function validateFieldOnBlur(name: string) {
+  touchedFields.add(name)
+  validateField(name)
+}
+
 // Use getter properties so child components always read the latest
 // prop values even when the parent replaces the whole object.
 provide(FormKey, {
@@ -111,6 +120,7 @@ provide(FormKey, {
     return props.size
   },
   validateField,
+  validateFieldOnBlur,
   registerField,
   unregisterField,
 })

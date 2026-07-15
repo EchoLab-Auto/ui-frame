@@ -102,9 +102,37 @@ function formatSize(val?: string | number): string | undefined {
 }
 
 .nm-skeleton--wave .nm-skeleton__shimmer {
-  background: linear-gradient(90deg, transparent 25%, var(--nm-shadow-light) 50%, transparent 75%);
-  background-size: 200% 100%;
-  animation: nm-skeleton-wave 1.6s ease-in-out infinite;
+  // Dual-layer shimmer for natural light reflection
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      105deg,
+      transparent 40%,
+      color-mix(in srgb, var(--nm-shadow-light) 60%, transparent) 45%,
+      color-mix(in srgb, var(--nm-shadow-light) 80%, transparent) 50%,
+      transparent 55%
+    );
+    background-size: 200% 100%;
+    animation: nm-skeleton-wave-fast 1.6s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  }
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      105deg,
+      transparent 30%,
+      color-mix(in srgb, var(--nm-shadow-light) 40%, transparent) 38%,
+      color-mix(in srgb, var(--nm-shadow-light) 60%, transparent) 42%,
+      transparent 50%
+    );
+    background-size: 250% 100%;
+    animation: nm-skeleton-wave-slow 2.4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    animation-delay: 0.3s;
+    width: 40%;
+  }
 }
 
 @keyframes nm-skeleton-pulse {
@@ -117,15 +145,21 @@ function formatSize(val?: string | number): string | undefined {
   }
 }
 
-@keyframes nm-skeleton-wave {
+@keyframes nm-skeleton-wave-fast {
   0% {
     transform: translateX(-100%);
   }
-  50% {
-    transform: translateX(100%);
+  100% {
+    transform: translateX(200%);
+  }
+}
+
+@keyframes nm-skeleton-wave-slow {
+  0% {
+    transform: translateX(-100%);
   }
   100% {
-    transform: translateX(100%);
+    transform: translateX(350%);
   }
 }
 

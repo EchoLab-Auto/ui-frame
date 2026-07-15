@@ -1,4 +1,4 @@
-import { ref, computed, watch, nextTick, type Ref, type ComputedRef } from 'vue'
+import { ref, computed, watch, nextTick, onBeforeUnmount, type Ref, type ComputedRef } from 'vue'
 
 export interface MenuItem {
   key: string
@@ -270,6 +270,10 @@ export function useMenu(opts: UseMenuOptions): UseMenuReturn {
       _activeKey.value = match.key
     }
   }
+
+  onBeforeUnmount(() => {
+    if (typeaheadTimer) clearTimeout(typeaheadTimer)
+  })
 
   function focusNext() {
     const nodes = enabledVisibleNodes.value

@@ -19,6 +19,11 @@ export interface NeumorphismLayoutProps {
   collapsedWidth?: number
   /** 是否移动端自动折叠侧边栏 */
   mobileAutoCollapse?: boolean
+  /**
+   * Layout 高度。默认 '100vh' 用于页面级根容器。
+   * 嵌套使用时设为 '100%'（父容器需有确定高度）。
+   */
+  height?: string
 }
 
 const props = withDefaults(defineProps<NeumorphismLayoutProps>(), {
@@ -29,6 +34,7 @@ const props = withDefaults(defineProps<NeumorphismLayoutProps>(), {
   defaultCollapsed: false,
   collapsedWidth: 64,
   mobileAutoCollapse: true,
+  height: '100vh',
 })
 
 const { config, resolveProp } = useNeumorphismSetup()
@@ -105,9 +111,20 @@ const siderStyle = computed(() => ({
 </script>
 
 <template>
-  <div :class="classList">
+  <div :class="classList" :style="{ '--nm-layout-height': height }">
     <!-- Skip navigation link (hidden until focused, for keyboard users) -->
-    <a v-if="$slots['skip-nav'] || true" class="nm-layout__skip-nav" href="#nm-layout-content">
+    <a
+      class="nm-layout__skip-nav"
+      href="#nm-layout-content"
+      @click.prevent="
+        e => {
+          const target = (e.target as HTMLElement)
+            ?.closest('.nm-layout')
+            ?.querySelector('#nm-layout-content') as HTMLElement | null
+          target?.focus()
+        }
+      "
+    >
       <slot name="skip-nav">{{ t('layoutSkipNav') || '跳转到主内容' }}</slot>
     </a>
 
@@ -219,7 +236,7 @@ const siderStyle = computed(() => ({
 .nm-layout {
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  height: var(--nm-layout-height, 100vh);
   overflow: hidden;
   background-color: var(--nm-bg-color);
   @include nm-theme-transition;
@@ -410,6 +427,7 @@ const siderStyle = computed(() => ({
 
 // ---- Content ----
 .nm-layout__content {
+  position: relative;
   flex: 1;
   min-width: 0;
   overflow-y: auto;

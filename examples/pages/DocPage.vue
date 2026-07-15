@@ -11,7 +11,6 @@ import {
 } from '@/doc'
 
 const themeContext = useTheme()
-const themeValue = themeContext.theme
 const isDark = themeContext.isDark
 
 // ==========================================
@@ -273,16 +272,14 @@ function scrollToSection(id: string) {
 
 <template>
   <div class="doc-page" :data-theme="isDark ? 'dark' : undefined">
-    <NeumorphismLayout show-header show-sider :sider-width="220" collapsible>
-      <!-- ===== HEADER ===== -->
-      <template #header-left>
-        <span class="brand">@echolab-auto/ui-frame</span>
-      </template>
-
-      <template #header-right>
-        <NeumorphismThemeToggle v-model="themeValue" size="small" />
-      </template>
-
+    <NeumorphismLayout
+      :show-header="false"
+      show-sider
+      :sider-width="220"
+      collapsible
+      height="auto"
+      style="flex: 1; min-height: 0"
+    >
       <!-- ===== SIDER NAVIGATION ===== -->
       <template #sider="{ collapsed }">
         <nav v-if="!collapsed" class="sider-nav" aria-label="文档组件导航">
@@ -314,6 +311,8 @@ function scrollToSection(id: string) {
 
       <!-- ===== MAIN CONTENT ===== -->
       <template #default>
+        <NeumorphismScrollbar variant="none" target=".doc-page .nm-layout__sider-inner" />
+        <NeumorphismScrollbar variant="dots" target=".doc-page .nm-layout__content" />
         <div class="content-inner">
           <!-- Hero -->
           <section class="hero">
@@ -435,7 +434,10 @@ function scrollToSection(id: string) {
 @use '../../src/styles/mixins.scss' as *;
 
 .doc-page {
-  min-height: 100vh;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
   background-color: var(--nm-bg-color);
   color: var(--nm-text-primary);
   transition:

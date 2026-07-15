@@ -154,21 +154,72 @@ const monthNames = computed(() => {
   const year = currentYear.value
   const month = currentMonth.value
   const months = [
-    'January',
-    'February',
-    'March',
-    'April',
-    'May',
-    'June',
-    'July',
-    'August',
-    'September',
-    'October',
-    'November',
-    'December',
+    t('datePickerMonth1') || 'January',
+    t('datePickerMonth2') || 'February',
+    t('datePickerMonth3') || 'March',
+    t('datePickerMonth4') || 'April',
+    t('datePickerMonth5') || 'May',
+    t('datePickerMonth6') || 'June',
+    t('datePickerMonth7') || 'July',
+    t('datePickerMonth8') || 'August',
+    t('datePickerMonth9') || 'September',
+    t('datePickerMonth10') || 'October',
+    t('datePickerMonth11') || 'November',
+    t('datePickerMonth12') || 'December',
   ]
   return { year, monthName: months[month - 1] }
 })
+
+// Arrow-key grid navigation (WAI-ARIA grid pattern)
+const focusedDayIndex = ref(-1)
+function handleCalendarKeydown(event: KeyboardEvent) {
+  const total = calendarDays.value.length
+  if (total === 0) return
+  if (focusedDayIndex.value === -1)
+    focusedDayIndex.value = calendarDays.value.findIndex(d => d.isCurrentMonth && !d.isDisabled)
+
+  let next = focusedDayIndex.value
+  switch (event.key) {
+    case 'ArrowRight':
+      next = Math.min(total - 1, focusedDayIndex.value + 1)
+      break
+    case 'ArrowLeft':
+      next = Math.max(0, focusedDayIndex.value - 1)
+      break
+    case 'ArrowDown':
+      next = Math.min(total - 1, focusedDayIndex.value + 7)
+      break
+    case 'ArrowUp':
+      next = Math.max(0, focusedDayIndex.value - 7)
+      break
+    case 'Home':
+      next = focusedDayIndex.value - (focusedDayIndex.value % 7)
+      break
+    case 'End':
+      next = focusedDayIndex.value + (6 - (focusedDayIndex.value % 7))
+      break
+    case 'Enter':
+    case ' ': {
+      const cell = calendarDays.value[focusedDayIndex.value]
+      if (cell && !cell.isDisabled) {
+        selectDate(cell.date)
+        popoverRef.value?.hide?.()
+      }
+      event.preventDefault()
+      return
+    }
+    case 'Escape':
+      popoverRef.value?.hide?.()
+      event.preventDefault()
+      return
+    default:
+      return
+  }
+  event.preventDefault()
+  if (next >= 0 && next < total && !calendarDays.value[next].isDisabled) {
+    focusedDayIndex.value = next
+  }
+}
 </script>
 
 <template>
@@ -323,11 +374,16 @@ const monthNames = computed(() => {
             </span>
           </div>
 
-          <!-- Day cells grid -->
-          <div class="nm-datepicker__days">
+          <!-- Day cells grid (WAI-ARIA grid pattern) -->
+          <div class="nm-datepicker__days" role="grid" @keydown="handleCalendarKeydown">
             <button
               v-for="(cell, idx) in calendarDays"
               :key="idx"
+              :ref="
+                el => {
+                  if (idx === focusedDayIndex && el) (el as HTMLButtonElement).focus()
+                }
+              "
               class="nm-datepicker__day"
               :class="{
                 'nm-datepicker__day--other-month': !cell.isCurrentMonth,
@@ -338,10 +394,13 @@ const monthNames = computed(() => {
               }"
               type="button"
               :disabled="cell.isDisabled"
+              :tabindex="idx === focusedDayIndex ? 0 : -1"
+              role="gridcell"
               :aria-label="`${monthNames.monthName} ${cell.day}, ${cell.date.getFullYear()}`"
               :aria-selected="cell.isSelected"
               :aria-current="cell.isToday ? 'date' : undefined"
               @click="onDayClick(cell)"
+              @focus="focusedDayIndex = idx"
             >
               {{ cell.day }}
             </button>

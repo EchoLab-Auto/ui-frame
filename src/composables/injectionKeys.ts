@@ -16,6 +16,8 @@ export interface FormContext {
   labelWidth?: string
   size?: string
   validateField: (name: string) => boolean
+  /** Validate a field only after its first blur (incremental validation mode). */
+  validateFieldOnBlur: (name: string) => void
   registerField: (name: string, validateFn: (value: unknown) => boolean) => void
   unregisterField: (name: string) => void
 }

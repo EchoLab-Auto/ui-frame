@@ -190,6 +190,79 @@
   }
 }
 
+// ---- RTL (Right-to-Left) base support ----
+[dir='rtl'] {
+  direction: rtl;
+  text-align: right;
+
+  // Mirror directional icons and indicators
+  .nm-select__arrow,
+  .nm-pagination__prev svg,
+  .nm-pagination__next svg,
+  .nm-breadcrumb__separator svg,
+  .nm-tabs__nav-arrow svg,
+  .nm-tree-node__toggle svg {
+    transform: scaleX(-1);
+  }
+
+  // Flip horizontal positioning for overlays
+  .nm-drawer--left {
+    right: auto;
+    left: 0;
+  }
+  .nm-drawer--right {
+    left: auto;
+    right: 0;
+  }
+  .nm-tooltip--left {
+    right: auto;
+    left: 100%;
+  }
+  .nm-tooltip--right {
+    left: auto;
+    right: 100%;
+  }
+  .nm-popover--left {
+    right: auto;
+    left: 0;
+  }
+  .nm-popover--right {
+    left: auto;
+    right: 0;
+  }
+
+  // Toast position mirroring
+  .nm-toast-container--top-left {
+    right: 0;
+    left: auto;
+  }
+  .nm-toast-container--top-right {
+    left: 0;
+    right: auto;
+  }
+  .nm-toast-container--bottom-left {
+    right: 0;
+    left: auto;
+  }
+  .nm-toast-container--bottom-right {
+    left: 0;
+    right: auto;
+  }
+
+  // Text alignment
+  .nm-modal__header,
+  .nm-card__header,
+  .nm-card__footer {
+    text-align: right;
+  }
+  .nm-modal__footer {
+    justify-content: flex-start;
+  }
+  .nm-form--horizontal .nm-form-item__label {
+    text-align: right;
+  }
+}
+
 .nm-focus-ring {
   outline: none;
 

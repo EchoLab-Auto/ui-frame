@@ -7,7 +7,6 @@ import { useToast } from '../../src/composables/useToast'
 
 // ---- 注入全局主题（由 App.vue provide） ----
 const themeContext = useTheme()
-const themeValue = themeContext.theme
 const isDark = themeContext.isDark
 
 // ==========================================
@@ -155,18 +154,17 @@ const navCategories = [
 
 // ---- 导航滚动 ----
 let clickScrollToken = 0
+let clickScrollTimer: ReturnType<typeof setTimeout> | null = null
 
 function scrollToSection(id: string) {
   const el = document.getElementById(id)
   if (!el) return
-  // 点击立即设 activeSection，不依赖任何 scroll 事件回调解算
   activeSection.value = id
-  // 递增 token 使 scroll 处理函数跳过本次点击产生的滚动事件，
-  // 只在 smooth scroll 结束后做一次确认结算
   clickScrollToken++
   el.scrollIntoView({ behavior: 'smooth', block: 'start' })
   const token = clickScrollToken
-  setTimeout(() => {
+  clickScrollTimer = setTimeout(() => {
+    clickScrollTimer = null
     if (token === clickScrollToken) {
       clickScrollToken = 0
       updateActiveSection()
@@ -194,8 +192,6 @@ function updateActiveSection() {
 }
 
 function onScroll() {
-  // 点击触发的 smooth scroll 进行中：所有中间帧的 scroll 事件都跳过，
-  // 避免中间帧的 getBoundingClientRect 结算把 activeSection 覆盖回旧值
   if (clickScrollToken > 0) return
   if (!scrollTicking) {
     requestAnimationFrame(() => {
@@ -206,15 +202,27 @@ function onScroll() {
   }
 }
 
+// Resolve the actual scroll container (.nm-layout__content) for accurate scroll-spy
+function getScrollContainer(): Element | null {
+  return document.querySelector('.showcase .nm-layout__content')
+}
+
 onMounted(() => {
   nextTick(() => {
-    document.addEventListener('scroll', onScroll, { passive: true, capture: true })
+    const container = getScrollContainer()
+    if (container) {
+      container.addEventListener('scroll', onScroll, { passive: true })
+    }
     updateActiveSection()
   })
 })
 
 onBeforeUnmount(() => {
-  document.removeEventListener('scroll', onScroll, { capture: true })
+  if (clickScrollTimer) clearTimeout(clickScrollTimer)
+  const container = getScrollContainer()
+  if (container) {
+    container.removeEventListener('scroll', onScroll)
+  }
 })
 
 // ---- 开关示例 ----
@@ -225,7 +233,6 @@ const switch2 = ref(true)
 const checkbox1 = ref(false)
 const checkbox2 = ref(true)
 const checkboxIndeterminate = ref(true)
-const _checkboxGroup = ref<string[]>([])
 
 // ---- 单选框示例 ----
 const radio1 = ref('a')
@@ -241,12 +248,6 @@ const selectOptions = [
   { label: 'Angular 16', value: 'angular' },
   { label: 'Svelte 4', value: 'svelte', disabled: true },
   { label: 'Solid.js', value: 'solid' },
-]
-
-const _sizeOptions = [
-  { label: '小', value: 'small' },
-  { label: '中', value: 'medium' },
-  { label: '大', value: 'large' },
 ]
 
 // ---- 输入框和文本域示例 ----
@@ -286,12 +287,9 @@ const collapseItems = [
 ]
 
 // ---- 消息提示示例 ----
-const toastContainer =
-  ref<
-    InstanceType<
-      (typeof import('../../src/components/NeumorphismToast/NeumorphismToastProvider.vue'))['default']
-    >
-  >()
+const toastContainer = ref<{
+  addToast: (opts: { message: string; type: string; duration?: number }) => string
+}>()
 let toastCounter = 0
 function showToast(type: string) {
   toastCounter++
@@ -419,31 +417,6 @@ const flowEdges = [
   { from: 'action2', to: 'merge' },
   { from: 'merge', to: 'end' },
 ]
-
-function _flowNodeStyle(node: (typeof flowNodes)[number]) {
-  const base = {
-    position: 'absolute' as const,
-    left: `${node.x}px`,
-    top: `${node.y}px`,
-    width: `${node.w}px`,
-    height: `${node.h}px`,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    fontSize: '12px',
-    color: 'var(--nm-text-primary)',
-    background: 'var(--nm-surface-raised)',
-    border: '2px solid var(--nm-primary-color)',
-    boxSizing: 'border-box' as const,
-  }
-  if (node.type === 'rounded') {
-    return { ...base, borderRadius: '18px' }
-  }
-  if (node.type === 'diamond') {
-    return { ...base, borderRadius: '8px', transform: 'rotate(0deg)' }
-  }
-  return { ...base, borderRadius: '8px' }
-}
 
 // Edge rendering helper
 function calcEdgePath(
@@ -607,16 +580,14 @@ const chartStockData = ref([
 
 <template>
   <div class="showcase" :data-theme="isDark ? 'dark' : undefined">
-    <NeumorphismLayout :show-header="false" show-sider :sider-width="220" collapsible>
-      <!-- ===== HEADER ===== -->
-      <template #header-left>
-        <span class="brand">@echolab-auto/ui-frame</span>
-      </template>
-
-      <template #header-right>
-        <NeumorphismThemeToggle v-model="themeValue" size="small" />
-      </template>
-
+    <NeumorphismLayout
+      :show-header="false"
+      show-sider
+      :sider-width="220"
+      collapsible
+      height="auto"
+      style="flex: 1; min-height: 0"
+    >
       <!-- ===== SIDER NAVIGATION ===== -->
       <template #sider="{ collapsed }">
         <nav v-if="!collapsed" class="sider-nav" aria-label="组件导航">
@@ -637,6 +608,7 @@ const chartStockData = ref([
 
       <!-- ===== MAIN CONTENT ===== -->
       <template #default>
+        <NeumorphismScrollbar variant="none" target=".showcase .nm-layout__sider-inner" />
         <NeumorphismScrollbar variant="dots" target=".showcase .nm-layout__content" />
         <div class="content-inner">
           <!-- Hero / 简介 -->
@@ -644,8 +616,8 @@ const chartStockData = ref([
             <h1 class="hero-title">@echolab-auto/ui-frame</h1>
             <p class="hero-desc">
               Vue 3 新拟态（Soft UI）UI 组件库，共
-              <strong>30</strong> 个组件。<strong>8 个 Headless Composables</strong> 支持业务逻辑与
-              UI 完全解耦， 120+ CSS 设计
+              <strong>50+</strong> 个组件。<strong>30+ Headless Composables</strong> 支持业务逻辑与
+              UI 完全解耦， 300+ CSS 设计
               Token、全局配置、命名插槽，统一的台阶高度模型、暗色模式、移动端适配。
             </p>
             <div class="hero-links">
@@ -2165,7 +2137,13 @@ const chartStockData = ref([
                   height: 400px;
                 "
               >
-                <NeumorphismLayout show-header show-sider :sider-width="200" collapsible>
+                <NeumorphismLayout
+                  show-header
+                  show-sider
+                  :sider-width="200"
+                  collapsible
+                  style="height: 100%"
+                >
                   <template #header-left>
                     <strong style="font-size: 15px">My App</strong>
                   </template>
@@ -2576,8 +2554,13 @@ const chartStockData = ref([
 @use '../../src/styles/mixins.scss' as *;
 
 // ---- Root ----
+// flex: 1 fills .page-content. display:flex passes the flex context
+// down to the inner Layout, avoiding percentage height fragility.
 .showcase {
-  min-height: 100vh;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
   background-color: var(--nm-bg-color);
   color: var(--nm-text-primary);
   transition:
@@ -2644,27 +2627,27 @@ const chartStockData = ref([
 // ---- Content Area (fluid, no max-width) ----
 .content-inner {
   margin: 0 auto;
-  padding: 24px 20px 64px;
+  padding: 8px 20px 64px;
 
   @include nm-screen-sm {
-    padding: 28px 28px 64px;
+    padding: 12px 28px 64px;
   }
 
   @include nm-screen-lg {
-    padding: 36px 40px 72px;
+    padding: 16px 40px 72px;
   }
 
   @media (min-width: 1600px) {
-    padding: 40px 56px 80px;
+    padding: 20px 56px 80px;
   }
 }
 
 // ---- Hero ----
 .hero {
-  padding: 12px 0 24px;
+  padding: 0 0 24px;
 
   @include nm-screen-lg {
-    padding: 20px 0 28px;
+    padding: 4px 0 28px;
   }
 }
 

@@ -166,8 +166,13 @@ export function useDatePicker(opts: UseDatePickerOptions): UseDatePickerReturn {
   // ---- State ----
   const selectedDate = computed(() => modelValue.value)
 
-  // Initialize current view to the selected date's month, or today
-  const initialDate = modelValue.value ? cloneDate(modelValue.value) : new Date()
+  // Initialize current view to the selected date's month, or defer to client-side.
+  // Using a fixed date during SSR avoids timezone hydration mismatches.
+  const initialDate = modelValue.value
+    ? cloneDate(modelValue.value)
+    : typeof window === 'undefined'
+      ? new Date(2024, 0, 1) // SSR-safe fixed date
+      : new Date()
   const currentYear = ref(initialDate.getFullYear())
   const currentMonth = ref(initialDate.getMonth() + 1) // 1-based
 

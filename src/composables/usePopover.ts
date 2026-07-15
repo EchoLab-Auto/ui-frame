@@ -1,4 +1,4 @@
-import { ref, onMounted, onBeforeUnmount, nextTick, type Ref } from 'vue'
+import { ref, onBeforeUnmount, type Ref } from 'vue'
 
 export type PopoverPosition = 'top' | 'bottom' | 'left' | 'right' | 'auto'
 export type PopoverTrigger = 'click' | 'hover' | 'focus' | 'manual'
@@ -25,10 +25,8 @@ export interface UsePopoverReturn {
   hide: () => void
   /** Toggle visibility (for click trigger) */
   toggle: () => void
-  /** Handle keydown (Escape to close, Tab to dismiss) */
+  /** Handle keydown (Escape to close). Tab handling is delegated to the component layer. */
   handleKeydown: (event: KeyboardEvent) => void
-  /** Handle click outside detection — call from the popover content wrapper */
-  handleClickOutside: (event: MouseEvent) => void
 }
 
 /**
@@ -92,46 +90,9 @@ export function usePopover(opts: UsePopoverOptions = {}): UsePopoverReturn {
       return
     }
 
-    if (event.key === 'Tab' && isOpen.value) {
-      // Tab dismisses the popover when focus leaves the content
-      // The actual focus check is done by the component via nextTick
-      nextTick(() => {
-        // If focus has left both trigger and popover content, close
-        if (typeof document === 'undefined') return
-        isOpen.value = false
-      })
-    }
+    // Tab handling is delegated to the component layer, which has DOM refs
+    // to correctly check whether focus left both trigger and popover content.
   }
-
-  /**
-   * Call this from the popover content container to detect clicks outside.
-   * The component should pass the MouseEvent from a document-level click listener
-   * and check whether the click target is inside the trigger or popover content.
-   */
-  function handleClickOutside(_event: MouseEvent) {
-    if (!isOpen.value) return
-    // The component is responsible for the actual DOM containment check.
-    // This is a hook that components wire up to their click listeners.
-  }
-
-  // ---- SSR-safe: only register document listeners on mount ----
-  let documentClickHandler: ((event: MouseEvent) => void) | null = null
-
-  function onGlobalClick(event: MouseEvent) {
-    if (!isOpen.value || disabled?.value) return
-    // The component provides DOM refs via template refs to test containment.
-    // This listener fires unconditionally; the component's template wires
-    // the containment check via handleClickOutside.
-    handleClickOutside(event)
-  }
-
-  onMounted(() => {
-    if (typeof document === 'undefined') return
-    documentClickHandler = (event: MouseEvent) => {
-      onGlobalClick(event)
-    }
-    document.addEventListener('click', documentClickHandler, true)
-  })
 
   onBeforeUnmount(() => {
     if (showTimer) {
@@ -142,9 +103,6 @@ export function usePopover(opts: UsePopoverOptions = {}): UsePopoverReturn {
       clearTimeout(hideTimer)
       hideTimer = null
     }
-    if (typeof document !== 'undefined' && documentClickHandler) {
-      document.removeEventListener('click', documentClickHandler, true)
-    }
   })
 
   return {
@@ -153,6 +111,5 @@ export function usePopover(opts: UsePopoverOptions = {}): UsePopoverReturn {
     hide,
     toggle,
     handleKeydown,
-    handleClickOutside,
   }
 }

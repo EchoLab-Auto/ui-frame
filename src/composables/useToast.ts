@@ -84,6 +84,9 @@ export function useToast(opts: UseToastOptions = {}): UseToastReturn {
       leaving: false,
     }
 
+    // Clean up timers for toasts that will be pushed off by the maxCount limit
+    const removed = toasts.value.slice(0, Math.max(0, toasts.value.length - (maxCount - 1)))
+    for (const t of removed) clearToastTimers(t.id)
     toasts.value = [...toasts.value.slice(Math.max(0, toasts.value.length - (maxCount - 1))), item]
 
     // Cancel any in-flight clearAll since a new toast was added
@@ -112,7 +115,8 @@ export function useToast(opts: UseToastOptions = {}): UseToastReturn {
   function removeToast(id: string) {
     clearToastTimers(id)
     const item = toasts.value.find(t => t.id === id)
-    if (item) item.leaving = true
+    if (!item) return
+    item.leaving = true
     timers.set(
       id,
       setTimeout(() => {

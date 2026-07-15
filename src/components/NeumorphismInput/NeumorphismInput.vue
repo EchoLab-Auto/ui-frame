@@ -25,6 +25,8 @@ export interface NeumorphismInputProps {
   inputmode?: 'none' | 'text' | 'tel' | 'url' | 'email' | 'numeric' | 'decimal' | 'search'
   error?: string | boolean
   label?: string
+  /** Enable floating label: label starts as placeholder and floats up on focus/value */
+  floatingLabel?: boolean
 }
 
 const props = withDefaults(defineProps<NeumorphismInputProps>(), {
@@ -63,13 +65,15 @@ const inputAttrs = computed(() => {
   return result
 })
 
-const { fieldId, errorMessage, baseClassList, handleFocus, handleBlur } = useFormField(() => ({
-  id: props.id,
-  size: resolvedSize.value,
-  disabled: props.disabled,
-  error: props.error,
-  prefix: 'input',
-}))
+const { fieldId, isFocused, errorMessage, baseClassList, handleFocus, handleBlur } = useFormField(
+  () => ({
+    id: props.id,
+    size: resolvedSize.value,
+    disabled: props.disabled,
+    error: props.error,
+    prefix: 'input',
+  })
+)
 
 const hasValue = computed(() => props.modelValue.length > 0)
 
@@ -83,6 +87,8 @@ const classList = computed(() => [
     'nm-input--filled': hasValue.value,
   },
 ])
+
+const isFloatingLabel = computed(() => props.floatingLabel && !!props.label)
 
 function handleInput(event: Event): void {
   const target = event.target as HTMLInputElement
@@ -104,9 +110,24 @@ function handleKeydown(event: KeyboardEvent): void {
 
 <template>
   <div class="nm-input__wrapper" :class="attrs.class" :style="attrs.style">
-    <NeumorphismFieldLabel :label="label" :required="required" :for-id="fieldId" />
+    <NeumorphismFieldLabel
+      v-if="!isFloatingLabel"
+      :label="label"
+      :required="required"
+      :for-id="fieldId"
+    />
 
     <div :class="classList">
+      <!-- Floating label: animates from placeholder position to above the field -->
+      <span
+        v-if="isFloatingLabel"
+        :class="[
+          'nm-input__floating-label',
+          { 'nm-input__floating-label--active': hasValue || isFocused },
+        ]"
+      >
+        {{ label }}<span v-if="required" class="nm-input__floating-required"> *</span>
+      </span>
       <div v-if="$slots.prefix" class="nm-input__prefix">
         <slot name="prefix" />
       </div>
@@ -309,5 +330,72 @@ function handleKeydown(event: KeyboardEvent): void {
 }
 .nm-input__suffix {
   padding-left: 0;
+}
+
+// ---- Floating label ----
+.nm-input__floating-label {
+  position: absolute;
+  left: var(--nm-field-padding-x-md);
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  font-size: var(--nm-font-base);
+  color: var(--nm-text-placeholder);
+  transition:
+    top 0.25s $nm-ease-spring,
+    left 0.25s $nm-ease-spring,
+    font-size 0.25s $nm-ease-spring,
+    color 0.25s $nm-ease-spring,
+    transform 0.25s $nm-ease-spring;
+
+  &--active {
+    top: 6px;
+    left: var(--nm-field-padding-x-md);
+    transform: translateY(0);
+    font-size: var(--nm-font-xs);
+    color: var(--nm-primary-color);
+  }
+}
+
+.nm-input__floating-required {
+  color: var(--nm-color-error);
+}
+
+.nm-input--floating {
+  .nm-input__field {
+    padding-top: calc(var(--nm-field-padding-y-md) + 6px);
+  }
+}
+
+// Size variants for floating label
+.nm-input--small .nm-input__floating-label {
+  left: var(--nm-field-padding-x-sm);
+  &--active {
+    font-size: 10px;
+    top: 2px;
+  }
+}
+.nm-input--small.nm-input--floating .nm-input__field {
+  padding-top: calc(var(--nm-field-padding-y-sm) + 4px);
+}
+
+.nm-input--large .nm-input__floating-label {
+  left: var(--nm-field-padding-x-lg);
+  &--active {
+    top: 8px;
+  }
+}
+.nm-input--large.nm-input--floating .nm-input__field {
+  padding-top: calc(var(--nm-field-padding-y-lg) + 8px);
+}
+
+.nm-input--error .nm-input__floating-label--active {
+  color: var(--nm-color-error);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nm-input__floating-label {
+    transition: none;
+  }
 }
 </style>

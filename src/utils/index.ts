@@ -1,3 +1,15 @@
+export {
+  isBrowser,
+  isServer,
+  safeMatchMedia,
+  safeLocalStorageGet,
+  safeLocalStorageSet,
+  safeLocalStorageRemove,
+  safeDocument,
+  safeWindow,
+  safeGetComputedStyle,
+} from './ssr'
+
 /**
  * Generate a unique ID string
  */

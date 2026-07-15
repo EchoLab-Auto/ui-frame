@@ -18,33 +18,27 @@ const navItems = [
 
 <template>
   <div class="showcase-root" :data-theme="isDark ? 'dark' : undefined">
-    <NeumorphismScrollbar variant="none" target=".showcase-root > .nm-layout .nm-layout__content" />
-    <NeumorphismLayout show-header :sider-width="0">
-      <!-- ===== HEADER ===== -->
-      <template #header-left>
-        <span class="brand">@echolab-auto/ui-frame</span>
-        <nav class="top-nav">
-          <router-link
-            v-for="item in navItems"
-            :key="item.path"
-            :to="item.path"
-            class="top-nav-link"
-            :class="{ 'top-nav-link--active': route.path === item.path }"
-          >
-            {{ item.label }}
-          </router-link>
-        </nav>
-      </template>
+    <!-- Top nav bar — simple fixed bar, NOT a NeumorphismLayout header -->
+    <header class="top-bar">
+      <span class="brand">@echolab-auto/ui-frame</span>
+      <nav class="top-nav">
+        <router-link
+          v-for="item in navItems"
+          :key="item.path"
+          :to="item.path"
+          class="top-nav-link"
+          :class="{ 'top-nav-link--active': route.path === item.path }"
+        >
+          {{ item.label }}
+        </router-link>
+      </nav>
+      <NeumorphismThemeToggle v-model="themeValue" size="small" />
+    </header>
 
-      <template #header-right>
-        <NeumorphismThemeToggle v-model="themeValue" size="small" />
-      </template>
-
-      <!-- ===== MAIN CONTENT ===== -->
-      <template #default>
-        <router-view />
-      </template>
-    </NeumorphismLayout>
+    <!-- Page content — each page manages its own Layout -->
+    <main class="page-content">
+      <router-view />
+    </main>
   </div>
 </template>
 
@@ -52,7 +46,10 @@ const navItems = [
 @use '../src/styles/mixins.scss' as *;
 
 .showcase-root {
-  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
   background-color: var(--nm-bg-color);
   color: var(--nm-text-primary);
   transition:
@@ -60,17 +57,35 @@ const navItems = [
     color var(--nm-transition-slow);
 }
 
+// ---- Top navigation bar (not a NeumorphismLayout header) ----
+.top-bar {
+  display: flex;
+  align-items: center;
+  height: 56px;
+  padding: 0 16px;
+  flex-shrink: 0;
+  gap: 16px;
+  background-color: var(--nm-surface-color);
+  z-index: 100;
+
+  @media (min-width: 768px) {
+    height: 64px;
+    padding: 0 24px;
+  }
+}
+
 .brand {
   font-size: 17px;
   font-weight: 700;
   letter-spacing: -0.3px;
-  margin-right: 24px;
+  white-space: nowrap;
 }
 
 .top-nav {
   display: flex;
   align-items: center;
   gap: 4px;
+  flex: 1;
 }
 
 .top-nav-link {
@@ -82,7 +97,6 @@ const navItems = [
   text-decoration: none;
   border-radius: var(--nm-border-radius-md);
   transition: all var(--nm-transition-fast);
-  position: relative;
 
   &:hover {
     color: var(--nm-text-primary);
@@ -94,5 +108,14 @@ const navItems = [
     font-weight: 600;
     background-color: var(--nm-surface-raised);
   }
+}
+
+// ---- Page content fills remaining space ----
+// display:flex so child pages fill via flex:1 (no fragile percentage heights)
+.page-content {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
 }
 </style>

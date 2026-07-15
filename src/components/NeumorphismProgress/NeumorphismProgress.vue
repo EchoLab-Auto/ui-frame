@@ -11,6 +11,8 @@ export interface NeumorphismProgressProps {
   max?: number
   variant?: ProgressVariant
   size?: 'small' | 'medium' | 'large'
+  /** Progress shape: linear bar (default) or circular SVG ring */
+  type?: 'line' | 'circle'
   showLabel?: boolean
   indeterminate?: boolean
   striped?: boolean
@@ -74,11 +76,32 @@ const barStyle = computed(() => ({
   width: props.indeterminate ? '40%' : `${percentage.value}%`,
   '--nm-progress-bar-color': variantColors[resolvedVariant.value],
 }))
+
+// ---- Circle SVG geometry ----
+const circleSize = computed(() => {
+  switch (resolvedSize.value) {
+    case 'small':
+      return 64
+    case 'large':
+      return 160
+    default:
+      return 120
+  }
+})
+const strokeWidth = computed(() =>
+  resolvedSize.value === 'small' ? 4 : resolvedSize.value === 'large' ? 10 : 7
+)
+const radius = computed(() => (circleSize.value - strokeWidth.value) / 2)
+const circumference = computed(() => 2 * Math.PI * radius.value)
+const dashOffset = computed(() => {
+  if (props.indeterminate) return circumference.value * 0.75
+  return circumference.value - (percentage.value / 100) * circumference.value
+})
 </script>
 
 <template>
   <div
-    :class="classList"
+    :class="[...classList, ...(type === 'circle' ? ['nm-progress--circle'] : [])]"
     role="progressbar"
     :aria-valuenow="indeterminate ? undefined : modelValue"
     aria-valuemin="0"
@@ -88,11 +111,49 @@ const barStyle = computed(() => ({
     :aria-label="
       resolvedShowLabel ? undefined : t('progressLabel', { percentage: Math.round(percentage) })
     "
+    :style="type === 'circle' ? { width: `${circleSize}px`, height: `${circleSize}px` } : undefined"
   >
-    <div class="nm-progress__track">
-      <div class="nm-progress__bar" :style="barStyle" />
-    </div>
-    <span v-if="resolvedShowLabel" class="nm-progress__label">{{ Math.round(percentage) }}%</span>
+    <!-- Linear bar -->
+    <template v-if="type !== 'circle'">
+      <div class="nm-progress__track">
+        <div class="nm-progress__bar" :style="barStyle" />
+      </div>
+      <span v-if="resolvedShowLabel" class="nm-progress__label">{{ Math.round(percentage) }}%</span>
+    </template>
+
+    <!-- Circular SVG ring -->
+    <template v-else>
+      <svg :width="circleSize" :height="circleSize" :viewBox="`0 0 ${circleSize} ${circleSize}`">
+        <circle
+          :cx="circleSize / 2"
+          :cy="circleSize / 2"
+          :r="radius"
+          fill="none"
+          :stroke-width="strokeWidth"
+          class="nm-progress-circle__track"
+        />
+        <circle
+          :cx="circleSize / 2"
+          :cy="circleSize / 2"
+          :r="radius"
+          fill="none"
+          :stroke-width="strokeWidth"
+          :stroke-dasharray="circumference"
+          :stroke-dashoffset="dashOffset"
+          stroke-linecap="round"
+          :class="[
+            'nm-progress-circle__fill',
+            {
+              'nm-progress-circle__fill--indeterminate': indeterminate,
+              [`nm-progress-circle__fill--${resolvedVariant}`]: true,
+            },
+          ]"
+        />
+      </svg>
+      <span v-if="resolvedShowLabel" class="nm-progress-circle__label"
+        >{{ Math.round(percentage) }}%</span
+      >
+    </template>
   </div>
 </template>
 
@@ -318,6 +379,72 @@ const barStyle = computed(() => ({
   .nm-progress--complete .nm-progress__bar,
   .nm-progress--indeterminate .nm-progress__bar {
     animation: none;
+  }
+  .nm-progress-circle__fill--indeterminate {
+    animation: none;
+  }
+}
+
+// ---- Circular progress ----
+.nm-progress-circle {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  svg {
+    transform: rotate(-90deg);
+  }
+
+  &__track {
+    stroke: var(--nm-surface-raised);
+    transition: stroke var(--nm-transition-slow);
+  }
+
+  &__fill {
+    stroke: var(--nm-primary-color);
+    transition:
+      stroke-dashoffset 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+      stroke var(--nm-transition-slow);
+
+    &--primary {
+      stroke: var(--nm-primary-color);
+    }
+    &--success {
+      stroke: var(--nm-color-success);
+    }
+    &--warning {
+      stroke: var(--nm-color-warning);
+    }
+    &--error {
+      stroke: var(--nm-color-error);
+    }
+    &--default {
+      stroke: var(--nm-text-secondary);
+    }
+
+    &--indeterminate {
+      animation: nm-progress-circle-spin 1.5s linear infinite;
+      stroke-dasharray: 150 450;
+    }
+  }
+
+  &__label {
+    position: absolute;
+    font-size: calc(var(--nm-font-base) * 1.2);
+    font-weight: var(--nm-font-weight-semibold);
+    color: var(--nm-text-primary);
+  }
+}
+
+@keyframes nm-progress-circle-spin {
+  0% {
+    transform: rotate(0deg);
+    transform-origin: center;
+  }
+  100% {
+    transform: rotate(360deg);
+    transform-origin: center;
   }
 }
 </style>

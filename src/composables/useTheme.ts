@@ -200,3 +200,19 @@ export function useTheme(): ThemeContext {
   }
   return context
 }
+
+/**
+ * Returns an inline script string that applies the stored theme before
+ * Vue hydrates, preventing a flash of unstyled content (FOUC) in SSR
+ * / Nuxt environments.
+ *
+ * Insert this in your index.html `<head>` before any CSS loads:
+ * ```html
+ * <script>${getAntiFlickerScript()}</script>
+ * ```
+ *
+ * @param storageKey — localStorage key for theme persistence
+ */
+export function getAntiFlickerScript(storageKey = 'nm-theme-preference'): string {
+  return `!function(){try{var t=localStorage.getItem('${storageKey}');if(!t)return;if(t==='dark'||(t==='auto'&&window.matchMedia('(prefers-color-scheme:dark)').matches))document.documentElement.setAttribute('data-theme','dark')}catch(e){}}()`
+}

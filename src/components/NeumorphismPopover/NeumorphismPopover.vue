@@ -197,6 +197,12 @@ onMounted(() => {
 onBeforeUnmount(() => {
   if (typeof document === 'undefined') return
   document.removeEventListener('click', onDocumentClick, true)
+  // Clean up window listeners in case the component unmounts while the
+  // popover is still open (e.g., removed via v-if or route change).
+  if (typeof window !== 'undefined') {
+    window.removeEventListener('scroll', handleWindowChange)
+    window.removeEventListener('resize', handleWindowChange)
+  }
 })
 
 // ---- Watch isOpen to calculate position, register window listeners, and emit ----

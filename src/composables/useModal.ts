@@ -59,6 +59,7 @@ export function useModal(opts: UseModalOptions): UseModalReturn {
   const rendered = ref(modelValue.value)
   const previousActiveElement = ref<HTMLElement | null>(null)
   let destroyTimer: ReturnType<typeof setTimeout> | undefined
+  let hasUnlocked = false
 
   function lockBodyScroll() {
     if (typeof document === 'undefined') return
@@ -103,7 +104,10 @@ export function useModal(opts: UseModalOptions): UseModalReturn {
             rendered.value = false
           }, 200)
         }
-        unlockBodyScroll()
+        if (!hasUnlocked) {
+          unlockBodyScroll()
+          hasUnlocked = true
+        }
         previousActiveElement.value?.focus()
       }
     }
@@ -174,7 +178,10 @@ export function useModal(opts: UseModalOptions): UseModalReturn {
 
   onBeforeUnmount(() => {
     clearTimeout(destroyTimer)
-    unlockBodyScroll()
+    if (!hasUnlocked) {
+      unlockBodyScroll()
+      hasUnlocked = true
+    }
     if (visible.value) {
       previousActiveElement.value?.focus()
     }

@@ -99,6 +99,18 @@ export interface LocaleMessages {
   datePickerNextMonth?: string
   datePickerPrevYear?: string
   datePickerNextYear?: string
+  datePickerMonth1?: string
+  datePickerMonth2?: string
+  datePickerMonth3?: string
+  datePickerMonth4?: string
+  datePickerMonth5?: string
+  datePickerMonth6?: string
+  datePickerMonth7?: string
+  datePickerMonth8?: string
+  datePickerMonth9?: string
+  datePickerMonth10?: string
+  datePickerMonth11?: string
+  datePickerMonth12?: string
 
   /** Upload */
   uploadSelectFile?: string
@@ -129,6 +141,20 @@ export interface LocaleMessages {
   markdownTocClose?: string
   markdownTocExpand?: string
   markdownTocCollapse?: string
+
+  /** Dropdown */
+  dropdownMenuLabel?: string
+
+  /** Slider */
+  sliderLabel?: string
+
+  /** InputNumber */
+  inputNumberIncrement?: string
+  inputNumberDecrement?: string
+
+  /** AutoComplete */
+  autoCompleteLoading?: string
+  autoCompleteEmpty?: string
 }
 
 export type Locale = 'zh-CN' | 'en-US'

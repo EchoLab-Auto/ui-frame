@@ -98,14 +98,18 @@ function startDots() {
   injectHider(props.target)
   window.addEventListener('resize', updateOverlayHeight, { passive: true })
 
-  // Create overlay, insert as first child so it's at the top in normal flow.
-  // position:sticky + top:0 keeps it visible at the top while scrolling.
-  // margin-left:auto pushes it to the right edge.
+  // Zero-height sticky wrapper — occupies no vertical space in flow
+  // but stays pinned to the top while scrolling.
+  const wrapper = document.createElement('div')
+  wrapper.style.cssText =
+    'position:sticky;top:0;margin-left:auto;margin-right:4px;width:25px;height:0;z-index:1'
+  // Dots overlay — absolute within the wrapper, rendered at full container height
+  // so the dot pattern spans the entire scrollable area without pushing content.
   overlayEl = document.createElement('div')
-  overlayEl.style.cssText =
-    'position:sticky;top:0;margin-left:auto;margin-right:4px;width:25px;z-index:1;pointer-events:none'
+  overlayEl.style.cssText = 'position:absolute;right:0;top:0;width:25px;pointer-events:none'
   overlayEl.style.height = `${overlayH.value}px`
-  el.insertBefore(overlayEl, el.firstChild)
+  wrapper.appendChild(overlayEl)
+  el.insertBefore(wrapper, el.firstChild)
 
   onScroll()
   updateOverlayHeight()
@@ -116,7 +120,7 @@ function stopDots() {
   window.removeEventListener('resize', updateOverlayHeight)
   removeHider()
   if (overlayEl) {
-    overlayEl.remove()
+    overlayEl.parentElement?.remove() // remove the sticky wrapper
     overlayEl = null
   }
   el = null

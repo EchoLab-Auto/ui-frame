@@ -100,6 +100,7 @@ export function useUpload(opts: UseUploadOptions = {}): UseUploadReturn {
   const dragOver = ref(false)
   const fileInputRef = ref<HTMLInputElement | null>(null)
   let dragCounter = 0
+  const uploadIntervals: ReturnType<typeof setInterval>[] = []
 
   // ---- helpers -----------------------------------------------------------
 
@@ -287,6 +288,7 @@ export function useUpload(opts: UseUploadOptions = {}): UseUploadReturn {
                 resolve()
               }
             }, 300)
+            uploadIntervals.push(interval)
           })
       )
     )
@@ -335,6 +337,7 @@ export function useUpload(opts: UseUploadOptions = {}): UseUploadReturn {
   // ---- cleanup -----------------------------------------------------------
 
   onBeforeUnmount(() => {
+    for (const interval of uploadIntervals) clearInterval(interval)
     for (const f of files.value) {
       revokeObjectURL(f.url)
     }

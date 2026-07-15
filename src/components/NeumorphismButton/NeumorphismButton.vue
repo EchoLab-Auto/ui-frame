@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 import { useConfig } from '@/composables/useConfig'
 
-export type ButtonVariant = 'raised' | 'flat' | 'pressed'
+export type ButtonVariant = 'raised' | 'flat' | 'pressed' | 'primary' | 'glow'
 export type ButtonSize = 'small' | 'medium' | 'large'
 export type ButtonShape = 'rounded' | 'pill' | 'circle'
 
@@ -253,6 +253,68 @@ function handleClick(event: MouseEvent): void {
       inset 5px 5px 10px var(--nm-shadow-dark-deep),
       inset -5px -5px 10px var(--nm-shadow-light-deep);
     transition: box-shadow 0.1s ease;
+  }
+}
+
+// Primary — gradient fill with semantic color
+.nm-button--primary {
+  background: linear-gradient(
+    135deg,
+    var(--nm-color-primary-400),
+    var(--nm-color-primary-500),
+    var(--nm-color-primary-600)
+  );
+  color: var(--nm-text-on-primary);
+  box-shadow:
+    0 2px 6px color-mix(in srgb, var(--nm-primary-color) 35%, transparent),
+    -2px -2px 6px var(--nm-shadow-light);
+
+  &:not(.nm-button--disabled):hover {
+    background: linear-gradient(
+      135deg,
+      var(--nm-color-primary-300),
+      var(--nm-color-primary-400),
+      var(--nm-color-primary-500)
+    );
+    transform: translateY(-2px);
+    box-shadow:
+      0 4px 12px color-mix(in srgb, var(--nm-primary-color) 50%, transparent),
+      -3px -3px 10px var(--nm-shadow-light);
+  }
+
+  &:not(.nm-button--disabled):active {
+    transform: translateY(0);
+    box-shadow:
+      inset 3px 3px 6px var(--nm-shadow-dark-deep),
+      inset -3px -3px 6px var(--nm-shadow-light-deep);
+  }
+}
+
+// Glow — raised button with animated glow pulse
+.nm-button--glow {
+  box-shadow:
+    0 1px 2px var(--nm-shadow-ambient-md),
+    4px 4px 8px var(--nm-shadow-dark),
+    -2px -2px 6px var(--nm-shadow-light),
+    0 0 12px color-mix(in srgb, var(--nm-primary-color) 30%, transparent);
+
+  &:not(.nm-button--disabled):hover {
+    transform: translateY(-2px);
+    box-shadow:
+      0 3px 6px var(--nm-shadow-ambient-xl),
+      6px 6px 14px var(--nm-shadow-dark),
+      -3px -3px 10px var(--nm-shadow-light),
+      0 0 24px color-mix(in srgb, var(--nm-primary-color) 50%, transparent);
+  }
+
+  &:not(.nm-button--disabled):active {
+    transform: translateY(1px);
+    box-shadow:
+      inset 3px 3px 6px var(--nm-shadow-dark-deep),
+      inset -3px -3px 6px var(--nm-shadow-light-deep);
+    transition:
+      box-shadow 0.15s ease,
+      transform 0.15s ease;
   }
 }
 

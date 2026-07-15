@@ -43,6 +43,8 @@ export interface NeumorphismCardProps {
    *   - `'sink'` — elevation decreases (card sinks inward)
    */
   hoverable?: boolean | 'bulge' | 'sink'
+  /** Enable glass morphism: frosted glass with backdrop blur */
+  glass?: boolean
 }
 
 // Map old variant+depth to unified elevation
@@ -57,6 +59,7 @@ const props = withDefaults(defineProps<NeumorphismCardProps>(), {
   radius: 'large',
   noPadding: false,
   hoverable: false,
+  glass: false,
 })
 
 const { config, resolveProp } = useNeumorphismSetup()
@@ -78,6 +81,7 @@ const classList = computed(() => [
   `nm-card--elevation-${elevation.value}`,
   `nm-card--radius-${resolvedRadius.value}`,
   {
+    'nm-card--glass': props.glass,
     'nm-card--no-padding': props.noPadding,
     'nm-card--hoverable': !!resolvedHoverable.value,
     'nm-card--hover-bulge': resolvedHoverable.value === true || resolvedHoverable.value === 'bulge',
@@ -356,6 +360,17 @@ $elevation-shadows: (
 // ============================================================
 //  Hover transitions & transforms
 // ============================================================
+// ---- Glass morphism variant ----
+.nm-card--glass {
+  background: var(--nm-glass-bg);
+  backdrop-filter: blur(var(--nm-glass-blur));
+  -webkit-backdrop-filter: blur(var(--nm-glass-blur));
+  border: 1px solid color-mix(in srgb, var(--nm-shadow-light) 18%, transparent);
+  box-shadow:
+    0 4px 16px var(--nm-shadow-ambient-md),
+    0 2px 4px color-mix(in srgb, var(--nm-shadow-dark) 30%, transparent);
+}
+
 .nm-card--hoverable {
   transition:
     box-shadow 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),

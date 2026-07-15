@@ -97,6 +97,18 @@ export const zhCN: LocaleMessages = {
   datePickerNextMonth: '下个月',
   datePickerPrevYear: '上一年',
   datePickerNextYear: '下一年',
+  datePickerMonth1: '一月',
+  datePickerMonth2: '二月',
+  datePickerMonth3: '三月',
+  datePickerMonth4: '四月',
+  datePickerMonth5: '五月',
+  datePickerMonth6: '六月',
+  datePickerMonth7: '七月',
+  datePickerMonth8: '八月',
+  datePickerMonth9: '九月',
+  datePickerMonth10: '十月',
+  datePickerMonth11: '十一月',
+  datePickerMonth12: '十二月',
 
   // Upload
   uploadSelectFile: '点击或拖拽上传',
@@ -127,4 +139,18 @@ export const zhCN: LocaleMessages = {
   markdownTocClose: '关闭目录',
   markdownTocExpand: '展开子标题',
   markdownTocCollapse: '折叠子标题',
+
+  // Dropdown
+  dropdownMenuLabel: '下拉菜单',
+
+  // Slider
+  sliderLabel: '滑块',
+
+  // InputNumber
+  inputNumberIncrement: '增加',
+  inputNumberDecrement: '减少',
+
+  // AutoComplete
+  autoCompleteLoading: '加载中...',
+  autoCompleteEmpty: '暂无匹配结果',
 }

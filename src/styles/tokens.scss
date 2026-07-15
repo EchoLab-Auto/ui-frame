@@ -12,9 +12,17 @@
   --nm-surface-raised: #e5e5e5;
 
   --nm-text-primary: #555555;
-  --nm-text-secondary: #888888;
+  --nm-text-secondary: #666666;
   --nm-text-disabled: #bbbbbb;
-  --nm-text-placeholder: #aaaaaa;
+  --nm-text-placeholder: #888888;
+
+  // Neutral gray scale — 6-step hierarchical surface depth
+  --nm-neutral-0: #f5f5f5;
+  --nm-neutral-100: #e8e8e8;
+  --nm-neutral-200: #d4d4d4;
+  --nm-neutral-300: #b0b0b0;
+  --nm-neutral-400: #888888;
+  --nm-neutral-500: #555555;
 
   --nm-primary-color: #cdfa4e;
   --nm-primary-light: #d9fb75;
@@ -29,7 +37,7 @@
   --nm-shadow-light-deep: rgba(255, 255, 255, 0.85);
 
   // Ambient shadows used for lifted/raised surfaces (e.g., buttons, cards)
-  --nm-shadow-ambient-subtle: rgba(0, 0, 0, 0.05);
+  --nm-shadow-ambient-subtle: rgba(0, 0, 0, 0.03);
   --nm-shadow-ambient-sm: rgba(0, 0, 0, 0.04);
   --nm-shadow-ambient-md: rgba(0, 0, 0, 0.06);
   --nm-shadow-ambient-lg: rgba(0, 0, 0, 0.07);
@@ -62,16 +70,106 @@
   --nm-font-xl: 16px;
   --nm-font-2xl: 18px;
 
+  // Heading type scale (major third: 1.25 ratio)
+  --nm-heading-h6-size: 14px;
+  --nm-heading-h6-line-height: 1.5;
+  --nm-heading-h5-size: 16px;
+  --nm-heading-h5-line-height: 1.5;
+  --nm-heading-h4-size: 18px;
+  --nm-heading-h4-line-height: 1.4;
+  --nm-heading-h3-size: 22px;
+  --nm-heading-h3-line-height: 1.35;
+  --nm-heading-h2-size: 28px;
+  --nm-heading-h2-line-height: 1.3;
+  --nm-heading-h1-size: 34px;
+  --nm-heading-h1-line-height: 1.25;
+  --nm-heading-font-weight: 600;
+  --nm-heading-letter-spacing: -0.3px;
+
+  // Line heights
+  --nm-line-height-tight: 1.25;
+  --nm-line-height-normal: 1.5;
+  --nm-line-height-relaxed: 1.75;
+
+  // Font weights
+  --nm-font-weight-normal: 400;
+  --nm-font-weight-medium: 500;
+  --nm-font-weight-semibold: 600;
+  --nm-font-weight-bold: 700;
+
+  --nm-spacing-2xs: 2px;
   --nm-spacing-xs: 4px;
   --nm-spacing-sm: 8px;
   --nm-spacing-md: 16px;
   --nm-spacing-lg: 24px;
   --nm-spacing-xl: 32px;
+  --nm-spacing-2xl: 40px;
+  --nm-spacing-3xl: 48px;
+  // Negative spacing for margin/offset utilities
+  --nm-spacing-neg-xs: -4px;
+  --nm-spacing-neg-sm: -8px;
 
   --nm-color-success: #27ae60;
   --nm-color-error: #e74c3c;
   --nm-color-warning: #f39c12;
   --nm-color-info: #3498db;
+
+  // ---- Semantic color ramps (50-900) ----
+  // Primary
+  --nm-color-primary-50: color-mix(in srgb, #fff 90%, var(--nm-primary-color) 10%);
+  --nm-color-primary-100: color-mix(in srgb, #fff 75%, var(--nm-primary-color) 25%);
+  --nm-color-primary-200: color-mix(in srgb, #fff 55%, var(--nm-primary-color) 45%);
+  --nm-color-primary-300: color-mix(in srgb, #fff 35%, var(--nm-primary-color) 65%);
+  --nm-color-primary-400: color-mix(in srgb, #fff 18%, var(--nm-primary-color) 82%);
+  --nm-color-primary-500: var(--nm-primary-color);
+  --nm-color-primary-600: color-mix(in srgb, #000 18%, var(--nm-primary-color) 82%);
+  --nm-color-primary-700: color-mix(in srgb, #000 35%, var(--nm-primary-color) 65%);
+  --nm-color-primary-800: color-mix(in srgb, #000 55%, var(--nm-primary-color) 45%);
+  --nm-color-primary-900: color-mix(in srgb, #000 75%, var(--nm-primary-color) 25%);
+  // Success
+  --nm-color-success-50: color-mix(in srgb, #fff 90%, var(--nm-color-success) 10%);
+  --nm-color-success-100: color-mix(in srgb, #fff 75%, var(--nm-color-success) 25%);
+  --nm-color-success-200: color-mix(in srgb, #fff 55%, var(--nm-color-success) 45%);
+  --nm-color-success-300: color-mix(in srgb, #fff 35%, var(--nm-color-success) 65%);
+  --nm-color-success-400: color-mix(in srgb, #fff 18%, var(--nm-color-success) 82%);
+  --nm-color-success-500: var(--nm-color-success);
+  --nm-color-success-600: color-mix(in srgb, #000 18%, var(--nm-color-success) 82%);
+  --nm-color-success-700: color-mix(in srgb, #000 35%, var(--nm-color-success) 65%);
+  --nm-color-success-800: color-mix(in srgb, #000 55%, var(--nm-color-success) 45%);
+  --nm-color-success-900: color-mix(in srgb, #000 75%, var(--nm-color-success) 25%);
+  // Error
+  --nm-color-error-50: color-mix(in srgb, #fff 90%, var(--nm-color-error) 10%);
+  --nm-color-error-100: color-mix(in srgb, #fff 75%, var(--nm-color-error) 25%);
+  --nm-color-error-200: color-mix(in srgb, #fff 55%, var(--nm-color-error) 45%);
+  --nm-color-error-300: color-mix(in srgb, #fff 35%, var(--nm-color-error) 65%);
+  --nm-color-error-400: color-mix(in srgb, #fff 18%, var(--nm-color-error) 82%);
+  --nm-color-error-500: var(--nm-color-error);
+  --nm-color-error-600: color-mix(in srgb, #000 18%, var(--nm-color-error) 82%);
+  --nm-color-error-700: color-mix(in srgb, #000 35%, var(--nm-color-error) 65%);
+  --nm-color-error-800: color-mix(in srgb, #000 55%, var(--nm-color-error) 45%);
+  --nm-color-error-900: color-mix(in srgb, #000 75%, var(--nm-color-error) 25%);
+  // Warning
+  --nm-color-warning-50: color-mix(in srgb, #fff 90%, var(--nm-color-warning) 10%);
+  --nm-color-warning-100: color-mix(in srgb, #fff 75%, var(--nm-color-warning) 25%);
+  --nm-color-warning-200: color-mix(in srgb, #fff 55%, var(--nm-color-warning) 45%);
+  --nm-color-warning-300: color-mix(in srgb, #fff 35%, var(--nm-color-warning) 65%);
+  --nm-color-warning-400: color-mix(in srgb, #fff 18%, var(--nm-color-warning) 82%);
+  --nm-color-warning-500: var(--nm-color-warning);
+  --nm-color-warning-600: color-mix(in srgb, #000 18%, var(--nm-color-warning) 82%);
+  --nm-color-warning-700: color-mix(in srgb, #000 35%, var(--nm-color-warning) 65%);
+  --nm-color-warning-800: color-mix(in srgb, #000 55%, var(--nm-color-warning) 45%);
+  --nm-color-warning-900: color-mix(in srgb, #000 75%, var(--nm-color-warning) 25%);
+  // Info
+  --nm-color-info-50: color-mix(in srgb, #fff 90%, var(--nm-color-info) 10%);
+  --nm-color-info-100: color-mix(in srgb, #fff 75%, var(--nm-color-info) 25%);
+  --nm-color-info-200: color-mix(in srgb, #fff 55%, var(--nm-color-info) 45%);
+  --nm-color-info-300: color-mix(in srgb, #fff 35%, var(--nm-color-info) 65%);
+  --nm-color-info-400: color-mix(in srgb, #fff 18%, var(--nm-color-info) 82%);
+  --nm-color-info-500: var(--nm-color-info);
+  --nm-color-info-600: color-mix(in srgb, #000 18%, var(--nm-color-info) 82%);
+  --nm-color-info-700: color-mix(in srgb, #000 35%, var(--nm-color-info) 65%);
+  --nm-color-info-800: color-mix(in srgb, #000 55%, var(--nm-color-info) 45%);
+  --nm-color-info-900: color-mix(in srgb, #000 75%, var(--nm-color-info) 25%);
 
   --nm-transition-fast: 0.2s ease;
   --nm-transition-normal: 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -81,6 +179,30 @@
   --nm-depth-medium: 6px;
   --nm-depth-deep: 10px;
   --nm-depth-very-deep: 16px;
+
+  // Three-layer shadow spread tokens
+  --nm-shadow-spread-sm: 1px;
+  --nm-shadow-spread-md: 3px;
+  --nm-shadow-spread-lg: 6px;
+  // Core shadow (tight, high-opacity — the "body" of the shadow)
+  --nm-shadow-core-opacity: 0.18;
+  --nm-shadow-core-blur-sm: 4px;
+  --nm-shadow-core-blur-md: 8px;
+  --nm-shadow-core-blur-lg: 16px;
+
+  // Glass morphism (frosted glass effect)
+  --nm-glass-blur: 20px;
+  --nm-glass-opacity: 0.65;
+  --nm-glass-border-opacity: 0.18;
+  --nm-glass-bg: color-mix(in srgb, var(--nm-surface-color) 65%, transparent);
+
+  // ---- Semantic color shadows (colored glows for focus/active states) ----
+  --nm-shadow-primary: color-mix(in srgb, var(--nm-primary-color) 40%, transparent);
+  --nm-shadow-primary-strong: color-mix(in srgb, var(--nm-primary-color) 60%, transparent);
+  --nm-shadow-success: color-mix(in srgb, var(--nm-color-success) 40%, transparent);
+  --nm-shadow-error: color-mix(in srgb, var(--nm-color-error) 40%, transparent);
+  --nm-shadow-warning: color-mix(in srgb, var(--nm-color-warning) 40%, transparent);
+  --nm-shadow-info: color-mix(in srgb, var(--nm-color-info) 40%, transparent);
 
   // ==========================================
   // Component Design Tokens
@@ -102,6 +224,7 @@
   --nm-button-padding-x-lg: 32px;
   --nm-button-font-lg: 16px;
   --nm-button-min-height-lg: 56px;
+  --nm-button-min-height: var(--nm-button-min-height-md);
   --nm-button-font-weight: 500;
 
   // -- Input / Textarea --
@@ -305,19 +428,24 @@
   --nm-upload-progress-height: 3px;
   --nm-upload-card-progress-height: 4px;
 
-  // -- Doc module design tokens --
+  // -- Border --
+  --nm-border-color: color-mix(in srgb, var(--nm-text-placeholder) 15%, transparent);
   --nm-border-subtle: color-mix(in srgb, var(--nm-text-placeholder) 12%, transparent);
   --nm-border-medium: color-mix(in srgb, var(--nm-text-placeholder) 15%, transparent);
+
+  // -- Doc module design tokens --
   --nm-font-mono: 'SF Mono', 'Cascadia Code', Monaco, 'Fira Code', 'Cousine', monospace;
   --nm-selection-bg: color-mix(in srgb, var(--nm-primary-color) 30%, transparent);
 
   // -- Chart --
-  --nm-chart-color-1: #cdfa4e;
-  --nm-chart-color-2: #27ae60;
-  --nm-chart-color-3: #f39c12;
-  --nm-chart-color-4: #e74c3c;
-  --nm-chart-color-5: #3498db;
-  --nm-chart-color-6: #9b59b6;
+  // Color-blind-safe palette: each color pair has distinct luminance
+  // so deuteranopia/protanopia users can still distinguish series.
+  --nm-chart-color-1: #cdfa4e; // bright lime (light)
+  --nm-chart-color-2: #27ae60; // green (medium-dark)
+  --nm-chart-color-3: #f39c12; // amber (medium-light)
+  --nm-chart-color-4: #e74c3c; // red (medium)
+  --nm-chart-color-5: #3498db; // blue (medium)
+  --nm-chart-color-6: #9b59b6; // purple (medium-dark)
   --nm-chart-grid-color: color-mix(in srgb, var(--nm-text-placeholder) 20%, transparent);
   --nm-chart-axis-color: var(--nm-text-placeholder);
   --nm-chart-label-color: var(--nm-text-secondary);
@@ -351,12 +479,12 @@
 .nm-theme-dark {
   --nm-bg-color: #1c1c1c;
   --nm-surface-color: #1c1c1c;
-  --nm-surface-raised: #222222;
+  --nm-surface-raised: #2a2a2a;
 
   --nm-text-primary: #c0c0c0;
-  --nm-text-secondary: #888888;
-  --nm-text-disabled: #505050;
-  --nm-text-placeholder: #666666;
+  --nm-text-secondary: #999999;
+  --nm-text-disabled: #555555;
+  --nm-text-placeholder: #777777;
 
   --nm-primary-color: #cdfa4e;
   --nm-primary-light: #d9fb75;
@@ -364,24 +492,24 @@
   --nm-text-on-primary: #000000;
 
   --nm-shadow-dark: rgba(0, 0, 0, 0.5);
-  --nm-shadow-light: rgba(255, 255, 255, 0.06);
+  --nm-shadow-light: rgba(255, 255, 255, 0.14);
   --nm-shadow-dark-strong: rgba(0, 0, 0, 0.6);
-  --nm-shadow-light-strong: rgba(255, 255, 255, 0.08);
+  --nm-shadow-light-strong: rgba(255, 255, 255, 0.18);
   --nm-shadow-dark-deep: rgba(0, 0, 0, 0.6);
-  --nm-shadow-light-deep: rgba(255, 255, 255, 0.1);
+  --nm-shadow-light-deep: rgba(255, 255, 255, 0.22);
 
   // Ambient shadows — stronger in dark mode to maintain浮雕感知
-  --nm-shadow-ambient-subtle: rgba(0, 0, 0, 0.3);
+  --nm-shadow-ambient-subtle: rgba(0, 0, 0, 0.2);
   --nm-shadow-ambient-sm: rgba(0, 0, 0, 0.3);
   --nm-shadow-ambient-md: rgba(0, 0, 0, 0.4);
   --nm-shadow-ambient-lg: rgba(0, 0, 0, 0.5);
   --nm-shadow-ambient-xl: rgba(0, 0, 0, 0.6);
   --nm-shadow-ambient-2xl: rgba(0, 0, 0, 0.7);
 
-  --nm-shadow-light-ambient-sm: rgba(255, 255, 255, 0.03);
-  --nm-shadow-light-ambient-md: rgba(255, 255, 255, 0.05);
-  --nm-shadow-light-ambient-lg: rgba(255, 255, 255, 0.08);
-  --nm-shadow-light-ambient-xl: rgba(255, 255, 255, 0.1);
+  --nm-shadow-light-ambient-sm: rgba(255, 255, 255, 0.06);
+  --nm-shadow-light-ambient-md: rgba(255, 255, 255, 0.08);
+  --nm-shadow-light-ambient-lg: rgba(255, 255, 255, 0.12);
+  --nm-shadow-light-ambient-xl: rgba(255, 255, 255, 0.16);
 
   --nm-mask-bg: rgba(0, 0, 0, 0.6);
   --nm-overlay-bg: rgba(0, 0, 0, 0.6);

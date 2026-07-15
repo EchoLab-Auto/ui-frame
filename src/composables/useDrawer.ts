@@ -74,6 +74,7 @@ export function useDrawer(opts: UseDrawerOptions): UseDrawerReturn {
   const rendered = ref(modelValue.value)
   const previousActiveElement = ref<HTMLElement | null>(null)
   let destroyTimer: ReturnType<typeof setTimeout> | undefined
+  let hasUnlocked = false
 
   // ---- scroll lock ----
   function lockBodyScroll() {
@@ -120,7 +121,10 @@ export function useDrawer(opts: UseDrawerOptions): UseDrawerReturn {
             rendered.value = false
           }, 200)
         }
-        unlockBodyScroll()
+        if (!hasUnlocked) {
+          unlockBodyScroll()
+          hasUnlocked = true
+        }
         previousActiveElement.value?.focus()
       }
     }
@@ -198,7 +202,10 @@ export function useDrawer(opts: UseDrawerOptions): UseDrawerReturn {
 
   onBeforeUnmount(() => {
     clearTimeout(destroyTimer)
-    unlockBodyScroll()
+    if (!hasUnlocked) {
+      unlockBodyScroll()
+      hasUnlocked = true
+    }
     if (isOpen.value) {
       previousActiveElement.value?.focus()
     }

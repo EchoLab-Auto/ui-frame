@@ -150,13 +150,27 @@ export function useVirtualList(opts: UseVirtualListOptions): UseVirtualListRetur
     return h
   }
 
-  // ---- Prefix-sum offset array ----
+  // ---- Height strategy detection ----
+  const isFixedHeight = computed(() => {
+    const raw = opts.itemHeight
+    return typeof raw === 'number' || (typeof raw !== 'function' && typeof raw.value === 'number')
+  })
+
+  function getFixedHeight(): number {
+    const raw = opts.itemHeight
+    if (typeof raw === 'number') return raw
+    if (typeof raw !== 'function') return (raw.value as number) ?? 30
+    return 30
+  }
+
+  // ---- Prefix-sum offset array (used only for dynamic-height mode) ----
+  let prefixCache: number[] | null = null
+
   function buildOffsets(): number[] {
     const count = items.value.length
     const offsets: number[] = [0]
     for (let i = 0; i < count; i++) {
-      const prev = offsets[i]
-      offsets.push(prev + getHeight(i))
+      offsets.push(offsets[i] + getHeight(i))
     }
     return offsets
   }
@@ -183,37 +197,49 @@ export function useVirtualList(opts: UseVirtualListOptions): UseVirtualListRetur
     const overscanVal = overscan.value
     const st = scrollTop.value
 
-    // Build prefix-sum offsets
-    const offsets = buildOffsets()
-    totalHeight.value = offsets[count]
+    let found: number
+    let rawEnd: number
 
-    // Binary search the first item whose bottom edge is after scrollTop
-    let lo = 0
-    let hi = count - 1
-    let found = 0
-    while (lo <= hi) {
-      const mid = (lo + hi) >>> 1
-      if (offsets[mid + 1] <= st) {
-        lo = mid + 1
-      } else {
-        found = mid
-        hi = mid - 1
+    if (isFixedHeight.value) {
+      // O(1) fixed-height path — no array allocation needed
+      const fh = getFixedHeight()
+      totalHeight.value = count * fh
+      found = Math.floor(st / fh)
+      rawEnd = Math.ceil((st + vh) / fh)
+    } else {
+      // O(n) dynamic-height path — build offsets once, reuse via cache invalidation
+      prefixCache = buildOffsets()
+      totalHeight.value = prefixCache[count]
+
+      // Binary search
+      let lo = 0,
+        hi = count - 1
+      found = 0
+      while (lo <= hi) {
+        const mid = (lo + hi) >>> 1
+        if (prefixCache[mid + 1] <= st) lo = mid + 1
+        else {
+          found = mid
+          hi = mid - 1
+        }
       }
+      // Scan forward for end index
+      const limit = st + vh
+      rawEnd = found
+      while (rawEnd < count && prefixCache[rawEnd + 1] < limit) rawEnd++
     }
 
     const rawStart = Math.max(0, found - overscanVal)
-
-    // Scan forward to find the last visible item
-    const limit = st + vh
-    let rawEnd = rawStart
-    while (rawEnd < count && offsets[rawEnd + 1] < limit) {
-      rawEnd++
-    }
     rawEnd = Math.min(count, rawEnd + 1 + overscanVal)
 
     startIndex.value = rawStart
     endIndex.value = rawEnd
-    offsetY.value = offsets[rawStart]
+
+    if (isFixedHeight.value) {
+      offsetY.value = rawStart * getFixedHeight()
+    } else {
+      offsetY.value = prefixCache?.[rawStart] ?? 0
+    }
   }
 
   // Invalidate dynamic height cache + recompute when the data changes.
@@ -248,8 +274,7 @@ export function useVirtualList(opts: UseVirtualListOptions): UseVirtualListRetur
     const count = items.value.length
     if (count === 0) return
     const clamped = Math.max(0, Math.min(count - 1, index))
-    const offsets = buildOffsets()
-    const itemTop = offsets[clamped]
+    const itemTop = isFixedHeight.value ? clamped * getFixedHeight() : buildOffsets()[clamped]
     const itemH = getHeight(clamped)
     const vh = viewportHeight.value
 

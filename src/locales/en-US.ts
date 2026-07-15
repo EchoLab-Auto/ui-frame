@@ -97,6 +97,18 @@ export const enUS: LocaleMessages = {
   datePickerNextMonth: 'Next month',
   datePickerPrevYear: 'Previous year',
   datePickerNextYear: 'Next year',
+  datePickerMonth1: 'January',
+  datePickerMonth2: 'February',
+  datePickerMonth3: 'March',
+  datePickerMonth4: 'April',
+  datePickerMonth5: 'May',
+  datePickerMonth6: 'June',
+  datePickerMonth7: 'July',
+  datePickerMonth8: 'August',
+  datePickerMonth9: 'September',
+  datePickerMonth10: 'October',
+  datePickerMonth11: 'November',
+  datePickerMonth12: 'December',
 
   // Upload
   uploadSelectFile: 'Click or drag to upload',
@@ -127,4 +139,18 @@ export const enUS: LocaleMessages = {
   markdownTocClose: 'Close table of contents',
   markdownTocExpand: 'Expand sub-headings',
   markdownTocCollapse: 'Collapse sub-headings',
+
+  // Dropdown
+  dropdownMenuLabel: 'Menu',
+
+  // Slider
+  sliderLabel: 'Slider',
+
+  // InputNumber
+  inputNumberIncrement: 'Increase',
+  inputNumberDecrement: 'Decrease',
+
+  // AutoComplete
+  autoCompleteLoading: 'Loading...',
+  autoCompleteEmpty: 'No results',
 }

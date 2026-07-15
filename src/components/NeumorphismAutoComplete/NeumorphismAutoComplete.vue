@@ -148,6 +148,11 @@ watch(isOpen, open => {
 })
 
 onBeforeUnmount(() => {
+  if (blurTimer) clearTimeout(blurTimer)
+  if (typeof window !== 'undefined') {
+    window.removeEventListener('scroll', updateDropdownPosition, true)
+    window.removeEventListener('resize', updateDropdownPosition)
+  }
   unregisterClickOutside()
   cleanupTimers()
 })
@@ -191,9 +196,13 @@ function onInputFocus(event: FocusEvent) {
   }
 }
 
+let blurTimer: ReturnType<typeof setTimeout> | null = null
+
 function onInputBlur(event: FocusEvent) {
   // Let click on dropdown option fire before blur closes the dropdown
-  setTimeout(() => {
+  if (blurTimer) clearTimeout(blurTimer)
+  blurTimer = setTimeout(() => {
+    blurTimer = null
     if (dropdownRef.value && document.activeElement) {
       if (dropdownRef.value.contains(document.activeElement)) return
     }

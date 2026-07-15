@@ -38,6 +38,28 @@
     inset calc(-1 * $depth) calc(-1 * $depth) $blur var(--nm-shadow-light-deep);
 }
 
+/// Three-layer raised shadow (ambient → core dark → edge light)
+@mixin nm-raised-3l($depth: 6px, $blur: 12px, $spread: 0px) {
+  box-shadow:
+    // Layer 1: Ambient occlusion — wide, subtle spread
+    0 $depth * 0.5 $blur * 2 $spread var(--nm-shadow-ambient-md),
+    // Layer 2: Core dark — tight, high-opacity directional
+    0 $depth $blur * 0.6 $spread var(--nm-shadow-dark),
+    // Layer 3: Edge light — negative offset, creates rim highlight
+    calc(-1 * $depth * 0.5) calc(-1 * $depth * 0.5) $blur * 0.7 var(--nm-shadow-light);
+}
+
+/// Three-layer inset shadow
+@mixin nm-inset-3l($depth: 6px, $blur: 12px, $spread: 0px) {
+  box-shadow:
+    // Layer 1: Ambient occlusion (inset)
+    inset 0 $depth * 0.5 $blur * 2 $spread var(--nm-shadow-ambient-md),
+    // Layer 2: Core dark (inset)
+    inset 0 $depth $blur * 0.6 $spread var(--nm-shadow-dark-deep),
+    // Layer 3: Edge light (inset, reversed direction)
+    inset calc(-1 * $depth * 0.5) calc(-1 * $depth * 0.5) $blur * 0.7 var(--nm-shadow-light-deep);
+}
+
 /// Hover lift effect
 @mixin nm-hover-lift {
   transition:
@@ -80,10 +102,10 @@
 /// Spring curve with overshoot — for bouncy interactions
 $nm-ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
 
-/// Quick compression — for active/pressed states
-$nm-ease-compress: cubic-bezier(0.4, 0, 0.2, 1);
+/// Quick compression — for active/pressed states (sharper, more immediate)
+$nm-ease-compress: cubic-bezier(0, 0, 0, 1);
 
-/// Smooth ambient — for color/shadow transitions
+/// Smooth ambient — for color/shadow transitions (gentle deceleration)
 $nm-ease-ambient: cubic-bezier(0.4, 0, 0.2, 1);
 
 /// Soft bounce — for subtle feedback
@@ -142,6 +164,43 @@ $nm-ease-accelerate: cubic-bezier(0.4, 0, 1, 1);
 /// Pulse glow animation
 @mixin nm-pulse-glow($color: var(--nm-primary-color), $duration: 2s) {
   animation: nm-pulse-glow $duration ease-in-out infinite;
+}
+
+// ==========================================
+// RTL (Right-to-Left) Support Mixins
+// ==========================================
+
+/// Generate mirrored left/right property values for RTL.
+@mixin nm-rtl-prop($ltr-prop, $ltr-value, $rtl-prop, $rtl-value) {
+  #{$ltr-prop}: $ltr-value;
+  [dir='rtl'] & {
+    #{$ltr-prop}: $rtl-value;
+    #{$rtl-prop}: $ltr-value;
+  }
+}
+
+/// Logical padding that flips left/right in RTL
+@mixin nm-rtl-padding($top, $right, $bottom, $left) {
+  padding: $top $right $bottom $left;
+  [dir='rtl'] & {
+    padding: $top $left $bottom $right;
+  }
+}
+
+/// Logical margin that flips left/right in RTL
+@mixin nm-rtl-margin($top, $right, $bottom, $left) {
+  margin: $top $right $bottom $left;
+  [dir='rtl'] & {
+    margin: $top $left $bottom $right;
+  }
+}
+
+/// Flip transform translateX direction for RTL
+@mixin nm-rtl-translate-x($x) {
+  transform: translateX($x);
+  [dir='rtl'] & {
+    transform: translateX(calc(-1 * #{$x}));
+  }
 }
 
 // ==========================================

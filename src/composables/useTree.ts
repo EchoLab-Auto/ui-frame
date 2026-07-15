@@ -1,4 +1,4 @@
-import { ref, computed, watch, nextTick, type Ref, type ComputedRef } from 'vue'
+import { ref, computed, watch, nextTick, onBeforeUnmount, type Ref, type ComputedRef } from 'vue'
 
 export interface TreeNodeData {
   key: string
@@ -142,50 +142,54 @@ export function useTree(opts: UseTreeOptions): UseTreeReturn {
   const focusedKey = ref<string | null>(null)
 
   // ==========================================
-  // 安全的双向同步 — 使用 syncFlag 打破循环
+  // 安全的双向同步 — 使用独立 sync flag 避免不同 key 组互相阻塞
   // ==========================================
-  let syncing = false
+  const syncingKeys = new Set<string>()
 
-  function syncFromExternal(external: Ref<string[]> | undefined, local: Ref<string[]>) {
+  function syncFromExternal(
+    external: Ref<string[]> | undefined,
+    local: Ref<string[]>,
+    key: string
+  ) {
     if (!external) return
     watch(
       () => external.value,
       val => {
-        if (syncing) return
+        if (syncingKeys.has(key)) return
         const next = [...val]
         if (arraysEqual(local.value, next)) return
-        syncing = true
+        syncingKeys.add(key)
         local.value = next
         nextTick(() => {
-          syncing = false
+          syncingKeys.delete(key)
         })
       },
       { immediate: true, deep: true }
     )
   }
 
-  function syncToExternal(local: Ref<string[]>, external: Ref<string[]> | undefined) {
+  function syncToExternal(local: Ref<string[]>, external: Ref<string[]> | undefined, key: string) {
     if (!external) return
     watch(
       () => local.value,
       val => {
-        if (syncing) return
+        if (syncingKeys.has(key)) return
         const next = [...val]
         if (arraysEqual(external.value, next)) return
-        syncing = true
+        syncingKeys.add(key)
         external.value = next
         nextTick(() => {
-          syncing = false
+          syncingKeys.delete(key)
         })
       },
       { deep: true }
     )
   }
 
-  syncFromExternal(opts.selectedKeys, localSelectedKeys)
-  syncFromExternal(opts.expandedKeys, localExpandedKeys)
-  syncToExternal(localSelectedKeys, opts.selectedKeys)
-  syncToExternal(localExpandedKeys, opts.expandedKeys)
+  syncFromExternal(opts.selectedKeys, localSelectedKeys, 'selected')
+  syncFromExternal(opts.expandedKeys, localExpandedKeys, 'expanded')
+  syncToExternal(localSelectedKeys, opts.selectedKeys, 'selected')
+  syncToExternal(localExpandedKeys, opts.expandedKeys, 'expanded')
 
   const allKeys = computed(() => collectAllKeys(data.value))
   const visibleNodes = computed(() => buildVisibleNodes(data.value, localExpandedKeys.value))
@@ -250,6 +254,10 @@ export function useTree(opts: UseTreeOptions): UseTreeReturn {
       focusedKey.value = match.key
     }
   }
+
+  onBeforeUnmount(() => {
+    if (typeaheadTimer) clearTimeout(typeaheadTimer)
+  })
 
   function focusNext() {
     const nodes = visibleNodes.value

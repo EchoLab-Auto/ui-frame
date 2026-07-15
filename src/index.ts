@@ -69,8 +69,16 @@ import './styles/index.scss'
 export * from './components'
 export type * from './components'
 
+// Composables — focus stack (for nested modals/drawers)
+export { useFocusStack } from './composables/useFocusStack'
+export type { FocusStack } from './composables/useFocusStack'
+
+// Composables — swipe gestures
+export { useSwipe } from './composables/useSwipe'
+export type { SwipeDirection, UseSwipeOptions, UseSwipeReturn } from './composables/useSwipe'
+
 // Composables — theme
-export { useTheme, provideTheme, createTheme } from './composables/useTheme'
+export { useTheme, provideTheme, createTheme, getAntiFlickerScript } from './composables/useTheme'
 
 export type { Theme, ThemeOptions, ThemeContext } from './composables/useTheme'
 
@@ -219,6 +227,15 @@ export type { UsePieChartOptions, PieArc } from './composables/usePieChart'
 export type { UsePieChartReturn } from './composables/usePieChart'
 
 export { useCandlestickChart } from './composables/useCandlestickChart'
+
+// OffscreenCanvas chart renderer
+export { createChartRenderer } from './composables/chartCanvasRenderer'
+export type {
+  ChartRenderer,
+  ChartRendererOptions,
+  BarSeries,
+  CanvasLineSeries,
+} from './composables/chartCanvasRenderer'
 export type {
   UseCandlestickChartOptions,
   CandleRect,
@@ -236,6 +253,9 @@ export { zhCN, enUS } from './locales'
 // Utilities
 export { generateId, debounce, isEmpty } from './utils'
 
+// Directives
+export { vMagnetic } from './directives/vMagnetic'
+
 // Config exports
 export { useConfig, ConfigKey } from './composables/useConfig'
 export type { NeumorphismGlobalConfig } from './composables/useConfig'
@@ -247,6 +267,7 @@ export type { NeumorphismSetupContext } from './extensions/createComponent'
 export type {
   ComponentOverrides,
   NeumorphismPluginOptions,
+  NeumorphismPluginHooks,
   ExtendedConfig,
 } from './extensions/types'
 
@@ -326,7 +347,7 @@ export function install(
   options?: NeumorphismGlobalConfig | NeumorphismPluginOptions
 ): void {
   const raw = (options ?? {}) as Record<string, unknown>
-  const isNew = 'config' in raw || 'components' in raw || 'prefix' in raw
+  const isNew = 'config' in raw || 'components' in raw || 'prefix' in raw || 'hooks' in raw
 
   const pluginConfig: NeumorphismGlobalConfig | undefined = isNew
     ? (raw.config as NeumorphismGlobalConfig | undefined)
@@ -336,23 +357,29 @@ export function install(
 
   const prefix: string = isNew ? ((raw.prefix ?? '') as string) : ''
 
+  const hooks = (isNew ? (raw.hooks as NeumorphismPluginOptions['hooks']) : undefined) ?? {}
+
   // Provide global config for all components to use as defaults
   if (pluginConfig) {
     app.provide(
       ConfigKey,
       computed(() => pluginConfig)
     )
+    hooks.onConfigChange?.(pluginConfig)
   }
 
   // Register default components, applying overrides where they exist
   for (const [name, defaultComponent] of Object.entries(NAME_TO_COMPONENT)) {
-    app.component(`${prefix}${name}`, overrides[name] ?? defaultComponent)
+    const component = overrides[name] ?? defaultComponent
+    app.component(`${prefix}${name}`, component)
+    hooks.onComponentRegister?.(name, component)
   }
 
   // Register any additional components not in the default set
   for (const [name, component] of Object.entries(overrides)) {
     if (!(name in NAME_TO_COMPONENT)) {
       app.component(`${prefix}${name}`, component)
+      hooks.onComponentRegister?.(name, component)
     }
   }
 }

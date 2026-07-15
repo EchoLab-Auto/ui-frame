@@ -1,0 +1,54 @@
+name: Docs Check
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'src/components/**/*.vue'
+      - 'src/composables/**/*.ts'
+      - 'src/styles/tokens.scss'
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  docs-up-to-date:
+    name: Check docs are up to date
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      HUSKY: 0
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate token docs
+        run: npx tsx scripts/generate-token-docs.ts
+
+      - name: Generate props docs
+        run: npx tsx scripts/generate-props-docs.ts
+
+      - name: Check for uncommitted doc changes
+        run: |
+          if ! git diff --exit-code docs/tokens.md docs/tokens.json docs/api-props.md; then
+            echo ""
+            echo "❌ Auto-generated docs are out of date."
+            echo "   Run the following commands locally and commit the changes:"
+            echo "     npx tsx scripts/generate-token-docs.ts"
+            echo "     npx tsx scripts/generate-props-docs.ts"
+            echo ""
+            exit 1
+          fi
+          echo "✅ All auto-generated docs are up to date."

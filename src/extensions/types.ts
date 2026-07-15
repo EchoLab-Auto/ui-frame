@@ -11,6 +11,18 @@ export interface ComponentOverrides {
 }
 
 /**
+ * Plugin lifecycle hooks — inject custom behaviour at key moments.
+ */
+export interface NeumorphismPluginHooks {
+  /** Called after every component is registered (name, component). */
+  onComponentRegister?: (name: string, component: Component) => void
+  /** Called when the theme changes (light | dark). */
+  onThemeChange?: (theme: 'light' | 'dark') => void
+  /** Called when global config is applied or changed. */
+  onConfigChange?: (config: NeumorphismGlobalConfig) => void
+}
+
+/**
  * Extended plugin options for app.use().
  *
  * @example Legacy format (still supported)
@@ -24,6 +36,9 @@ export interface ComponentOverrides {
  *   config: { button: { size: 'large' } },
  *   components: { NeumorphismButton: MyCustomButton },
  *   prefix: 'App',
+ *   hooks: {
+ *     onThemeChange: (t) => analytics.track('theme', { theme: t }),
+ *   },
  * })
  * ```
  */
@@ -46,6 +61,9 @@ export interface NeumorphismPluginOptions {
    * `prefix: 'App'` registers `<AppNeumorphismButton>` instead of `<NeumorphismButton>`.
    */
   prefix?: string
+
+  /** Lifecycle hooks for plugin events. */
+  hooks?: NeumorphismPluginHooks
 }
 
 /**

@@ -41,14 +41,6 @@ const breadcrumbItems = [
   { label: '仪表盘布局' },
 ]
 
-// ---- 开关状态 ----
-const _widgetToggles = ref({
-  stats: true,
-  chart: true,
-  tasks: true,
-  notifications: true,
-})
-
 // ---- 响应式断点展示 ----
 const breakpointDemo = ref('md')
 const breakpoints = [
@@ -68,6 +60,7 @@ const containerModes = [
 
 <template>
   <div class="layout-page">
+    <NeumorphismScrollbar variant="dots" target=".layout-page" />
     <div class="content-inner">
       <!-- Hero -->
       <section class="hero">
@@ -435,6 +428,9 @@ const containerModes = [
 @use '../../src/styles/mixins.scss' as *;
 
 .layout-page {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
   background-color: var(--nm-bg-color);
   color: var(--nm-text-primary);
 }

@@ -1,0 +1,54 @@
+// ==========================================
+// Semantic Color Ramp Generator
+// ==========================================
+// Programmatically generates 50–900 CSS custom property
+// color ramps for each semantic color using color-mix().
+// Each step mixes the base color with white (lighten) or
+// black (darken) at progressive ratios.
+//
+// Usage in tokens.scss:
+//   @include generate-color-ramp('primary', var(--nm-primary-color));
+//   @include generate-color-ramp('success', var(--nm-color-success));
+// ==========================================
+
+/// Generate a 10-step color ramp (50, 100, 200, …, 900) for a
+/// semantic color name. The base color is typically the 500 step.
+///
+/// Light steps (50–400) lighten by mixing with white.
+/// Dark steps (600–900) darken by mixing with black.
+///
+/// The $base argument should be a CSS color value — hex, rgb(), or
+/// a var() reference to a previously defined token.
+@mixin generate-color-ramp($name, $base) {
+  // Light steps — mix with white at decreasing ratios
+  --nm-color-#{$name}-50: color-mix(in srgb, #fff 90%, #{$base} 10%);
+  --nm-color-#{$name}-100: color-mix(in srgb, #fff 75%, #{$base} 25%);
+  --nm-color-#{$name}-200: color-mix(in srgb, #fff 55%, #{$base} 45%);
+  --nm-color-#{$name}-300: color-mix(in srgb, #fff 35%, #{$base} 65%);
+  --nm-color-#{$name}-400: color-mix(in srgb, #fff 18%, #{$base} 82%);
+  // Base (500) — the original color
+  --nm-color-#{$name}-500: #{$base};
+  // Dark steps — mix with black at increasing ratios
+  --nm-color-#{$name}-600: color-mix(in srgb, #000 18%, #{$base} 82%);
+  --nm-color-#{$name}-700: color-mix(in srgb, #000 35%, #{$base} 65%);
+  --nm-color-#{$name}-800: color-mix(in srgb, #000 55%, #{$base} 45%);
+  --nm-color-#{$name}-900: color-mix(in srgb, #000 75%, #{$base} 25%);
+
+  // Convenience aliases for common states
+  --nm-color-#{$name}-bg: var(--nm-color-#{$name}-50);
+  --nm-color-#{$name}-hover: var(--nm-color-#{$name}-100);
+  --nm-color-#{$name}-active: var(--nm-color-#{$name}-200);
+  --nm-color-#{$name}-border: var(--nm-color-#{$name}-300);
+  --nm-color-#{$name}-text: var(--nm-color-#{$name}-700);
+}
+
+/// Generate color ramps for all five semantic colors.
+/// Call this inside :root and [data-theme='dark'] to ensure
+/// each theme has its own ramps derived from its base colors.
+@mixin generate-all-color-ramps {
+  @include generate-color-ramp('primary', var(--nm-primary-color));
+  @include generate-color-ramp('success', var(--nm-color-success));
+  @include generate-color-ramp('error', var(--nm-color-error));
+  @include generate-color-ramp('warning', var(--nm-color-warning));
+  @include generate-color-ramp('info', var(--nm-color-info));
+}

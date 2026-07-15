@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watch, nextTick } from 'vue'
+import { computed, ref, watch, nextTick, onBeforeUnmount } from 'vue'
 import { useTooltip } from '@/composables/useTooltip'
 import { useNeumorphismSetup } from '@/extensions/createComponent'
 import type { TooltipPosition, TooltipTrigger } from '@/composables/useTooltip'
@@ -107,6 +107,13 @@ const classList = computed(() => [
   `nm-tooltip--${actualPosition.value}`,
   { 'nm-tooltip--visible': isVisible.value },
 ])
+
+onBeforeUnmount(() => {
+  if (typeof window !== 'undefined') {
+    window.removeEventListener('scroll', handleWindowChange)
+    window.removeEventListener('resize', handleWindowChange)
+  }
+})
 </script>
 
 <template>

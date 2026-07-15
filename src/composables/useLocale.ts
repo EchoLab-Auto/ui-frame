@@ -12,6 +12,7 @@ const LOCALE_MAP: Record<Locale, LocaleMessages> = {
 const LocaleKey: InjectionKey<ComputedRef<LocaleMessages>> = Symbol('nm-locale')
 
 const DEFAULT_LOCALE = zhCN
+const DEFAULT_LOCALE_REF: ComputedRef<LocaleMessages> = computed(() => DEFAULT_LOCALE)
 
 /**
  * Simple message interpolation: replaces `{key}` with values from the params object.
@@ -42,10 +43,7 @@ export function useLocale(): {
   locale: ComputedRef<LocaleMessages>
   t: (key: keyof LocaleMessages, params?: Record<string, string | number>) => string
 } {
-  const locale = inject(
-    LocaleKey,
-    computed(() => DEFAULT_LOCALE)
-  )
+  const locale = inject(LocaleKey, DEFAULT_LOCALE_REF)
 
   function t(key: keyof LocaleMessages, params?: Record<string, string | number>): string {
     return interpolate(locale.value[key], params)

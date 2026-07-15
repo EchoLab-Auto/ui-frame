@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useNeumorphismSetup } from '@/extensions/createComponent'
+import { useLocale } from '@/composables/useLocale'
 import type { PopoverPosition, PopoverTrigger } from '@/composables/usePopover'
 import NeumorphismPopover from '@/components/NeumorphismPopover/NeumorphismPopover.vue'
+
+const { t } = useLocale()
 
 export interface DropdownItem {
   key: string
@@ -137,14 +140,21 @@ const classList = computed(() => ['nm-dropdown'])
 
     <!-- Content slot -->
     <template #content>
-      <div :class="classList" role="menu" aria-label="Menu" @keydown="handleKeydown">
+      <div
+        :class="classList"
+        role="menu"
+        :aria-label="t('dropdownMenuLabel')"
+        @keydown="handleKeydown"
+      >
         <template v-for="(item, index) in items" :key="item.key">
           <div v-if="item.divided && index > 0" class="nm-dropdown__divider" role="separator" />
           <div
             :class="getItemClass(item, index)"
             role="menuitem"
             :aria-disabled="item.disabled"
-            :tabindex="item.disabled ? -1 : 0"
+            :tabindex="
+              item.disabled ? -1 : items.filter(i => !i.disabled)[activeIndex] === item ? 0 : -1
+            "
             @click="handleSelect(item)"
           >
             <span v-if="item.icon" class="nm-dropdown__item-icon">{{ item.icon }}</span>

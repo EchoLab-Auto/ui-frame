@@ -78,7 +78,7 @@ export function coordinateToValue(
  * a drag state without any rendering. Use with your own UI.
  */
 export function useSlider(opts: UseSliderOptions): UseSliderReturn {
-  const { modelValue, min, max, step, disabled, vertical } = opts
+  const { modelValue, min, max, step, disabled } = opts
 
   const isDragging = ref(false)
 
@@ -111,7 +111,6 @@ export function useSlider(opts: UseSliderOptions): UseSliderReturn {
 
   function handleKeydown(event: KeyboardEvent): void {
     if (disabled?.value) return
-    const isVertical = vertical?.value ?? false
 
     let prevent = true
     const current = sliderValue.value
@@ -119,7 +118,7 @@ export function useSlider(opts: UseSliderOptions): UseSliderReturn {
     switch (event.key) {
       case 'ArrowRight':
       case 'ArrowUp': {
-        const increment = isVertical && event.key === 'ArrowUp' ? step : step
+        const increment = step
         // ArrowUp in horizontal mode still increases; ArrowRight in vertical
         // follows the logical "increase" direction regardless of orientation.
         const next = clamp(current + increment, min, max)
