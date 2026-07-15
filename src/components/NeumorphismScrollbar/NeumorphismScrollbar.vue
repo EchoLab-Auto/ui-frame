@@ -55,24 +55,22 @@ onUnmounted(() => {
 
 // ==================== Dots variant ====================
 const scrollY = ref(0)
-const overlayTop = ref(0)
-const overlayH = ref(window.innerHeight)
+const overlayH = ref(100)
 const overlayDocH = ref(1000)
 let el: HTMLElement | null = null
+let overlayEl: HTMLDivElement | null = null
 let styleId: string | null = null
 
-function syncRect() {
+function updateOverlayHeight() {
   if (!el) return
-  const r = el.getBoundingClientRect()
-  overlayTop.value = r.top
-  overlayH.value = r.height
+  overlayH.value = el.clientHeight
+  if (overlayEl) overlayEl.style.height = `${overlayH.value}px`
 }
 
 function onScroll() {
   if (!el) return
   scrollY.value = el.scrollTop
   overlayDocH.value = el.scrollHeight
-  syncRect()
 }
 
 function injectHider(selector: string) {
@@ -93,26 +91,34 @@ function removeHider() {
   }
 }
 
-function onGlobalScroll() {
-  syncRect()
-}
-
 function startDots() {
   el = document.querySelector(props.target)
-  if (el) {
-    el.addEventListener('scroll', onScroll, { passive: true })
-    onScroll()
-    injectHider(props.target)
-  }
-  window.addEventListener('scroll', onGlobalScroll, { passive: true })
-  window.addEventListener('resize', onScroll, { passive: true })
+  if (!el) return
+  el.addEventListener('scroll', onScroll, { passive: true })
+  injectHider(props.target)
+  window.addEventListener('resize', updateOverlayHeight, { passive: true })
+
+  // Create overlay, insert as first child so it's at the top in normal flow.
+  // position:sticky + top:0 keeps it visible at the top while scrolling.
+  // margin-left:auto pushes it to the right edge.
+  overlayEl = document.createElement('div')
+  overlayEl.style.cssText =
+    'position:sticky;top:0;margin-left:auto;margin-right:4px;width:25px;z-index:1;pointer-events:none'
+  overlayEl.style.height = `${overlayH.value}px`
+  el.insertBefore(overlayEl, el.firstChild)
+
+  onScroll()
+  updateOverlayHeight()
 }
 
 function stopDots() {
   if (el) el.removeEventListener('scroll', onScroll)
-  window.removeEventListener('scroll', onGlobalScroll)
-  window.removeEventListener('resize', onScroll)
+  window.removeEventListener('resize', updateOverlayHeight)
   removeHider()
+  if (overlayEl) {
+    overlayEl.remove()
+    overlayEl = null
+  }
   el = null
 }
 
@@ -159,22 +165,17 @@ const bgImage = computed(() => {
   }
   return layers.join(',\n')
 })
+
+// Sync computed background to DOM overlay
+watch(bgImage, val => {
+  if (overlayEl) {
+    overlayEl.style.backgroundImage = val
+    overlayEl.style.backgroundSize = `25px ${overlayH.value}px`
+    overlayEl.style.backgroundRepeat = 'no-repeat'
+  }
+})
 </script>
 
 <template>
-  <div
-    v-if="isDots"
-    :style="{
-      position: 'fixed',
-      right: '4px',
-      top: `${overlayTop}px`,
-      height: `${overlayH}px`,
-      width: '25px',
-      zIndex: 99999,
-      backgroundImage: bgImage,
-      backgroundSize: `25px ${overlayH}px`,
-      backgroundRepeat: 'no-repeat',
-      pointerEvents: 'none',
-    }"
-  />
+  <span v-if="false" />
 </template>
