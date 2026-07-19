@@ -652,7 +652,7 @@ function onPointClick(pt: { dataIndex: number; seriesIndex: number; value: numbe
 .nm-chart__tooltip {
   position: fixed;
   pointer-events: none;
-  z-index: 1000;
+  z-index: var(--nm-z-dropdown);
   padding: 10px 14px;
   background: var(--nm-chart-tooltip-bg);
   color: var(--nm-chart-tooltip-text);

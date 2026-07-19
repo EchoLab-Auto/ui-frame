@@ -54,6 +54,17 @@
   --nm-mask-bg: rgba(0, 0, 0, 0.4);
   --nm-overlay-bg: rgba(0, 0, 0, 0.35);
 
+  // ---- Z-Index Layers ----
+  // Static base values; actual rendered z-index = base + (overlayDepth × stride).
+  // Overlay depth is managed automatically by Modal / Drawer via useZIndex().
+  // Override these to shift the entire z-index scale (e.g. for third-party libs).
+  --nm-z-dropdown: 100;
+  --nm-z-tooltip: 200;
+  --nm-z-popover: 300;
+  --nm-z-overlay: 400;
+  --nm-z-toast: 500;
+  --nm-z-stride: 1000;
+
   --nm-border-radius-sm: 8px;
   --nm-border-radius-md: 16px;
   --nm-border-radius-lg: 24px;
@@ -513,6 +524,14 @@
 
   --nm-mask-bg: rgba(0, 0, 0, 0.6);
   --nm-overlay-bg: rgba(0, 0, 0, 0.6);
+
+  // ---- Z-Index Layers (dark — same base values, stride unchanged) ----
+  --nm-z-dropdown: 100;
+  --nm-z-tooltip: 200;
+  --nm-z-popover: 300;
+  --nm-z-overlay: 400;
+  --nm-z-toast: 500;
+  --nm-z-stride: 1000;
 
   --nm-color-success: #2ecc71;
   --nm-color-error: #e74c3c;

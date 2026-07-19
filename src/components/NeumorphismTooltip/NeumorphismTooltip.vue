@@ -2,6 +2,7 @@
 import { computed, ref, watch, nextTick, onBeforeUnmount } from 'vue'
 import { useTooltip } from '@/composables/useTooltip'
 import { useNeumorphismSetup } from '@/extensions/createComponent'
+import { useZIndex } from '@/composables/useZIndex'
 import type { TooltipPosition, TooltipTrigger } from '@/composables/useTooltip'
 
 export type { TooltipPosition, TooltipTrigger }
@@ -35,6 +36,8 @@ const resolvedOffset = computed(() => resolveProp(props.offset, config.value.too
 const resolvedDelay = computed(() => resolveProp(props.delay, config.value.tooltip?.delay, 150))
 
 // Use headless tooltip composable for all behavioral logic
+const { getZIndex } = useZIndex()
+const tooltipZIndex = computed(() => getZIndex('tooltip'))
 const {
   isVisible,
   show,
@@ -134,6 +137,7 @@ onBeforeUnmount(() => {
       <div
         v-if="isVisible && (content || $slots.content)"
         :class="classList"
+        :style="{ zIndex: tooltipZIndex }"
         role="tooltip"
         :aria-hidden="!isVisible"
         @mouseenter="resolvedTrigger === 'hover' ? show() : undefined"
@@ -159,7 +163,7 @@ onBeforeUnmount(() => {
 
 .nm-tooltip {
   position: absolute;
-  z-index: 9998;
+  z-index: var(--nm-z-tooltip);
   cursor: default;
 
   .nm-tooltip__content {

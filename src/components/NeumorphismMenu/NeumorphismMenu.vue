@@ -412,7 +412,7 @@ const expandIconClass = computed(() => [
     background-color: var(--nm-surface-color);
     border-radius: var(--nm-border-radius-md);
     @include nm-raised(4px, 12px);
-    z-index: 100;
+    z-index: var(--nm-z-dropdown);
   }
 }
 

@@ -3,6 +3,7 @@ import { computed, ref, watch, nextTick, onBeforeUnmount } from 'vue'
 import { useAutoComplete } from '@/composables/useAutoComplete'
 import type { AutoCompleteOption } from '@/composables/useAutoComplete'
 import { useNeumorphismSetup } from '@/extensions/createComponent'
+import { useZIndex } from '@/composables/useZIndex'
 import NeumorphismInput from '@/components/NeumorphismInput/NeumorphismInput.vue'
 
 export type { AutoCompleteOption as NeumorphismAutoCompleteOption }
@@ -171,11 +172,13 @@ watch(activeIndex, idx => {
 })
 
 // ---- Dropdown style ----
+const { getZIndex } = useZIndex()
 const dropdownStyle = computed(() => ({
   position: 'fixed' as const,
   top: `${dropdownPosition.value.top}px`,
   left: `${dropdownPosition.value.left}px`,
   width: `${dropdownPosition.value.width}px`,
+  zIndex: getZIndex('dropdown'),
 }))
 
 // ---- Handlers ----
@@ -455,7 +458,7 @@ const isLoadingState = computed(() => loadingRef.value)
 // ==========================================
 
 .nm-autocomplete__dropdown {
-  z-index: 1000;
+  z-index: var(--nm-z-dropdown);
   max-height: 240px;
   overflow-y: auto;
   background-color: var(--nm-surface-color);

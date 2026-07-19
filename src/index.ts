@@ -73,6 +73,10 @@ export type * from './components'
 export { useFocusStack } from './composables/useFocusStack'
 export type { FocusStack } from './composables/useFocusStack'
 
+// Composables — z-index layering system
+export { useZIndex, Z_LAYERS, Z_STRIDE } from './composables/useZIndex'
+export type { ZLayer } from './composables/useZIndex'
+
 // Composables — swipe gestures
 export { useSwipe } from './composables/useSwipe'
 export type { SwipeDirection, UseSwipeOptions, UseSwipeReturn } from './composables/useSwipe'

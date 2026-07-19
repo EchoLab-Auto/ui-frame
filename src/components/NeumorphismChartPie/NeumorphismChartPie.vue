@@ -381,7 +381,7 @@ function getColor(index: number, pointColor?: unknown): string {
 .nm-chart__tooltip {
   position: fixed;
   pointer-events: none;
-  z-index: 1000;
+  z-index: var(--nm-z-dropdown);
   padding: 8px 12px;
   background: var(--nm-chart-tooltip-bg);
   color: var(--nm-chart-tooltip-text);

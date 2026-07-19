@@ -5,6 +5,7 @@ import type { SelectOption } from '@/composables/useSelect'
 import { useFormField } from '@/composables/useFormField'
 import { useConfig } from '@/composables/useConfig'
 import { useLocale } from '@/composables/useLocale'
+import { useZIndex } from '@/composables/useZIndex'
 import NeumorphismFieldLabel from '@/components/NeumorphismField/NeumorphismFieldLabel.vue'
 import NeumorphismFieldError from '@/components/NeumorphismField/NeumorphismFieldError.vue'
 
@@ -142,11 +143,14 @@ onBeforeUnmount(() => {
   }
 })
 
+const { getZIndex } = useZIndex()
+
 const dropdownStyle = computed(() => ({
   position: 'fixed' as const,
   top: `${dropdownPosition.value.top}px`,
   left: `${dropdownPosition.value.left}px`,
   width: `${dropdownPosition.value.width}px`,
+  zIndex: getZIndex('dropdown'),
 }))
 
 function onContainerBlur(e: FocusEvent) {
@@ -356,7 +360,7 @@ function onContainerBlur(e: FocusEvent) {
   top: calc(100% + 6px);
   left: 0;
   right: 0;
-  z-index: 1000;
+  z-index: var(--nm-z-dropdown);
   max-height: 240px;
   overflow-y: auto;
   background-color: var(--nm-surface-color);

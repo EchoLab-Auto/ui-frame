@@ -61,6 +61,7 @@ const {
   confirm,
   handleKeydown: onKeydown,
   focusDialog,
+  overlayZIndex,
 } = useModal({
   modelValue: modelRef,
   maskClosable: computed(() => props.maskClosable),
@@ -111,6 +112,7 @@ const classList = computed(() => ['nm-modal', `nm-modal--${resolvedSize.value}`]
         v-if="rendered"
         class="nm-modal__mask"
         :class="{ 'nm-modal__mask--visible': visible }"
+        :style="{ zIndex: overlayZIndex }"
         @click.self="handleMaskClick"
       >
         <transition name="nm-modal-scale">
@@ -184,7 +186,7 @@ const classList = computed(() => ['nm-modal', `nm-modal--${resolvedSize.value}`]
 .nm-modal__mask {
   position: fixed;
   inset: 0;
-  z-index: 9999;
+  z-index: var(--nm-z-overlay);
   display: flex;
   align-items: center;
   justify-content: center;

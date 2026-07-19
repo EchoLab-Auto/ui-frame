@@ -42,6 +42,7 @@ const {
   handleKeydown: onKeydown,
   handleMaskClick,
   focusDrawer,
+  overlayZIndex,
 } = useDrawer({
   modelValue: modelRef,
   maskClosable: computed(() => props.maskClosable),
@@ -114,6 +115,7 @@ const sizeStyle = computed(() => {
         v-if="rendered"
         class="nm-drawer__mask"
         :class="{ 'nm-drawer__mask--visible': isOpen }"
+        :style="{ zIndex: overlayZIndex }"
         @click.self="onMaskClick"
       >
         <transition name="nm-drawer-slide">
@@ -174,7 +176,7 @@ const sizeStyle = computed(() => {
 .nm-drawer__mask {
   position: fixed;
   inset: 0;
-  z-index: 9999;
+  z-index: var(--nm-z-overlay);
   background-color: var(--nm-mask-bg);
   backdrop-filter: blur(4px);
   opacity: 0;

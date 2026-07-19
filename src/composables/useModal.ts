@@ -1,4 +1,14 @@
-import { ref, watch, onMounted, onBeforeUnmount, nextTick, type Ref } from 'vue'
+import {
+  ref,
+  watch,
+  onMounted,
+  onBeforeUnmount,
+  nextTick,
+  computed,
+  type Ref,
+  type ComputedRef,
+} from 'vue'
+import { useZIndex } from './useZIndex'
 
 // SSR-safe scroll lock counter — keyed by document to support iframes/concurrent usage
 const scrollLockCounters = new WeakMap<Document, number>()
@@ -44,6 +54,8 @@ export interface UseModalReturn {
   handleKeydown: (event: KeyboardEvent, dialogEl: HTMLElement | undefined) => void
   /** Focus the first focusable element inside the dialog (call after dialog mounts) */
   focusDialog: (dialogEl: HTMLElement | undefined) => void
+  /** Current z-index for the overlay mask (context-aware, accounts for nesting). */
+  overlayZIndex: ComputedRef<number>
 }
 
 /**
@@ -60,6 +72,10 @@ export function useModal(opts: UseModalOptions): UseModalReturn {
   const previousActiveElement = ref<HTMLElement | null>(null)
   let destroyTimer: ReturnType<typeof setTimeout> | undefined
   let hasUnlocked = false
+
+  // ---- z-index overlay registration ----
+  const { getZIndex, registerOverlay } = useZIndex()
+  let unregisterOverlay: (() => void) | null = null
 
   function lockBodyScroll() {
     if (typeof document === 'undefined') return
@@ -93,6 +109,12 @@ export function useModal(opts: UseModalOptions): UseModalReturn {
         const ae = document.activeElement
         previousActiveElement.value = ae instanceof HTMLElement ? ae : null
         lockBodyScroll()
+        // Register this modal in the global z-index overlay stack so that
+        // floating components (Select dropdowns, Tooltips, etc.) rendered
+        // inside the modal automatically stack above its mask.
+        if (!unregisterOverlay) {
+          unregisterOverlay = registerOverlay()
+        }
         nextTick(() => {
           visible.value = true
         })
@@ -109,6 +131,15 @@ export function useModal(opts: UseModalOptions): UseModalReturn {
           hasUnlocked = true
         }
         previousActiveElement.value?.focus()
+        // Unregister from the z-index overlay stack after transition completes
+        if (unregisterOverlay) {
+          const cleanup = unregisterOverlay
+          unregisterOverlay = null
+          // Defer unregistration so floating children (tooltips, dropdowns)
+          // that read z-index during their own leave transition still see
+          // the correct overlay depth.
+          setTimeout(cleanup, 250)
+        }
       }
     }
   )
@@ -185,6 +216,11 @@ export function useModal(opts: UseModalOptions): UseModalReturn {
     if (visible.value) {
       previousActiveElement.value?.focus()
     }
+    // Clean up z-index overlay registration
+    if (unregisterOverlay) {
+      unregisterOverlay()
+      unregisterOverlay = null
+    }
   })
 
   return {
@@ -194,5 +230,7 @@ export function useModal(opts: UseModalOptions): UseModalReturn {
     confirm,
     handleKeydown,
     focusDialog,
+    /** Current z-index for the overlay mask (context-aware). */
+    overlayZIndex: computed(() => getZIndex('overlay')),
   }
 }

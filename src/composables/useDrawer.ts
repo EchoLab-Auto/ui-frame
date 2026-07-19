@@ -1,4 +1,14 @@
-import { ref, watch, onMounted, onBeforeUnmount, nextTick, type Ref } from 'vue'
+import {
+  ref,
+  watch,
+  onMounted,
+  onBeforeUnmount,
+  nextTick,
+  computed,
+  type Ref,
+  type ComputedRef,
+} from 'vue'
+import { useZIndex } from './useZIndex'
 
 export type DrawerPosition = 'left' | 'right' | 'top' | 'bottom'
 
@@ -55,6 +65,8 @@ export interface UseDrawerReturn {
   handleMaskClick: () => void
   /** Focus the first focusable element inside the drawer (call after drawer mounts) */
   focusDrawer: (drawerEl: HTMLElement | undefined) => void
+  /** Current z-index for the overlay mask (context-aware, accounts for nesting). */
+  overlayZIndex: ComputedRef<number>
 }
 
 // ---------------------------------------------------------------------------
@@ -75,6 +87,10 @@ export function useDrawer(opts: UseDrawerOptions): UseDrawerReturn {
   const previousActiveElement = ref<HTMLElement | null>(null)
   let destroyTimer: ReturnType<typeof setTimeout> | undefined
   let hasUnlocked = false
+
+  // ---- z-index overlay registration ----
+  const { getZIndex, registerOverlay } = useZIndex()
+  let unregisterOverlay: (() => void) | null = null
 
   // ---- scroll lock ----
   function lockBodyScroll() {
@@ -110,6 +126,10 @@ export function useDrawer(opts: UseDrawerOptions): UseDrawerReturn {
         const ae = document.activeElement
         previousActiveElement.value = ae instanceof HTMLElement ? ae : null
         lockBodyScroll()
+        // Register this drawer in the global z-index overlay stack
+        if (!unregisterOverlay) {
+          unregisterOverlay = registerOverlay()
+        }
         nextTick(() => {
           isOpen.value = true
         })
@@ -126,6 +146,12 @@ export function useDrawer(opts: UseDrawerOptions): UseDrawerReturn {
           hasUnlocked = true
         }
         previousActiveElement.value?.focus()
+        // Unregister from the z-index overlay stack after transition completes
+        if (unregisterOverlay) {
+          const cleanup = unregisterOverlay
+          unregisterOverlay = null
+          setTimeout(cleanup, 250)
+        }
       }
     }
   )
@@ -209,6 +235,11 @@ export function useDrawer(opts: UseDrawerOptions): UseDrawerReturn {
     if (isOpen.value) {
       previousActiveElement.value?.focus()
     }
+    // Clean up z-index overlay registration
+    if (unregisterOverlay) {
+      unregisterOverlay()
+      unregisterOverlay = null
+    }
   })
 
   return {
@@ -219,5 +250,7 @@ export function useDrawer(opts: UseDrawerOptions): UseDrawerReturn {
     handleKeydown,
     handleMaskClick,
     focusDrawer,
+    /** Current z-index for the overlay mask (context-aware). */
+    overlayZIndex: computed(() => getZIndex('overlay')),
   }
 }

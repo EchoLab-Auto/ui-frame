@@ -3,6 +3,7 @@ import { computed, onMounted, onBeforeUnmount } from 'vue'
 import { useToast } from '@/composables/useToast'
 import { useLocale } from '@/composables/useLocale'
 import { useNeumorphismSetup } from '@/extensions/createComponent'
+import { useZIndex } from '@/composables/useZIndex'
 import type { ToastType, ToastPosition, ToastItem, ToastOptions } from '@/composables/useToast'
 
 export type { ToastType, ToastPosition, ToastItem, ToastOptions }
@@ -32,6 +33,8 @@ const { t } = useLocale()
 const resolvedCloseLabel = computed(() => props.closeLabel || t('toastClose'))
 
 // Use headless toast composable for all behavioral logic
+const { getZIndex } = useZIndex()
+const toastZIndex = computed(() => getZIndex('toast'))
 const { toasts, addToast, removeToast, clearAll } = useToast({
   maxCount: resolvedMaxCount.value,
 })
@@ -63,7 +66,7 @@ const classList = computed(() => [
   <teleport to="body">
     <!-- Dedicated announce-only live region for screen readers -->
     <div aria-live="assertive" aria-atomic="true" class="nm-sr-only" />
-    <div :class="classList">
+    <div :class="classList" :style="{ zIndex: toastZIndex }">
       <transition-group name="nm-toast-list">
         <!-- @slot Custom toast item rendering. Bind: toast -->
         <slot
@@ -157,7 +160,7 @@ const classList = computed(() => [
 
 .nm-toast-container {
   position: fixed;
-  z-index: 10000;
+  z-index: var(--nm-z-toast);
   display: flex;
   flex-direction: column;
   gap: var(--nm-toast-gap);

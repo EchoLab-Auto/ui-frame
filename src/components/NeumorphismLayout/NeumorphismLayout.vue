@@ -216,7 +216,7 @@ const siderStyle = computed(() => ({
   top: -100%;
   left: 50%;
   transform: translateX(-50%);
-  z-index: 1000;
+  z-index: var(--nm-z-popover);
   padding: 8px 16px;
   background-color: var(--nm-primary-color);
   color: var(--nm-text-on-primary);
@@ -258,7 +258,7 @@ const siderStyle = computed(() => ({
   padding: 0 16px;
   flex-shrink: 0;
   background-color: var(--nm-surface-color);
-  z-index: 100;
+  z-index: var(--nm-z-dropdown);
 
   @include nm-screen-md {
     height: 64px;
@@ -345,7 +345,7 @@ const siderStyle = computed(() => ({
   background-color: var(--nm-surface-color);
   transition: width 0.4s $nm-ease-spring;
   overflow: hidden;
-  z-index: 90;
+  z-index: calc(var(--nm-z-dropdown) - 10);
   height: 100%;
 
   &:not(&--drawer) {
@@ -362,7 +362,7 @@ const siderStyle = computed(() => ({
     bottom: 0;
     width: 280px;
     max-width: 85vw;
-    z-index: 200;
+    z-index: var(--nm-z-dropdown);
     height: 100%;
     transform: translateX(-100%);
     transition: transform 0.4s $nm-ease-spring;
@@ -399,7 +399,7 @@ const siderStyle = computed(() => ({
   position: fixed;
   inset: 0;
   background-color: var(--nm-overlay-bg);
-  z-index: 150;
+  z-index: calc(var(--nm-z-dropdown) - 1);
 }
 
 .nm-layout-fade-enter-active {

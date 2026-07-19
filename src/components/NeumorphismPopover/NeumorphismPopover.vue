@@ -2,6 +2,7 @@
 import { computed, ref, watch, nextTick, onMounted, onBeforeUnmount } from 'vue'
 import { usePopover } from '@/composables/usePopover'
 import { useNeumorphismSetup } from '@/extensions/createComponent'
+import { useZIndex } from '@/composables/useZIndex'
 import type { PopoverPosition, PopoverTrigger } from '@/composables/usePopover'
 
 export type { PopoverPosition, PopoverTrigger }
@@ -49,6 +50,7 @@ const resolvedWidth = computed(() => resolveProp(props.width, undefined, 'auto')
 const resolvedShowArrow = computed(() => resolveProp(props.showArrow, undefined, true))
 
 // ---- Use headless popover composable ----
+const { getZIndex } = useZIndex()
 const {
   isOpen,
   show,
@@ -166,6 +168,9 @@ function updatePosition() {
   } else if (typeof resolvedWidth.value === 'number') {
     style.width = `${resolvedWidth.value}px`
   }
+
+  // Context-aware z-index
+  style.zIndex = String(getZIndex('popover'))
 
   computedStyle.value = style
 }
@@ -345,7 +350,7 @@ function onTriggerFocusOut(_event: FocusEvent) {
 
 .nm-popover {
   position: fixed;
-  z-index: 9999;
+  z-index: var(--nm-z-popover);
   cursor: default;
   background-color: var(--nm-surface-color);
   border-radius: var(--nm-border-radius-md);
