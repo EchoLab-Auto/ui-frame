@@ -141,23 +141,23 @@ function updatePosition() {
 
   switch (pos) {
     case 'top':
-      style.top = `${rect.top + window.scrollY - offset}px`
-      style.left = `${rect.left + window.scrollX + rect.width / 2}px`
+      style.top = `${rect.top - offset}px`
+      style.left = `${rect.left + rect.width / 2}px`
       style.transform = 'translate(-50%, -100%)'
       break
     case 'bottom':
-      style.top = `${rect.bottom + window.scrollY + offset}px`
-      style.left = `${rect.left + window.scrollX + rect.width / 2}px`
+      style.top = `${rect.bottom + offset}px`
+      style.left = `${rect.left + rect.width / 2}px`
       style.transform = 'translate(-50%, 0)'
       break
     case 'left':
-      style.top = `${rect.top + window.scrollY + rect.height / 2}px`
-      style.left = `${rect.left + window.scrollX - offset}px`
+      style.top = `${rect.top + rect.height / 2}px`
+      style.left = `${rect.left - offset}px`
       style.transform = 'translate(-100%, -50%)'
       break
     case 'right':
-      style.top = `${rect.top + window.scrollY + rect.height / 2}px`
-      style.left = `${rect.right + window.scrollX + offset}px`
+      style.top = `${rect.top + rect.height / 2}px`
+      style.left = `${rect.right + offset}px`
       style.transform = 'translate(0, -50%)'
       break
   }

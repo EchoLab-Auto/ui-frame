@@ -40,11 +40,13 @@ describe('useZIndex', () => {
     it('offsets by one STRIDE when one overlay is active', () => {
       register()
       const { getZIndex } = useZIndex()
+      // Floating elements: base + 1 × STRIDE (stack above the mask)
       expect(getZIndex('dropdown')).toBe(100 + Z_STRIDE)
       expect(getZIndex('tooltip')).toBe(200 + Z_STRIDE)
       expect(getZIndex('popover')).toBe(300 + Z_STRIDE)
-      expect(getZIndex('overlay')).toBe(400 + Z_STRIDE)
       expect(getZIndex('toast')).toBe(500 + Z_STRIDE)
+      // Overlay mask: base + 0 × STRIDE (first overlay stays at base level)
+      expect(getZIndex('overlay')).toBe(400)
     })
 
     it('offsets by N × STRIDE when N overlays are active', () => {
@@ -52,9 +54,38 @@ describe('useZIndex', () => {
       register()
       register()
       const { getZIndex } = useZIndex()
+      // Floating elements: base + 3 × STRIDE
       expect(getZIndex('dropdown')).toBe(100 + 3 * Z_STRIDE)
-      expect(getZIndex('overlay')).toBe(400 + 3 * Z_STRIDE)
       expect(getZIndex('toast')).toBe(500 + 3 * Z_STRIDE)
+      // Overlay mask: base + (N-1) × STRIDE (only nested overlays shift)
+      expect(getZIndex('overlay')).toBe(400 + 2 * Z_STRIDE)
+    })
+
+    it('ensures floating elements stack above overlay mask when overlay is active', () => {
+      register()
+      const { getZIndex } = useZIndex()
+      // All floating layers must be above the overlay mask
+      expect(getZIndex('dropdown')).toBeGreaterThan(getZIndex('overlay'))
+      expect(getZIndex('tooltip')).toBeGreaterThan(getZIndex('overlay'))
+      expect(getZIndex('popover')).toBeGreaterThan(getZIndex('overlay'))
+      expect(getZIndex('toast')).toBeGreaterThan(getZIndex('overlay'))
+    })
+
+    it('preserves layer ordering regardless of overlay count', () => {
+      // dropdown < tooltip < popover < toast must hold in every context
+      for (let n = 0; n <= 3; n++) {
+        // Register n overlays
+        const unregs: (() => void)[] = []
+        for (let i = 0; i < n; i++) {
+          unregs.push(register())
+        }
+        const { getZIndex } = useZIndex()
+        expect(getZIndex('dropdown')).toBeLessThan(getZIndex('tooltip'))
+        expect(getZIndex('tooltip')).toBeLessThan(getZIndex('popover'))
+        expect(getZIndex('popover')).toBeLessThan(getZIndex('toast'))
+        // Cleanup
+        unregs.forEach(fn => fn())
+      }
     })
 
     it('returns to base values after all overlays are cleaned up', () => {
@@ -125,7 +156,7 @@ describe('useZIndex', () => {
   })
 
   describe('Z_LAYERS ordering', () => {
-    it('maintains the correct layer hierarchy: dropdown < tooltip < popover < overlay < toast', () => {
+    it('maintains correct base layer ordering: dropdown < tooltip < popover < overlay < toast', () => {
       expect(Z_LAYERS.dropdown).toBeLessThan(Z_LAYERS.tooltip)
       expect(Z_LAYERS.tooltip).toBeLessThan(Z_LAYERS.popover)
       expect(Z_LAYERS.popover).toBeLessThan(Z_LAYERS.overlay)

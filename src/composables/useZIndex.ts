@@ -4,10 +4,16 @@ import { ref } from 'vue'
  * Pre-defined z-index layers (static base values).
  *
  * Each layer's actual rendered z-index is computed as:
- *   actualZIndex = Z_LAYERS[layer] + (active overlay count × Z_STRIDE)
  *
- * This ensures that floating UI rendered inside a Modal / Drawer automatically
- * stacks above the overlay mask, and that nested overlays stack correctly.
+ *   For overlay masks (Modal, Drawer):
+ *     actualZIndex = Z_LAYERS[layer] + max(0, overlayCount - 1) × Z_STRIDE
+ *
+ *   For floating elements (dropdown, tooltip, popover, toast):
+ *     actualZIndex = Z_LAYERS[layer] + overlayCount × Z_STRIDE
+ *
+ * The asymmetric offset ensures floating UI rendered inside a Modal / Drawer
+ * always stacks **above** the overlay mask, while nested overlays still stack
+ * correctly on top of each other.
  */
 export const Z_LAYERS = {
   /** Select / AutoComplete dropdowns, Menu submenus, Chart tooltips */
@@ -42,11 +48,13 @@ const overlayCount = ref(0)
  * Composable for participating in the global z-index layering system.
  *
  * - **Floating components** (Select, Tooltip, Popover, Toast, …) call
- *   `getZIndex(layer)` to obtain a context-aware z-index that accounts for
- *   any open overlays (Modals, Drawers) the component lives inside.
+ *   `getZIndex(layer)` to obtain a context-aware z-index that automatically
+ *   stacks above any open overlay masks (Modals, Drawers).
  *
  * - **Overlay components** (Modal, Drawer) call `registerOverlay()` when they
- *   open and call the returned cleanup function when they close.
+ *   open and call the returned cleanup function when they close. The overlay
+ *   mask itself receives a z-index that only shifts when nested, keeping the
+ *   first overlay at its base level.
  *
  * @example
  * ```ts
@@ -66,11 +74,24 @@ export function useZIndex() {
   /**
    * Compute the actual z-index for a given layer in the current context.
    *
+   * Floating elements (dropdown, tooltip, popover, toast) are offset by
+   * `overlayCount × Z_STRIDE` so they always stack above any active overlay
+   * masks. Overlay masks themselves use `max(0, overlayCount - 1) × Z_STRIDE`
+   * so the first overlay sits at its base value and only nested overlays
+   * receive the stride boost.
+   *
    * @param layer - The logical layer (e.g. `'dropdown'`, `'overlay'`)
-   * @returns `Z_LAYERS[layer] + overlayCount × Z_STRIDE`
+   * @returns The context-aware z-index value
    */
   function getZIndex(layer: ZLayer): number {
-    return Z_LAYERS[layer] + overlayCount.value * Z_STRIDE
+    const base = Z_LAYERS[layer]
+    if (layer === 'overlay') {
+      // Overlay masks: only offset when nested (≥ 2 overlays active).
+      return base + Math.max(0, overlayCount.value - 1) * Z_STRIDE
+    }
+    // Floating elements: always offset by full overlay depth to stay above
+    // every active overlay mask.
+    return base + overlayCount.value * Z_STRIDE
   }
 
   /**

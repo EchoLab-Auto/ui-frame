@@ -98,8 +98,10 @@ function updateDropdownPosition() {
   if (!triggerRef.value || typeof window === 'undefined') return
   const rect = triggerRef.value.getBoundingClientRect()
   dropdownPosition.value = {
-    top: rect.bottom + window.scrollY + 4,
-    left: rect.left + window.scrollX,
+    // position:fixed uses viewport coordinates — getBoundingClientRect()
+    // already returns viewport-relative values, so no scroll offset needed.
+    top: rect.bottom + 4,
+    left: rect.left,
     width: rect.width,
   }
 }
