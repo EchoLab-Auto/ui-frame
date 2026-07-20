@@ -258,6 +258,41 @@ const textareaValue = ref('')
 // ---- 模态框示例 ----
 const modalVisible = ref(false)
 
+// ---- 模态框内层叠联动测试 (Modal + Form + Select z-index 验证) ----
+const layerTestVisible = ref(false)
+const layerTestName = ref('')
+const layerTestRole = ref('')
+const layerTestType = ref('')
+const layerTestStatus = ref('')
+
+const layerTestInterfaceOptions = [
+  { label: 'eth0 (默认网关)', value: 'eth0' },
+  { label: 'eth1 (内网)', value: 'eth1' },
+  { label: 'wlan0 (无线)', value: 'wlan0' },
+  { label: 'br0 (桥接)', value: 'br0' },
+  { label: 'lo (回环)', value: 'lo', disabled: true },
+]
+
+const layerTestRoleOptions = [
+  { label: 'WAN', value: 'wan' },
+  { label: 'LAN', value: 'lan' },
+  { label: 'DMZ', value: 'dmz' },
+  { label: 'Guest', value: 'guest' },
+]
+
+const layerTestTypeOptions = [
+  { label: '静态 IP', value: 'static' },
+  { label: 'DHCP', value: 'dhcp' },
+  { label: 'PPPoE', value: 'pppoe' },
+  { label: 'VPN', value: 'vpn', disabled: true },
+]
+
+const layerTestStatusOptions = [
+  { label: '启用', value: 'enabled' },
+  { label: '禁用', value: 'disabled' },
+  { label: '待配置', value: 'pending' },
+]
+
 // ---- 选项卡示例 ----
 const activeTab = ref('tab1')
 const tabItems = [
@@ -1932,6 +1967,102 @@ const chartStockData = ref([
                 <div style="margin-top: 12px">
                   <NeumorphismInput placeholder="在模态框中输入内容..." />
                 </div>
+              </NeumorphismModal>
+            </NeumorphismCard>
+
+            <!-- ===== 层叠联动测试：Modal + Form + Select ===== -->
+            <NeumorphismCard id="modal-layer-test" :elevation="1" class="demo-card demo-card--full">
+              <template #header>
+                <div class="demo-header">
+                  <h3 class="demo-title">层叠联动验证 — Modal + Form + Select</h3>
+                  <span class="demo-badge">z-index 复查 · Teleport 层级 · scroll 偏移</span>
+                </div>
+              </template>
+
+              <p class="category-desc" style="margin-top: 0; margin-bottom: 12px">
+                此 Demo 复现开发者反馈的典型场景：<strong>模态框内嵌表单 + 多个 Select</strong
+                >，用于人工验证 Select 下拉框是否正常显示在遮罩之上（v1.0.5 已修复 z-index
+                层叠公式）。 建议<strong>滚动页面后</strong>再打开，同时验证 Popover/AutoComplete 的
+                position:fixed 定位是否受滚动影响。
+              </p>
+
+              <NeumorphismButton @click="layerTestVisible = true"
+                >打开层叠测试模态框</NeumorphismButton
+              >
+              <span style="margin-left: 12px; font-size: 13px; color: var(--nm-text-secondary)">
+                当前值 — 接口: <strong>{{ layerTestName || '未选择' }}</strong> · 角色:
+                <strong>{{ layerTestRole || '未选择' }}</strong> · 类型:
+                <strong>{{ layerTestType || '未选择' }}</strong> · 状态:
+                <strong>{{ layerTestStatus || '未选择' }}</strong>
+              </span>
+
+              <NeumorphismModal
+                v-model="layerTestVisible"
+                title="网络接口配置（层叠联动验证）"
+                size="medium"
+              >
+                <NeumorphismForm>
+                  <NeumorphismFormItem label="接口名称" :required="true">
+                    <NeumorphismSelect
+                      v-model="layerTestName"
+                      :options="layerTestInterfaceOptions"
+                      placeholder="请选择网络接口"
+                    />
+                  </NeumorphismFormItem>
+
+                  <NeumorphismFormItem label="角色">
+                    <NeumorphismSelect
+                      v-model="layerTestRole"
+                      :options="layerTestRoleOptions"
+                      placeholder="请选择角色"
+                    />
+                  </NeumorphismFormItem>
+
+                  <NeumorphismFormItem label="地址类型">
+                    <NeumorphismSelect
+                      v-model="layerTestType"
+                      :options="layerTestTypeOptions"
+                      placeholder="请选择地址类型"
+                    />
+                  </NeumorphismFormItem>
+
+                  <NeumorphismFormItem label="运行状态">
+                    <NeumorphismSelect
+                      v-model="layerTestStatus"
+                      :options="layerTestStatusOptions"
+                      placeholder="请选择状态"
+                    />
+                  </NeumorphismFormItem>
+
+                  <!-- 内联提示：同时在 Modal 内放置 Tooltip 和 Popover 以验证多维层叠 -->
+                  <div
+                    style="
+                      display: flex;
+                      gap: 12px;
+                      align-items: center;
+                      margin-top: 8px;
+                      padding: 10px 14px;
+                      border-radius: var(--nm-border-radius-sm);
+                      background: var(--nm-surface-raised);
+                    "
+                  >
+                    <span style="font-size: 12px; color: var(--nm-text-secondary)">附加验证：</span>
+                    <NeumorphismTooltip content="Tooltip 应在遮罩之上" position="top">
+                      <NeumorphismButton variant="pressed" size="small"
+                        >悬停 Tooltip</NeumorphismButton
+                      >
+                    </NeumorphismTooltip>
+                    <NeumorphismPopover
+                      trigger="click"
+                      position="bottom"
+                      content="Popover 应在遮罩之上"
+                    >
+                      <NeumorphismButton variant="flat" size="small"
+                        >点击 Popover</NeumorphismButton
+                      >
+                    </NeumorphismPopover>
+                  </div>
+                </NeumorphismForm>
               </NeumorphismModal>
             </NeumorphismCard>
 
