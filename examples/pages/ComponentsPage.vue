@@ -148,6 +148,7 @@ const navCategories = [
       { id: 'themetoggle', label: '主题切换 ThemeToggle' },
       { id: 'tree', label: '树形导航 Tree' },
       { id: 'canvas', label: '画布 Canvas' },
+      { id: 'logo', label: 'Logo 动效 Logo' },
     ],
   },
 ]
@@ -434,6 +435,17 @@ const treeData = [
 // ---- 画布示例 ----
 const canvasZoom = ref(1)
 const canvasShowGrid = ref(true)
+
+// ---- Logo 动效示例 ----
+const logoMode = ref<'pulse' | 'liquid' | 'wave' | 'pointer'>('pulse')
+const logoSize = ref<'small' | 'medium' | 'large'>('medium')
+const logoGoo = ref(true)
+const logoModeOptions = [
+  { label: '脉冲传导', value: 'pulse' },
+  { label: '液态律动', value: 'liquid' },
+  { label: '潮汐波纹', value: 'wave' },
+  { label: '指针引力', value: 'pointer' },
+]
 
 // 流程图示例节点
 const flowNodes = [
@@ -2661,6 +2673,98 @@ const chartStockData = ref([
                     在此区域放置任意 SVG / HTML 内容
                   </div>
                 </NeumorphismCanvas>
+              </div>
+            </NeumorphismCard>
+
+            <!-- Logo 动效 -->
+            <NeumorphismCard id="logo" :elevation="1" class="demo-card demo-card--full">
+              <template #header>
+                <div class="demo-header">
+                  <h3 class="demo-title">NeumorphismLogo 像素 Logo 动效</h3>
+                  <span class="demo-badge">4 种模式 · 黏液滤镜 · 指针交互</span>
+                </div>
+              </template>
+
+              <div class="demo-block">
+                <h4 class="demo-label">模式切换</h4>
+                <div class="demo-row" style="gap: 10px; flex-wrap: wrap">
+                  <NeumorphismButton
+                    v-for="opt in logoModeOptions"
+                    :key="opt.value"
+                    size="small"
+                    :variant="logoMode === opt.value ? 'raised' : 'flat'"
+                    @click="logoMode = opt.value"
+                  >
+                    {{ opt.label }}
+                  </NeumorphismButton>
+                </div>
+              </div>
+
+              <div class="demo-row" style="gap: 32px; align-items: flex-start; flex-wrap: wrap">
+                <div class="demo-block">
+                  <h4 class="demo-label">默认尺寸 + 自定义控制面板</h4>
+                  <NeumorphismCard
+                    :elevation="-1"
+                    style="padding: 24px; display: inline-block; text-align: center"
+                  >
+                    <NeumorphismLogo v-model:mode="logoMode" :size="logoSize" :goo="logoGoo">
+                      <template #default="{ replay }">
+                        <div style="margin-top: 12px">
+                          <NeumorphismButton size="small" variant="flat" @click="replay"
+                            >↻ 重播汇聚</NeumorphismButton
+                          >
+                        </div>
+                      </template>
+                    </NeumorphismLogo>
+                  </NeumorphismCard>
+                </div>
+
+                <div class="demo-block" style="flex: 1; min-width: 260px; max-width: 420px">
+                  <h4 class="demo-label">尺寸与滤镜</h4>
+                  <div class="demo-row demo-row--stacked" style="gap: 12px">
+                    <div class="demo-row">
+                      <NeumorphismButton
+                        size="small"
+                        :variant="logoSize === 'small' ? 'raised' : 'flat'"
+                        @click="logoSize = 'small'"
+                        >small</NeumorphismButton
+                      >
+                      <NeumorphismButton
+                        size="small"
+                        :variant="logoSize === 'medium' ? 'raised' : 'flat'"
+                        @click="logoSize = 'medium'"
+                        >medium</NeumorphismButton
+                      >
+                      <NeumorphismButton
+                        size="small"
+                        :variant="logoSize === 'large' ? 'raised' : 'flat'"
+                        @click="logoSize = 'large'"
+                        >large</NeumorphismButton
+                      >
+                    </div>
+                    <div class="demo-row">
+                      <NeumorphismSwitch v-model="logoGoo" />
+                      <code style="font-size: 13px">goo 滤镜: {{ logoGoo ? '开' : '关' }}</code>
+                    </div>
+                  </div>
+                  <p class="demo-hint">
+                    当前模式：<strong>{{
+                      logoModeOptions.find(o => o.value === logoMode)?.label
+                    }}</strong>
+                  </p>
+                  <p class="demo-hint" style="margin-top: 4px">
+                    提示：选择「指针引力」后将鼠标移入 Logo，方块会跟随光标移动。
+                  </p>
+                </div>
+              </div>
+
+              <div class="demo-block">
+                <h4 class="demo-label">三种尺寸并排</h4>
+                <div class="demo-row" style="gap: 40px; align-items: flex-end; flex-wrap: wrap">
+                  <NeumorphismLogo :mode="logoMode" size="small" :goo="logoGoo" />
+                  <NeumorphismLogo :mode="logoMode" size="medium" :goo="logoGoo" />
+                  <NeumorphismLogo :mode="logoMode" size="large" :goo="logoGoo" />
+                </div>
               </div>
             </NeumorphismCard>
           </section>

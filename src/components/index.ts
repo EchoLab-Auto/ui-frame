@@ -148,6 +148,9 @@ export type {
 export { default as NeumorphismCanvas } from './NeumorphismCanvas'
 export type { NeumorphismCanvasProps } from './NeumorphismCanvas'
 
+export { default as NeumorphismLogo } from './NeumorphismLogo'
+export type { NeumorphismLogoProps, LogoMode, LogoSize } from './NeumorphismLogo'
+
 // Multi-component directories
 export { NeumorphismRadio, NeumorphismRadioGroup } from './NeumorphismRadio'
 export type { NeumorphismRadioProps, NeumorphismRadioGroupProps } from './NeumorphismRadio'

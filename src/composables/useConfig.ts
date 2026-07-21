@@ -226,6 +226,15 @@ export interface NeumorphismGlobalConfig {
     size?: 'small' | 'medium' | 'large'
     hoverable?: boolean
   }
+  /** Default logo animation props */
+  logo?: {
+    mode?: 'pulse' | 'liquid' | 'wave' | 'pointer'
+    size?: 'small' | 'medium' | 'large'
+    goo?: boolean
+    autoplay?: boolean
+    floating?: boolean
+  }
+
   /** Locale configuration */
   locale?: 'zh-CN' | 'en-US'
   /** Custom locale messages (overrides built-in locale) */

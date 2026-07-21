@@ -20,7 +20,15 @@ const navItems = [
   <div class="showcase-root" :data-theme="isDark ? 'dark' : undefined">
     <!-- Top nav bar — simple fixed bar, NOT a NeumorphismLayout header -->
     <header class="top-bar">
-      <span class="brand">@echolab-auto/ui-frame</span>
+      <span class="brand">
+        <NeumorphismLogo
+          mode="wave"
+          :width="28"
+          :floating="false"
+          aria-label="@echolab-auto/ui-frame logo"
+        />
+        <span class="brand-name">@echolab-auto/ui-frame</span>
+      </span>
       <nav class="top-nav">
         <router-link
           v-for="item in navItems"
@@ -75,10 +83,17 @@ const navItems = [
 }
 
 .brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   font-size: 17px;
   font-weight: 700;
   letter-spacing: -0.3px;
   white-space: nowrap;
+}
+
+.brand-name {
+  line-height: 1;
 }
 
 .top-nav {
