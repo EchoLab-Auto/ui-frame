@@ -9,6 +9,7 @@
  */
 
 import type { Directive, DirectiveBinding } from 'vue'
+import { prefersReducedMotion } from '../composables/useReducedMotion'
 
 interface MagneticOptions {
   /** Max translate in px (default: 6) */
@@ -28,12 +29,6 @@ const stateMap = new WeakMap<HTMLElement, MagneticState>()
 
 function isTouchDevice(): boolean {
   return typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches
-}
-
-function prefersReducedMotion(): boolean {
-  return (
-    typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
-  )
 }
 
 export const vMagnetic: Directive<HTMLElement, MagneticOptions | undefined> = {

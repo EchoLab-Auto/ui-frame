@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { mount } from '@vue/test-utils'
-import { nextTick } from 'vue'
+import { defineComponent, h, nextTick } from 'vue'
 import NeumorphismLogo from './NeumorphismLogo.vue'
 
 describe('NeumorphismLogo', () => {
@@ -74,5 +74,26 @@ describe('NeumorphismLogo', () => {
     wrapper.unmount()
     expect(cancelSpy).toHaveBeenCalled()
     cancelSpy.mockRestore()
+  })
+
+  it('should generate a unique goo filter id per instance', () => {
+    const Parent = defineComponent({
+      setup: () => () => h('div', [h(NeumorphismLogo), h(NeumorphismLogo)]),
+    })
+    const wrapper = mount(Parent)
+
+    const filterIds = wrapper.findAll('filter').map(f => f.attributes('id'))
+    expect(filterIds).toHaveLength(2)
+    expect(new Set(filterIds).size).toBe(2)
+
+    const filteredGroups = wrapper.findAll('g[filter]')
+    expect(filteredGroups).toHaveLength(2)
+    expect(filteredGroups[0].attributes('filter')).toBe(`url(#${filterIds[0]})`)
+    expect(filteredGroups[1].attributes('filter')).toBe(`url(#${filterIds[1]})`)
+  })
+
+  it('should not bind the goo filter when goo is false', () => {
+    const wrapper = mount(NeumorphismLogo, { props: { goo: false } })
+    expect(wrapper.find('g[filter]').exists()).toBe(false)
   })
 })

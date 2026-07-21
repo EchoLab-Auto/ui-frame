@@ -1,4 +1,5 @@
-import { ref, computed, onMounted, onBeforeUnmount, watch, type Ref } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount, type Ref } from 'vue'
+import { useReducedMotion } from './useReducedMotion'
 
 export type LogoMode = 'pulse' | 'liquid' | 'wave' | 'pointer'
 
@@ -13,8 +14,6 @@ export interface UsePixelLogoAnimationOptions {
   svgRef: Ref<SVGSVGElement | null>
   /** Initial animation mode. */
   mode?: LogoMode
-  /** Whether the gooey filter is enabled. */
-  goo?: boolean
   /** Whether to play the intro convergence animation. */
   autoplay?: boolean
 }
@@ -114,7 +113,6 @@ export function usePixelLogoAnimation(
 ): UsePixelLogoAnimationReturn {
   const { linksGroupRef, pixelsGroupRef, sparksGroupRef, svgRef } = options
   const mode = ref<LogoMode>(options.mode ?? 'pulse')
-  const goo = computed(() => options.goo ?? true)
   const autoplay = computed(() => options.autoplay ?? true)
 
   const blocks: Block[] = []
@@ -125,9 +123,7 @@ export function usePixelLogoAnimation(
   let pulses: { t0: number; arrive: number[]; cross: number[] }[] = []
   let nextPulse = performance.now() + 1400
   const pointer = ref({ x: -9999, y: -9999, on: false })
-  const isReducedMotion = ref(
-    typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
-  )
+  const { isReducedMotion } = useReducedMotion()
 
   let rafId: number | null = null
   let mounted = false
@@ -412,8 +408,6 @@ export function usePixelLogoAnimation(
     rafId = requestAnimationFrame(frame)
   }
 
-  let reducedMotionMql: MediaQueryList | null = null
-
   onMounted(() => {
     mounted = true
     createElements()
@@ -425,33 +419,11 @@ export function usePixelLogoAnimation(
 
     setMode(mode.value)
     rafId = requestAnimationFrame(frame)
-
-    if (typeof window !== 'undefined') {
-      reducedMotionMql = window.matchMedia('(prefers-reduced-motion: reduce)')
-      const handler = (e: MediaQueryListEvent) => {
-        isReducedMotion.value = e.matches
-      }
-      reducedMotionMql.addEventListener('change', handler)
-    }
   })
 
   onBeforeUnmount(() => {
     mounted = false
     if (rafId !== null) cancelAnimationFrame(rafId)
-    if (reducedMotionMql) {
-      reducedMotionMql.removeEventListener('change', () => {})
-      reducedMotionMql = null
-    }
-  })
-
-  watch(goo, value => {
-    const svg = svgRef.value
-    if (!svg) return
-    const gooroot = svg.querySelector('#gooroot')
-    if (gooroot) {
-      if (value) gooroot.setAttribute('filter', 'url(#goo)')
-      else gooroot.removeAttribute('filter')
-    }
   })
 
   return {

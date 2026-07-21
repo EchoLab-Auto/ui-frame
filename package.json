@@ -63,6 +63,7 @@
     "lint:fix": "eslint . --ext .ts,.tsx,.vue --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
+    "check:registry": "node scripts/check-component-registry.mjs",
     "prepublishOnly": "npm run build",
     "test": "vitest run",
     "test:watch": "vitest",

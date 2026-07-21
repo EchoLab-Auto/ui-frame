@@ -59,22 +59,23 @@ on:
 
 **任务流水线**（`jobs.check`）：
 
-| 步骤             | 命令                                | 说明                                          |
-| ---------------- | ----------------------------------- | --------------------------------------------- |
-| Checkout         | `actions/checkout@v4`               | 拉取代码                                      |
-| Setup Node       | `actions/setup-node@v4`             | Node 20/22 矩阵 + npm 缓存                    |
-| Upgrade npm      | `npm install -g npm@11`             | 锁定 npm 版本，避免 lock 文件兼容问题         |
-| Install          | `npm ci`                            | 纯净安装，依赖 lock 文件                      |
-| Audit            | `npm audit --audit-level=high`      | 安全检查（仅 high/critical 级别报错）         |
-| Lint             | `npm run lint`                      | ESLint 检查 `.ts` `.tsx` `.vue`               |
-| Format check     | `npm run format:check`              | Prettier 格式校验                             |
-| Type check       | `npm run typecheck`                 | `vue-tsc --noEmit` 全量类型检查               |
-| Test             | `npm test`                          | Vitest 单元测试                               |
-| Build library    | `npm run build`                     | Vite 构建组件库产物                           |
-| Bundle size      | `gzip -c dist/ui-frame.js \| wc -c` | JS < 20KB gzipped, CSS < 30KB gzipped         |
-| Build example    | `npm run example:build`             | 构建示例站点                                  |
-| Verify outputs   | `test -f ...`                       | 断言产物文件全部存在                          |
-| Upload artifacts | `actions/upload-artifact@v4`        | Node 22 only: 上传 `dist/` 和 `dist-example/` |
+| 步骤               | 命令                                | 说明                                           |
+| ------------------ | ----------------------------------- | ---------------------------------------------- |
+| Checkout           | `actions/checkout@v4`               | 拉取代码                                       |
+| Setup Node         | `actions/setup-node@v4`             | Node 20/22 矩阵 + npm 缓存                     |
+| Upgrade npm        | `npm install -g npm@11`             | 锁定 npm 版本，避免 lock 文件兼容问题          |
+| Install            | `npm ci`                            | 纯净安装，依赖 lock 文件                       |
+| Audit              | `npm audit --audit-level=high`      | 安全检查（仅 high/critical 级别报错）          |
+| Lint               | `npm run lint`                      | ESLint 检查 `.ts` `.tsx` `.vue`                |
+| Format check       | `npm run format:check`              | Prettier 格式校验                              |
+| Component registry | `npm run check:registry`            | barrel → import → NAME_TO_COMPONENT 三者一致性 |
+| Type check         | `npm run typecheck`                 | `vue-tsc --noEmit` 全量类型检查                |
+| Test               | `npm test`                          | Vitest 单元测试                                |
+| Build library      | `npm run build`                     | Vite 构建组件库产物                            |
+| Bundle size        | `gzip -c dist/ui-frame.js \| wc -c` | JS < 20KB gzipped, CSS < 30KB gzipped          |
+| Build example      | `npm run example:build`             | 构建示例站点                                   |
+| Verify outputs     | `test -f ...`                       | 断言产物文件全部存在                           |
+| Upload artifacts   | `actions/upload-artifact@v4`        | Node 22 only: 上传 `dist/` 和 `dist-example/`  |
 
 **产物校验清单**：
 

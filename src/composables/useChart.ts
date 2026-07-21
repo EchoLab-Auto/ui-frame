@@ -8,6 +8,7 @@ import {
   type ComputedRef,
 } from 'vue'
 import { useNeumorphismSetup } from '@/extensions/createComponent'
+import { useReducedMotion } from './useReducedMotion'
 
 // ==========================================
 // Shared Chart Types
@@ -270,28 +271,7 @@ export function useChart(options: UseChartOptions) {
   }
 
   // ---- prefers-reduced-motion ----
-  const reducedMotion = ref(false)
-
-  function checkReducedMotion(): void {
-    reducedMotion.value =
-      typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
-  }
-
-  let motionQuery: MediaQueryList | null = null
-
-  onMounted(() => {
-    checkReducedMotion()
-    if (typeof window !== 'undefined') {
-      motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
-      motionQuery.addEventListener('change', checkReducedMotion)
-    }
-  })
-
-  onBeforeUnmount(() => {
-    if (motionQuery) {
-      motionQuery.removeEventListener('change', checkReducedMotion)
-    }
-  })
+  const { isReducedMotion: reducedMotion } = useReducedMotion()
 
   // ---- Nice number algorithm for axis ticks ----
   function niceNum(range: number, round: boolean): number {

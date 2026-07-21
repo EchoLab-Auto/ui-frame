@@ -91,6 +91,15 @@ export type { Theme, ThemeOptions, ThemeContext } from './composables/useTheme'
 export { useSelect } from './composables/useSelect'
 export type { UseSelectOptions, UseSelectReturn, SelectOption } from './composables/useSelect'
 
+export { usePixelLogoAnimation } from './composables/usePixelLogoAnimation'
+export type {
+  UsePixelLogoAnimationOptions,
+  UsePixelLogoAnimationReturn,
+} from './composables/usePixelLogoAnimation'
+
+export { useReducedMotion, prefersReducedMotion } from './composables/useReducedMotion'
+export type { UseReducedMotionReturn } from './composables/useReducedMotion'
+
 export { useTabs } from './composables/useTabs'
 export type {
   UseTabsOptions,

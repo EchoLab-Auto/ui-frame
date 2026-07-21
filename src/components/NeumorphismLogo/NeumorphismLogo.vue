@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { useNeumorphismSetup } from '@/extensions/createComponent'
-import { usePixelLogoAnimation } from './usePixelLogoAnimation'
+import { usePixelLogoAnimation } from '@/composables/usePixelLogoAnimation'
+import type { LogoMode as PixelLogoMode } from '@/composables/usePixelLogoAnimation'
+import { generateId } from '@/utils'
 
-export type LogoMode = 'pulse' | 'liquid' | 'wave' | 'pointer'
+export type LogoMode = PixelLogoMode
 export type LogoSize = 'small' | 'medium' | 'large'
 
 export interface NeumorphismLogoProps {
@@ -71,9 +73,13 @@ const {
   sparksGroupRef,
   svgRef,
   mode: resolvedMode.value,
-  goo: resolvedGoo.value,
   autoplay: resolvedAutoplay.value,
 })
+
+// Unique goo filter id per instance — multiple logos on one page must not
+// share filter element ids, otherwise url(#goo) resolves to the first instance.
+const gooFilterId = generateId('nm-logo-goo')
+const gooFilterAttr = computed(() => (resolvedGoo.value ? `url(#${gooFilterId})` : undefined))
 
 watch(resolvedMode, value => {
   setMode(value)
@@ -118,13 +124,13 @@ const classList = computed(() => [
           xmlns="http://www.w3.org/2000/svg"
         >
           <defs>
-            <filter id="goo" x="-20%" y="-20%" width="140%" height="140%">
+            <filter :id="gooFilterId" x="-20%" y="-20%" width="140%" height="140%">
               <feGaussianBlur in="SourceGraphic" stdDeviation="3.2" result="b" />
               <feColorMatrix in="b" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 24 -9.5" />
             </filter>
           </defs>
           <rect x="0" y="0" width="512" height="512" rx="96" fill="#000" />
-          <g id="gooroot" filter="url(#goo)">
+          <g :filter="gooFilterAttr">
             <g ref="linksGroupRef" />
             <g ref="pixelsGroupRef" />
             <g ref="sparksGroupRef" />
