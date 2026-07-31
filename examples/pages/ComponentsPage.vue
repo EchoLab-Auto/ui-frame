@@ -60,6 +60,63 @@ const {
   removeToast: hsRemoveToast,
 } = useToast({ maxCount: 5 })
 
+// ==========================================
+// 补齐组件演示状态
+// ==========================================
+
+// --- 数据录入扩展 ---
+const demoInputNumber = ref(3)
+const demoSlider = ref(40)
+const demoDate = ref<Date | null>(null)
+const demoAutoComplete = ref<string | number>('')
+
+// --- 数据展示扩展 ---
+const demoTableData = ref([
+  { key: '1', name: 'Vue 3', category: '框架', stars: 207 },
+  { key: '2', name: 'React 18', category: '框架', stars: 203 },
+  { key: '3', name: 'Vite 5', category: '构建', stars: 67 },
+])
+const demoTableColumns = [
+  { key: 'name', label: '名称' },
+  { key: 'category', label: '分类' },
+  { key: 'stars', label: 'Stars (k)', sortable: true },
+]
+const demoListItems = ref([
+  '支持键盘导航与 roving tabindex',
+  '亮暗双主题 Token 驱动',
+  '级联配置全库生效',
+])
+
+// --- 反馈组件 ---
+const demoDrawerOpen = ref(false)
+
+// --- 导航组件 ---
+const demoMenuItems = ref([
+  { key: 'dashboard', label: '仪表盘', icon: '📊' },
+  { key: 'components', label: '组件', icon: '🧩', children: [{ key: 'button', label: 'Button' }] },
+  { key: 'docs', label: '文档', icon: '📖', divided: true },
+])
+const demoNavItems = ref([
+  { key: 'home', label: '首页' },
+  { key: 'guide', label: '指南' },
+  { key: 'api', label: 'API' },
+])
+const demoStepsActive = ref(1)
+const demoStepsItems = [
+  { key: 'cart', title: '购物车' },
+  { key: 'address', title: '收货地址' },
+  { key: 'pay', title: '支付' },
+  { key: 'done', title: '完成' },
+]
+
+// --- 上传 ---
+const demoUploadFiles = ref([])
+
+// --- 虚拟列表 ---
+const demoVirtualItems = computed(() =>
+  Array.from({ length: 1000 }, (_, i) => ({ id: i, text: `虚拟列表项 #${i + 1}` }))
+)
+
 let hsToastCounter = 0
 function showHeadlessToast(type: string) {
   hsToastCounter++
@@ -1426,6 +1483,45 @@ const chartStockData = ref([
                 控制，亮/暗主题均可覆盖。
               </p>
             </NeumorphismCard>
+
+            <!-- 数据录入扩展 -->
+            <NeumorphismCard id="input-extra" :elevation="1" class="demo-card demo-card--full">
+              <template #header>
+                <div class="demo-header">
+                  <h3 class="demo-title">InputNumber · Slider · DatePicker · AutoComplete</h3>
+                  <span class="demo-badge">步进 · 拖动 · 日历 · 联想</span>
+                </div>
+              </template>
+
+              <div class="select-grid">
+                <div class="select-cell">
+                  <h5 class="demo-label">InputNumber 数字输入（{{ demoInputNumber }}）</h5>
+                  <NeumorphismInputNumber v-model="demoInputNumber" :min="0" :max="10" :step="1" />
+                </div>
+                <div class="select-cell">
+                  <h5 class="demo-label">Slider 滑块（{{ demoSlider }}）</h5>
+                  <NeumorphismSlider v-model="demoSlider" :min="0" :max="100" show-tooltip />
+                </div>
+                <div class="select-cell">
+                  <h5 class="demo-label">DatePicker 日期选择（键盘可达）</h5>
+                  <NeumorphismDatePicker v-model="demoDate" clearable placeholder="选择日期" />
+                </div>
+                <div class="select-cell">
+                  <h5 class="demo-label">AutoComplete 输入联想</h5>
+                  <NeumorphismAutoComplete
+                    v-model="demoAutoComplete"
+                    :options="[
+                      { label: 'Vue 3', value: 'vue' },
+                      { label: 'Vite', value: 'vite' },
+                      { label: 'Vitest', value: 'vitest' },
+                      { label: 'Vue Router', value: 'router' },
+                    ]"
+                    placeholder="输入 v 试试"
+                    clearable
+                  />
+                </div>
+              </div>
+            </NeumorphismCard>
           </section>
 
           <NeumorphismDivider />
@@ -1495,6 +1591,28 @@ const chartStockData = ref([
                     >
                   </div>
                 </NeumorphismForm>
+              </div>
+            </NeumorphismCard>
+
+            <!-- Field 字段辅助 -->
+            <NeumorphismCard id="field" :elevation="1" class="demo-card">
+              <template #header>
+                <div class="demo-header">
+                  <h3 class="demo-title">NeumorphismField 字段辅助</h3>
+                  <span class="demo-badge">Label · Error · 关联</span>
+                </div>
+              </template>
+
+              <div class="demo-block">
+                <h4 class="demo-label">标签（required 显示 *）与错误提示（role=alert）</h4>
+                <div class="form-demo-width">
+                  <NeumorphismFieldLabel label="用户名" required for-id="demo-field-input" />
+                  <NeumorphismInput id="demo-field-input" placeholder="请输入用户名" error />
+                  <NeumorphismFieldError
+                    id="demo-field-error"
+                    message="该字段为必填项，请输入至少 2 个字符"
+                  />
+                </div>
               </div>
             </NeumorphismCard>
           </section>
@@ -2035,12 +2153,49 @@ const chartStockData = ref([
 --nm-scrollbar-thumb-shadow: 0 0 10px ...;</code></pre>
               </div>
             </NeumorphismCard>
+
+            <!-- 数据展示扩展 -->
+            <NeumorphismCard id="display-extra" :elevation="1" class="demo-card demo-card--full">
+              <template #header>
+                <div class="demo-header">
+                  <h3 class="demo-title">Table · List · Empty · VirtualList</h3>
+                  <span class="demo-badge">排序 · 空态 · 千行虚拟滚动</span>
+                </div>
+              </template>
+
+              <div class="demo-block">
+                <h4 class="demo-label">Table 表格（点列头排序）</h4>
+                <NeumorphismTable :columns="demoTableColumns" :data="demoTableData" striped />
+              </div>
+
+              <div class="demo-row" style="gap: 24px; align-items: flex-start; flex-wrap: wrap">
+                <div style="flex: 1; min-width: 240px">
+                  <h4 class="demo-label">List 列表</h4>
+                  <NeumorphismList :items="demoListItems" />
+                </div>
+                <div style="flex: 1; min-width: 240px">
+                  <h4 class="demo-label">Empty 空状态</h4>
+                  <NeumorphismEmpty description="这里还没有任何内容" />
+                </div>
+              </div>
+
+              <div class="demo-block">
+                <h4 class="demo-label">VirtualList 虚拟列表（1000 项，只渲染可视区）</h4>
+                <NeumorphismVirtualList
+                  :items="demoVirtualItems"
+                  :item-height="36"
+                  style="max-height: 240px"
+                >
+                  <template #default="{ item }">
+                    <div style="padding: 8px 12px">{{ item.text }}</div>
+                  </template>
+                </NeumorphismVirtualList>
+              </div>
+            </NeumorphismCard>
           </section>
 
           <NeumorphismDivider />
 
-          <!-- ============================================= -->
-          <!-- 分类：导航                                       -->
           <!-- ============================================= -->
           <section class="category-section">
             <h2 class="category-title">导航</h2>
@@ -2120,6 +2275,39 @@ const chartStockData = ref([
                   <NeumorphismPagination v-model="page" :total="50" :page-size="10" size="medium" />
                   <NeumorphismPagination v-model="page" :total="50" :page-size="10" size="large" />
                 </div>
+              </div>
+            </NeumorphismCard>
+
+            <!-- 导航扩展 -->
+            <NeumorphismCard id="nav-extra" :elevation="1" class="demo-card demo-card--full">
+              <template #header>
+                <div class="demo-header">
+                  <h3 class="demo-title">Menu · NavMenu · Dropdown · Steps</h3>
+                  <span class="demo-badge">纵向菜单 · 指示条 · 下拉 · 步骤条</span>
+                </div>
+              </template>
+
+              <div class="demo-row" style="gap: 24px; align-items: flex-start; flex-wrap: wrap">
+                <div style="min-width: 200px">
+                  <h4 class="demo-label">Menu 纵向菜单</h4>
+                  <NeumorphismMenu :items="demoMenuItems" />
+                </div>
+                <div style="flex: 1; min-width: 280px">
+                  <h4 class="demo-label">NavMenu 导航菜单（活动指示条）</h4>
+                  <NeumorphismNavMenu :items="demoNavItems" default-active="guide" />
+                  <h4 class="demo-label" style="margin-top: 16px">Dropdown 下拉菜单</h4>
+                  <NeumorphismDropdown>
+                    <NeumorphismButton>操作</NeumorphismButton>
+                    <template #content>
+                      <NeumorphismMenu :items="demoNavItems" />
+                    </template>
+                  </NeumorphismDropdown>
+                </div>
+              </div>
+
+              <div class="demo-block">
+                <h4 class="demo-label">Steps 步骤条（当前第 {{ demoStepsActive + 1 }} 步）</h4>
+                <NeumorphismSteps v-model:current="demoStepsActive" :items="demoStepsItems" />
               </div>
             </NeumorphismCard>
           </section>
@@ -2351,6 +2539,42 @@ const chartStockData = ref([
                 >
                   {{ collapseActive.length ? '全部折叠' : '全部展开' }}
                 </NeumorphismButton>
+              </div>
+            </NeumorphismCard>
+
+            <!-- 反馈扩展 -->
+            <NeumorphismCard id="feedback-extra" :elevation="1" class="demo-card demo-card--full">
+              <template #header>
+                <div class="demo-header">
+                  <h3 class="demo-title">Alert · Drawer · Upload</h3>
+                  <span class="demo-badge">四种类型 · 抽屉 · 拖拽上传</span>
+                </div>
+              </template>
+
+              <div class="demo-block">
+                <h4 class="demo-label">Alert 四种类型</h4>
+                <div style="display: flex; flex-direction: column; gap: 10px">
+                  <NeumorphismAlert type="info" message="信息提示：文档已同步更新" />
+                  <NeumorphismAlert type="success" message="成功：级联配置已生效" />
+                  <NeumorphismAlert type="warning" message="警告：该操作需要确认" />
+                  <NeumorphismAlert type="error" message="错误：提交失败，请重试" />
+                </div>
+              </div>
+
+              <div class="demo-row" style="gap: 24px; align-items: flex-start; flex-wrap: wrap">
+                <div style="flex: 1; min-width: 260px">
+                  <h4 class="demo-label">Drawer 抽屉</h4>
+                  <NeumorphismButton @click="demoDrawerOpen = true">打开抽屉</NeumorphismButton>
+                  <NeumorphismDrawer v-model="demoDrawerOpen" title="详情面板" position="right">
+                    <div style="padding: 16px">
+                      <p>抽屉内容区域 —— 支持 Esc 关闭、遮罩点击关闭与焦点陷阱。</p>
+                    </div>
+                  </NeumorphismDrawer>
+                </div>
+                <div style="flex: 1; min-width: 260px">
+                  <h4 class="demo-label">Upload 文件上传</h4>
+                  <NeumorphismUpload v-model="demoUploadFiles" drag />
+                </div>
               </div>
             </NeumorphismCard>
           </section>
