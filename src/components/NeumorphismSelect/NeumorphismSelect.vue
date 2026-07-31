@@ -4,6 +4,7 @@ import { useSelect } from '@/composables/useSelect'
 import type { SelectOption } from '@/composables/useSelect'
 import { useFormField } from '@/composables/useFormField'
 import { useConfig } from '@/composables/useConfig'
+import { useFloatingPosition } from '@/composables/useFloatingPosition'
 import { useLocale } from '@/composables/useLocale'
 import { useZIndex } from '@/composables/useZIndex'
 import NeumorphismFieldLabel from '@/components/NeumorphismField/NeumorphismFieldLabel.vue'
@@ -254,100 +255,13 @@ function blur() {
 defineExpose({ focus, blur })
 
 // ==========================================
-// 下拉定位（fixed + teleport 到 body）与视口翻转
+// 下拉定位 —— 共享浮层定位引擎（rAF 逐帧追踪 + 边界翻转滞后）
 // ==========================================
 const dropdownRef = ref<HTMLElement>()
-const dropdownPosition = ref({ top: 0, bottom: 0, left: 0, width: 0, available: 0 })
-const placement = ref<'bottom' | 'top'>('bottom')
 
 const DROPDOWN_GAP = 6
 // outlined 为单盒内联展开（无分离下拉），空间估算不加分间距；default 保持 6px 分离
 const dropGap = computed(() => (resolvedVariant.value === 'outlined' ? 0 : DROPDOWN_GAP))
-// 与 tokens.scss 的 --nm-select-dropdown-max-height 默认值一致，
-// 用于展开前估算下拉所需空间以决定是否向上翻转
-const DROPDOWN_MAX_HEIGHT = 240
-// 滚动跟随中的翻转条件：当前侧可用空间不足 MIN_USABLE_SPACE、
-// 且对侧比当前侧宽裕 FLIP_HYSTERESIS 以上 —— 防止边界处逐帧来回翻转
-const MIN_USABLE_SPACE = 120
-const FLIP_HYSTERESIS = 48
-
-function updateDropdownPosition(fullRecompute = false) {
-  if (!triggerRef.value || typeof window === 'undefined') return
-  const rect = triggerRef.value.getBoundingClientRect()
-  // The dropdown uses position:fixed and is teleported to <body>, so
-  // getBoundingClientRect() already returns viewport coordinates — adding
-  // window.scrollY/scrollX here would shift the dropdown by the scroll offset.
-  const gap = dropGap.value
-  const spaceBelow = window.innerHeight - rect.bottom - gap
-  const spaceAbove = rect.top - gap
-
-  let nextPlacement = placement.value
-  if (fullRecompute) {
-    nextPlacement = spaceBelow < DROPDOWN_MAX_HEIGHT && spaceAbove > spaceBelow ? 'top' : 'bottom'
-  } else if (
-    (nextPlacement === 'bottom' &&
-      spaceBelow < MIN_USABLE_SPACE &&
-      spaceAbove > spaceBelow + FLIP_HYSTERESIS) ||
-    (nextPlacement === 'top' &&
-      spaceAbove < MIN_USABLE_SPACE &&
-      spaceBelow > spaceAbove + FLIP_HYSTERESIS)
-  ) {
-    nextPlacement = nextPlacement === 'bottom' ? 'top' : 'bottom'
-  }
-  const flipped = nextPlacement !== placement.value
-
-  const next = {
-    top: rect.bottom + gap,
-    bottom: window.innerHeight - rect.top + gap,
-    left: rect.left,
-    width: rect.width,
-    // available 仅在 打开/翻转/resize 时重估 —— 滚动中逐帧收缩 maxHeight
-    // 会引起面板高度抖动与列表滚动位置跳变；冻结后面板随触发器整体移动
-    available:
-      fullRecompute || flipped
-        ? nextPlacement === 'bottom'
-          ? spaceBelow
-          : spaceAbove
-        : dropdownPosition.value.available,
-  }
-  // 逐帧轮询下避免无谓的重渲染 —— 仅在实际变化时写入响应式状态
-  const prev = dropdownPosition.value
-  if (
-    prev.top !== next.top ||
-    prev.bottom !== next.bottom ||
-    prev.left !== next.left ||
-    prev.width !== next.width ||
-    prev.available !== next.available
-  ) {
-    dropdownPosition.value = next
-  }
-  if (flipped) placement.value = nextPlacement
-}
-
-// rAF 逐帧跟随 —— 下拉是 teleport + fixed 定位，页面滚动（尤其平滑/惯性滚动）
-// 时 scroll 事件可能滞后于合成器绘制一帧，下拉与触发器错位、连体接缝撕裂。
-// 逐帧读取 rect 让位置更新与页面绘制落在同一帧（floating-ui 的
-// animationFrame autoUpdate 同款模式），同时覆盖滚动/缩放/布局变化。
-let positionRafId: number | null = null
-// resize 时需在下一帧全量重估（方向 + 可用空间）
-let needsFullRecompute = false
-
-function onWindowResize() {
-  needsFullRecompute = true
-}
-
-function trackPositionFrame() {
-  positionRafId = null
-  const fullRecompute = needsFullRecompute
-  needsFullRecompute = false
-  updateDropdownPosition(fullRecompute)
-  syncMarginCompensation()
-  // 轮询存续期跟随 visualOpen —— 收起动画期间（isOpen 已 false）
-  // 仍需逐帧同步负 margin，直到 @after-leave 停止
-  if (visualOpen.value && typeof window !== 'undefined') {
-    positionRafId = window.requestAnimationFrame(trackPositionFrame)
-  }
-}
 
 // 单盒纵向延展：盒体在文档流中长高会顶开下方内容 —— 逐帧以
 // 「闭合高度 − 当前盒高」施加负 margin，与盒体实际增量逐帧锁定，布局零抖动。
@@ -368,17 +282,23 @@ function syncMarginCompensation() {
   triggerRef.value.style.marginTop = placement.value === 'top' ? `${-grow}px` : '0px'
 }
 
-function startPositionTracking() {
-  if (typeof window === 'undefined' || positionRafId !== null) return
-  positionRafId = window.requestAnimationFrame(trackPositionFrame)
-}
-
-function stopPositionTracking() {
-  if (positionRafId !== null && typeof window !== 'undefined') {
-    window.cancelAnimationFrame(positionRafId)
-    positionRafId = null
-  }
-}
+const {
+  actualPlacement: placement,
+  rect: dropdownRect,
+  available: dropdownAvailable,
+  refresh: refreshDropdownPosition,
+  stop: stopPositionTracking,
+} = useFloatingPosition({
+  trigger: triggerRef,
+  // 追踪存续期跟随 visualOpen —— 收起动画期间（isOpen 已 false）
+  // 仍需逐帧同步负 margin 与位置，直到 @after-leave 停止
+  open: visualOpen,
+  placement: computed(() => 'bottom' as const),
+  offset: dropGap,
+  floating: dropdownRef,
+  candidates: ['bottom', 'top'],
+  onFrame: syncMarginCompensation,
+})
 
 function scrollActiveIntoView() {
   if (!dropdownRef.value) return
@@ -402,19 +322,12 @@ watch(isOpen, open => {
     closedBoxHeight.value = triggerRef.value?.offsetHeight ?? 0
     nextTick(() => {
       // 打开时全量重估方向与可用空间（后续滚动中仅在滞后条件满足时翻转）
-      updateDropdownPosition(true)
+      refreshDropdownPosition()
       scrollActiveIntoView()
     })
-    startPositionTracking()
-    if (typeof window !== 'undefined') {
-      window.addEventListener('resize', onWindowResize)
-    }
   } else {
     filterText.value = ''
     settledOpen.value = false
-    if (typeof window !== 'undefined') {
-      window.removeEventListener('resize', onWindowResize)
-    }
   }
 })
 
@@ -429,18 +342,13 @@ function onAfterLeave() {
   }
 }
 
-// 组件在展开状态下被卸载（v-if / 路由切换）时停止逐帧轮询并移除监听，
+// 组件在展开状态下被卸载（v-if / 路由切换）时停止逐帧轮询，
 // 否则 rAF 回调连同 triggerRef 闭包会泄漏
-onBeforeUnmount(() => {
-  stopPositionTracking()
-  if (typeof window !== 'undefined') {
-    window.removeEventListener('resize', onWindowResize)
-  }
-})
+onBeforeUnmount(stopPositionTracking)
 
 const { getZIndex } = useZIndex()
 
-const clampedAvailable = computed(() => Math.max(dropdownPosition.value.available, 72))
+const clampedAvailable = computed(() => Math.max(dropdownAvailable.value, 72))
 
 const dropdownStyle = computed(() => {
   // 视口空间受限时收缩高度；token 仍可覆盖默认上限
@@ -449,12 +357,17 @@ const dropdownStyle = computed(() => {
     // 单盒模型：下拉是盒内第二行，只需高度上限；定位由盒体自身完成
     return { maxHeight }
   }
+  const r = dropdownRect.value
+  const gap = dropGap.value
   return {
     position: 'fixed' as const,
-    top: placement.value === 'bottom' ? `${dropdownPosition.value.top}px` : undefined,
-    bottom: placement.value === 'top' ? `${dropdownPosition.value.bottom}px` : undefined,
-    left: `${dropdownPosition.value.left}px`,
-    width: `${dropdownPosition.value.width}px`,
+    top: placement.value === 'bottom' ? `${(r?.bottom ?? 0) + gap}px` : undefined,
+    bottom:
+      placement.value === 'top'
+        ? `${typeof window !== 'undefined' ? window.innerHeight - (r?.top ?? 0) + gap : 0}px`
+        : undefined,
+    left: `${r?.left ?? 0}px`,
+    width: `${r?.width ?? 0}px`,
     maxHeight,
     zIndex: getZIndex('dropdown'),
   }

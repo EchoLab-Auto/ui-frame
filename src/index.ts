@@ -88,6 +88,14 @@ export { useTheme, provideTheme, createTheme, getAntiFlickerScript } from './com
 export type { Theme, ThemeOptions, ThemeContext } from './composables/useTheme'
 
 // Composables — headless behavior (business logic without UI)
+export { useFloatingPosition } from './composables/useFloatingPosition'
+export type {
+  FloatingPlacement,
+  FloatingRect,
+  UseFloatingPositionOptions,
+  UseFloatingPositionReturn,
+} from './composables/useFloatingPosition'
+
 export { useSelect } from './composables/useSelect'
 export type {
   UseSelectOptions,

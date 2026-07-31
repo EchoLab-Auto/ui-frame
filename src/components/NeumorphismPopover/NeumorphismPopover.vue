@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, watch, nextTick, onMounted, onBeforeUnmount } from 'vue'
 import { usePopover } from '@/composables/usePopover'
+import { useFloatingPosition } from '@/composables/useFloatingPosition'
 import { useNeumorphismSetup } from '@/extensions/createComponent'
 import { useZIndex } from '@/composables/useZIndex'
 import type { PopoverPosition, PopoverTrigger } from '@/composables/usePopover'
@@ -63,104 +64,51 @@ const {
 // ---- Refs ----
 const triggerRef = ref<HTMLElement>()
 const popoverRef = ref<HTMLElement>()
-const actualPosition = ref<PopoverPosition>(
-  resolvedPosition.value === 'auto' ? 'bottom' : resolvedPosition.value
-)
-const computedStyle = ref<Record<string, string>>({})
 
-// ---- Boundary-aware positioning ----
-function checkBoundary(): PopoverPosition {
-  const el = triggerRef.value
-  if (!el || typeof window === 'undefined') {
-    return resolvedPosition.value === 'auto' ? 'bottom' : resolvedPosition.value
-  }
+// ---- 共享浮层定位引擎（rAF 逐帧追踪 + 边界翻转滞后） ----
+// 嵌套滚动容器/平滑滚动下由逐帧轮询保证同帧同步 —— 旧实现的 scroll
+// 事件监听无 capture，嵌套滚动时浮层与触发器脱节，由引擎从根本上覆盖
+const { actualPlacement, rect, refresh, stop } = useFloatingPosition({
+  trigger: triggerRef,
+  open: isOpen,
+  placement: computed(() => resolvedPosition.value),
+  offset: resolvedOffset,
+  floating: popoverRef,
+  estimateSize: { width: 200, height: 120 },
+})
 
-  const rect = el.getBoundingClientRect()
-  const popoverEl = popoverRef.value
-  const contentHeight = popoverEl?.offsetHeight ?? 120
-  const contentWidth = popoverEl?.offsetWidth ?? 200
+const computedStyle = computed(() => {
+  const r = rect.value
+  if (!r) return {}
   const offset = resolvedOffset.value
-
-  // For 'auto', try bottom first, then top, then right, then left
-  if (resolvedPosition.value === 'auto') {
-    const candidates: PopoverPosition[] = ['bottom', 'top', 'right', 'left']
-    for (const candidate of candidates) {
-      switch (candidate) {
-        case 'bottom':
-          if (rect.bottom + contentHeight + offset + 8 <= window.innerHeight) return 'bottom'
-          break
-        case 'top':
-          if (rect.top - contentHeight - offset - 8 >= 0) return 'top'
-          break
-        case 'right':
-          if (rect.right + contentWidth + offset + 8 <= window.innerWidth) return 'right'
-          break
-        case 'left':
-          if (rect.left - contentWidth - offset - 8 >= 0) return 'left'
-          break
-      }
-    }
-    return 'bottom' // fallback
-  }
-
-  // For explicit position, flip if out of bounds
-  switch (resolvedPosition.value) {
-    case 'top':
-      if (rect.top < contentHeight + offset + 8) return 'bottom'
-      break
-    case 'bottom':
-      if (rect.bottom + contentHeight + offset + 8 > window.innerHeight) return 'top'
-      break
-    case 'left':
-      if (rect.left < contentWidth + offset + 8) return 'right'
-      break
-    case 'right':
-      if (rect.right + contentWidth + offset + 8 > window.innerWidth) return 'left'
-      break
-  }
-  return resolvedPosition.value
-}
-
-function updatePosition() {
-  if (typeof window === 'undefined') return
-
-  const el = triggerRef.value
-  if (!el) return
-
-  const pos = checkBoundary()
-  actualPosition.value = pos
-
-  const rect = el.getBoundingClientRect()
-  const offset = resolvedOffset.value
-
   const style: Record<string, string> = {}
 
-  switch (pos) {
+  switch (actualPlacement.value) {
     case 'top':
-      style.top = `${rect.top - offset}px`
-      style.left = `${rect.left + rect.width / 2}px`
+      style.top = `${r.top - offset}px`
+      style.left = `${r.left + r.width / 2}px`
       style.transform = 'translate(-50%, -100%)'
       break
     case 'bottom':
-      style.top = `${rect.bottom + offset}px`
-      style.left = `${rect.left + rect.width / 2}px`
+      style.top = `${r.bottom + offset}px`
+      style.left = `${r.left + r.width / 2}px`
       style.transform = 'translate(-50%, 0)'
       break
     case 'left':
-      style.top = `${rect.top + rect.height / 2}px`
-      style.left = `${rect.left - offset}px`
+      style.top = `${r.top + r.height / 2}px`
+      style.left = `${r.left - offset}px`
       style.transform = 'translate(-100%, -50%)'
       break
     case 'right':
-      style.top = `${rect.top + rect.height / 2}px`
-      style.left = `${rect.right + offset}px`
+      style.top = `${r.top + r.height / 2}px`
+      style.left = `${r.right + offset}px`
       style.transform = 'translate(0, -50%)'
       break
   }
 
   // Width handling
   if (resolvedWidth.value === 'trigger') {
-    style.width = `${rect.width}px`
+    style.width = `${r.width}px`
   } else if (typeof resolvedWidth.value === 'number') {
     style.width = `${resolvedWidth.value}px`
   }
@@ -168,14 +116,8 @@ function updatePosition() {
   // Context-aware z-index
   style.zIndex = String(getZIndex('popover'))
 
-  computedStyle.value = style
-}
-
-function handleWindowChange() {
-  if (isOpen.value) {
-    updatePosition()
-  }
-}
+  return style
+})
 
 // ---- Click-outside detection ----
 function onDocumentClick(event: MouseEvent) {
@@ -198,39 +140,19 @@ onMounted(() => {
 onBeforeUnmount(() => {
   if (typeof document === 'undefined') return
   document.removeEventListener('click', onDocumentClick, true)
-  // Clean up window listeners in case the component unmounts while the
-  // popover is still open (e.g., removed via v-if or route change).
-  if (typeof window !== 'undefined') {
-    window.removeEventListener('scroll', handleWindowChange)
-    window.removeEventListener('resize', handleWindowChange)
-  }
+  stop()
 })
 
-// ---- Watch isOpen to calculate position, register window listeners, and emit ----
+// ---- Watch isOpen to refresh position and emit ----
 watch(isOpen, open => {
-  if (open) {
-    emit('visible-change', true)
-    nextTick(() => {
-      updatePosition()
-      if (typeof window !== 'undefined') {
-        window.addEventListener('scroll', handleWindowChange, { passive: true })
-        window.addEventListener('resize', handleWindowChange)
-      }
-    })
-  } else {
-    emit('visible-change', false)
-    actualPosition.value = resolvedPosition.value === 'auto' ? 'bottom' : resolvedPosition.value
-    if (typeof window !== 'undefined') {
-      window.removeEventListener('scroll', handleWindowChange)
-      window.removeEventListener('resize', handleWindowChange)
-    }
-  }
+  emit('visible-change', open)
+  if (open) nextTick(refresh)
 })
 
 // ---- Watch resolved offset to reposition if open ----
 watch(resolvedOffset, () => {
   if (isOpen.value) {
-    nextTick(updatePosition)
+    nextTick(refresh)
   }
 })
 
@@ -238,7 +160,7 @@ const offsetPx = computed(() => `${resolvedOffset.value}px`)
 
 const classList = computed(() => [
   'nm-popover',
-  `nm-popover--${actualPosition.value}`,
+  `nm-popover--${actualPlacement.value}`,
   { 'nm-popover--visible': isOpen.value },
 ])
 

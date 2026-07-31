@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, ref, watch, nextTick } from 'vue'
 import { useDatePicker } from '@/composables/useDatePicker'
 import { useFormField } from '@/composables/useFormField'
 import { useNeumorphismSetup } from '@/extensions/createComponent'
@@ -188,6 +188,21 @@ function focusTrigger() {
   triggerRef.value?.focus()
 }
 
+// 网格挂载晚于 show() 一个渲染周期以上，且 popover 内容 teleport 到 body
+//（不在组件 wrapper 内）—— 以有界 rAF 重试按稳定 id 等待可聚焦日期格出现
+function focusActiveDay(attemptsLeft = 5) {
+  const el = document
+    .getElementById(`${fieldId}-grid`)
+    ?.querySelector<HTMLElement>('.nm-datepicker__day[tabindex="0"]')
+  if (el) {
+    el.focus()
+    return
+  }
+  if (attemptsLeft > 0 && isOpen.value && typeof window !== 'undefined') {
+    window.requestAnimationFrame(() => focusActiveDay(attemptsLeft - 1))
+  }
+}
+
 function onTriggerKeydown(event: KeyboardEvent) {
   if (props.disabled) return
   if (event.key === 'Enter' || event.key === ' ' || event.key === 'ArrowDown') {
@@ -196,6 +211,7 @@ function onTriggerKeydown(event: KeyboardEvent) {
       focusedDayIndex.value = calendarDays.value.findIndex(d => d.isCurrentMonth && !d.isDisabled)
     }
     popoverRef.value?.show?.()
+    nextTick(() => focusActiveDay())
   }
 }
 
@@ -407,7 +423,12 @@ function handleCalendarKeydown(event: KeyboardEvent) {
           </div>
 
           <!-- Day cells grid (WAI-ARIA grid pattern) -->
-          <div class="nm-datepicker__days" role="grid" @keydown="handleCalendarKeydown">
+          <div
+            :id="`${fieldId}-grid`"
+            class="nm-datepicker__days"
+            role="grid"
+            @keydown="handleCalendarKeydown"
+          >
             <button
               v-for="(cell, idx) in calendarDays"
               :key="idx"

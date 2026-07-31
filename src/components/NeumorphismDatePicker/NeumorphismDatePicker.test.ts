@@ -27,10 +27,10 @@ describe('NeumorphismDatePicker a11y', () => {
     const trigger = wrapper.find('[role="combobox"]')
     await trigger.trigger('keydown', { key: 'Enter' })
     await nextTick()
-    await nextTick()
     const grid = document.querySelector('[role="grid"]')
     expect(grid).not.toBeNull()
-    // 焦点应落在网格内某个日期格上（roving tabindex）
+    // 焦点经有界 rAF 重试落格 —— 等待帧任务而非微任务
+    await new Promise(r => setTimeout(r, 60))
     const active = document.activeElement as HTMLElement
     expect(active?.classList.contains('nm-datepicker__day')).toBe(true)
     wrapper.unmount()

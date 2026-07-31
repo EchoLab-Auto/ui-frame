@@ -1471,6 +1471,46 @@ interface UseDocLayoutReturn {
 
 Headless Composables 将业务逻辑与 UI 完全解耦，封装了键盘导航、ARIA、状态管理等行为，开发者只需关心 UI 渲染。
 
+### useFloatingPosition
+
+```ts
+import { useFloatingPosition } from '@echolab-auto/ui-frame'
+import type {
+  FloatingPlacement,
+  UseFloatingPositionOptions,
+  UseFloatingPositionReturn,
+} from '@echolab-auto/ui-frame'
+```
+
+共享浮层定位引擎：rAF 逐帧追踪（覆盖嵌套滚动容器/平滑滚动/缩放/布局变化，位置更新与页面绘制同帧）+ 边界翻转（滞后阈值防抖动）。
+
+```ts
+type FloatingPlacement = 'top' | 'bottom' | 'left' | 'right'
+
+interface UseFloatingPositionOptions {
+  trigger: Ref<HTMLElement | undefined> // 触发器元素
+  open: Ref<boolean> // 浮层是否打开（追踪随之启停）
+  placement: Ref<FloatingPlacement | 'auto'> // 期望方向；auto 按候选顺序选首个满足空间者
+  offset?: Ref<number> // 与触发器间距 px（默认 0）
+  floating?: Ref<HTMLElement | undefined> // 浮层元素（读取实际尺寸用于边界判断）
+  candidates?: FloatingPlacement[] // auto 候选顺序（默认 bottom→top→right→left）
+  flipHysteresis?: number // 翻转滞后 px（默认 48）
+  minSpace?: number // 当前侧不足该值才考虑翻转（默认 120）
+  estimateSize?: { width: number; height: number } // 浮层未挂载时的尺寸估计
+  onFrame?: () => void // 每帧回调（用于逐帧同步，如负 margin 补偿）
+}
+
+interface UseFloatingPositionReturn {
+  actualPlacement: Ref<FloatingPlacement> // 边界翻转后的实际方向
+  rect: Ref<FloatingRect | null> // 触发器视口 rect（逐帧更新）
+  available: Ref<number> // 当前侧可用空间 px（打开/翻转/resize 时重估，滚动中冻结）
+  refresh: () => void // 立即全量重算
+  stop: () => void // 停止追踪（组件卸载自动调用）
+}
+```
+
+---
+
 ### useSelect
 
 ```ts
