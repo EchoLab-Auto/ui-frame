@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useNeumorphismSetup } from '@/extensions/createComponent'
+import { useLocale } from '@/composables/useLocale'
 import { useSlider, coordinateToValue } from '@/composables/useSlider'
 
 export type SliderSize = 'small' | 'medium' | 'large'
@@ -165,6 +166,7 @@ const stops = computed<StopMark[]>(() => {
 // Aria attributes
 // ==========================================
 
+const { t } = useLocale()
 const ariaValueText = computed(() => `${sliderValue.value}`)
 
 // ==========================================
@@ -229,6 +231,7 @@ const classList = computed(() => [
           :aria-valuemax="max"
           :aria-valuenow="sliderValue"
           :aria-valuetext="ariaValueText"
+          :aria-label="`${t('sliderThumb')}: ${ariaValueText}`"
           :aria-disabled="disabled || undefined"
           :aria-orientation="vertical ? 'vertical' : 'horizontal'"
           @keydown="handleKeydown"

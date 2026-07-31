@@ -438,6 +438,7 @@ function onContainerBlur(e: FocusEvent) {
       :aria-controls="resolvedFilterable ? undefined : `${fieldId}-listbox`"
       :aria-activedescendant="resolvedFilterable ? undefined : activeDescendantId"
       :aria-labelledby="!resolvedFilterable && label ? fieldId : undefined"
+      :aria-label="!resolvedFilterable && !label ? resolvedPlaceholder : undefined"
       @click="onTriggerClick"
       @focus="(e: FocusEvent) => handleFocus(e, emit)"
       @blur="onContainerBlur"

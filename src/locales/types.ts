@@ -38,6 +38,8 @@ export interface LocaleMessages {
 
   /** Select */
   selectPlaceholder?: string
+  /** Slider 滑块可访问名称 */
+  sliderThumb?: string
   /** Switch（缺省可访问名称） */
   switchToggle?: string
   selectEmpty?: string
