@@ -75,6 +75,7 @@ on:
 | Bundle size        | `gzip -c dist/ui-frame.js \| wc -c` | JS < 20KB gzipped, CSS < 36KB gzipped          |
 | Build example      | `npm run example:build`             | 构建示例站点                                   |
 | Verify outputs     | `test -f ...`                       | 断言产物文件全部存在                           |
+| Package lint       | `npx publint`                       | 校验 exports/sideEffects/types 等包发布契约    |
 | Upload artifacts   | `actions/upload-artifact@v4`        | Node 22 only: 上传 `dist/` 和 `dist-example/`  |
 
 **产物校验清单**：

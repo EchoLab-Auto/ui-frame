@@ -32,12 +32,13 @@ npm install EchoLab-Auto/ui-frame
 
 ## 快速开始
 
+> **样式说明**：使用打包器（Vite / webpack / esbuild）时，组件样式会随 JS **自动注入**，无需手动引入 CSS；仅在 CDN / UMD / 无打包器场景下才需要手动引入 `dist/style.css`。
+
 ### 全量引入
 
 ```ts
 import { createApp } from 'vue'
 import NeumorphismUI from '@echolab-auto/ui-frame'
-import '@echolab-auto/ui-frame/dist/style.css'
 import App from './App.vue'
 
 const app = createApp(App)
@@ -50,12 +51,18 @@ app.mount('#app')
 ```vue
 <script setup>
 import { NeumorphismButton } from '@echolab-auto/ui-frame'
-import '@echolab-auto/ui-frame/dist/style.css'
 </script>
 
 <template>
   <NeumorphismButton variant="raised" size="medium">点击我</NeumorphismButton>
 </template>
+```
+
+### CDN / UMD（无打包器）
+
+```html
+<link rel="stylesheet" href="https://unpkg.com/@echolab-auto/ui-frame/dist/style.css" />
+<script src="https://unpkg.com/@echolab-auto/ui-frame/dist/ui-frame.umd.cjs"></script>
 ```
 
 ## 组件列表（50+ 个）

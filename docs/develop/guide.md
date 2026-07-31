@@ -38,18 +38,19 @@ npm install @echolab-auto/ui-frame
 
 ### 全量引入
 
-最简单的方式，所有组件全局注册：
+最简单的方式，所有组件全局注册。使用打包器时**样式随 JS 自动注入**，无需手动引入 CSS：
 
 ```ts
 import { createApp } from 'vue'
 import NeumorphismUI from '@echolab-auto/ui-frame'
-import '@echolab-auto/ui-frame/dist/style.css'
 import App from './App.vue'
 
 const app = createApp(App)
 app.use(NeumorphismUI)
 app.mount('#app')
 ```
+
+> CDN / UMD / 无打包器场景需手动引入一次样式：`import '@echolab-auto/ui-frame/dist/style.css'`（或 `<link>` 标签）。
 
 ### 按需引入
 
@@ -58,7 +59,6 @@ app.mount('#app')
 ```vue
 <script setup>
 import { NeumorphismButton, NeumorphismCard } from '@echolab-auto/ui-frame'
-import '@echolab-auto/ui-frame/dist/style.css'
 </script>
 
 <template>
@@ -519,7 +519,6 @@ const {
 ```ts
 import { defineComponent, h } from 'vue'
 import NeumorphismUI from '@echolab-auto/ui-frame'
-import '@echolab-auto/ui-frame/dist/style.css'
 
 // 自定义按钮组件
 const MyCustomButton = defineComponent({
@@ -978,7 +977,6 @@ const { isTouch } = useTouchDevice()
 ```vue
 <script setup>
 import { DocViewer } from '@echolab-auto/ui-frame/doc'
-import '@echolab-auto/ui-frame/dist/style.css'
 
 const docRoot = {
   id: 'root',
@@ -1126,5 +1124,5 @@ import { ComponentRegistry } from '@echolab-auto/ui-frame/extensions'
 import { MarkdownRenderer } from '@echolab-auto/ui-frame/doc'
 ```
 
-> 使用子路径导出时，样式文件仍需全局引入一次：
+> 使用子路径导出时样式同样自动注入；仅无打包器场景需手动引入：
 > `import '@echolab-auto/ui-frame/dist/style.css'`

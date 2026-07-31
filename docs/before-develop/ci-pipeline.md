@@ -34,6 +34,7 @@ PR 创建/更新
          ├── Bundle size check    ← JS < 20KB gzip, CSS < 36KB gzip
          ├── npm run example:build
          ├── Verify outputs
+         ├── Package lint (publint)
          └── Upload artifacts ──→ Pages (自动部署示例站)
 
 Release Published

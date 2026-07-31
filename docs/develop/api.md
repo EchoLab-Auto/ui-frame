@@ -32,7 +32,6 @@ npm install @echolab-auto/ui-frame
 // 全量引入
 import { createApp } from 'vue'
 import NeumorphismUI from '@echolab-auto/ui-frame'
-import '@echolab-auto/ui-frame/dist/style.css'
 
 const app = createApp(App)
 app.use(NeumorphismUI)
@@ -41,8 +40,9 @@ app.use(NeumorphismUI)
 ```ts
 // 按需引入
 import { NeumorphismButton, NeumorphismCard, useTheme } from '@echolab-auto/ui-frame'
-import '@echolab-auto/ui-frame/dist/style.css'
 ```
+
+> **样式**：使用打包器（Vite / webpack / esbuild）时，组件样式随 JS 自动注入，无需手动引入；CDN / UMD / 无打包器场景需手动引入 `import '@echolab-auto/ui-frame/dist/style.css'`。
 
 ---
 
@@ -57,7 +57,7 @@ import '@echolab-auto/ui-frame/dist/style.css'
 | `@echolab-auto/ui-frame/utils`         | 工具函数                | `import { debounce } from '@echolab-auto/ui-frame/utils'`                  |
 | `@echolab-auto/ui-frame/doc`           | 文档渲染模块            | `import { DocViewer } from '@echolab-auto/ui-frame/doc'`                   |
 
-> 使用子路径导出时仍需引入样式文件：`import '@echolab-auto/ui-frame/dist/style.css'`
+> 使用子路径导出时样式同样自动注入；仅无打包器场景需手动引入 `import '@echolab-auto/ui-frame/dist/style.css'`
 
 ---
 
