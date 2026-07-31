@@ -70,7 +70,7 @@ on:
 | Format check       | `npm run format:check`              | Prettier 格式校验                              |
 | Component registry | `npm run check:registry`            | barrel → import → NAME_TO_COMPONENT 三者一致性 |
 | Type check         | `npm run typecheck`                 | `vue-tsc --noEmit` 全量类型检查                |
-| Test               | `npm test`                          | Vitest 单元测试                                |
+| Test               | `npm run test:coverage`             | Vitest 单元测试 + 覆盖率阈值门禁               |
 | Build library      | `npm run build`                     | Vite 构建组件库产物                            |
 | Bundle size        | `gzip -c dist/ui-frame.js \| wc -c` | JS < 20KB gzipped, CSS < 36KB gzipped          |
 | Build example      | `npm run example:build`             | 构建示例站点                                   |
@@ -130,7 +130,7 @@ on:
 | Lint         | `npm run lint`             | ESLint 检查                        |
 | Format check | `npm run format:check`     | Prettier 格式校验                  |
 | Type check   | `npm run typecheck`        | 全量类型检查                       |
-| Test         | `npm test`                 | 单元测试                           |
+| Test         | `npm run test:coverage`    | 单元测试 + 覆盖率阈值门禁          |
 | Build        | `npm run build`            | 构建库产物                         |
 | Verify       | `test -f ...`              | 断言产物文件全部存在               |
 | Publish      | `npm publish --provenance` | 发布到 npm（含供应链证明）         |

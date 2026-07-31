@@ -155,7 +155,7 @@ CI (Node 22) 构建产物
 | 类型安全     | TypeCheck（vue-tsc）               | [design-philosophy.md](./design-philosophy.md) |
 | 代码风格     | Lint（ESLint）+ Format（Prettier） | [develop-pipeline.md](./develop-pipeline.md)   |
 | 设计原则合规 | 架构合规检查（人工，不在 CI）      | [design-philosophy.md](./design-philosophy.md) |
-| 测试覆盖率   | 仅执行测试，不强制覆盖率门禁       | [develop-pipeline.md](./develop-pipeline.md)   |
+| 测试覆盖率   | Coverage 阈值门禁（vitest v8）     | [develop-pipeline.md](./develop-pipeline.md)   |
 | 产物完整性   | Verify outputs                     | 本文                                           |
 | Bundle size  | gzip check                         | 本文                                           |
 
@@ -165,15 +165,15 @@ CI (Node 22) 构建产物
 
 当前 CI 已覆盖核心质量门禁，以下是未纳入但可在未来增加的检查：
 
-| 缺口                         | 优先级 | 说明                                                                              |
-| ---------------------------- | ------ | --------------------------------------------------------------------------------- |
-| **代码覆盖率门禁**           | 中     | 当前 `npm test` 运行测试但 CI 不检查覆盖率阈值（本地配置 80%/70% lines/branches） |
-| **Changeset 强制检查**       | 中     | PR 未强制要求 changeset 文件；可在 CI 中加入 `changeset status` 检查              |
-| **E2E / 视觉回归测试**       | 低     | 无浏览器自动化测试或截图对比                                                      |
-| **无障碍自动化测试**         | 低     | 无 axe-core 等 a11y 扫描                                                          |
-| **依赖许可证检查**           | 低     | 无 `license-checker` 扫描                                                         |
-| **Prerelease/snapshot 发布** | 低     | 无 `next` 频道或 canary 发布流程                                                  |
-| **自动 CHANGELOG 生成**      | 低     | 依赖 changeset 手动生成，CI 不自动生成                                            |
+| 缺口                         | 优先级 | 说明                                                                                   |
+| ---------------------------- | ------ | -------------------------------------------------------------------------------------- |
+| **代码覆盖率爬坡**           | 中     | 门禁已接线（CI 跑 `test:coverage`，阈值 70/59/71/72 防退化），按季度爬坡至 80/70/80/80 |
+| **Changeset 强制检查**       | 中     | PR 未强制要求 changeset 文件；可在 CI 中加入 `changeset status` 检查                   |
+| **E2E / 视觉回归测试**       | 低     | 无浏览器自动化测试或截图对比                                                           |
+| **无障碍自动化测试**         | 低     | 无 axe-core 等 a11y 扫描                                                               |
+| **依赖许可证检查**           | 低     | 无 `license-checker` 扫描                                                              |
+| **Prerelease/snapshot 发布** | 低     | 无 `next` 频道或 canary 发布流程                                                       |
+| **自动 CHANGELOG 生成**      | 低     | 依赖 changeset 手动生成，CI 不自动生成                                                 |
 
 ---
 

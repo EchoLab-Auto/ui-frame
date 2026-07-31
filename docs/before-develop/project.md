@@ -166,7 +166,7 @@ docs/
 | 安装     | `npm ci`                | 依赖锁定冲突          |
 | 类型     | `npm run typecheck`     | TS 类型错误           |
 | **Lint** | **`npm run lint`**      | **代码格式/风格错误** |
-| 测试     | `npm test`              | 测试失败或覆盖率不足  |
+| 测试     | `npm run test:coverage` | 测试失败或覆盖率不足  |
 | 库构建   | `npm run build`         | 构建产物缺失          |
 | 示例构建 | `npm run example:build` | 示例站点损坏          |
 | 产物校验 | 5 个关键文件存在检查    | 产物不完整            |
