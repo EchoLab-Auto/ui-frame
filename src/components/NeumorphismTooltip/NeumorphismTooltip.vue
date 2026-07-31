@@ -1,8 +1,10 @@
 <script setup lang="ts">
-import { computed, ref, watch, nextTick, onBeforeUnmount } from 'vue'
+import { computed, ref } from 'vue'
 import { useTooltip } from '@/composables/useTooltip'
+import { useFloatingPosition } from '@/composables/useFloatingPosition'
 import { useNeumorphismSetup } from '@/extensions/createComponent'
 import { useZIndex } from '@/composables/useZIndex'
+import { generateId } from '@/utils'
 import type { TooltipPosition, TooltipTrigger } from '@/composables/useTooltip'
 
 export type { TooltipPosition, TooltipTrigger }
@@ -48,57 +50,22 @@ const {
 
 const offsetPx = computed(() => `${resolvedOffset.value}px`)
 
+// ARIA 关联：tooltip 内容 id（触发器经 slot props 取并以 aria-describedby 关联）
+const contentId = generateId('nm-tooltip')
+
 const triggerRef = ref<HTMLElement>()
-const actualPosition = ref<TooltipPosition>(resolvedPosition.value)
+const contentRef = ref<HTMLElement>()
 
-function checkBoundary(): TooltipPosition {
-  const el = triggerRef.value
-  if (!el || typeof window === 'undefined') return resolvedPosition.value
-
-  const rect = el.getBoundingClientRect()
-  const contentEl = el.querySelector('.nm-tooltip') as HTMLElement | null
-  const contentHeight = contentEl?.offsetHeight ?? 40
-  const contentWidth = contentEl?.offsetWidth ?? 120
-
-  switch (resolvedPosition.value) {
-    case 'top':
-      if (rect.top < contentHeight + resolvedOffset.value + 8) return 'bottom'
-      break
-    case 'bottom':
-      if (rect.bottom + contentHeight + resolvedOffset.value + 8 > window.innerHeight) return 'top'
-      break
-    case 'left':
-      if (rect.left < contentWidth + resolvedOffset.value + 8) return 'right'
-      break
-    case 'right':
-      if (rect.right + contentWidth + resolvedOffset.value + 8 > window.innerWidth) return 'left'
-      break
-  }
-  return resolvedPosition.value
-}
-
-function handleWindowChange() {
-  if (isVisible.value) {
-    actualPosition.value = checkBoundary()
-  }
-}
-
-watch(isVisible, visible => {
-  if (visible) {
-    nextTick(() => {
-      actualPosition.value = checkBoundary()
-      if (typeof window !== 'undefined') {
-        window.addEventListener('scroll', handleWindowChange, { passive: true })
-        window.addEventListener('resize', handleWindowChange)
-      }
-    })
-  } else {
-    actualPosition.value = resolvedPosition.value
-    if (typeof window !== 'undefined') {
-      window.removeEventListener('scroll', handleWindowChange)
-      window.removeEventListener('resize', handleWindowChange)
-    }
-  }
+// 共享浮层定位引擎 —— 翻转决策的逐帧追踪（旧 scroll 监听无 capture，
+// 嵌套滚动容器内翻转状态与视口脱节）；内容本体为内联绝对定位，
+// 天然随触发器原子移动，引擎只负责方向
+const { actualPlacement: actualPosition } = useFloatingPosition({
+  trigger: triggerRef,
+  open: isVisible,
+  placement: computed(() => resolvedPosition.value),
+  offset: resolvedOffset,
+  floating: contentRef,
+  estimateSize: { width: 120, height: 40 },
 })
 
 const classList = computed(() => [
@@ -106,13 +73,6 @@ const classList = computed(() => [
   `nm-tooltip--${actualPosition.value}`,
   { 'nm-tooltip--visible': isVisible.value },
 ])
-
-onBeforeUnmount(() => {
-  if (typeof window !== 'undefined') {
-    window.removeEventListener('scroll', handleWindowChange)
-    window.removeEventListener('resize', handleWindowChange)
-  }
-})
 </script>
 
 <template>
@@ -127,11 +87,14 @@ onBeforeUnmount(() => {
     @focusout="resolvedTrigger === 'focus' ? hide() : undefined"
     @keydown="onKeydown"
   >
-    <slot />
+    <!-- @slot 触发器。作用域参数：contentId 供 aria-describedby 关联 -->
+    <slot :content-id="contentId" />
 
     <transition name="nm-tooltip-fade">
       <div
         v-if="isVisible && (content || $slots.content)"
+        :id="contentId"
+        ref="contentRef"
         :class="classList"
         :style="{ zIndex: tooltipZIndex }"
         role="tooltip"

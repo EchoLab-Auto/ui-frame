@@ -288,6 +288,7 @@ function handleCalendarKeydown(event: KeyboardEvent) {
         role="combobox"
         :aria-expanded="isOpen"
         :aria-haspopup="'dialog'"
+        :aria-controls="`${fieldId}-grid`"
         @focus="(e: FocusEvent) => handleFocus(e, emit)"
         @blur="(e: FocusEvent) => handleBlur(e, emit)"
         @keydown="onTriggerKeydown"

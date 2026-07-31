@@ -2,6 +2,7 @@
 import { computed, ref, watch, nextTick, onBeforeUnmount } from 'vue'
 import { useAutoComplete } from '@/composables/useAutoComplete'
 import type { AutoCompleteOption } from '@/composables/useAutoComplete'
+import { useFloatingPosition } from '@/composables/useFloatingPosition'
 import { useNeumorphismSetup } from '@/extensions/createComponent'
 import { useZIndex } from '@/composables/useZIndex'
 import NeumorphismInput from '@/components/NeumorphismInput/NeumorphismInput.vue'
@@ -36,8 +37,9 @@ const props = withDefaults(defineProps<NeumorphismAutoCompleteProps>(), {
   options: () => [],
   placeholder: '',
   disabled: false,
-  size: 'medium',
-  clearable: true,
+  // 级联 prop 保持 undefined，由 resolveProp 兜底（全局配置生效）
+  size: undefined,
+  clearable: undefined,
   loading: false,
   debounce: 300,
 })
@@ -56,6 +58,7 @@ const { resolveProp } = useNeumorphismSetup()
 const resolvedSize = computed(() =>
   resolveProp<'small' | 'medium' | 'large'>(props.size, undefined, 'medium')
 )
+const resolvedClearable = computed(() => resolveProp(props.clearable, undefined, true))
 
 // ---- v-model sync ----
 const modelRef = computed({
@@ -89,36 +92,22 @@ const {
   debounceMs: props.debounce,
 })
 
-// ---- Dropdown positioning ----
+// ---- Dropdown positioning —— 共享浮层定位引擎（rAF 逐帧追踪 + 边界翻转滞后） ----
 const triggerRef = ref<HTMLElement>()
 const dropdownRef = ref<HTMLElement>()
-const dropdownPosition = ref({ top: 0, left: 0, width: 0 })
 
-function updateDropdownPosition() {
-  if (!triggerRef.value || typeof window === 'undefined') return
-  const rect = triggerRef.value.getBoundingClientRect()
-  dropdownPosition.value = {
-    // position:fixed uses viewport coordinates — getBoundingClientRect()
-    // already returns viewport-relative values, so no scroll offset needed.
-    top: rect.bottom + 4,
-    left: rect.left,
-    width: rect.width,
-  }
-}
-
-watch(isOpen, open => {
-  if (open) {
-    nextTick(updateDropdownPosition)
-    if (typeof window !== 'undefined') {
-      window.addEventListener('scroll', updateDropdownPosition, true)
-      window.addEventListener('resize', updateDropdownPosition)
-    }
-  } else {
-    if (typeof window !== 'undefined') {
-      window.removeEventListener('scroll', updateDropdownPosition, true)
-      window.removeEventListener('resize', updateDropdownPosition)
-    }
-  }
+const {
+  actualPlacement: placement,
+  rect: dropdownRect,
+  available: dropdownAvailable,
+  stop: stopPositionTracking,
+} = useFloatingPosition({
+  trigger: triggerRef,
+  open: isOpen,
+  placement: computed(() => 'bottom' as const),
+  offset: computed(() => 4),
+  floating: dropdownRef,
+  candidates: ['bottom', 'top'],
 })
 
 // ---- Click outside detection ----
@@ -152,10 +141,7 @@ watch(isOpen, open => {
 
 onBeforeUnmount(() => {
   if (blurTimer) clearTimeout(blurTimer)
-  if (typeof window !== 'undefined') {
-    window.removeEventListener('scroll', updateDropdownPosition, true)
-    window.removeEventListener('resize', updateDropdownPosition)
-  }
+  stopPositionTracking()
   unregisterClickOutside()
   cleanupTimers()
 })
@@ -175,13 +161,23 @@ watch(activeIndex, idx => {
 
 // ---- Dropdown style ----
 const { getZIndex } = useZIndex()
-const dropdownStyle = computed(() => ({
-  position: 'fixed' as const,
-  top: `${dropdownPosition.value.top}px`,
-  left: `${dropdownPosition.value.left}px`,
-  width: `${dropdownPosition.value.width}px`,
-  zIndex: getZIndex('dropdown'),
-}))
+const dropdownStyle = computed(() => {
+  const r = dropdownRect.value
+  const available = Math.max(dropdownAvailable.value, 72)
+  return {
+    position: 'fixed' as const,
+    top: placement.value === 'bottom' ? `${(r?.bottom ?? 0) + 4}px` : undefined,
+    bottom:
+      placement.value === 'top'
+        ? `${typeof window !== 'undefined' ? window.innerHeight - (r?.top ?? 0) + 4 : 0}px`
+        : undefined,
+    left: `${r?.left ?? 0}px`,
+    width: `${r?.width ?? 0}px`,
+    // 视口空间受限时收缩高度（默认上限 240px，与 SCSS 一致）
+    maxHeight: `min(240px, ${available}px)`,
+    zIndex: getZIndex('dropdown'),
+  }
+})
 
 // ---- Handlers ----
 function onSelectOption(option: AutoCompleteOption) {
@@ -271,7 +267,7 @@ const isLoadingState = computed(() => loadingRef.value)
         <div class="nm-autocomplete__suffix">
           <!-- Clear button -->
           <button
-            v-if="clearable && inputValue.length > 0 && !isLoadingState"
+            v-if="resolvedClearable && inputValue.length > 0 && !isLoadingState"
             class="nm-autocomplete__clear"
             type="button"
             aria-label="Clear"

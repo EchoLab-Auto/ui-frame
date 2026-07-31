@@ -4,6 +4,7 @@ import { usePopover } from '@/composables/usePopover'
 import { useFloatingPosition } from '@/composables/useFloatingPosition'
 import { useNeumorphismSetup } from '@/extensions/createComponent'
 import { useZIndex } from '@/composables/useZIndex'
+import { generateId } from '@/utils'
 import type { PopoverPosition, PopoverTrigger } from '@/composables/usePopover'
 
 export type { PopoverPosition, PopoverTrigger }
@@ -199,7 +200,14 @@ function onTriggerFocusIn() {
   if (resolvedTrigger.value === 'focus') show()
 }
 
-defineExpose({ show, hide, toggle, isOpen })
+// ARIA 关联：内容 id 供触发器侧 aria-controls / aria-describedby 使用
+const contentId = generateId('nm-popover')
+// tooltip 触发模式下触发器用 aria-describedby 关联内容（role=tooltip 语义）
+const isTooltipMode = computed(
+  () => resolvedTrigger.value === 'hover' || resolvedTrigger.value === 'focus'
+)
+
+defineExpose({ show, hide, toggle, isOpen, contentId })
 
 function onTriggerFocusOut(_event: FocusEvent) {
   if (resolvedTrigger.value === 'focus') {
@@ -226,13 +234,14 @@ function onTriggerFocusOut(_event: FocusEvent) {
     @focusout="onTriggerFocusOut"
     @keydown="handlePopoverKeydown"
   >
-    <!-- @slot Trigger element (e.g., a button) -->
-    <slot />
+    <!-- @slot Trigger element (e.g., a button)。作用域参数供 ARIA 关联 -->
+    <slot :expanded="isOpen" :content-id="contentId" :tooltip-mode="isTooltipMode" />
 
     <teleport to="body">
       <transition name="nm-popover-fade">
         <div
           v-if="isOpen && (content || $slots.content)"
+          :id="contentId"
           ref="popoverRef"
           :class="classList"
           :role="resolvedTrigger === 'hover' || resolvedTrigger === 'focus' ? 'tooltip' : 'dialog'"
