@@ -31,12 +31,12 @@ export default defineConfig({
         '**/*.d.ts',
       ],
       thresholds: {
-        // 门禁已接线（CI 跑 test:coverage）。阈值设为当前实际值以防退化，
-        // 按季度爬坡至目标值 80/70/80/80（当前实际: 70.79/59.52/71.84/72.88）
-        statements: 70,
-        branches: 59,
-        functions: 71,
-        lines: 72,
+        // 门禁已接线（CI 跑 test:coverage）。阈值跟随补齐进度上调以防退化，
+        // 目标 80/70/80/80（当前实际: 73.96/63.5/73.35/75.91）
+        statements: 73,
+        branches: 63,
+        functions: 73,
+        lines: 75,
       },
     },
   },
