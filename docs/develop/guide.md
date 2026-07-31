@@ -549,44 +549,56 @@ app.use(NeumorphismUI, {
 
 ## 国际化
 
-### 切换语言
+### 提供语言包
+
+在根组件用 `provideLocale` 向子树提供语言包；`useLocale` 的 `t()` 支持 `{key}` 插值：
 
 ```vue
 <script setup>
-import { useLocale, provideLocale } from '@echolab-auto/ui-frame'
+import { reactive, ref } from 'vue'
+import { provideLocale, useLocale, zhCN, enUS } from '@echolab-auto/ui-frame'
 
-// 在根组件中设置默认语言
-provideLocale('zh-CN')
-</script>
-```
+// reactive 包装使语言切换即时响应（provideLocale 内部以 computed 追踪该对象）
+const messages = reactive({ ...zhCN })
+provideLocale(messages)
 
-```vue
-<script setup>
-import { useLocale } from '@echolab-auto/ui-frame'
-
-const { t, locale, setLocale } = useLocale()
+const current = ref('zh-CN')
+const { t } = useLocale()
 
 function switchLanguage() {
-  setLocale(locale.value === 'zh-CN' ? 'en-US' : 'zh-CN')
+  const next = current.value === 'zh-CN' ? enUS : zhCN
+  Object.assign(messages, next)
+  current.value = current.value === 'zh-CN' ? 'en-US' : 'zh-CN'
 }
 </script>
 
 <template>
   <div>
-    <p>{{ t('buttonLoading') }}</p>
+    <p>{{ t('selectPlaceholder') }}</p>
     <NeumorphismButton @click="switchLanguage">
-      {{ locale === 'zh-CN' ? 'English' : '中文' }}
+      {{ current === 'zh-CN' ? 'English' : '中文' }}
     </NeumorphismButton>
   </div>
 </template>
 ```
 
-**可用语言：**
+### 自定义语言包
 
-| 语言代码 | 语言     |
-| -------- | -------- |
-| `zh-CN`  | 简体中文 |
-| `en-US`  | 英文     |
+`provideLocale` 接受任何符合 `LocaleMessages` 结构的对象——可基于内置语言包覆盖部分键：
+
+```ts
+import { provideLocale, zhCN } from '@echolab-auto/ui-frame'
+
+// 只覆盖需要定制的文案，其余沿用内置
+provideLocale({ ...zhCN, selectPlaceholder: '请挑选一个选项' })
+```
+
+**内置语言包：**
+
+| 导出   | 语言     |
+| ------ | -------- |
+| `zhCN` | 简体中文 |
+| `enUS` | 英文     |
 
 ---
 

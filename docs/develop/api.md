@@ -1702,16 +1702,20 @@ import type { UseModalOptions, UseModalReturn } from '@echolab-auto/ui-frame'
 
 ```ts
 interface UseModalOptions {
-  maskClosable?: boolean
-  closable?: boolean
+  modelValue: Ref<boolean> // v-model 可见性（必填）
+  maskClosable?: Ref<boolean> // 点击遮罩是否关闭
+  closable?: Ref<boolean> // 是否可关闭
+  destroyOnClose?: Ref<boolean> // 关闭时是否销毁 DOM
 }
 
 interface UseModalReturn {
-  isOpen: Ref<boolean>
-  open: () => void
+  visible: Ref<boolean> // 当前是否可见（用于过渡动画）
+  rendered: Ref<boolean> // 是否应渲染 DOM
   close: () => void
-  handleKeydown: (e: KeyboardEvent) => void
-  handleMaskClick: (e: MouseEvent) => void
+  confirm: () => void
+  handleKeydown: (event: KeyboardEvent, dialogEl: HTMLElement | undefined) => void
+  focusDialog: (dialogEl: HTMLElement | undefined) => void
+  overlayZIndex: ComputedRef<number> // 遮罩层 z-index（感知嵌套层级）
 }
 ```
 
@@ -2168,15 +2172,17 @@ import type { UseCheckableOptions } from '@echolab-auto/ui-frame'
 
 ```ts
 interface UseCheckableOptions {
-  modelValue: Ref<boolean | unknown[]>
-  value?: unknown
-  indeterminate?: Ref<boolean>
+  prefix: 'checkbox' | 'radio'
+  isChecked: boolean
+  isDisabled: boolean
+  size: 'small' | 'medium' | 'large'
+  extraClasses?: Record<string, boolean> // 额外类名（如 indeterminate）
 }
 
-function useCheckable(opts: UseCheckableOptions): {
-  isChecked: ComputedRef<boolean>
-  isIndeterminate: ComputedRef<boolean>
-  toggle: () => void
+// 参数为返回配置对象的工厂函数（composable 内部 computed 化）
+function useCheckable(options: () => UseCheckableOptions): {
+  inputId: string // 组件生命周期内稳定的 input id
+  classList: ComputedRef<(string | Record<string, boolean>)[]>
 }
 ```
 
@@ -2191,17 +2197,22 @@ import type { FormFieldConfig, FieldSize } from '@echolab-auto/ui-frame'
 
 ```ts
 interface FormFieldConfig {
-  name: string
-  hasError?: boolean
-  hasLabel?: boolean
-  hasDescription?: boolean
+  id?: string // 不传则自动生成稳定 id
+  size: 'small' | 'medium' | 'large'
+  disabled: boolean
+  error?: string | boolean
+  prefix: 'input' | 'textarea' | 'select' | 'datepicker'
 }
 
-function useFormField(config: FormFieldConfig): {
+// 参数为返回配置对象的工厂函数
+function useFormField(config: () => FormFieldConfig): {
+  isFocused: Ref<boolean>
   fieldId: string
-  labelId: string
-  errorId: string
-  describedBy: string
+  errorMessage: ComputedRef<string> // error 为字符串时取其值，否则 ''
+  hasError: ComputedRef<boolean>
+  baseClassList: (baseClass: string) => ComputedRef<(string | Record<string, boolean>)[]>
+  handleFocus: (event: FocusEvent, emit: (e: 'focus', ev: FocusEvent) => void) => void
+  handleBlur: (event: FocusEvent, emit: (e: 'blur', ev: FocusEvent) => void) => void
 }
 ```
 

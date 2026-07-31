@@ -29,7 +29,7 @@ PR 创建/更新
          ├── npm run lint         ← ESLint
          ├── npm run format:check ← Prettier
          ├── npm run typecheck    ← vue-tsc --noEmit
-         ├── npm test             ← Vitest
+         ├── npm run test:coverage  ← Vitest + 覆盖率阈值
          ├── npm run build        ← Vite (ESM + UMD)
          ├── Bundle size check    ← JS < 20KB gzip, CSS < 36KB gzip
          ├── npm run example:build
@@ -60,7 +60,7 @@ CI 在 **Node 20** 和 **Node 22** 上同时运行。只有 Node 22 的 job 上�
 | **Lint**      | `npm run lint`                      | ESLint 规则违反                  | `npm run lint`                                       |
 | **Format**    | `npm run format:check`              | 代码格式不符合 Prettier          | `npx prettier --check .`                             |
 | **TypeCheck** | `npm run typecheck`                 | TypeScript 类型错误              | `npm run typecheck`                                  |
-| **Test**      | `npm test`                          | 测试失败                         | `npm test`                                           |
+| **Test**      | `npm run test:coverage`             | 测试失败或覆盖率低于阈值         | `npm run test:coverage`                              |
 | **Build**     | `npm run build`                     | 构建失败（类型或配置问题）       | `npm run build`                                      |
 | **Size**      | `gzip -c dist/ui-frame.js \| wc -c` | 产物超过大小限制                 | `npm run build && gzip -c dist/ui-frame.js \| wc -c` |
 | **Example**   | `npm run example:build`             | 示例站点构建失败                 | `npm run example:build`                              |
