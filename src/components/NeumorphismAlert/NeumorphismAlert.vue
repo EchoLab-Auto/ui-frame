@@ -32,14 +32,22 @@ const emit = defineEmits<{
   (e: 'close'): void
 }>()
 
-const { resolveProp } = useNeumorphismSetup()
+const { config, resolveProp } = useNeumorphismSetup()
 
-const resolvedType = computed(() => resolveProp(props.type, undefined, 'info' as AlertType))
-const resolvedClosable = computed(() => resolveProp(props.closable, undefined, true))
-const resolvedDuration = computed(() => resolveProp(props.duration, undefined, 0))
-const resolvedIcon = computed(() => resolveProp(props.icon, undefined, true))
-const resolvedBordered = computed(() => resolveProp(props.bordered, undefined, true))
-const resolvedSize = computed(() => resolveProp(props.size, undefined, 'medium'))
+const resolvedType = computed(() =>
+  resolveProp(props.type, config.value.alert?.type, 'info' as AlertType)
+)
+const resolvedClosable = computed(() =>
+  resolveProp(props.closable, config.value.alert?.closable, true)
+)
+const resolvedDuration = computed(() =>
+  resolveProp(props.duration, config.value.alert?.duration, 0)
+)
+const resolvedIcon = computed(() => resolveProp(props.icon, config.value.alert?.icon, true))
+const resolvedBordered = computed(() =>
+  resolveProp(props.bordered, config.value.alert?.bordered, true)
+)
+const resolvedSize = computed(() => resolveProp(props.size, config.value.alert?.size, 'medium'))
 
 const { t } = useLocale()
 const resolvedCloseLabel = computed(() => props.closeLabel || t('alertClose'))

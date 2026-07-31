@@ -34,15 +34,15 @@ const props = withDefaults(defineProps<NeumorphismDropdownProps>(), {
   disabled: false,
 })
 
-const { resolveProp } = useNeumorphismSetup()
+const { config, resolveProp } = useNeumorphismSetup()
 
 const resolvedPosition = computed(() =>
-  resolveProp(props.position, undefined, 'bottom' as PopoverPosition)
+  resolveProp(props.position, config.value.dropdown?.position, 'bottom' as PopoverPosition)
 )
 const resolvedTrigger = computed(() =>
-  resolveProp(props.trigger, undefined, 'click' as PopoverTrigger)
+  resolveProp(props.trigger, config.value.dropdown?.trigger, 'click' as PopoverTrigger)
 )
-const resolvedOffset = computed(() => resolveProp(props.offset, undefined, 4))
+const resolvedOffset = computed(() => resolveProp(props.offset, config.value.dropdown?.offset, 4))
 
 const emit = defineEmits<{
   (e: 'select', item: DropdownItem): void

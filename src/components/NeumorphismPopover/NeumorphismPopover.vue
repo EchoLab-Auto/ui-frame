@@ -35,17 +35,19 @@ const emit = defineEmits<{
   (e: 'visible-change', visible: boolean): void
 }>()
 
-const { resolveProp } = useNeumorphismSetup()
+const { config, resolveProp } = useNeumorphismSetup()
 
 const resolvedPosition = computed(() =>
-  resolveProp(props.position, undefined, 'auto' as PopoverPosition)
+  resolveProp(props.position, config.value.popover?.position, 'auto' as PopoverPosition)
 )
 const resolvedTrigger = computed(() =>
-  resolveProp(props.trigger, undefined, 'click' as PopoverTrigger)
+  resolveProp(props.trigger, config.value.popover?.trigger, 'click' as PopoverTrigger)
 )
-const resolvedOffset = computed(() => resolveProp(props.offset, undefined, 8))
-const resolvedWidth = computed(() => resolveProp(props.width, undefined, 'auto'))
-const resolvedShowArrow = computed(() => resolveProp(props.showArrow, undefined, true))
+const resolvedOffset = computed(() => resolveProp(props.offset, config.value.popover?.offset, 8))
+const resolvedWidth = computed(() => resolveProp(props.width, config.value.popover?.width, 'auto'))
+const resolvedShowArrow = computed(() =>
+  resolveProp(props.showArrow, config.value.popover?.showArrow, true)
+)
 
 // ---- Use headless popover composable ----
 const { getZIndex } = useZIndex()

@@ -53,12 +53,14 @@ const emit = defineEmits<{
 }>()
 
 // ---- Config cascade via useNeumorphismSetup ----
-const { resolveProp } = useNeumorphismSetup()
+const { config, resolveProp } = useNeumorphismSetup()
 
 const resolvedSize = computed(() =>
-  resolveProp<'small' | 'medium' | 'large'>(props.size, undefined, 'medium')
+  resolveProp<'small' | 'medium' | 'large'>(props.size, config.value.autoComplete?.size, 'medium')
 )
-const resolvedClearable = computed(() => resolveProp(props.clearable, undefined, true))
+const resolvedClearable = computed(() =>
+  resolveProp(props.clearable, config.value.autoComplete?.clearable, true)
+)
 
 // ---- v-model sync ----
 const modelRef = computed({

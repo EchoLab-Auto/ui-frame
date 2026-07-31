@@ -2526,16 +2526,24 @@ interface NeumorphismGlobalConfig {
   themeToggle?: { size?: ThemeToggleSize }
   tree?: { showSearch?: boolean; multiple?: boolean }
   canvas?: { showGrid?: boolean; gridSize?: number }
-  popover?: { position?: PopoverPosition; trigger?: PopoverTrigger }
-  dropdown?: { position?: PopoverPosition; trigger?: PopoverTrigger }
+  popover?: {
+    position?: PopoverPosition
+    trigger?: PopoverTrigger
+    offset?: number
+    width?: 'auto' | 'trigger' | number
+    showArrow?: boolean
+  }
+  dropdown?: { position?: PopoverPosition; trigger?: PopoverTrigger; offset?: number }
   alert?: {
     type?: AlertType
     closable?: boolean
+    duration?: number
     icon?: boolean
     bordered?: boolean
     size?: AlertSize
   }
   empty?: { size?: EmptySize }
+  autoComplete?: { size?: AutoCompleteSize; clearable?: boolean }
   slider?: { size?: SliderSize; showTooltip?: boolean; showStops?: boolean }
   inputNumber?: { size?: NumberInputSize }
   drawer?: { position?: DrawerPosition; maskClosable?: boolean; closable?: boolean }

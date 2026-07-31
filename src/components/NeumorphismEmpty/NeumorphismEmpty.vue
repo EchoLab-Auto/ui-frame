@@ -12,9 +12,9 @@ export interface NeumorphismEmptyProps {
 
 const props = withDefaults(defineProps<NeumorphismEmptyProps>(), {})
 
-const { resolveProp } = useNeumorphismSetup()
+const { config, resolveProp } = useNeumorphismSetup()
 
-const resolvedSize = computed(() => resolveProp(props.size, undefined, 'medium'))
+const resolvedSize = computed(() => resolveProp(props.size, config.value.empty?.size, 'medium'))
 
 const classList = computed(() => ['nm-empty', `nm-empty--${resolvedSize.value}`])
 </script>

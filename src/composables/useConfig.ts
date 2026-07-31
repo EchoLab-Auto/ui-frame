@@ -239,6 +239,50 @@ export interface NeumorphismGlobalConfig {
     autoplay?: boolean
     floating?: boolean
   }
+  /** Default alert props */
+  alert?: {
+    type?: 'success' | 'warning' | 'error' | 'info'
+    closable?: boolean
+    duration?: number
+    icon?: boolean
+    bordered?: boolean
+    size?: 'small' | 'medium' | 'large'
+  }
+  /** Default menu props */
+  menu?: {
+    mode?: 'vertical' | 'horizontal'
+    size?: 'small' | 'medium' | 'large'
+    selectable?: boolean
+  }
+  /** Default nav menu props */
+  navMenu?: {
+    mode?: 'horizontal' | 'vertical'
+    size?: 'small' | 'medium' | 'large'
+    showIndicator?: boolean
+  }
+  /** Default popover props */
+  popover?: {
+    position?: 'top' | 'bottom' | 'left' | 'right' | 'auto'
+    trigger?: 'hover' | 'click' | 'focus'
+    offset?: number
+    width?: 'auto' | 'trigger' | number
+    showArrow?: boolean
+  }
+  /** Default dropdown props */
+  dropdown?: {
+    position?: 'top' | 'bottom' | 'left' | 'right' | 'auto'
+    trigger?: 'hover' | 'click' | 'focus'
+    offset?: number
+  }
+  /** Default empty props */
+  empty?: {
+    size?: 'small' | 'medium' | 'large'
+  }
+  /** Default autocomplete props */
+  autoComplete?: {
+    size?: 'small' | 'medium' | 'large'
+    clearable?: boolean
+  }
 
   /** Locale configuration */
   locale?: 'zh-CN' | 'en-US'

@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
 import NeumorphismAlert from './NeumorphismAlert.vue'
+import { ConfigKey } from '@/composables/useConfig'
 
 const mountAlert = (props = {}, slots = {}) =>
   mount(NeumorphismAlert, {
@@ -53,5 +54,26 @@ describe('NeumorphismAlert', () => {
   it('should render custom slot content', () => {
     const wrapper = mountAlert({}, { default: '<span class="custom">Custom content</span>' })
     expect(wrapper.find('.custom').exists()).toBe(true)
+  })
+
+  it('should apply type/closable from global config', () => {
+    const wrapper = mount(NeumorphismAlert, {
+      props: { message: 'Message' },
+      global: {
+        provide: { [ConfigKey]: { value: { alert: { type: 'warning', closable: false } } } },
+      },
+    })
+    expect(wrapper.find('.nm-alert').classes()).toContain('nm-alert--warning')
+    expect(wrapper.find('.nm-alert__close').exists()).toBe(false)
+  })
+
+  it('should let explicit type override global config', () => {
+    const wrapper = mount(NeumorphismAlert, {
+      props: { message: 'Message', type: 'error' },
+      global: {
+        provide: { [ConfigKey]: { value: { alert: { type: 'warning' } } } },
+      },
+    })
+    expect(wrapper.find('.nm-alert').classes()).toContain('nm-alert--error')
   })
 })

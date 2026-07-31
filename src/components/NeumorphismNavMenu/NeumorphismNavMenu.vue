@@ -35,7 +35,7 @@ const emit = defineEmits<{
   (e: 'item-click', item: MenuItem): void
 }>()
 
-const { resolveProp } = useNeumorphismSetup()
+const { config, resolveProp } = useNeumorphismSetup()
 const { isDark } = useTheme()
 
 const resolvedTheme = computed(() => {
@@ -44,14 +44,14 @@ const resolvedTheme = computed(() => {
 })
 
 const resolvedMode = computed(() =>
-  resolveProp(props.mode, undefined as 'horizontal' | 'vertical' | undefined, 'horizontal')
+  resolveProp(props.mode, config.value.navMenu?.mode, 'horizontal')
 )
 
-const resolvedSize = computed(() =>
-  resolveProp(props.size, undefined as 'small' | 'medium' | 'large' | undefined, 'medium')
-)
+const resolvedSize = computed(() => resolveProp(props.size, config.value.navMenu?.size, 'medium'))
 
-const resolvedShowIndicator = computed(() => resolveProp(props.showIndicator, undefined, true))
+const resolvedShowIndicator = computed(() =>
+  resolveProp(props.showIndicator, config.value.navMenu?.showIndicator, true)
+)
 
 // ---- Headless menu composable ----
 const activeKeyRef = ref<string | null>(props.defaultActive ?? null)
