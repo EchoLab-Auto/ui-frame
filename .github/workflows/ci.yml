@@ -70,8 +70,8 @@ jobs:
             echo "ERROR: dist/ui-frame.js exceeds 20 KB gzipped (${JS_SIZE} bytes)"
             exit 1
           fi
-          if [ "$CSS_SIZE" -ge 30000 ]; then
-            echo "ERROR: dist/style.css exceeds 30 KB gzipped (${CSS_SIZE} bytes)"
+          if [ "$CSS_SIZE" -ge 36000 ]; then
+            echo "ERROR: dist/style.css exceeds 36 KB gzipped (${CSS_SIZE} bytes)"
             exit 1
           fi
           echo "OK — bundle sizes within limits"

@@ -11,6 +11,7 @@
 - [全局配置](#全局配置)
 - [响应式布局](#响应式布局)
 - [表单验证](#表单验证)
+- [选择器进阶用法](#选择器进阶用法)
 - [自定义主题](#自定义主题)
 - [Headless Composables 使用](#headless-composables-使用)
 - [Doc 文档渲染](#doc-文档渲染)
@@ -268,6 +269,116 @@ const formRules = {
   ],
 }
 ```
+
+---
+
+## 选择器进阶用法
+
+`NeumorphismSelect` 默认是单选下拉；以下能力均为可选 prop，按需开启互不影响。
+
+### 可搜索过滤
+
+开启 `filterable` 后触发器内嵌输入框，输入即过滤选项：
+
+```vue
+<script setup>
+import { ref } from 'vue'
+
+const framework = ref('')
+const options = [
+  { label: 'Vue 3', value: 'vue' },
+  { label: 'React 18', value: 'react' },
+  { label: 'Angular 16', value: 'angular' },
+]
+</script>
+
+<template>
+  <NeumorphismSelect v-model="framework" :options="options" filterable clearable />
+</template>
+```
+
+### 多选与标签折叠
+
+开启 `multiple` 后 `v-model` 绑定数组；`collapseTags` 将超出 `maxCollapseTags` 的标签折叠为 +N 计数：
+
+```vue
+<script setup>
+import { ref } from 'vue'
+
+const frameworks = ref(['vue'])
+</script>
+
+<template>
+  <NeumorphismSelect
+    v-model="frameworks"
+    :options="options"
+    multiple
+    collapse-tags
+    :max-collapse-tags="2"
+    clearable
+    @remove-tag="value => console.log('移除', value)"
+  />
+</template>
+```
+
+### 选项分组
+
+为选项添加 `group` 字段即可按组展示：
+
+```ts
+const options = [
+  { label: 'Vue 3', value: 'vue', group: '渐进式框架' },
+  { label: 'Nuxt', value: 'nuxt', group: '渐进式框架' },
+  { label: 'Svelte 4', value: 'svelte', group: '编译时框架' },
+]
+```
+
+### 远程加载
+
+`loading` 搭配 `visible-change` 事件可实现展开时加载远程数据：
+
+```vue
+<script setup>
+import { ref } from 'vue'
+
+const loading = ref(false)
+const options = ref([])
+const value = ref('')
+
+async function onVisibleChange(open) {
+  if (!open) return
+  loading.value = true
+  options.value = await fetchOptions()
+  loading.value = false
+}
+</script>
+
+<template>
+  <NeumorphismSelect
+    v-model="value"
+    :options="options"
+    :loading="loading"
+    @visible-change="onVisibleChange"
+  />
+</template>
+```
+
+> 全局默认行为可通过配置系统统一开启：`app.use(NeumorphismUI, { config: { select: { filterable: true } } })`。
+
+### 视觉变体（variant）
+
+`variant` 切换两种内置视觉风格，逻辑与 API 完全一致：
+
+- **`default`**（默认）：新拟态凹陷触发器 + 分离的凸起下拉
+- **`outlined`**：主色描边触发器 + 外发光 focus + 单盒纵向延展下拉（触发器盒体随展开自然长高，靠近视口底部时自动向上翻转）
+
+```vue
+<NeumorphismSelect v-model="value" :options="options" variant="outlined" />
+```
+
+两种变体的描边色、发光、圆角等均由 `--nm-select-outlined-*` Token 控制，可在亮/暗主题下分别覆盖。
+
+> **注意**：outlined 为单盒模型（触发器盒体在文档流中纵向延展，负 margin 同步补偿使布局不抖动），因此触发器不要放在 `overflow: hidden/auto` 的祖先容器内；`default` 变体为 teleport 浮层，不受此限制。
 
 ---
 
@@ -573,28 +684,38 @@ const items = [
 
 ## 进度条动效
 
-`NeumorphismProgress` 在默认的横向进度条基础上提供多种视觉动效，通过 `effect` 属性切换。`striped` 布尔属性仍保留，等价于 `effect="striped"`。
+`NeumorphismProgress` 提供线性（默认）与环形（`type="circle"`）两种形态。线性形态通过 `effect` 属性切换多种视觉动效。开启 `showLabel` 后，百分比数字会随进度平滑滚动。
 
 ```vue
 <template>
-  <NeumorphismProgress :model-value="60" />
-  <NeumorphismProgress :model-value="60" effect="gradient" />
-  <NeumorphismProgress :model-value="60" effect="striped" />
-  <NeumorphismProgress :model-value="60" effect="glow" />
-  <NeumorphismProgress :model-value="60" effect="segmented" />
+  <NeumorphismProgress :model-value="60" show-label />
+  <NeumorphismProgress :model-value="60" effect="pulse" />
+  <NeumorphismProgress :model-value="60" effect="flow" />
+  <NeumorphismProgress :model-value="60" effect="wave" />
+  <NeumorphismProgress :model-value="60" effect="stripes" />
+  <NeumorphismProgress :model-value="60" effect="sparkle" />
   <NeumorphismProgress :model-value="60" indeterminate />
+
+  <!-- 环形进度 -->
+  <NeumorphismProgress :model-value="60" type="circle" show-label />
+  <NeumorphismProgress type="circle" indeterminate />
 </template>
 ```
 
 **效果说明：**
 
-- `default`：默认效果，带柔和扫光。
-- `gradient`：渐变填充并缓慢流动。
-- `striped`：对角条纹并滚动（与 `striped` 属性等价）。
-- `glow`：发光脉冲效果。
-- `segmented`：分段块状进度。
+- `default`：默认效果，柔和扫光间歇掠过。
+- `pulse`：脉冲光束——短尾迹渐隐，白热彗星头呼吸明灭，偶有细闪掠过。
+- `flow`：丝绸流光，光带缓缓流动。
+- `wave`：液面波光，两层波浪相向滑过。
+- `stripes`：柔和斜纹持续向前流动。
+- `sparkle`：细小光点漂移明灭，如慢速星野。
 
-**优先级**：显式 `effect` > `striped` > 全局配置 `progress.effect` > `default`。例如 `effect="gradient" striped` 会渲染渐变效果。
+各效果的设计细节见 examples 演示页。
+
+**不确定模式**：线性形态为双滑块追逐动画（Material 风格），环形形态为旋转 + 弧长脉冲。
+
+**优先级**：显式 `effect` > 全局配置 `progress.effect` > `default`。
 
 ---
 

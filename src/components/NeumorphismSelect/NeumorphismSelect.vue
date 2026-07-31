@@ -8,11 +8,12 @@ import { useLocale } from '@/composables/useLocale'
 import { useZIndex } from '@/composables/useZIndex'
 import NeumorphismFieldLabel from '@/components/NeumorphismField/NeumorphismFieldLabel.vue'
 import NeumorphismFieldError from '@/components/NeumorphismField/NeumorphismFieldError.vue'
+import NeumorphismTag from '@/components/NeumorphismTag/NeumorphismTag.vue'
 
 export type { SelectOption as NeumorphismSelectOption }
 
 export interface NeumorphismSelectProps {
-  modelValue?: string | number
+  modelValue?: string | number | (string | number)[]
   options?: SelectOption[]
   placeholder?: string
   disabled?: boolean
@@ -26,6 +27,20 @@ export interface NeumorphismSelectProps {
   emptyText?: string
   clearLabel?: string
   listLabel?: string
+  /** 多选模式 — modelValue 为数组 */
+  multiple?: boolean
+  /** 可搜索 — 触发器内嵌输入框，输入即过滤选项 */
+  filterable?: boolean
+  /** 加载状态（远程数据场景） */
+  loading?: boolean
+  /** 加载提示文字 */
+  loadingText?: string
+  /** 多选标签折叠 — 超出 maxCollapseTags 的部分以 +N 计数展示 */
+  collapseTags?: boolean
+  /** 多选折叠前展示的标签数 */
+  maxCollapseTags?: number
+  /** 视觉变体：default 新拟态凹陷 / outlined 描边扁平 + 连体下拉 */
+  variant?: 'default' | 'outlined'
 }
 
 const props = withDefaults(defineProps<NeumorphismSelectProps>(), {
@@ -38,6 +53,10 @@ const props = withDefaults(defineProps<NeumorphismSelectProps>(), {
   emptyText: '',
   clearLabel: '',
   listLabel: '',
+  loading: false,
+  loadingText: '',
+  maxCollapseTags: 1,
+  variant: 'default',
 })
 
 const config = useConfig()
@@ -47,12 +66,25 @@ const resolvedPlaceholder = computed(() => props.placeholder || t('selectPlaceho
 const resolvedEmptyText = computed(() => props.emptyText || t('selectEmpty'))
 const resolvedClearLabel = computed(() => props.clearLabel || t('selectClear'))
 const resolvedListLabel = computed(() => props.listLabel || t('selectListLabel'))
+const resolvedLoadingText = computed(() => props.loadingText || t('selectLoading'))
+// 新功能全部走三级级联：显式 prop > 全局配置 > 默认关闭，保持默认用法零变化
+const resolvedMultiple = computed(() => props.multiple ?? config.value.select?.multiple ?? false)
+const resolvedFilterable = computed(
+  () => props.filterable ?? config.value.select?.filterable ?? false
+)
+const resolvedCollapseTags = computed(
+  () => props.collapseTags ?? config.value.select?.collapseTags ?? false
+)
+const resolvedVariant = computed(() => props.variant ?? config.value.select?.variant ?? 'default')
 
 const emit = defineEmits<{
-  (e: 'update:modelValue', value: string | number): void
-  (e: 'change', value: string | number): void
+  (e: 'update:modelValue', value: string | number | (string | number)[] | undefined): void
+  (e: 'change', value: string | number | (string | number)[] | undefined): void
   (e: 'focus', event: FocusEvent): void
   (e: 'blur', event: FocusEvent): void
+  (e: 'visible-change', open: boolean): void
+  (e: 'remove-tag', value: string | number): void
+  (e: 'search', query: string): void
 }>()
 
 // Use headless select composable for all behavioral logic
@@ -64,11 +96,19 @@ const modelRef = computed({
   },
 })
 
+const filterText = ref('')
+
 const {
   isOpen,
   selectedOption,
+  selectedOptions,
+  filteredOptions,
+  groupedOptions,
+  activeValue,
+  isSelected,
   toggleOpen,
   selectOption,
+  removeValue,
   clearValue,
   handleKeydown,
   handleBlur: onSelectBlur,
@@ -76,82 +116,392 @@ const {
   modelValue: modelRef,
   options: computed(() => props.options),
   disabled: computed(() => props.disabled),
+  multiple: resolvedMultiple,
+  filterText,
 })
 
-const { fieldId, errorMessage, baseClassList, handleFocus, handleBlur } = useFormField(() => ({
-  id: props.id,
-  size: resolvedSize.value,
-  disabled: props.disabled,
-  error: props.error,
-  prefix: 'select',
-}))
+const { fieldId, errorMessage, hasError, baseClassList, handleFocus, handleBlur } = useFormField(
+  () => ({
+    id: props.id,
+    size: resolvedSize.value,
+    disabled: props.disabled,
+    error: props.error,
+    prefix: 'select',
+  })
+)
+
+const hasValue = computed(() =>
+  resolvedMultiple.value
+    ? selectedOptions.value.length > 0
+    : props.modelValue !== '' && props.modelValue !== undefined && props.modelValue !== null
+)
+
+// 触发器的 open 视觉（层叠提升 / 描边点亮）与下拉实体绑定：
+// 展开时立即生效；收起时等下拉的 leave 动画结束（@after-leave）再解除
+const visualOpen = ref(false)
+
+// 展开动画结束（@after-enter）后才放开下拉内部滚动 ——
+// 动画期间 overflow:hidden，避免滚动条随高度变化闪烁
+const settledOpen = ref(false)
 
 const classList = computed(() => [
   ...baseClassList('nm-select').value,
   {
-    'nm-select--open': isOpen.value,
-    'nm-select--has-value':
-      props.modelValue !== '' && props.modelValue !== undefined && props.modelValue !== null,
+    'nm-select--open': visualOpen.value,
+    'nm-select--has-value': hasValue.value,
+    'nm-select--multiple': resolvedMultiple.value,
+    'nm-select--filterable': resolvedFilterable.value,
+    'nm-select--outlined': resolvedVariant.value === 'outlined',
+    // 向上翻转：盒体 column-reverse + 负 margin-top 补偿 + 投影镜像
+    'nm-select--drop-up': visualOpen.value && placement.value === 'top',
+    // 发光时序独立于几何（--open）：与面板动画同生共灭 ——
+    // 展开时随面板抽出淡入，收起时随面板抽回同时开始淡出，与展开严格对称
+    'nm-select--glowing': isOpen.value,
+    'nm-select--settled': settledOpen.value,
   },
 ])
+
+// ==========================================
+// 多选标签
+// ==========================================
+const visibleTags = computed(() =>
+  resolvedCollapseTags.value
+    ? selectedOptions.value.slice(0, props.maxCollapseTags)
+    : selectedOptions.value
+)
+const collapsedCount = computed(() => selectedOptions.value.length - visibleTags.value.length)
+
+function onRemoveTag(value: string | number) {
+  removeValue(value)
+  emit('remove-tag', value)
+}
+
+// ==========================================
+// 可搜索输入框
+// ==========================================
+const filterInputRef = ref<HTMLInputElement>()
+
+// 单选：收起时输入框展示选中项 label，展开后切换为过滤文本
+const inputDisplayValue = computed(() => {
+  if (resolvedMultiple.value) return filterText.value
+  return isOpen.value ? filterText.value : (selectedOption.value?.label ?? '')
+})
+
+const inputPlaceholder = computed(() => {
+  if (resolvedMultiple.value) return hasValue.value ? '' : resolvedPlaceholder.value
+  return selectedOption.value?.label || resolvedPlaceholder.value
+})
+
+// 单选收起时只读 —— 避免用户在选中 label 上继续键入；
+// 聚焦/点击会展开下拉，展开后即可输入过滤
+const inputReadonly = computed(
+  () => !resolvedMultiple.value && !isOpen.value && resolvedFilterable.value
+)
+
+function onFilterInput(event: Event) {
+  const value = (event.target as HTMLInputElement).value
+  filterText.value = value
+  emit('search', value)
+  if (!isOpen.value) isOpen.value = true
+}
+
+// filterable 模式下键盘 Tab 聚焦 input 也应展开下拉 —— 否则 readonly 收起态
+// 下用户无法直接打字过滤（展开只绑在 click 上，键盘路径触达不到）
+function onInputFocus(event: FocusEvent) {
+  handleFocus(event, emit)
+  if (!isOpen.value) isOpen.value = true
+}
+
+function onKeydown(event: KeyboardEvent) {
+  // 可搜索模式下可打印字符交给输入框原生处理，不触发 typeahead
+  if (
+    resolvedFilterable.value &&
+    event.key.length === 1 &&
+    !event.ctrlKey &&
+    !event.metaKey &&
+    !event.altKey
+  ) {
+    return
+  }
+  handleKeydown(event)
+}
+
+// ==========================================
+// 触发器
+// ==========================================
+const triggerRef = ref<HTMLElement>()
+
+function onTriggerClick() {
+  if (props.disabled) return
+  if (resolvedFilterable.value) {
+    filterInputRef.value?.focus()
+    isOpen.value = true
+    return
+  }
+  toggleOpen()
+}
 
 function onClear(event: Event) {
   event.stopPropagation()
   clearValue()
 }
 
-const triggerRef = ref<HTMLElement>()
-const dropdownRef = ref<HTMLElement>()
-const dropdownPosition = ref({ top: 0, left: 0, width: 0 })
+/** 暴露给父组件的焦点方法 */
+function focus() {
+  ;(resolvedFilterable.value ? filterInputRef.value : triggerRef.value)?.focus()
+}
+function blur() {
+  ;(resolvedFilterable.value ? filterInputRef.value : triggerRef.value)?.blur()
+}
+defineExpose({ focus, blur })
 
-function updateDropdownPosition() {
+// ==========================================
+// 下拉定位（fixed + teleport 到 body）与视口翻转
+// ==========================================
+const dropdownRef = ref<HTMLElement>()
+const dropdownPosition = ref({ top: 0, bottom: 0, left: 0, width: 0, available: 0 })
+const placement = ref<'bottom' | 'top'>('bottom')
+
+const DROPDOWN_GAP = 6
+// outlined 为单盒内联展开（无分离下拉），空间估算不加分间距；default 保持 6px 分离
+const dropGap = computed(() => (resolvedVariant.value === 'outlined' ? 0 : DROPDOWN_GAP))
+// 与 tokens.scss 的 --nm-select-dropdown-max-height 默认值一致，
+// 用于展开前估算下拉所需空间以决定是否向上翻转
+const DROPDOWN_MAX_HEIGHT = 240
+// 滚动跟随中的翻转条件：当前侧可用空间不足 MIN_USABLE_SPACE、
+// 且对侧比当前侧宽裕 FLIP_HYSTERESIS 以上 —— 防止边界处逐帧来回翻转
+const MIN_USABLE_SPACE = 120
+const FLIP_HYSTERESIS = 48
+
+function updateDropdownPosition(fullRecompute = false) {
   if (!triggerRef.value || typeof window === 'undefined') return
   const rect = triggerRef.value.getBoundingClientRect()
   // The dropdown uses position:fixed and is teleported to <body>, so
   // getBoundingClientRect() already returns viewport coordinates — adding
   // window.scrollY/scrollX here would shift the dropdown by the scroll offset.
-  dropdownPosition.value = {
-    top: rect.bottom + 6,
+  const gap = dropGap.value
+  const spaceBelow = window.innerHeight - rect.bottom - gap
+  const spaceAbove = rect.top - gap
+
+  let nextPlacement = placement.value
+  if (fullRecompute) {
+    nextPlacement = spaceBelow < DROPDOWN_MAX_HEIGHT && spaceAbove > spaceBelow ? 'top' : 'bottom'
+  } else if (
+    (nextPlacement === 'bottom' &&
+      spaceBelow < MIN_USABLE_SPACE &&
+      spaceAbove > spaceBelow + FLIP_HYSTERESIS) ||
+    (nextPlacement === 'top' &&
+      spaceAbove < MIN_USABLE_SPACE &&
+      spaceBelow > spaceAbove + FLIP_HYSTERESIS)
+  ) {
+    nextPlacement = nextPlacement === 'bottom' ? 'top' : 'bottom'
+  }
+  const flipped = nextPlacement !== placement.value
+
+  const next = {
+    top: rect.bottom + gap,
+    bottom: window.innerHeight - rect.top + gap,
     left: rect.left,
     width: rect.width,
+    // available 仅在 打开/翻转/resize 时重估 —— 滚动中逐帧收缩 maxHeight
+    // 会引起面板高度抖动与列表滚动位置跳变；冻结后面板随触发器整体移动
+    available:
+      fullRecompute || flipped
+        ? nextPlacement === 'bottom'
+          ? spaceBelow
+          : spaceAbove
+        : dropdownPosition.value.available,
+  }
+  // 逐帧轮询下避免无谓的重渲染 —— 仅在实际变化时写入响应式状态
+  const prev = dropdownPosition.value
+  if (
+    prev.top !== next.top ||
+    prev.bottom !== next.bottom ||
+    prev.left !== next.left ||
+    prev.width !== next.width ||
+    prev.available !== next.available
+  ) {
+    dropdownPosition.value = next
+  }
+  if (flipped) placement.value = nextPlacement
+}
+
+// rAF 逐帧跟随 —— 下拉是 teleport + fixed 定位，页面滚动（尤其平滑/惯性滚动）
+// 时 scroll 事件可能滞后于合成器绘制一帧，下拉与触发器错位、连体接缝撕裂。
+// 逐帧读取 rect 让位置更新与页面绘制落在同一帧（floating-ui 的
+// animationFrame autoUpdate 同款模式），同时覆盖滚动/缩放/布局变化。
+let positionRafId: number | null = null
+// resize 时需在下一帧全量重估（方向 + 可用空间）
+let needsFullRecompute = false
+
+function onWindowResize() {
+  needsFullRecompute = true
+}
+
+function trackPositionFrame() {
+  positionRafId = null
+  const fullRecompute = needsFullRecompute
+  needsFullRecompute = false
+  updateDropdownPosition(fullRecompute)
+  syncMarginCompensation()
+  // 轮询存续期跟随 visualOpen —— 收起动画期间（isOpen 已 false）
+  // 仍需逐帧同步负 margin，直到 @after-leave 停止
+  if (visualOpen.value && typeof window !== 'undefined') {
+    positionRafId = window.requestAnimationFrame(trackPositionFrame)
   }
 }
 
+// 单盒纵向延展：盒体在文档流中长高会顶开下方内容 —— 逐帧以
+// 「闭合高度 − 当前盒高」施加负 margin，与盒体实际增量逐帧锁定，布局零抖动。
+// 直接测量盒体（而非读取下拉高度），天然兼容 min-height 余量/padding/border；
+// 收起期间（leave）DOM 元素仍在过渡中，盒高同样准确
+const closedBoxHeight = ref(0)
+
+function syncMarginCompensation() {
+  if (!triggerRef.value) return
+  if (resolvedVariant.value !== 'outlined') {
+    // 非单盒变体不产生补偿；清理可能残留的内联 margin（如运行时切换变体）
+    triggerRef.value.style.marginBottom = ''
+    triggerRef.value.style.marginTop = ''
+    return
+  }
+  const grow = Math.max(triggerRef.value.offsetHeight - closedBoxHeight.value, 0)
+  triggerRef.value.style.marginBottom = placement.value === 'top' ? '0px' : `${-grow}px`
+  triggerRef.value.style.marginTop = placement.value === 'top' ? `${-grow}px` : '0px'
+}
+
+function startPositionTracking() {
+  if (typeof window === 'undefined' || positionRafId !== null) return
+  positionRafId = window.requestAnimationFrame(trackPositionFrame)
+}
+
+function stopPositionTracking() {
+  if (positionRafId !== null && typeof window !== 'undefined') {
+    window.cancelAnimationFrame(positionRafId)
+    positionRafId = null
+  }
+}
+
+function scrollActiveIntoView() {
+  if (!dropdownRef.value) return
+  // 多选下 selected 与 active 可能不同；优先滚到键盘刚移到的 active 项，
+  // 没有高亮项（单选）才落到 selected —— 否则会把视图拉向已选项而非当前导航位置
+  const el = (dropdownRef.value.querySelector('.nm-select__option--active') ||
+    dropdownRef.value.querySelector('.nm-select__option--selected')) as HTMLElement | null
+  el?.scrollIntoView?.({ block: 'nearest' })
+}
+
+// 键盘导航改变选中/高亮项时，保持其处于可视区域
+watch([selectedOption, activeValue], () => {
+  if (isOpen.value) nextTick(scrollActiveIntoView)
+})
+
 watch(isOpen, open => {
+  emit('visible-change', open)
   if (open) {
-    nextTick(updateDropdownPosition)
+    visualOpen.value = true
+    // watch 先于渲染触发，此时盒体仍是闭合态 —— 记录闭合高度作为负 margin 基准
+    closedBoxHeight.value = triggerRef.value?.offsetHeight ?? 0
+    nextTick(() => {
+      // 打开时全量重估方向与可用空间（后续滚动中仅在滞后条件满足时翻转）
+      updateDropdownPosition(true)
+      scrollActiveIntoView()
+    })
+    startPositionTracking()
     if (typeof window !== 'undefined') {
-      window.addEventListener('scroll', updateDropdownPosition, true)
-      window.addEventListener('resize', updateDropdownPosition)
+      window.addEventListener('resize', onWindowResize)
     }
   } else {
+    filterText.value = ''
+    settledOpen.value = false
     if (typeof window !== 'undefined') {
-      window.removeEventListener('scroll', updateDropdownPosition, true)
-      window.removeEventListener('resize', updateDropdownPosition)
+      window.removeEventListener('resize', onWindowResize)
     }
   }
 })
 
-// Remove listeners even if the component unmounts while the dropdown is open.
-// The watch above only runs its cleanup branch when isOpen flips to false,
-// so an open dropdown destroyed via v-if / route change would otherwise leak
-// the window scroll/resize listeners (and the triggerRef closure they hold).
+// 收起动画真正结束（@after-leave）：解除 open 视觉并停止逐帧轮询。
+// 轮询在收起期间必须存活 —— 它逐帧同步盒体负 margin 补偿
+function onAfterLeave() {
+  visualOpen.value = false
+  stopPositionTracking()
+  if (triggerRef.value) {
+    triggerRef.value.style.marginBottom = ''
+    triggerRef.value.style.marginTop = ''
+  }
+}
+
+// 组件在展开状态下被卸载（v-if / 路由切换）时停止逐帧轮询并移除监听，
+// 否则 rAF 回调连同 triggerRef 闭包会泄漏
 onBeforeUnmount(() => {
+  stopPositionTracking()
   if (typeof window !== 'undefined') {
-    window.removeEventListener('scroll', updateDropdownPosition, true)
-    window.removeEventListener('resize', updateDropdownPosition)
+    window.removeEventListener('resize', onWindowResize)
   }
 })
 
 const { getZIndex } = useZIndex()
 
-const dropdownStyle = computed(() => ({
-  position: 'fixed' as const,
-  top: `${dropdownPosition.value.top}px`,
-  left: `${dropdownPosition.value.left}px`,
-  width: `${dropdownPosition.value.width}px`,
-  zIndex: getZIndex('dropdown'),
-}))
+const clampedAvailable = computed(() => Math.max(dropdownPosition.value.available, 72))
+
+const dropdownStyle = computed(() => {
+  // 视口空间受限时收缩高度；token 仍可覆盖默认上限
+  const maxHeight = `min(var(--nm-select-dropdown-max-height), ${clampedAvailable.value}px)`
+  if (resolvedVariant.value === 'outlined') {
+    // 单盒模型：下拉是盒内第二行，只需高度上限；定位由盒体自身完成
+    return { maxHeight }
+  }
+  return {
+    position: 'fixed' as const,
+    top: placement.value === 'bottom' ? `${dropdownPosition.value.top}px` : undefined,
+    bottom: placement.value === 'top' ? `${dropdownPosition.value.bottom}px` : undefined,
+    left: `${dropdownPosition.value.left}px`,
+    width: `${dropdownPosition.value.width}px`,
+    maxHeight,
+    zIndex: getZIndex('dropdown'),
+  }
+})
+
+// ==========================================
+// 选项渲染辅助
+// ==========================================
+const hasGroups = computed(
+  () =>
+    groupedOptions.value.length > 1 ||
+    (groupedOptions.value.length === 1 && groupedOptions.value[0].name !== '')
+)
+
+// aria id 用索引而非原始 value 拼接 —— value 含空格/特殊字符时会产生非法 id
+function optionIndex(option: SelectOption) {
+  return filteredOptions.value.indexOf(option)
+}
+function optionId(option: SelectOption) {
+  return `${fieldId}-opt-${optionIndex(option)}`
+}
+
+const activeDescendantId = computed(() => {
+  const value = resolvedMultiple.value ? activeValue.value : selectedOption.value?.value
+  if (value === undefined) return undefined
+  const index = filteredOptions.value.findIndex(o => o.value === value)
+  return index >= 0 ? `${fieldId}-opt-${index}` : undefined
+})
+
+const emptyDisplayText = computed(() =>
+  filterText.value.trim() ? t('selectNoMatch') : resolvedEmptyText.value
+)
+
+// 值展示：单选显示选中 label，多选空态显示占位符（有值时由标签替代）
+const showValueSpan = computed(
+  () => !resolvedFilterable.value && !(resolvedMultiple.value && hasValue.value)
+)
+const valueDisplay = computed(() =>
+  resolvedMultiple.value
+    ? resolvedPlaceholder.value
+    : selectedOption.value?.label || resolvedPlaceholder.value
+)
+const valueIsPlaceholder = computed(() =>
+  resolvedMultiple.value ? !hasValue.value : !selectedOption.value
+)
 
 function onContainerBlur(e: FocusEvent) {
   // When dropdown is teleported to body, focus may move to dropdown items.
@@ -170,95 +520,286 @@ function onContainerBlur(e: FocusEvent) {
     <div
       ref="triggerRef"
       :class="classList"
-      :tabindex="disabled ? -1 : 0"
-      role="combobox"
-      :aria-expanded="isOpen"
-      aria-haspopup="listbox"
-      :aria-controls="`${fieldId}-listbox`"
-      :aria-activedescendant="selectedOption ? `${fieldId}-opt-${selectedOption.value}` : undefined"
-      :aria-labelledby="label ? fieldId : undefined"
-      @click="toggleOpen"
+      :tabindex="disabled || resolvedFilterable ? -1 : 0"
+      :role="resolvedFilterable ? undefined : 'combobox'"
+      :aria-expanded="resolvedFilterable ? undefined : isOpen"
+      :aria-haspopup="resolvedFilterable ? undefined : 'listbox'"
+      :aria-controls="resolvedFilterable ? undefined : `${fieldId}-listbox`"
+      :aria-activedescendant="resolvedFilterable ? undefined : activeDescendantId"
+      :aria-labelledby="!resolvedFilterable && label ? fieldId : undefined"
+      @click="onTriggerClick"
       @focus="(e: FocusEvent) => handleFocus(e, emit)"
       @blur="onContainerBlur"
-      @keydown="handleKeydown"
+      @keydown="onKeydown"
     >
-      <span class="nm-select__value" :class="{ 'nm-select__value--placeholder': !selectedOption }">
-        <!-- @slot Custom selected value display -->
-        <slot name="value" :option="selectedOption">
-          {{ selectedOption?.label || resolvedPlaceholder }}
-        </slot>
-      </span>
-      <span class="nm-select__actions">
-        <button
-          v-if="clearable && selectedOption"
-          class="nm-select__clear"
-          type="button"
-          :aria-label="resolvedClearLabel"
-          @click="onClear"
+      <div class="nm-select__face">
+        <!-- 多选标签区（mousedown.prevent 保持焦点在触发器/输入框上，避免 blur 误关下拉） -->
+        <span v-if="resolvedMultiple && hasValue" class="nm-select__tags" @mousedown.prevent>
+          <NeumorphismTag
+            v-for="tag in visibleTags"
+            :key="tag.value"
+            size="small"
+            :closable="!disabled"
+            @close="onRemoveTag(tag.value)"
+          >
+            {{ tag.label }}
+          </NeumorphismTag>
+          <NeumorphismTag v-if="collapsedCount > 0" size="small" class="nm-select__tag-collapse">
+            +{{ collapsedCount }}
+          </NeumorphismTag>
+        </span>
+
+        <!-- 可搜索输入框（combobox 语义移至原生 input，符合 ARIA 1.2 模式） -->
+        <input
+          v-if="resolvedFilterable"
+          ref="filterInputRef"
+          class="nm-select__input"
+          :value="inputDisplayValue"
+          :placeholder="inputPlaceholder"
+          :disabled="disabled"
+          :readonly="inputReadonly"
+          role="combobox"
+          :aria-expanded="isOpen"
+          aria-haspopup="listbox"
+          :aria-controls="`${fieldId}-listbox`"
+          :aria-activedescendant="activeDescendantId"
+          :aria-labelledby="label ? fieldId : undefined"
+          :aria-label="label ? undefined : t('selectSearchLabel')"
+          aria-autocomplete="list"
+          @input="onFilterInput"
+          @focus="onInputFocus"
+          @blur="onContainerBlur"
+          @keydown="onKeydown"
+        />
+
+        <!-- 单选值展示 / 多选空占位 -->
+        <span
+          v-else-if="showValueSpan"
+          class="nm-select__value"
+          :class="{ 'nm-select__value--placeholder': valueIsPlaceholder }"
         >
+          <!-- @slot Custom selected value display -->
+          <slot name="value" :option="selectedOption">
+            {{ valueDisplay }}
+          </slot>
+        </span>
+
+        <span class="nm-select__actions">
+          <button
+            v-if="clearable && hasValue && !loading && !disabled"
+            class="nm-select__clear"
+            type="button"
+            :aria-label="resolvedClearLabel"
+            @mousedown.prevent
+            @click="onClear"
+          >
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M18 6L6 18M6 6l12 12" />
+            </svg>
+          </button>
           <svg
-            width="14"
-            height="14"
+            v-if="loading"
+            class="nm-select__spinner"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            aria-hidden="true"
+          >
+            <path d="M12 2a10 10 0 1 0 10 10" />
+          </svg>
+          <svg
+            v-else
+            class="nm-select__arrow"
+            :class="{ 'nm-select__arrow--open': isOpen }"
+            width="16"
+            height="16"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
             stroke-width="2"
           >
-            <path d="M18 6L6 18M6 6l12 12" />
+            <path d="M6 9l6 6 6-6" />
           </svg>
-        </button>
-        <svg
-          class="nm-select__arrow"
-          :class="{ 'nm-select__arrow--open': isOpen }"
-          width="16"
-          height="16"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-        >
-          <path d="M6 9l6 6 6-6" />
-        </svg>
-      </span>
+        </span>
+      </div>
 
-      <teleport to="body">
-        <transition name="nm-select-dropdown">
+      <!--
+        outlined：禁用 teleport —— 单盒模型，下拉渲染在盒内第二行，
+        盒体随下拉的 max-height 过渡纵向延展（盒体负 margin 同参同步补偿，
+        布局零抖动），接缝从构造上不存在；
+        default：teleport 浮层（不受祖先 overflow 裁剪与层叠上下文影响）
+      -->
+      <teleport to="body" :disabled="resolvedVariant === 'outlined'">
+        <transition
+          name="nm-select-dropdown"
+          @after-enter="settledOpen = true"
+          @after-leave="onAfterLeave"
+        >
           <div
             v-if="isOpen"
             :id="`${fieldId}-listbox`"
             ref="dropdownRef"
             class="nm-select__dropdown"
+            :class="{
+              'nm-select__dropdown--up': placement === 'top',
+              'nm-select__dropdown--multiple': resolvedMultiple,
+              'nm-select__dropdown--outlined': resolvedVariant === 'outlined',
+              'nm-select__dropdown--error': hasError,
+            }"
             role="listbox"
             :aria-label="label || resolvedListLabel"
+            :aria-multiselectable="resolvedMultiple || undefined"
             :style="dropdownStyle"
+            @mousedown.prevent
+            @click.stop
           >
-            <!-- @slot Custom option rendering. Bind: option, selected, index, select -->
-            <slot
-              v-for="(option, index) in options"
-              :key="option.value"
-              name="option"
-              :option="option"
-              :selected="option.value === modelValue"
-              :index="index"
-              :select="selectOption"
-            >
-              <div
-                :id="`${fieldId}-opt-${option.value}`"
-                class="nm-select__option"
-                :class="{
-                  'nm-select__option--selected': option.value === modelValue,
-                  'nm-select__option--disabled': option.disabled,
-                }"
-                role="option"
-                :aria-selected="option.value === modelValue"
-                :aria-disabled="option.disabled"
-                @click.stop="selectOption(option)"
+            <!-- 加载态 -->
+            <div v-if="loading" class="nm-select__loading">
+              <svg
+                class="nm-select__loading-icon"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                aria-hidden="true"
               >
-                {{ option.label }}
-              </div>
-            </slot>
-            <div v-if="options.length === 0" class="nm-select__option nm-select__option--empty">
-              {{ resolvedEmptyText }}
+                <path d="M12 2a10 10 0 1 0 10 10" />
+              </svg>
+              <span>{{ resolvedLoadingText }}</span>
+            </div>
+
+            <!-- 分组渲染 -->
+            <template v-else-if="hasGroups && filteredOptions.length > 0">
+              <template v-for="group in groupedOptions" :key="group.name || '__ungrouped__'">
+                <div v-if="group.name" class="nm-select__group-title" aria-hidden="true">
+                  {{ group.name }}
+                </div>
+                <!-- @slot Custom option rendering. Bind: option, selected, index, select -->
+                <slot
+                  v-for="option in group.options"
+                  :key="option.value"
+                  name="option"
+                  :option="option"
+                  :selected="isSelected(option)"
+                  :index="optionIndex(option)"
+                  :select="selectOption"
+                >
+                  <div
+                    :id="optionId(option)"
+                    class="nm-select__option"
+                    :class="{
+                      'nm-select__option--selected': isSelected(option),
+                      'nm-select__option--disabled': option.disabled,
+                      'nm-select__option--active': resolvedMultiple && option.value === activeValue,
+                    }"
+                    role="option"
+                    :aria-selected="isSelected(option)"
+                    :aria-disabled="option.disabled"
+                    @mousedown.prevent
+                    @click.stop="selectOption(option)"
+                  >
+                    <span
+                      v-if="resolvedMultiple"
+                      class="nm-select__checkbox"
+                      :class="{ 'nm-select__checkbox--checked': isSelected(option) }"
+                      aria-hidden="true"
+                    >
+                      <svg
+                        v-if="isSelected(option)"
+                        width="10"
+                        height="10"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="3.5"
+                      >
+                        <path d="M20 6L9 17l-5-5" />
+                      </svg>
+                    </span>
+                    <span class="nm-select__option-label">{{ option.label }}</span>
+                  </div>
+                </slot>
+              </template>
+            </template>
+
+            <!-- 平铺渲染 -->
+            <template v-else-if="filteredOptions.length > 0">
+              <!-- @slot Custom option rendering. Bind: option, selected, index, select -->
+              <slot
+                v-for="(option, index) in filteredOptions"
+                :key="option.value"
+                name="option"
+                :option="option"
+                :selected="isSelected(option)"
+                :index="index"
+                :select="selectOption"
+              >
+                <div
+                  :id="optionId(option)"
+                  class="nm-select__option"
+                  :class="{
+                    'nm-select__option--selected': isSelected(option),
+                    'nm-select__option--disabled': option.disabled,
+                    'nm-select__option--active': resolvedMultiple && option.value === activeValue,
+                  }"
+                  role="option"
+                  :aria-selected="isSelected(option)"
+                  :aria-disabled="option.disabled"
+                  @click.stop="selectOption(option)"
+                >
+                  <span
+                    v-if="resolvedMultiple"
+                    class="nm-select__checkbox"
+                    :class="{ 'nm-select__checkbox--checked': isSelected(option) }"
+                    aria-hidden="true"
+                  >
+                    <svg
+                      v-if="isSelected(option)"
+                      width="10"
+                      height="10"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="3.5"
+                    >
+                      <path d="M20 6L9 17l-5-5" />
+                    </svg>
+                  </span>
+                  <span class="nm-select__option-label">{{ option.label }}</span>
+                </div>
+              </slot>
+            </template>
+
+            <!-- 空态 / 无匹配 -->
+            <div v-else class="nm-select__option nm-select__option--empty nm-select__empty">
+              <svg
+                class="nm-select__empty-icon"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+                aria-hidden="true"
+              >
+                <path d="M22 12h-6l-2 3h-4l-2-3H2" />
+                <path
+                  d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"
+                />
+              </svg>
+              <span>{{ emptyDisplayText }}</span>
             </div>
           </div>
         </transition>
@@ -278,6 +819,14 @@ function onContainerBlur(e: FocusEvent) {
   width: 100%;
 }
 
+.nm-select__face {
+  display: flex;
+  align-items: center;
+  flex: 1 1 auto;
+  min-width: 0;
+  width: 100%;
+}
+
 .nm-select {
   position: relative;
   display: flex;
@@ -288,7 +837,22 @@ function onContainerBlur(e: FocusEvent) {
   background-color: var(--nm-surface-color);
   border-radius: var(--nm-border-radius-md);
   @include nm-inset(4px, 8px);
-  @include nm-theme-transition;
+  transition:
+    box-shadow 0.35s $nm-ease-spring,
+    background-color var(--nm-transition-slow),
+    color var(--nm-transition-slow),
+    transform 0.3s $nm-ease-spring;
+
+  // hover 反馈与 NeumorphismInput 对齐：凹陷加深 + 轻微上浮，
+  // 物理含义 —— 手指悬停时表面"预压"，元素仍浮于原位
+  @media (hover: hover) {
+    &:not(.nm-select--disabled):not(.nm-select--focused):not(.nm-select--open):hover {
+      box-shadow:
+        inset 5px 5px 10px var(--nm-shadow-dark),
+        inset -5px -5px 10px var(--nm-shadow-light);
+      transform: translateY(-1px);
+    }
+  }
 
   &--disabled {
     opacity: 0.6;
@@ -308,6 +872,23 @@ function onContainerBlur(e: FocusEvent) {
       inset 4px 4px 8px var(--nm-shadow-dark),
       inset -4px -4px 8px var(--nm-shadow-light),
       0 0 0 2px var(--nm-color-error);
+
+    // 错误态聚焦时外环跟随错误色（与 NeumorphismInput 行为对齐）
+    &.nm-select--focused,
+    &.nm-select--open {
+      box-shadow:
+        inset 5px 5px 10px var(--nm-shadow-dark),
+        inset -5px -5px 10px var(--nm-shadow-light),
+        0 0 0 3px var(--nm-color-error);
+    }
+  }
+
+  &--multiple {
+    flex-wrap: wrap;
+    row-gap: var(--nm-spacing-xs);
+    height: auto;
+    padding-top: var(--nm-field-padding-y-sm);
+    padding-bottom: var(--nm-field-padding-y-sm);
   }
 }
 
@@ -324,11 +905,51 @@ function onContainerBlur(e: FocusEvent) {
   }
 }
 
+.nm-select__tags {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--nm-spacing-xs);
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.nm-select__tag-collapse {
+  flex-shrink: 0;
+}
+
+.nm-select__input {
+  flex: 1;
+  min-width: 56px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  outline: none;
+  font: inherit;
+  font-size: var(--nm-font-base);
+  color: var(--nm-text-primary);
+  cursor: pointer;
+
+  .nm-select--open &,
+  .nm-select--multiple & {
+    cursor: text;
+  }
+
+  &::placeholder {
+    color: var(--nm-text-placeholder);
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+  }
+}
+
 .nm-select__actions {
   display: flex;
   align-items: center;
   gap: var(--nm-spacing-xs);
   flex-shrink: 0;
+  margin-left: auto;
 }
 
 .nm-select__clear {
@@ -345,6 +966,15 @@ function onContainerBlur(e: FocusEvent) {
   &:hover {
     color: var(--nm-text-primary);
   }
+  &:focus-visible {
+    outline: 2px solid var(--nm-primary-color);
+    outline-offset: 1px;
+  }
+}
+
+.nm-select__spinner {
+  color: var(--nm-primary-color);
+  animation: nm-spin 0.8s linear infinite;
 }
 
 .nm-select__arrow {
@@ -356,22 +986,39 @@ function onContainerBlur(e: FocusEvent) {
 }
 
 .nm-select__dropdown {
-  position: absolute;
-  top: calc(100% + 6px);
-  left: 0;
-  right: 0;
+  // inline width 取自触发器视觉宽度（getBoundingClientRect），必须用
+  // border-box 才能让下拉实际视觉宽度与之对齐 —— 否则 content-box 下
+  // border + padding 会让下拉左右各凸出，连体拼接时尤为明显
+  box-sizing: border-box;
   z-index: var(--nm-z-dropdown);
-  max-height: 240px;
+  max-height: var(--nm-select-dropdown-max-height);
   overflow-y: auto;
   background-color: var(--nm-surface-color);
   border-radius: var(--nm-border-radius-md);
   @include nm-raised(4px, 12px);
+  @include nm-theme-transition;
   padding: var(--nm-spacing-xs);
+}
+
+.nm-select__group-title {
+  padding: var(--nm-spacing-xs) var(--nm-select-option-padding-x);
+  font-size: var(--nm-font-xs);
+  font-weight: var(--nm-font-weight-medium);
+  color: var(--nm-text-placeholder);
+  letter-spacing: 0.02em;
+  user-select: none;
+
+  &:not(:first-child) {
+    margin-top: var(--nm-spacing-xs);
+    border-top: 1px solid var(--nm-border-subtle);
+    padding-top: var(--nm-spacing-sm);
+  }
 }
 
 .nm-select__option {
   display: flex;
   align-items: center;
+  gap: var(--nm-spacing-sm);
   padding: var(--nm-select-option-padding-y) var(--nm-select-option-padding-x);
   font-size: var(--nm-select-option-font);
   color: var(--nm-text-primary);
@@ -384,28 +1031,29 @@ function onContainerBlur(e: FocusEvent) {
   position: relative;
 
   &:hover:not(&--disabled):not(&--empty) {
-    background-color: var(--nm-surface-raised);
+    background-color: var(--nm-select-option-hover-bg);
     transform: translateX(3px);
     box-shadow:
       inset 1px 1px 2px var(--nm-shadow-dark),
       inset -1px -1px 2px var(--nm-shadow-light);
   }
 
-  &--selected {
-    color: var(--nm-primary-color);
-    font-weight: 600;
+  // 多选键盘高亮项 —— 视觉与 hover 等价
+  &--active:not(&--disabled) {
+    background-color: var(--nm-select-option-hover-bg);
+    box-shadow:
+      inset 1px 1px 2px var(--nm-shadow-dark),
+      inset -1px -1px 2px var(--nm-shadow-light);
   }
 
-  &--selected::after {
-    content: '';
-    position: absolute;
-    right: 12px;
-    width: 6px;
-    height: 6px;
-    border-radius: var(--nm-border-radius-full);
-    background-color: var(--nm-primary-color);
-    box-shadow: 0 0 6px color-mix(in srgb, var(--nm-primary-color) 40%, transparent);
-    animation: nm-select-dot-pop 0.35s $nm-ease-bounce;
+  // 选中 = 陷入表面（物理隐喻：已确认的选项被"按进"底板）
+  &--selected:not(&--disabled) {
+    color: var(--nm-primary-color);
+    font-weight: 600;
+    background-color: var(--nm-select-option-hover-bg);
+    box-shadow:
+      inset 2px 2px 5px var(--nm-shadow-dark),
+      inset -2px -2px 5px var(--nm-shadow-light);
   }
 
   &--disabled {
@@ -419,12 +1067,223 @@ function onContainerBlur(e: FocusEvent) {
   }
 }
 
+// 单选选中指示点（多选改用前置勾选框）
+.nm-select__dropdown:not(.nm-select__dropdown--multiple) .nm-select__option--selected::after {
+  content: '';
+  position: absolute;
+  right: 12px;
+  width: 6px;
+  height: 6px;
+  border-radius: var(--nm-border-radius-full);
+  background-color: var(--nm-primary-color);
+  box-shadow: 0 0 6px color-mix(in srgb, var(--nm-primary-color) 40%, transparent);
+  animation: nm-select-dot-pop 0.35s $nm-ease-bounce;
+}
+
+// ==========================================
+// Outlined 变体 — 描边扁平 + 单盒纵向延展
+// 与 default（新拟态凹陷 + teleport 浮层）形成对照：触发器盒体本身就是
+// 容器，下拉是盒内第二行；展开时盒体随下拉的 max-height 过渡自然长高，
+// 负 margin 同参补偿布局。单盒只有一个边框、一圈发光、一个投影 ——
+// 接缝从构造上不存在。所有视觉参数走 Token。
+// ==========================================
+
+// 触发器（即单盒本体）
+.nm-select--outlined {
+  flex-direction: column;
+  align-items: stretch;
+  // 闭合时 face 在盒内垂直居中
+  justify-content: center;
+  background-color: var(--nm-select-outlined-bg);
+  border: 2px solid var(--nm-select-outlined-border-color);
+  border-radius: var(--nm-select-outlined-radius);
+  // 用边框替代 inset 浮雕
+  box-shadow: none;
+
+  @media (hover: hover) {
+    &:not(.nm-select--disabled):not(.nm-select--focused):not(.nm-select--open):hover {
+      border-color: var(--nm-select-outlined-focus-border-color);
+      transform: none;
+      box-shadow: none;
+    }
+  }
+
+  // focus（未展开）：完整外发光环 + 主色描边
+  &.nm-select--focused:not(.nm-select--glowing) {
+    border-color: var(--nm-select-outlined-focus-border-color);
+    box-shadow: 0 0 0 3px var(--nm-select-outlined-focus-glow);
+  }
+
+  // open（visualOpen 保持到收起动画结束）：层叠提升 + 描边点亮
+  &.nm-select--open {
+    z-index: var(--nm-z-dropdown);
+    border-color: var(--nm-select-outlined-focus-border-color);
+  }
+
+  // glowing（isOpen 驱动）：整圈发光 + 投影随盒体一同生长/收缩，
+  // 与面板动画并发（展开淡入、收起同步淡出）
+  &.nm-select--glowing {
+    box-shadow:
+      0 0 0 3px var(--nm-select-outlined-focus-glow),
+      var(--nm-select-outlined-dropdown-shadow);
+
+    &.nm-select--drop-up {
+      box-shadow:
+        0 0 0 3px var(--nm-select-outlined-focus-glow),
+        var(--nm-select-outlined-dropdown-shadow-up);
+    }
+  }
+
+  // 向上翻转：下拉行换到 face 上方（配合负 margin-top 补偿，盒体向上延展）
+  &.nm-select--drop-up {
+    flex-direction: column-reverse;
+  }
+
+  // error：错误色描边 + 错误发光
+  &.nm-select--error {
+    border-color: var(--nm-color-error);
+
+    &.nm-select--focused:not(.nm-select--glowing) {
+      border-color: var(--nm-color-error);
+      box-shadow: 0 0 0 3px var(--nm-shadow-error);
+    }
+
+    &.nm-select--open {
+      border-color: var(--nm-color-error);
+    }
+
+    &.nm-select--glowing {
+      box-shadow:
+        0 0 0 3px var(--nm-shadow-error),
+        var(--nm-select-outlined-dropdown-shadow);
+
+      &.nm-select--drop-up {
+        box-shadow:
+          0 0 0 3px var(--nm-shadow-error),
+          var(--nm-select-outlined-dropdown-shadow-up);
+      }
+    }
+  }
+}
+
+// 下拉面板（盒内第二行）—— 无边框/圆角/投影/独立定位，
+// 仅作为可伸缩高度区域；揭示动画由 max-height 过渡驱动，
+// 盒体随内容自然长高（移动的圆角底边即盒体自身底边，物理延展）
+.nm-select__dropdown--outlined {
+  max-height: 0;
+  overflow: hidden;
+  background-color: transparent;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  z-index: auto;
+  // 稳态高度调整（滚动/过滤改变可用空间或内容时）与展开同参缓动
+  transition: max-height 0.34s $nm-ease-pull;
+
+  // 展开动画结束（--settled）后放开内部滚动；动画期间 hidden 防滚动条闪烁
+  .nm-select--settled & {
+    overflow-y: auto;
+  }
+
+  // 选项：扁平交互（去位移 / 去凹陷）
+  .nm-select__option:hover:not(.nm-select__option--disabled):not(.nm-select__option--empty) {
+    background-color: var(--nm-select-outlined-option-hover-bg);
+    transform: none;
+    box-shadow: none;
+  }
+  .nm-select__option--active:not(.nm-select__option--disabled) {
+    background-color: var(--nm-select-outlined-option-hover-bg);
+    box-shadow: none;
+  }
+  // 选中：去凹陷、去背景，仅靠主色文字加粗 + 指示点标识（贴近 headless demo）
+  .nm-select__option--selected:not(.nm-select__option--disabled) {
+    background-color: transparent;
+    box-shadow: none;
+  }
+  // 单选选中指示点移到左侧
+  &:not(.nm-select__dropdown--multiple) .nm-select__option--selected::after {
+    right: auto;
+    left: 12px;
+  }
+  // 左侧指示点预留空间，避免压字
+  .nm-select__option {
+    padding-left: calc(var(--nm-select-option-padding-x) + 16px);
+  }
+}
+
+.nm-select__checkbox {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  border-radius: var(--nm-border-radius-xs);
+  color: var(--nm-text-on-primary);
+  // 未选中 = 表面上的凹槽
+  box-shadow:
+    inset 1px 1px 3px var(--nm-shadow-dark),
+    inset -1px -1px 3px var(--nm-shadow-light);
+  transition:
+    background-color 0.2s $nm-ease-ambient,
+    box-shadow 0.2s $nm-ease-ambient;
+
+  // 选中 = 凹槽被"填充"为主体色
+  &--checked {
+    background-color: var(--nm-primary-color);
+    box-shadow:
+      inset 1px 1px 2px color-mix(in srgb, var(--nm-primary-color) 60%, #000 40%),
+      0 0 6px color-mix(in srgb, var(--nm-primary-color) 40%, transparent);
+  }
+}
+
+.nm-select__option-label {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.nm-select__loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--nm-spacing-sm);
+  padding: var(--nm-select-option-padding-y) var(--nm-select-option-padding-x);
+  font-size: var(--nm-font-base);
+  color: var(--nm-text-secondary);
+}
+
+.nm-select__loading-icon {
+  color: var(--nm-primary-color);
+  animation: nm-spin 0.8s linear infinite;
+  flex-shrink: 0;
+}
+
+.nm-select__empty {
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--nm-spacing-sm);
+  padding: var(--nm-spacing-lg) var(--nm-select-option-padding-x);
+  text-align: center;
+}
+
+.nm-select__empty-icon {
+  color: var(--nm-text-placeholder);
+  opacity: 0.7;
+}
+
 // Sizes
 .nm-select--small {
   min-height: var(--nm-field-min-height-sm);
   padding: var(--nm-field-padding-y-sm) var(--nm-field-padding-x-sm);
-  .nm-select__value {
+  .nm-select__value,
+  .nm-select__input {
     font-size: var(--nm-field-font-sm);
+  }
+  .nm-select__arrow {
+    width: 14px;
+    height: 14px;
   }
 }
 
@@ -436,8 +1295,22 @@ function onContainerBlur(e: FocusEvent) {
 .nm-select--large {
   min-height: var(--nm-field-min-height-lg);
   padding: var(--nm-field-padding-y-lg) var(--nm-field-padding-x-lg);
-  .nm-select__value {
+  .nm-select__value,
+  .nm-select__input {
     font-size: var(--nm-field-font-lg);
+  }
+  .nm-select__arrow {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+// 多选触发器允许内容增高（标签换行），min-height 仍由尺寸档控制
+.nm-select--multiple {
+  &.nm-select--small,
+  &.nm-select--medium,
+  &.nm-select--large {
+    height: auto;
   }
 }
 
@@ -460,6 +1333,33 @@ function onContainerBlur(e: FocusEvent) {
   opacity: 0;
   transform: translateY(-4px) scale(0.98);
 }
+// 向上翻转展开时，进入/离开方向随之反转
+.nm-select__dropdown--up.nm-select-dropdown-enter-from {
+  transform: translateY(8px) scale(0.98);
+}
+.nm-select__dropdown--up.nm-select-dropdown-leave-to {
+  transform: translateY(4px) scale(0.98);
+}
+
+// ==========================================
+// Outlined 延展动效 —— 单盒模型：下拉区域的高度过渡即盒体的长高。
+// 进入：max-height 0 → 自然值（0.34s $nm-ease-pull 先快后慢）；
+// 离开：反向 0.3s 加速收没。盒体负 margin 以相同参数同步补偿，布局零抖动；
+// 发光/投影随盒体一同生长。向上翻转由盒体 column-reverse 承担，
+// 高度动画本身与方向无关（opacity/transform 仅用于覆盖通用过渡的同名声明）。
+// ==========================================
+.nm-select__dropdown--outlined.nm-select-dropdown-enter-active {
+  transition: max-height 0.34s $nm-ease-pull;
+}
+.nm-select__dropdown--outlined.nm-select-dropdown-leave-active {
+  transition: max-height 0.3s $nm-ease-accelerate;
+}
+.nm-select__dropdown--outlined.nm-select-dropdown-enter-from,
+.nm-select__dropdown--outlined.nm-select-dropdown-leave-to {
+  opacity: 1;
+  transform: none;
+  max-height: 0 !important;
+}
 
 @keyframes nm-select-dot-pop {
   0% {
@@ -474,11 +1374,22 @@ function onContainerBlur(e: FocusEvent) {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .nm-select {
+    transition: none;
+  }
   .nm-select__option {
     transition: none;
   }
   .nm-select__option--selected::after {
     animation: none;
+  }
+  .nm-select__spinner,
+  .nm-select__loading-icon {
+    animation: none;
+  }
+  .nm-select-dropdown-enter-active,
+  .nm-select-dropdown-leave-active {
+    transition: none;
   }
 }
 </style>

@@ -39,6 +39,9 @@ export const zhCN: LocaleMessages = {
   selectEmpty: '暂无选项',
   selectClear: '清除选择',
   selectListLabel: '选项列表',
+  selectLoading: '加载中…',
+  selectNoMatch: '无匹配选项',
+  selectSearchLabel: '搜索选项',
 
   // Modal
   modalClose: '关闭',

@@ -39,6 +39,9 @@ export const enUS: LocaleMessages = {
   selectEmpty: 'No options',
   selectClear: 'Clear selection',
   selectListLabel: 'Option list',
+  selectLoading: 'Loading…',
+  selectNoMatch: 'No matching options',
+  selectSearchLabel: 'Search options',
 
   // Modal
   modalClose: 'Close',

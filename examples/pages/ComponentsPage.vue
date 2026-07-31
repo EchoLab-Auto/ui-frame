@@ -251,6 +251,32 @@ const selectOptions = [
   { label: 'Solid.js', value: 'solid' },
 ]
 
+// ---- Select 进阶示例：可搜索 / 多选 / 分组 / 加载 ----
+const selectFilterable = ref('')
+const selectMultiple = ref<(string | number)[]>(['vue', 'react'])
+const selectGrouped = ref('')
+const selectAsyncLoading = ref(false)
+const selectAsyncValue = ref('')
+// 双变体对比：default 与 outlined 共享同一份数据，唯一变量是 variant
+const variantSingle = ref('vue')
+const variantMulti = ref<(string | number)[]>(['vue', 'react'])
+
+const selectGroupedOptions = [
+  { label: 'Vue 3', value: 'vue', group: '渐进式框架' },
+  { label: 'Nuxt', value: 'nuxt', group: '渐进式框架' },
+  { label: 'React 18', value: 'react', group: '组件化生态' },
+  { label: 'Preact', value: 'preact', group: '组件化生态' },
+  { label: 'Svelte 4', value: 'svelte', group: '编译时框架' },
+  { label: 'Solid.js', value: 'solid', group: '编译时框架' },
+]
+
+function simulateSelectAsync() {
+  selectAsyncLoading.value = true
+  setTimeout(() => {
+    selectAsyncLoading.value = false
+  }, 2000)
+}
+
 // ---- 输入框和文本域示例 ----
 const inputName = ref('')
 const inputEmail = ref('')
@@ -338,7 +364,30 @@ function showToast(type: string) {
 
 // ---- 进度条示例 ----
 const progressVal = ref(60)
-const indeterminate = ref(false)
+const isSimulating = ref(false)
+let simulateTimer: ReturnType<typeof setInterval> | null = null
+
+const progressVariants = ['primary', 'success', 'warning', 'error'] as const
+const progressSizes = ['small', 'medium', 'large'] as const
+const progressEffects = ['default', 'pulse', 'flow', 'wave', 'stripes', 'sparkle'] as const
+
+function simulateLoading() {
+  if (isSimulating.value) return
+  progressVal.value = 0
+  isSimulating.value = true
+  simulateTimer = setInterval(() => {
+    progressVal.value = Math.min(100, progressVal.value + Math.ceil(Math.random() * 14))
+    if (progressVal.value >= 100) {
+      if (simulateTimer) clearInterval(simulateTimer)
+      simulateTimer = null
+      isSimulating.value = false
+    }
+  }, 240)
+}
+
+onBeforeUnmount(() => {
+  if (simulateTimer) clearInterval(simulateTimer)
+})
 
 // ---- 标签示例 ----
 const tagVisible = ref(true)
@@ -739,15 +788,18 @@ const chartStockData = ref([
                   </p>
                 </div>
 
-                <!-- 对比：标准 NeumorphismSelect -->
+                <!-- 对比：内置 outlined 变体，复刻左侧自定义风格 -->
                 <div style="width: 260px">
-                  <h4 class="demo-label">标准 NeumorphismSelect（同逻辑）</h4>
+                  <h4 class="demo-label">内置 outlined 变体（同逻辑、同视觉）</h4>
                   <NeumorphismSelect
                     v-model="headlessSelectValue"
                     :options="headlessSelectOptions"
+                    variant="outlined"
                     placeholder="请选择..."
                   />
-                  <p class="demo-hint">同一套 useSelect 逻辑驱动</p>
+                  <p class="demo-hint">
+                    variant="outlined" 复刻左侧自定义 UI，无需手写样式 —— 同一套 useSelect 驱动
+                  </p>
                 </div>
               </div>
             </NeumorphismCard>
@@ -1210,13 +1262,17 @@ const chartStockData = ref([
               <template #header>
                 <div class="demo-header">
                   <h3 class="demo-title">NeumorphismSelect 选择器</h3>
-                  <span class="demo-badge">键盘导航 · 可清空 · ARIA</span>
+                  <span class="demo-badge"
+                    >键盘导航 · 可清空 · 可搜索 · 多选 · 分组 · 双变体 · ARIA</span
+                  >
                 </div>
               </template>
 
-              <div class="demo-row" style="gap: 24px; flex-wrap: wrap; align-items: flex-start">
-                <div style="width: 260px">
-                  <h4 class="demo-label">基本选择器</h4>
+              <!-- 功能特性 -->
+              <h4 class="select-section-title">功能特性</h4>
+              <div class="select-grid">
+                <div class="select-cell">
+                  <h5 class="demo-label">基本选择器</h5>
                   <NeumorphismSelect
                     v-model="select1"
                     :options="selectOptions"
@@ -1226,33 +1282,149 @@ const chartStockData = ref([
                     已选：<strong>{{ select1 || '无' }}</strong>
                   </p>
                 </div>
-                <div style="width: 260px">
-                  <h4 class="demo-label">带标签、可清空</h4>
+                <div class="select-cell">
+                  <h5 class="demo-label">带标签、可清空</h5>
                   <NeumorphismSelect
                     v-model="select2"
                     :options="selectOptions"
                     label="框架"
                     placeholder="请选择..."
-                    :clearable="true"
+                    clearable
                   />
                 </div>
-                <div style="width: 260px">
-                  <h4 class="demo-label">禁用与错误</h4>
-                  <div class="demo-row demo-row--stacked" style="gap: 12px">
-                    <NeumorphismSelect
-                      :options="selectOptions"
-                      placeholder="已禁用"
-                      :disabled="true"
-                    />
-                    <NeumorphismSelect
-                      :options="selectOptions"
-                      label="必填字段"
-                      placeholder="请选择..."
-                      error="此字段为必填项"
-                    />
+                <div class="select-cell">
+                  <h5 class="demo-label">可搜索过滤</h5>
+                  <NeumorphismSelect
+                    v-model="selectFilterable"
+                    :options="selectOptions"
+                    placeholder="输入关键字过滤..."
+                    filterable
+                    clearable
+                  />
+                  <p class="demo-hint">
+                    已选：<strong>{{ selectFilterable || '无' }}</strong>
+                  </p>
+                </div>
+                <div class="select-cell">
+                  <h5 class="demo-label">多选 + 标签折叠</h5>
+                  <NeumorphismSelect
+                    v-model="selectMultiple"
+                    :options="selectOptions"
+                    placeholder="选择多个框架..."
+                    multiple
+                    collapse-tags
+                    :max-collapse-tags="2"
+                    clearable
+                  />
+                  <p class="demo-hint">
+                    已选：<strong>{{ selectMultiple.join(', ') || '无' }}</strong>
+                  </p>
+                </div>
+                <div class="select-cell">
+                  <h5 class="demo-label">选项分组</h5>
+                  <NeumorphismSelect
+                    v-model="selectGrouped"
+                    :options="selectGroupedOptions"
+                    placeholder="按生态分组..."
+                  />
+                </div>
+                <div class="select-cell">
+                  <h5 class="demo-label">远程加载</h5>
+                  <NeumorphismSelect
+                    v-model="selectAsyncValue"
+                    :options="selectOptions"
+                    placeholder="点击模拟远程加载..."
+                    :loading="selectAsyncLoading"
+                    @visible-change="(open: boolean) => open && simulateSelectAsync()"
+                  />
+                  <p class="demo-hint">展开触发 2 秒模拟加载</p>
+                </div>
+                <div class="select-cell">
+                  <h5 class="demo-label">禁用</h5>
+                  <NeumorphismSelect :options="selectOptions" placeholder="已禁用" disabled />
+                </div>
+                <div class="select-cell">
+                  <h5 class="demo-label">错误态</h5>
+                  <NeumorphismSelect
+                    :options="selectOptions"
+                    label="必填字段"
+                    placeholder="请选择..."
+                    error="此字段为必填项"
+                  />
+                </div>
+              </div>
+
+              <NeumorphismDivider class="select-divider" />
+
+              <!-- 两种视觉变体并排对比 -->
+              <h4 class="select-section-title">两种视觉变体</h4>
+              <p class="select-section-desc">
+                同一份数据与逻辑，仅
+                <code>variant</code> 不同 —— 左侧 <code>default</code> 新拟态凹陷，右侧
+                <code>outlined</code> 主色描边 + 连体下拉。
+              </p>
+              <div class="select-variant">
+                <div class="select-variant__col">
+                  <span class="select-variant__tag">variant = "default"</span>
+                  <div class="select-stack">
+                    <div>
+                      <h5 class="demo-label">单选</h5>
+                      <NeumorphismSelect
+                        v-model="variantSingle"
+                        :options="selectOptions"
+                        variant="default"
+                        placeholder="请选择..."
+                        clearable
+                      />
+                    </div>
+                    <div>
+                      <h5 class="demo-label">多选</h5>
+                      <NeumorphismSelect
+                        v-model="variantMulti"
+                        :options="selectOptions"
+                        variant="default"
+                        multiple
+                        collapse-tags
+                        :max-collapse-tags="2"
+                        clearable
+                      />
+                    </div>
+                  </div>
+                </div>
+                <div class="select-variant__col">
+                  <span class="select-variant__tag select-variant__tag--outlined"
+                    >variant = "outlined"</span
+                  >
+                  <div class="select-stack">
+                    <div>
+                      <h5 class="demo-label">单选</h5>
+                      <NeumorphismSelect
+                        v-model="variantSingle"
+                        :options="selectOptions"
+                        variant="outlined"
+                        placeholder="请选择..."
+                        clearable
+                      />
+                    </div>
+                    <div>
+                      <h5 class="demo-label">多选</h5>
+                      <NeumorphismSelect
+                        v-model="variantMulti"
+                        :options="selectOptions"
+                        variant="outlined"
+                        multiple
+                        collapse-tags
+                        :max-collapse-tags="2"
+                        clearable
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
+              <p class="demo-hint">
+                描边色、发光、圆角等均由 <code>--nm-select-outlined-*</code> Token
+                控制，亮/暗主题均可覆盖。
+              </p>
             </NeumorphismCard>
           </section>
 
@@ -1519,152 +1691,129 @@ const chartStockData = ref([
               <template #header>
                 <div class="demo-header">
                   <h3 class="demo-title">NeumorphismProgress 进度条</h3>
-                  <span class="demo-badge">动效 · 不确定 · 条纹 · 标签</span>
+                  <span class="demo-badge">环形 · 动效 · 不确定 · 动画数字</span>
                 </div>
               </template>
 
               <div class="demo-block">
                 <h4 class="demo-label">颜色变体与标签</h4>
-                <div class="demo-row demo-row--stacked form-demo-width" style="gap: 14px">
-                  <NeumorphismProgress
-                    :model-value="progressVal"
-                    variant="primary"
-                    :show-label="true"
-                  />
-                  <NeumorphismProgress :model-value="progressVal" variant="success" />
-                  <NeumorphismProgress :model-value="progressVal" variant="warning" />
-                  <NeumorphismProgress
-                    :model-value="progressVal"
-                    variant="error"
-                    :show-label="true"
-                  />
+                <div class="progress-rows form-demo-width">
+                  <div v-for="variant in progressVariants" :key="variant" class="progress-row">
+                    <span class="progress-row__tag">{{ variant }}</span>
+                    <NeumorphismProgress
+                      :model-value="progressVal"
+                      :variant="variant"
+                      :show-label="true"
+                      class="progress-row__bar"
+                    />
+                  </div>
                 </div>
                 <div class="demo-row" style="margin-top: 12px">
                   <NeumorphismButton
                     size="small"
                     variant="flat"
+                    :disabled="isSimulating"
                     @click="progressVal = Math.max(0, progressVal - 10)"
                     >-10%</NeumorphismButton
                   >
                   <NeumorphismButton
                     size="small"
                     variant="flat"
+                    :disabled="isSimulating"
                     @click="progressVal = Math.min(100, progressVal + 10)"
                     >+10%</NeumorphismButton
                   >
                   <NeumorphismButton
                     size="small"
                     variant="flat"
-                    @click="indeterminate = !indeterminate"
+                    :disabled="isSimulating"
+                    @click="simulateLoading"
                   >
-                    {{ indeterminate ? '停止' : '不确定模式' }}
+                    {{ isSimulating ? '加载中…' : '模拟加载' }}
                   </NeumorphismButton>
                 </div>
               </div>
 
               <div class="demo-block">
-                <h4 class="demo-label">视觉动效</h4>
-                <div class="demo-row demo-row--stacked form-demo-width" style="gap: 14px">
-                  <div style="display: flex; align-items: center; gap: 10px; width: 100%">
-                    <span
-                      style="
-                        font-size: 12px;
-                        color: var(--nm-text-secondary);
-                        min-width: 72px;
-                        text-align: right;
-                      "
-                      >default</span
-                    >
+                <h4 class="demo-label">尺寸</h4>
+                <div class="progress-rows form-demo-width">
+                  <div v-for="size in progressSizes" :key="size" class="progress-row">
+                    <span class="progress-row__tag">{{ size }}</span>
                     <NeumorphismProgress
                       :model-value="progressVal"
-                      variant="primary"
-                      effect="default"
-                      :show-label="true"
-                      style="flex: 1"
-                    />
-                  </div>
-                  <div style="display: flex; align-items: center; gap: 10px; width: 100%">
-                    <span
-                      style="
-                        font-size: 12px;
-                        color: var(--nm-text-secondary);
-                        min-width: 72px;
-                        text-align: right;
-                      "
-                      >gradient</span
-                    >
-                    <NeumorphismProgress
-                      :model-value="progressVal"
-                      variant="primary"
-                      effect="gradient"
-                      style="flex: 1"
-                    />
-                  </div>
-                  <div style="display: flex; align-items: center; gap: 10px; width: 100%">
-                    <span
-                      style="
-                        font-size: 12px;
-                        color: var(--nm-text-secondary);
-                        min-width: 72px;
-                        text-align: right;
-                      "
-                      >striped</span
-                    >
-                    <NeumorphismProgress
-                      :model-value="progressVal"
-                      variant="primary"
-                      effect="striped"
-                      style="flex: 1"
-                    />
-                  </div>
-                  <div style="display: flex; align-items: center; gap: 10px; width: 100%">
-                    <span
-                      style="
-                        font-size: 12px;
-                        color: var(--nm-text-secondary);
-                        min-width: 72px;
-                        text-align: right;
-                      "
-                      >glow</span
-                    >
-                    <NeumorphismProgress
-                      :model-value="progressVal"
-                      variant="primary"
-                      effect="glow"
-                      style="flex: 1"
-                    />
-                  </div>
-                  <div style="display: flex; align-items: center; gap: 10px; width: 100%">
-                    <span
-                      style="
-                        font-size: 12px;
-                        color: var(--nm-text-secondary);
-                        min-width: 72px;
-                        text-align: right;
-                      "
-                      >segmented</span
-                    >
-                    <NeumorphismProgress
-                      :model-value="progressVal"
-                      variant="primary"
-                      effect="segmented"
-                      style="flex: 1"
+                      :size="size"
+                      class="progress-row__bar"
                     />
                   </div>
                 </div>
               </div>
 
               <div class="demo-block">
-                <h4 class="demo-label">不确定模式与尺寸</h4>
-                <div class="demo-row demo-row--stacked form-demo-width" style="gap: 14px">
-                  <NeumorphismProgress
-                    v-if="indeterminate"
-                    :indeterminate="true"
-                    variant="primary"
-                  />
-                  <NeumorphismProgress :model-value="progressVal" size="small" />
-                  <NeumorphismProgress :model-value="progressVal" size="medium" />
-                  <NeumorphismProgress :model-value="progressVal" size="large" />
+                <h4 class="demo-label">视觉动效</h4>
+                <div class="progress-rows form-demo-width">
+                  <div v-for="effect in progressEffects" :key="effect" class="progress-row">
+                    <span class="progress-row__tag">{{ effect }}</span>
+                    <NeumorphismProgress
+                      :model-value="progressVal"
+                      variant="primary"
+                      :effect="effect"
+                      :show-label="true"
+                      class="progress-row__bar"
+                    />
+                  </div>
+                </div>
+                <ul class="progress-effect-notes">
+                  <li>
+                    <strong>pulse 脉冲光束</strong>：一道能量光束——短尾迹渐隐，白热彗星头（核心 +
+                    光晕 + 拖尾星火）呼吸明灭，偶有一道细闪掠过。
+                  </li>
+                  <li><strong>flow 流光</strong>：丝绸般的光带在条体上缓缓流动。</li>
+                  <li><strong>wave 波光</strong>：两层液面波光相向滑过，如水光在条体内荡漾。</li>
+                  <li><strong>stripes 斜纹</strong>：柔和的斜向光带持续向前流动（理发店条纹）。</li>
+                  <li><strong>sparkle 星点</strong>：细小光点相向漂移、各自明灭，如慢速星野。</li>
+                </ul>
+              </div>
+
+              <div class="demo-block">
+                <h4 class="demo-label">不确定模式</h4>
+                <div class="progress-rows form-demo-width">
+                  <div class="progress-row">
+                    <span class="progress-row__tag">medium</span>
+                    <NeumorphismProgress
+                      :indeterminate="true"
+                      variant="primary"
+                      class="progress-row__bar"
+                    />
+                  </div>
+                  <div class="progress-row">
+                    <span class="progress-row__tag">small</span>
+                    <NeumorphismProgress
+                      :indeterminate="true"
+                      variant="success"
+                      size="small"
+                      class="progress-row__bar"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div class="demo-block">
+                <h4 class="demo-label">环形进度</h4>
+                <div class="progress-rings">
+                  <div v-for="size in progressSizes" :key="size" class="progress-ring">
+                    <NeumorphismProgress
+                      type="circle"
+                      :size="size"
+                      :model-value="progressVal"
+                      variant="primary"
+                      :show-label="true"
+                    />
+                    <span class="progress-ring__caption">{{ size }}</span>
+                  </div>
+                  <div class="progress-ring">
+                    <NeumorphismProgress type="circle" size="medium" :indeterminate="true" />
+                    <span class="progress-ring__caption">indeterminate</span>
+                  </div>
                 </div>
               </div>
             </NeumorphismCard>
@@ -1750,7 +1899,7 @@ const chartStockData = ref([
               <template #header>
                 <div class="demo-header">
                   <h3 class="demo-title">定制滚动条</h3>
-                  <span class="demo-badge">6 种预设变体 · CSS 变量可调</span>
+                  <span class="demo-badge">5 种预设变体 · CSS 变量可调</span>
                 </div>
               </template>
 
@@ -1760,7 +1909,6 @@ const chartStockData = ref([
                   <template
                     v-for="s in [
                       { cls: 'nm-scrollbar--standard', label: 'standard' },
-                      { cls: 'nm-scrollbar--minimal', label: 'minimal' },
                       { cls: 'nm-scrollbar--primary', label: 'primary' },
                       { cls: 'nm-scrollbar--none', label: 'none' },
                     ]"
@@ -1770,7 +1918,7 @@ const chartStockData = ref([
                       :class="s.cls"
                       style="
                         flex: 1;
-                        min-width: 150px;
+                        min-width: 120px;
                         max-height: 160px;
                         overflow-y: auto;
                         background: var(--nm-surface-color);
@@ -1789,6 +1937,9 @@ const chartStockData = ref([
                       <div v-for="i in 20" :key="i">占位行 {{ i }}</div>
                     </div>
                   </template>
+                </div>
+                <!-- JS 覆盖层变体：NeumorphismScrollbar 组件驱动 -->
+                <div class="demo-row" style="gap: 16px; flex-wrap: wrap; margin-top: 16px">
                   <!-- dots: framework NeumorphismScrollbar with variant="dots" -->
                   <div
                     id="dots-demo-container"
@@ -1816,6 +1967,34 @@ const chartStockData = ref([
                     variant="dots"
                     target="#dots-demo-container"
                     dot-color="153,153,153"
+                    accent-color="205,250,78"
+                  />
+                  <!-- glow: framework NeumorphismScrollbar with variant="glow" -->
+                  <div
+                    id="glow-demo-container"
+                    style="
+                      flex: 1;
+                      min-width: 150px;
+                      max-height: 160px;
+                      overflow-y: auto;
+                      background: var(--nm-surface-color);
+                      border-radius: var(--nm-border-radius-md);
+                      padding: 12px;
+                      font-size: 13px;
+                      color: var(--nm-text-secondary);
+                      line-height: 1.8;
+                    "
+                  >
+                    <div
+                      style="font-weight: 600; color: var(--nm-text-primary); margin-bottom: 6px"
+                    >
+                      glow
+                    </div>
+                    <div v-for="i in 20" :key="i">占位行 {{ i }}</div>
+                  </div>
+                  <NeumorphismScrollbar
+                    variant="glow"
+                    target="#glow-demo-container"
                     accent-color="205,250,78"
                   />
                 </div>
@@ -2427,26 +2606,6 @@ const chartStockData = ref([
                     已选 Key：<strong>{{ treeSelectedKeys.join(', ') || '无' }}</strong>
                   </p>
                 </div>
-
-                <div style="flex: 1; min-width: 280px; max-width: 400px">
-                  <h4 class="demo-label">数据结构预览</h4>
-                  <pre
-                    style="
-                      font-size: 11px;
-                      color: var(--nm-text-secondary);
-                      background: var(--nm-surface-color);
-                      padding: 12px;
-                      border-radius: var(--nm-border-radius-sm);
-                      box-shadow:
-                        inset 2px 2px 4px var(--nm-shadow-dark-strong),
-                        inset -2px -2px 4px var(--nm-shadow-light-strong);
-                      line-height: 1.7;
-                      margin: 0;
-                      overflow-x: auto;
-                    "
-                    >{{ JSON.stringify(treeData, null, 2) }}</pre
-                  >
-                </div>
               </div>
             </NeumorphismCard>
 
@@ -2988,6 +3147,13 @@ const chartStockData = ref([
   }
 }
 
+// outlined Select 为单盒内联延展（盒体在文档流中长高），需要可见溢出
+// 才能伸出卡片边界；卡片自身仅用 overflow 做防御性裁剪，解除不影响视觉
+#select,
+#headless-select {
+  overflow: visible;
+}
+
 .demo-header {
   display: flex;
   align-items: baseline;
@@ -3053,6 +3219,65 @@ const chartStockData = ref([
 
 .form-demo-width {
   max-width: 420px;
+}
+
+// ---- Progress demo ----
+.progress-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.progress-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.progress-row__tag {
+  flex: 0 0 64px;
+  font-size: 12px;
+  color: var(--nm-text-secondary);
+  text-align: right;
+}
+
+.progress-row__bar {
+  flex: 1;
+  min-width: 0;
+}
+
+.progress-rings {
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 28px 32px;
+}
+
+.progress-ring {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  min-height: 192px;
+}
+
+.progress-ring__caption {
+  font-size: 12px;
+  color: var(--nm-text-secondary);
+}
+
+.progress-effect-notes {
+  margin: 12px 0 0;
+  padding-left: 18px;
+  font-size: 13px;
+  color: var(--nm-text-secondary);
+  line-height: 1.9;
+
+  strong {
+    color: var(--nm-text-primary);
+    font-weight: 600;
+  }
 }
 
 .grid-cell {

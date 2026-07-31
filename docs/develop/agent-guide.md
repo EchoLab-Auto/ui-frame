@@ -104,18 +104,18 @@ const { theme, isDark, toggleTheme } = provideTheme()
 
 ### 基础输入（10 个）
 
-| 组件                      | 用途               | 核心 Props                                                   |
-| ------------------------- | ------------------ | ------------------------------------------------------------ |
-| `NeumorphismButton`       | 凸起/扁平/凹陷按钮 | `variant`(raised\|flat\|pressed), `size`, `shape`, `loading` |
-| `NeumorphismSwitch`       | 开关切换           | `v-model`, `size`, `activeText`, `inactiveText`              |
-| `NeumorphismCheckbox`     | 复选框             | `v-model`, `label`, `size`, `indeterminate`                  |
-| `NeumorphismRadio`        | 单选按钮           | `v-model`, `value`, `size`, `disabled`                       |
-| `NeumorphismRadioGroup`   | 单选按钮组         | `v-model`, `direction`(horizontal\|vertical)                 |
-| `NeumorphismInput`        | 文本输入框         | `v-model`, `label`, `placeholder`, `size`, `error`           |
-| `NeumorphismTextarea`     | 多行文本           | `v-model`, `rows`, `autoResize`, `showCount`                 |
-| `NeumorphismSelect`       | 下拉选择           | `v-model`, `options`, `clearable`, `size`                    |
-| `NeumorphismInputNumber`  | 数字输入           | `v-model`, `min`, `max`, `step`, `controls`(±按钮)           |
-| `NeumorphismAutoComplete` | 输入联想           | `v-model`, `options`, `loading`, `debounce`                  |
+| 组件                      | 用途               | 核心 Props                                                                                                   |
+| ------------------------- | ------------------ | ------------------------------------------------------------------------------------------------------------ |
+| `NeumorphismButton`       | 凸起/扁平/凹陷按钮 | `variant`(raised\|flat\|pressed), `size`, `shape`, `loading`                                                 |
+| `NeumorphismSwitch`       | 开关切换           | `v-model`, `size`, `activeText`, `inactiveText`                                                              |
+| `NeumorphismCheckbox`     | 复选框             | `v-model`, `label`, `size`, `indeterminate`                                                                  |
+| `NeumorphismRadio`        | 单选按钮           | `v-model`, `value`, `size`, `disabled`                                                                       |
+| `NeumorphismRadioGroup`   | 单选按钮组         | `v-model`, `direction`(horizontal\|vertical)                                                                 |
+| `NeumorphismInput`        | 文本输入框         | `v-model`, `label`, `placeholder`, `size`, `error`                                                           |
+| `NeumorphismTextarea`     | 多行文本           | `v-model`, `rows`, `autoResize`, `showCount`                                                                 |
+| `NeumorphismSelect`       | 下拉选择           | `v-model`, `options`, `clearable`, `multiple`, `filterable`, `loading`, `variant`(default\|outlined), `size` |
+| `NeumorphismInputNumber`  | 数字输入           | `v-model`, `min`, `max`, `step`, `controls`(±按钮)                                                           |
+| `NeumorphismAutoComplete` | 输入联想           | `v-model`, `options`, `loading`, `debounce`                                                                  |
 
 ### 表单（3 个）
 
@@ -127,18 +127,18 @@ const { theme, isDark, toggleTheme } = provideTheme()
 
 ### 数据展示（10 个）
 
-| 组件                     | 用途      | 核心 Props                                                   |
-| ------------------------ | --------- | ------------------------------------------------------------ |
-| `NeumorphismCard`        | 卡片容器  | `elevation`(-4~4), `hoverable`(bulge\|sink), `radius`        |
-| `NeumorphismAvatar`      | 头像      | `src`, `size`, `shape`(circle\|rounded), `initials`          |
-| `NeumorphismBadge`       | 角标/红点 | `value`, `dot`, `max`, `color`                               |
-| `NeumorphismTag`         | 标签      | `variant`(default\|primary\|success\|...), `size`, `rounded` |
-| `NeumorphismProgress`    | 进度条    | `percentage`, `variant`, `size`, `showLabel`, `striped`      |
-| `NeumorphismSkeleton`    | 骨架屏    | `variant`(text\|circle\|rect), `animation`(pulse\|wave)      |
-| `NeumorphismTable`       | 表格      | `columns`, `data`, `size`, `striped`, `hoverable`            |
-| `NeumorphismTree`        | 树形控件  | `data`, `selectedKeys`, `expandedKeys`, `showSearch`         |
-| `NeumorphismList`        | 列表      | `items`, `bordered`, `split`, `hoverable`, `loading`         |
-| `NeumorphismVirtualList` | 虚拟滚动  | `items`, `itemHeight`, `overscan`                            |
+| 组件                     | 用途      | 核心 Props                                                                   |
+| ------------------------ | --------- | ---------------------------------------------------------------------------- |
+| `NeumorphismCard`        | 卡片容器  | `elevation`(-4~4), `hoverable`(bulge\|sink), `radius`                        |
+| `NeumorphismAvatar`      | 头像      | `src`, `size`, `shape`(circle\|rounded), `initials`                          |
+| `NeumorphismBadge`       | 角标/红点 | `value`, `dot`, `max`, `color`                                               |
+| `NeumorphismTag`         | 标签      | `variant`(default\|primary\|success\|...), `size`, `rounded`                 |
+| `NeumorphismProgress`    | 进度条    | `modelValue`, `variant`, `size`, `type`(line\|circle), `showLabel`, `effect` |
+| `NeumorphismSkeleton`    | 骨架屏    | `variant`(text\|circle\|rect), `animation`(pulse\|wave)                      |
+| `NeumorphismTable`       | 表格      | `columns`, `data`, `size`, `striped`, `hoverable`                            |
+| `NeumorphismTree`        | 树形控件  | `data`, `selectedKeys`, `expandedKeys`, `showSearch`                         |
+| `NeumorphismList`        | 列表      | `items`, `bordered`, `split`, `hoverable`, `loading`                         |
+| `NeumorphismVirtualList` | 虚拟滚动  | `items`, `itemHeight`, `overscan`                                            |
 
 ### 反馈（8 个）
 

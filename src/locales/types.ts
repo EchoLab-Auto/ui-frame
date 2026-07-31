@@ -41,6 +41,9 @@ export interface LocaleMessages {
   selectEmpty?: string
   selectClear?: string
   selectListLabel?: string
+  selectLoading?: string
+  selectNoMatch?: string
+  selectSearchLabel?: string
 
   /** Modal */
   modalClose?: string

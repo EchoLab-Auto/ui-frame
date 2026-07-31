@@ -31,7 +31,7 @@ PR 创建/更新
          ├── npm run typecheck    ← vue-tsc --noEmit
          ├── npm test             ← Vitest
          ├── npm run build        ← Vite (ESM + UMD)
-         ├── Bundle size check    ← JS < 20KB gzip, CSS < 30KB gzip
+         ├── Bundle size check    ← JS < 20KB gzip, CSS < 36KB gzip
          ├── npm run example:build
          ├── Verify outputs
          └── Upload artifacts ──→ Pages (自动部署示例站)
@@ -69,11 +69,11 @@ CI 在 **Node 20** 和 **Node 22** 上同时运行。只有 Node 22 的 job 上�
 
 | 产物                            | 限制    | 当前值（参考） |
 | ------------------------------- | ------- | -------------- |
-| `dist/ui-frame.js` gzipped      | < 20 KB | ~2.2 KB        |
-| `dist/style.css` gzipped        | < 30 KB | ~24 KB         |
-| `dist/ui-frame.umd.cjs` gzipped | 不限制  | ~50 KB         |
+| `dist/ui-frame.js` gzipped      | < 20 KB | ~3.9 KB        |
+| `dist/style.css` gzipped        | < 36 KB | ~31 KB         |
+| `dist/ui-frame.umd.cjs` gzipped | 不限制  | ~75 KB         |
 
-> 当库体积接近上限时，应审查是否有新增的大型依赖。
+> 当库体积接近上限时，应审查是否有新增的大型依赖。CSS 上限曾于 1.0.5 从 30 KB 上调至 36 KB——当时基线已达 29 KB（余量不足 1 KB），Select 多选/可搜索与 Progress 动效重做为真实功能增长。构建产物存在共享 SCSS 重复输出的已知问题（栅格 `nm-col-*` 6 份、chart 样式 4 份），后续可通过构建级去重回收体积。
 
 ---
 

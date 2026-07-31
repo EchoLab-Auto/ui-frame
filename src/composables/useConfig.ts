@@ -30,6 +30,11 @@ export interface NeumorphismGlobalConfig {
     clearable?: boolean
     emptyText?: string
     placeholder?: string
+    multiple?: boolean
+    filterable?: boolean
+    collapseTags?: boolean
+    /** 视觉变体：default（新拟态凹陷）/ outlined（描边扁平 + 连体下拉） */
+    variant?: 'default' | 'outlined'
   }
   /** Default modal props */
   modal?: {
@@ -92,7 +97,7 @@ export interface NeumorphismGlobalConfig {
     variant?: 'primary' | 'success' | 'warning' | 'error'
     size?: 'small' | 'medium' | 'large'
     showLabel?: boolean
-    effect?: 'default' | 'gradient' | 'striped' | 'glow' | 'segmented'
+    effect?: 'default' | 'pulse' | 'flow' | 'wave' | 'stripes' | 'sparkle'
   }
   /** Default avatar props */
   avatar?: {

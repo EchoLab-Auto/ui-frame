@@ -215,29 +215,46 @@ import { NeumorphismSelect } from '@echolab-auto/ui-frame'
 import type { NeumorphismSelectProps, NeumorphismSelectOption } from '@echolab-auto/ui-frame'
 ```
 
-| Props       | Type                             | Default    | Description    |
-| ----------- | -------------------------------- | ---------- | -------------- |
-| modelValue  | `string \| number`               | `''`       | 绑定值         |
-| options     | `SelectOption[]`                 | `[]`       | 选项列表       |
-| placeholder | `string`                         | —          | 占位符         |
-| disabled    | `boolean`                        | `false`    | 是否禁用       |
-| size        | `'small' \| 'medium' \| 'large'` | `'medium'` | 尺寸           |
-| clearable   | `boolean`                        | `false`    | 是否可清空     |
-| label       | `string`                         | —          | 标签文字       |
-| error       | `string \| boolean`              | —          | 错误信息或状态 |
-| emptyText   | `string`                         | —          | 空选项提示文字 |
+| Props           | Type                                       | Default     | Description                                                 |
+| --------------- | ------------------------------------------ | ----------- | ----------------------------------------------------------- |
+| modelValue      | `string \| number \| (string \| number)[]` | `''`        | 绑定值（多选时为数组）                                      |
+| options         | `SelectOption[]`                           | `[]`        | 选项列表                                                    |
+| placeholder     | `string`                                   | —           | 占位符                                                      |
+| disabled        | `boolean`                                  | `false`     | 是否禁用                                                    |
+| size            | `'small' \| 'medium' \| 'large'`           | `'medium'`  | 尺寸                                                        |
+| clearable       | `boolean`                                  | `false`     | 是否可清空                                                  |
+| label           | `string`                                   | —           | 标签文字                                                    |
+| error           | `string \| boolean`                        | —           | 错误信息或状态                                              |
+| emptyText       | `string`                                   | —           | 空选项提示文字                                              |
+| multiple        | `boolean`                                  | `false`     | 多选模式，已选值以标签展示                                  |
+| filterable      | `boolean`                                  | `false`     | 可搜索，输入即过滤选项                                      |
+| loading         | `boolean`                                  | `false`     | 加载状态（远程数据场景）                                    |
+| loadingText     | `string`                                   | —           | 加载提示文字                                                |
+| collapseTags    | `boolean`                                  | `false`     | 多选标签折叠，超出部分以 +N 计数                            |
+| maxCollapseTags | `number`                                   | `1`         | 折叠前展示的标签数                                          |
+| variant         | `'default' \| 'outlined'`                  | `'default'` | 视觉变体：default 新拟态凹陷 / outlined 描边扁平 + 连体下拉 |
 
 ```ts
 interface SelectOption {
   label: string
   value: string | number
   disabled?: boolean
+  group?: string // 相同 group 的选项在下拉中归为一组展示
 }
 ```
 
-**Slots:** `option` (scope: `{ option, selected }`)
+**Slots:** `option` (scope: `{ option, selected, index, select }`), `value` (scope: `{ option }`)
 
-**Events:** `update:modelValue`, `change`, `focus`, `blur`
+**Events:** `update:modelValue`, `change`, `focus`, `blur`, `visible-change`, `remove-tag`, `search`
+
+**Exposed methods:** `focus()`, `blur()`
+
+**行为说明：**
+
+- 单选键盘交互与原生 `<select>` 一致：↑↓ 即时切换选中值；多选为 ↑↓ 移动高亮 + Enter 切换选中
+- 下拉靠近视口底部时自动向上翻转展开，空间受限时自动收缩高度
+- `filterable` 模式下触发器内嵌输入框，combobox ARIA 语义移至原生 input
+- `default` 变体的下拉 teleport 到 `<body>`（浮层，不受祖先 `overflow` 裁剪）；`outlined` 变体为**单盒模型**：触发器盒体本身就是容器，下拉选项渲染在盒内第二行，展开时盒体随高度过渡纵向延展（负 margin 同步补偿，布局零抖动），滚动时与页面天然同步、无接缝——因此 outlined 触发器不应放在 `overflow: hidden/auto` 的祖先容器内，否则盒体延展会被裁剪
 
 ---
 
@@ -537,16 +554,16 @@ import { NeumorphismProgress } from '@echolab-auto/ui-frame'
 import type { NeumorphismProgressProps, ProgressVariant } from '@echolab-auto/ui-frame'
 ```
 
-| Props         | Type                                                            | Default     | Description                           |
-| ------------- | --------------------------------------------------------------- | ----------- | ------------------------------------- |
-| modelValue    | `number`                                                        | `0`         | 当前值                                |
-| max           | `number`                                                        | `100`       | 最大值                                |
-| variant       | `'primary' \| 'success' \| 'warning' \| 'error' \| 'default'`   | `'primary'` | 颜色变体                              |
-| size          | `'small' \| 'medium' \| 'large'`                                | `'medium'`  | 尺寸                                  |
-| showLabel     | `boolean`                                                       | `false`     | 是否显示百分比                        |
-| indeterminate | `boolean`                                                       | `false`     | 不确定模式                            |
-| striped       | `boolean`                                                       | `false`     | 条纹动画（等价于 `effect="striped"`） |
-| effect        | `'default' \| 'gradient' \| 'striped' \| 'glow' \| 'segmented'` | `'default'` | 进度条视觉动效                        |
+| Props         | Type                                                                 | Default     | Description                          |
+| ------------- | -------------------------------------------------------------------- | ----------- | ------------------------------------ |
+| modelValue    | `number`                                                             | `0`         | 当前值                               |
+| max           | `number`                                                             | `100`       | 最大值                               |
+| variant       | `'primary' \| 'success' \| 'warning' \| 'error' \| 'default'`        | `'primary'` | 颜色变体                             |
+| size          | `'small' \| 'medium' \| 'large'`                                     | `'medium'`  | 尺寸                                 |
+| type          | `'line' \| 'circle'`                                                 | `'line'`    | 形态：线性进度条或 SVG 环形进度      |
+| showLabel     | `boolean`                                                            | `false`     | 是否显示百分比（数字随进度平滑滚动） |
+| indeterminate | `boolean`                                                            | `false`     | 不确定模式                           |
+| effect        | `'default' \| 'pulse' \| 'flow' \| 'wave' \| 'stripes' \| 'sparkle'` | `'default'` | 进度条视觉动效                       |
 
 ---
 
@@ -1458,7 +1475,12 @@ Headless Composables 将业务逻辑与 UI 完全解耦，封装了键盘导航�
 
 ```ts
 import { useSelect } from '@echolab-auto/ui-frame'
-import type { UseSelectOptions, UseSelectReturn, SelectOption } from '@echolab-auto/ui-frame'
+import type {
+  UseSelectOptions,
+  UseSelectReturn,
+  SelectOption,
+  SelectGroup,
+} from '@echolab-auto/ui-frame'
 ```
 
 ```ts
@@ -1466,19 +1488,30 @@ interface SelectOption {
   label: string
   value: string | number
   disabled?: boolean
+  group?: string
 }
 
 interface UseSelectOptions {
-  modelValue: Ref<string | number>
+  modelValue: Ref<string | number | (string | number)[] | undefined>
   options: ComputedRef<SelectOption[]> | Ref<SelectOption[]>
   disabled?: Ref<boolean>
+  multiple?: Ref<boolean>
+  filterText?: Ref<string>
 }
 
 interface UseSelectReturn {
   isOpen: Ref<boolean>
   selectedOption: ComputedRef<SelectOption | undefined>
+  selectedOptions: ComputedRef<SelectOption[]>
+  filteredOptions: ComputedRef<SelectOption[]>
+  groupedOptions: ComputedRef<SelectGroup[]>
+  activeValue: Ref<string | number | undefined>
+  isSelected: (option: SelectOption) => boolean
   toggleOpen: () => void
+  close: () => void
   selectOption: (option: SelectOption) => void
+  removeValue: (value: string | number) => void
+  clearValue: (value?: string | number | (string | number)[]) => void
   handleKeydown: (e: KeyboardEvent) => void
   handleBlur: (relatedTarget: EventTarget | null, currentTarget: HTMLElement) => void
 }
@@ -1602,6 +1635,37 @@ interface UseTableReturn {
   toggleSelect: (key: string) => void
   selectAll: () => void
   isSelected: (key: string) => boolean
+}
+```
+
+---
+
+### useProgress
+
+```ts
+import { useProgress } from '@echolab-auto/ui-frame'
+import type { UseProgressOptions, UseProgressReturn, ProgressSize } from '@echolab-auto/ui-frame'
+```
+
+```ts
+interface UseProgressOptions {
+  modelValue: Ref<number>
+  max: Ref<number>
+  indeterminate: Ref<boolean>
+  size: Ref<ProgressSize> // 'small' | 'medium' | 'large'
+}
+
+interface UseProgressReturn {
+  percentage: ComputedRef<number> // 钳制在 [0, 100]，indeterminate 时恒为 0
+  isComplete: ComputedRef<boolean>
+  displayPercentage: ComputedRef<number> // 随 percentage 平滑滚动的展示值（rAF ease-out）
+  isReducedMotion: Ref<boolean>
+  circleSize: ComputedRef<number> // 环形 SVG viewBox 边长
+  strokeWidth: ComputedRef<number>
+  radius: ComputedRef<number>
+  circumference: ComputedRef<number>
+  dashOffset: ComputedRef<number> // 渲染 percentage 所需的 stroke-dashoffset
+  stop: () => void // 取消进行中的标签动画（组件卸载时自动调用）
 }
 ```
 
@@ -2375,7 +2439,14 @@ interface NeumorphismGlobalConfig {
   input?: { size?: InputSize }
   checkbox?: { size?: CheckboxSize }
   radio?: { size?: RadioSize }
-  select?: { size?: SelectSize; clearable?: boolean }
+  select?: {
+    size?: SelectSize
+    clearable?: boolean
+    multiple?: boolean
+    filterable?: boolean
+    collapseTags?: boolean
+    variant?: 'default' | 'outlined'
+  }
   textarea?: { size?: TextareaSize }
   form?: { direction?: 'vertical' | 'horizontal' }
   formItem?: { required?: boolean }
@@ -2388,7 +2459,12 @@ interface NeumorphismGlobalConfig {
   avatar?: { size?: AvatarSize; shape?: AvatarShape }
   badge?: { max?: number }
   tag?: { size?: TagSize; variant?: TagVariant }
-  progress?: { size?: ProgressSize; variant?: ProgressVariant }
+  progress?: {
+    size?: ProgressSize
+    variant?: ProgressVariant
+    showLabel?: boolean
+    effect?: ProgressEffect
+  }
   skeleton?: { animation?: SkeletonAnimation }
   table?: { size?: TableSize; striped?: boolean }
   divider?: { direction?: DividerDirection }

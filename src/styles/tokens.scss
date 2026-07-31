@@ -261,6 +261,16 @@
   --nm-select-option-font: 14px;
   --nm-select-option-hover-bg: var(--nm-surface-raised);
   --nm-select-dropdown-max-height: 240px;
+  // Select — outlined 变体（描边扁平 + 连体下拉）
+  --nm-select-outlined-border-color: var(--nm-primary-color);
+  --nm-select-outlined-focus-border-color: var(--nm-primary-light);
+  --nm-select-outlined-focus-glow: color-mix(in srgb, var(--nm-primary-color) 25%, transparent);
+  --nm-select-outlined-bg: var(--nm-bg-color);
+  // 与 default 变体一致（--nm-border-radius-md），保持双变体圆角统一
+  --nm-select-outlined-radius: var(--nm-border-radius-md);
+  --nm-select-outlined-dropdown-shadow: 0 6px 16px var(--nm-shadow-ambient-lg);
+  --nm-select-outlined-dropdown-shadow-up: 0 -6px 16px var(--nm-shadow-ambient-lg);
+  --nm-select-outlined-option-hover-bg: var(--nm-surface-raised);
 
   // -- Card --
   --nm-card-padding: 20px;
@@ -394,6 +404,8 @@
   --nm-progress-height-md: 8px;
   --nm-progress-height-lg: 12px;
   --nm-progress-border-radius: 9999px;
+  --nm-progress-pulse-core: rgba(255, 255, 255, 0.95);
+  --nm-progress-pulse-sweep: rgba(255, 255, 255, 0.55);
 
   // -- Avatar --
   --nm-avatar-size-sm: 32px;
@@ -538,6 +550,10 @@
   --nm-color-warning: #f39c12;
   --nm-color-info: #3498db;
 
+  // -- Progress (dark — the pulse beam is a light source, so it stays bright) --
+  --nm-progress-pulse-core: rgba(255, 255, 255, 0.9);
+  --nm-progress-pulse-sweep: rgba(255, 255, 255, 0.45);
+
   // -- Code Highlighting (Doc module, dark) --
   --nm-code-comment: #6a9955;
   --nm-code-string: #ce9178;
@@ -549,6 +565,11 @@
   --nm-code-punctuation: #808080;
 
   --nm-selection-bg: color-mix(in srgb, var(--nm-primary-color) 50%, transparent);
+
+  // -- Select outlined 变体（暗色：发光增强以维持感知） --
+  --nm-select-outlined-focus-glow: color-mix(in srgb, var(--nm-primary-color) 35%, transparent);
+  --nm-select-outlined-dropdown-shadow: 0 6px 18px var(--nm-shadow-ambient-xl);
+  --nm-select-outlined-dropdown-shadow-up: 0 -6px 18px var(--nm-shadow-ambient-xl);
 
   // -- Chart (dark mode — brighter colors for visibility against dark background) --
   --nm-chart-color-1: #cdfa4e;

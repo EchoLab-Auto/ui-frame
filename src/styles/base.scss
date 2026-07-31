@@ -110,6 +110,13 @@
   }
 }
 
+// 通用旋转 — loading spinner 等（Select、AutoComplete 等共用）
+@keyframes nm-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 // ==========================================
 // Base Utility Styles
 // ==========================================
@@ -333,31 +340,6 @@
 // Standard: identical to .nm-root defaults
 .nm-scrollbar--standard {
   scrollbar-width: thin;
-}
-
-// Minimal: ultra-thin, barely visible
-.nm-scrollbar--minimal {
-  scrollbar-width: thin;
-  scrollbar-color: rgba(128, 128, 128, 0.25) transparent;
-
-  &::-webkit-scrollbar {
-    width: 3px;
-    height: 3px;
-  }
-  &::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  &::-webkit-scrollbar-thumb {
-    background: rgba(128, 128, 128, 0.25);
-    border-radius: 2px;
-    box-shadow: none;
-  }
-  &::-webkit-scrollbar-thumb:hover {
-    background: rgba(128, 128, 128, 0.5);
-  }
-  &::-webkit-scrollbar-corner {
-    background: transparent;
-  }
 }
 
 // Primary: accent-colored thumb with glow

@@ -89,7 +89,13 @@ export type { Theme, ThemeOptions, ThemeContext } from './composables/useTheme'
 
 // Composables — headless behavior (business logic without UI)
 export { useSelect } from './composables/useSelect'
-export type { UseSelectOptions, UseSelectReturn, SelectOption } from './composables/useSelect'
+export type {
+  UseSelectOptions,
+  UseSelectReturn,
+  SelectOption,
+  SelectGroup,
+  SelectModelValue,
+} from './composables/useSelect'
 
 export { usePixelLogoAnimation } from './composables/usePixelLogoAnimation'
 export type {
@@ -99,6 +105,9 @@ export type {
 
 export { useReducedMotion, prefersReducedMotion } from './composables/useReducedMotion'
 export type { UseReducedMotionReturn } from './composables/useReducedMotion'
+
+export { useProgress } from './composables/useProgress'
+export type { UseProgressOptions, UseProgressReturn, ProgressSize } from './composables/useProgress'
 
 export { useTabs } from './composables/useTabs'
 export type {
