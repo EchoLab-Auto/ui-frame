@@ -193,7 +193,7 @@ function selectTheme(value: Theme) {
   @media (hover: hover) {
     &:hover:not(:disabled):not(.nm-theme-toggle__btn--active) {
       color: var(--nm-text-secondary);
-      background-color: rgba(128, 128, 128, 0.06);
+      background-color: color-mix(in srgb, var(--nm-border-subtle) 60%, transparent);
       transform: translateY(-1px);
     }
   }

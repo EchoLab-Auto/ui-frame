@@ -18,7 +18,6 @@ export interface NeumorphismTabsProps {
 const props = withDefaults(defineProps<NeumorphismTabsProps>(), {
   modelValue: '',
   tabs: () => [],
-  navLabel: '标签导航',
   // 级联 prop（position/size）保持 undefined，由全局配置 tabs 段兜底
 })
 

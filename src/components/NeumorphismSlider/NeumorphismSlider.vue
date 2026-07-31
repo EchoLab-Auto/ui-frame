@@ -407,8 +407,18 @@ $slider-thumb-spring: cubic-bezier(0.34, 1.1, 0.64, 1);
 // ==========================================
 .nm-slider__thumb {
   appearance: none;
+  position: relative;
   border: none;
   cursor: grab;
+
+  // 44px 触控热区（无障碍门槛）：视觉尺寸不变，透明伪元素扩大可点击范围。
+  // inset 取 (100% - 44px)/2 —— thumb < 44px 时自动向外扩展到恰好 44px
+  &::before {
+    content: '';
+    position: absolute;
+    inset: calc((100% - 44px) / 2);
+    border-radius: var(--nm-border-radius-full);
+  }
   background: linear-gradient(145deg, var(--nm-bg-color) 0%, var(--nm-surface-raised) 100%);
   border-radius: var(--nm-border-radius-full);
   transition:

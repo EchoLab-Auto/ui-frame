@@ -859,7 +859,7 @@ function formatFileSize(bytes: number): string {
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: rgba(0, 0, 0, 0.4);
+    background-color: var(--nm-mask-bg);
     color: #fff;
     transition: opacity var(--nm-transition-fast);
   }
@@ -919,7 +919,7 @@ function formatFileSize(bytes: number): string {
   right: 0;
   height: 4px;
   overflow: hidden;
-  background: rgba(0, 0, 0, 0.2);
+  background: color-mix(in srgb, var(--nm-mask-bg) 50%, transparent);
 }
 
 .nm-upload__card-progress .nm-upload__progress-bar {
@@ -934,7 +934,7 @@ function formatFileSize(bytes: number): string {
   align-items: center;
   justify-content: center;
   gap: var(--nm-spacing-sm);
-  background: rgba(0, 0, 0, 0.45);
+  background: var(--nm-mask-bg);
   opacity: 0;
   transition: opacity var(--nm-transition-fast);
 }

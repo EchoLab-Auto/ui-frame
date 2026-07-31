@@ -27,9 +27,6 @@ const props = withDefaults(defineProps<NeumorphismModalProps>(), {
   showClose: undefined,
   destroyOnClose: undefined,
   footer: true,
-  closeLabel: '关闭',
-  cancelLabel: '取消',
-  confirmLabel: '确认',
 })
 
 const { t } = useLocale()

@@ -347,7 +347,7 @@ const siderStyle = computed(() => ({
   height: 100%;
 
   &:not(&--drawer) {
-    border-right: 1px solid rgba(128, 128, 128, 0.08);
+    border-right: 1px solid var(--nm-border-subtle);
     box-shadow:
       2px 0 8px var(--nm-shadow-dark),
       -1px 0 4px var(--nm-shadow-light);

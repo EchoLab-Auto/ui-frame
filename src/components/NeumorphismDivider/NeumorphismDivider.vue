@@ -62,13 +62,13 @@ const classList = computed(() => [
 
   &--horizontal {
     width: 100%;
-    border-top: 1px solid rgba(128, 128, 128, 0.15);
+    border-top: 1px solid var(--nm-border-subtle);
   }
 
   &--vertical {
     display: inline-flex;
     height: 1em;
-    border-left: 1px solid rgba(128, 128, 128, 0.15);
+    border-left: 1px solid var(--nm-border-subtle);
     margin: 0 12px;
     vertical-align: middle;
   }
@@ -111,7 +111,7 @@ const classList = computed(() => [
     position: absolute;
     top: 50%;
     width: 120px;
-    border-top: 1px solid rgba(128, 128, 128, 0.15);
+    border-top: 1px solid var(--nm-border-subtle);
   }
 
   &::before {

@@ -258,7 +258,7 @@ const showSelectionColumn = computed(
     color: var(--nm-text-secondary);
     text-align: left;
     background-color: var(--nm-surface-color);
-    border-bottom: 1px solid rgba(128, 128, 128, 0.1);
+    border-bottom: 1px solid var(--nm-border-subtle);
     white-space: nowrap;
     user-select: none;
     transition: color 0.2s ease;
@@ -315,7 +315,7 @@ const showSelectionColumn = computed(
       box-shadow 0.3s $nm-ease-spring;
 
     &:not(:last-child) .nm-table__td {
-      border-bottom: 1px solid rgba(128, 128, 128, 0.06);
+      border-bottom: 1px solid color-mix(in srgb, var(--nm-border-subtle) 60%, transparent);
     }
   }
 }
@@ -350,7 +350,7 @@ const showSelectionColumn = computed(
 // Striped
 .nm-table--striped {
   .nm-table__body .nm-table__tr:nth-child(even) {
-    background-color: rgba(128, 128, 128, 0.03);
+    background-color: color-mix(in srgb, var(--nm-border-subtle) 30%, transparent);
   }
 }
 
@@ -381,13 +381,9 @@ const showSelectionColumn = computed(
   align-items: center;
   justify-content: center;
   gap: var(--nm-table-loading-gap);
-  background-color: rgba(224, 224, 224, 0.6);
+  background-color: color-mix(in srgb, var(--nm-bg-color) 60%, transparent);
   backdrop-filter: blur(2px);
   z-index: 10;
-}
-
-[data-theme='dark'] .nm-table__loading {
-  background-color: rgba(28, 28, 28, 0.6);
 }
 
 .nm-table__loading-spinner {

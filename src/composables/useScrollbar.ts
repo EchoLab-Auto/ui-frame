@@ -91,8 +91,42 @@ export function useScrollbar(opts: UseScrollbarOptions): UseScrollbarReturn {
   let glowEl: HTMLDivElement | null = null
   let styleId: string | null = null
 
+  // ---- 颜色解析：空串 = 从 CSS 变量读取（token 驱动，主题跟随）；prop 仅作可选覆盖 ----
+  /** 把 #rgb/#rrggbb/rgb(r,g,b) 归一为 "r,g,b"；无法解析时返回 fallback */
+  function normalizeColor(raw: string, fallback: string): string {
+    const hex = raw.trim().match(/^#([0-9a-f]{3}|[0-9a-f]{6})$/i)
+    if (hex) {
+      let h = hex[1]
+      if (h.length === 3)
+        h = h
+          .split('')
+          .map(c => c + c)
+          .join('')
+      return [0, 2, 4].map(i => parseInt(h.slice(i, i + 2), 16)).join(',')
+    }
+    const rgb = raw.match(/rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/)
+    if (rgb) return `${rgb[1]},${rgb[2]},${rgb[3]}`
+    return fallback
+  }
+
+  /** 读取 CSS 变量并归一；变量缺失/空值回退到给定字面量 */
+  function resolveColor(value: string, cssVar: string, fallback: string): string {
+    if (value) return value
+    if (typeof document === 'undefined') return fallback
+    const v = getComputedStyle(document.documentElement).getPropertyValue(cssVar).trim()
+    return v ? normalizeColor(v, fallback) : fallback
+  }
+
+  const resolvedAccentColor = ref('205,250,78')
+  const resolvedDotColor = ref('153,153,153')
+
+  function refreshColors() {
+    resolvedAccentColor.value = resolveColor(accentColor.value, '--nm-primary-color', '205,250,78')
+    resolvedDotColor.value = resolveColor(dotColor.value, '--nm-text-placeholder', '153,153,153')
+  }
+
   function accentRgb(): [number, number, number] {
-    const [r, g, b] = accentColor.value.split(',').map(Number)
+    const [r, g, b] = resolvedAccentColor.value.split(',').map(Number)
     return [r, g, b]
   }
 
@@ -213,8 +247,8 @@ export function useScrollbar(opts: UseScrollbarOptions): UseScrollbarReturn {
     const rows = Math.ceil(h / 5)
     const layers: string[] = []
 
-    const [dR, dG, dB] = dotColor.value.split(',').map(Number)
-    const [aR, aG, aB] = accentColor.value.split(',').map(Number)
+    const [dR, dG, dB] = resolvedDotColor.value.split(',').map(Number)
+    const [aR, aG, aB] = resolvedAccentColor.value.split(',').map(Number)
 
     for (let i = 0; i < rows; i++) {
       const y = i * 5 + 2.5
@@ -246,6 +280,7 @@ export function useScrollbar(opts: UseScrollbarOptions): UseScrollbarReturn {
   // ==================== 生命周期 ====================
   function start() {
     if (typeof document === 'undefined') return
+    refreshColors()
     if (overlayKind.value) {
       startOverlay(overlayKind.value)
     } else {
@@ -263,7 +298,10 @@ export function useScrollbar(opts: UseScrollbarOptions): UseScrollbarReturn {
     start()
   })
 
-  watch(accentColor, paintGlow)
+  watch(accentColor, () => {
+    refreshColors()
+    paintGlow()
+  })
 
   onBeforeUnmount(stop)
 

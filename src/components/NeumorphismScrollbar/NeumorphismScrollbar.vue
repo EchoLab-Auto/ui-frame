@@ -10,15 +10,17 @@ const props = withDefaults(
     variant?: ScrollbarVariant
     /** 目标滚动容器的 CSS 选择器（必填 —— 组件不再默认耦合应用布局类名） */
     target?: string
+    /** 点阵基础色（"r,g,b"；缺省读取 --nm-text-placeholder） */
     dotColor?: string
+    /** 强调色（"r,g,b"；缺省读取 --nm-primary-color） */
     accentColor?: string
     sigma?: number
   }>(),
   {
     variant: 'standard',
     target: '',
-    dotColor: '153,153,153',
-    accentColor: '205,250,78',
+    dotColor: '',
+    accentColor: '',
     sigma: 14,
   }
 )

@@ -127,7 +127,7 @@ const { t } = useLocale()
             v-else
             class="nm-pagination__btn"
             :class="{ 'nm-pagination__btn--active': page === modelValue }"
-            :aria-label="`第 ${page} 页`"
+            :aria-label="t('paginationPageLabel', { page })"
             :aria-current="page === modelValue ? 'page' : undefined"
             type="button"
             @click="changePage(page)"

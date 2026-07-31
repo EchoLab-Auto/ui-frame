@@ -202,7 +202,7 @@ const classList = computed(() => ['nm-canvas'])
   align-items: center;
   justify-content: space-between;
   padding: var(--nm-spacing-sm) 12px;
-  border-bottom: 1px solid rgba(128, 128, 128, 0.08);
+  border-bottom: 1px solid var(--nm-border-subtle);
   flex-shrink: 0;
 }
 
