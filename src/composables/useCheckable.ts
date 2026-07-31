@@ -2,7 +2,7 @@ import { computed } from 'vue'
 import { generateId } from '@/utils'
 
 export interface UseCheckableOptions {
-  prefix: 'checkbox' | 'radio'
+  prefix: 'checkbox' | 'radio' | 'switch'
   isChecked: boolean
   isDisabled: boolean
   size: 'small' | 'medium' | 'large'
@@ -11,7 +11,7 @@ export interface UseCheckableOptions {
 }
 
 /**
- * Checkbox/Radio 共享切换逻辑
+ * Checkbox/Radio/Switch 共享切换逻辑
  */
 export function useCheckable(options: () => UseCheckableOptions) {
   const opts = computed(options)

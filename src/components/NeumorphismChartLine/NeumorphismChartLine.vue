@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { computed, ref, onBeforeUnmount } from 'vue'
+import { computed, ref } from 'vue'
 import { useLineChart } from '@/composables/useLineChart'
 import type { ChartSeries } from '@/composables/useLineChart'
+import { useChartInteraction } from '@/composables/useChartInteraction'
 import { useLocale } from '@/composables/useLocale'
 import { useConfig } from '@/composables/useConfig'
 import { generateId } from '@/utils'
@@ -113,42 +114,34 @@ const resolvedShowAxis = computed(() => props.showAxis ?? config.value.chart?.sh
 const resolvedAnimate = computed(() => props.animate ?? config.value.chart?.animate ?? true)
 const shouldAnimate = computed(() => resolvedAnimate.value && !reducedMotion.value)
 
-// Cached container rect, refreshed on each mousemove. Calling
-// getBoundingClientRect() inside this computed would force a synchronous
-// reflow on every tooltip state change, so we snapshot it in the mousemove
-// handler and let the computed depend on the snapshot.
-const containerRect = ref({ left: 0, top: 0 })
-
-// Structured tooltip payload. This replaces an HTML string that was rendered
-// with v-html — interpolating series names/values as text means untrusted
-// series data can no longer inject markup (XSS).
-interface LineTooltipRow {
-  name: string
-  value: number
-  color: string
-}
-const tooltipData = ref<{ header: string; rows: LineTooltipRow[] } | null>(null)
-
-const tooltipStyle = computed(() => {
-  if (!containerRef.value) return { display: 'none' }
-  return {
-    left: `${tooltip.value.x - containerRect.value.left + 12}px`,
-    top: `${tooltip.value.y - containerRect.value.top - 8}px`,
-  }
-})
-
-// ---- Crosshair / hover tracking ----
-const crosshairX = ref<number | null>(null)
-const nearestIndex = ref<number>(-1)
-const isHovering = ref(false)
-
-/** X positions of data points from the first series */
+// ---- 悬停交互（十字线/最近点/tooltip）—— 抽至 useChartInteraction ----
 const dataPointXs = computed(() => {
   const xs: number[] = []
   for (const pt of points.value) {
     if (pt.seriesIndex === 0) xs.push(pt.cx)
   }
   return xs
+})
+
+const {
+  crosshairX,
+  nearestIndex,
+  isHovering,
+  tooltipData,
+  tooltipStyle,
+  onBodyMouseMove,
+  onBodyMouseLeave,
+} = useChartInteraction({
+  containerRef,
+  enabled: resolvedShowTooltip,
+  marginLeft: computed(() => resolvedMargin.value.left),
+  plotWidth: computed(() => plotSize.value.width),
+  dataPointXs,
+  xAxisLabels,
+  series: computed(() => props.series),
+  palette,
+  tooltip,
+  hideTooltip,
 })
 
 /** Y values at the nearest index for each series */
@@ -164,103 +157,6 @@ const nearestPoints = computed(() => {
       value: s.data[nearestIndex.value]?.value ?? 0,
     }
   })
-})
-
-function findNearestIndex(svgX: number): number {
-  const xs = dataPointXs.value
-  if (xs.length === 0) return -1
-  let nearest = 0
-  let minDist = Math.abs(svgX - xs[0])
-  for (let i = 1; i < xs.length; i++) {
-    const dist = Math.abs(svgX - xs[i])
-    if (dist < minDist) {
-      minDist = dist
-      nearest = i
-    }
-  }
-  return nearest
-}
-
-// Coalesce high-frequency mousemove events into a single calculation per
-// animation frame to avoid per-move reflow + O(n) scans.
-let pendingFrame: number | null = null
-let lastMoveEvent: MouseEvent | null = null
-
-function processMouseMove(event: MouseEvent): void {
-  if (!containerRef.value || !resolvedShowTooltip.value) return
-  const rect = containerRef.value.getBoundingClientRect()
-  containerRect.value = { left: rect.left, top: rect.top }
-  const svgX = event.clientX - rect.left - resolvedMargin.value.left
-
-  if (svgX < 0 || svgX > plotSize.value.width) {
-    crosshairX.value = null
-    nearestIndex.value = -1
-    isHovering.value = false
-    tooltipData.value = null
-    hideTooltip()
-    return
-  }
-
-  const idx = findNearestIndex(svgX)
-  if (idx < 0) return
-
-  isHovering.value = true
-  nearestIndex.value = idx
-  crosshairX.value = dataPointXs.value[idx] ?? svgX
-
-  // Build a structured tooltip payload rendered via template interpolation.
-  const header = xAxisLabels.value[idx] ?? `#${idx + 1}`
-  const rows: LineTooltipRow[] = []
-  for (let si = 0; si < props.series.length; si++) {
-    const s = props.series[si]
-    const d = s.data[idx]
-    if (d) {
-      rows.push({
-        name: s.name,
-        value: d.value,
-        color: s.color ?? palette.value[si % palette.value.length],
-      })
-    }
-  }
-  tooltipData.value = { header, rows }
-  tooltip.value = {
-    visible: true,
-    x: event.clientX,
-    y: event.clientY,
-    content: '',
-    dataIndex: idx,
-    seriesIndex: 0,
-  }
-}
-
-function onBodyMouseMove(event: MouseEvent): void {
-  if (!resolvedShowTooltip.value) return
-  lastMoveEvent = event
-  if (pendingFrame !== null) return
-  pendingFrame = requestAnimationFrame(() => {
-    pendingFrame = null
-    if (lastMoveEvent) processMouseMove(lastMoveEvent)
-  })
-}
-
-function onBodyMouseLeave(): void {
-  if (pendingFrame !== null) {
-    cancelAnimationFrame(pendingFrame)
-    pendingFrame = null
-  }
-  lastMoveEvent = null
-  crosshairX.value = null
-  nearestIndex.value = -1
-  isHovering.value = false
-  tooltipData.value = null
-  hideTooltip()
-}
-
-onBeforeUnmount(() => {
-  if (pendingFrame !== null) {
-    cancelAnimationFrame(pendingFrame)
-    pendingFrame = null
-  }
 })
 
 function onPointClick(pt: { dataIndex: number; seriesIndex: number; value: number }): void {

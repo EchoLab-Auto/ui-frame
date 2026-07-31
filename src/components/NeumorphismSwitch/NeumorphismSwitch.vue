@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useConfig } from '@/composables/useConfig'
+import { useCheckable } from '@/composables/useCheckable'
 import { useLocale } from '@/composables/useLocale'
 
 export interface NeumorphismSwitchProps {
@@ -46,14 +47,12 @@ const isChecked = computed({
   },
 })
 
-const classList = computed(() => [
-  'nm-switch',
-  `nm-switch--${resolvedSize.value}`,
-  {
-    'nm-switch--checked': isChecked.value,
-    'nm-switch--disabled': props.disabled,
-  },
-])
+const classList = useCheckable(() => ({
+  prefix: 'switch',
+  isChecked: isChecked.value,
+  isDisabled: props.disabled,
+  size: resolvedSize.value,
+})).classList
 
 const trackStyle = computed(() => {
   const style: Record<string, string> = {}

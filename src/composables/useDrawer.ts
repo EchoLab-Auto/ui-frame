@@ -9,6 +9,7 @@ import {
   type ComputedRef,
 } from 'vue'
 import { useZIndex } from './useZIndex'
+import { useFocusStack } from './useFocusStack'
 
 export type DrawerPosition = 'left' | 'right' | 'top' | 'bottom'
 
@@ -84,7 +85,8 @@ export function useDrawer(opts: UseDrawerOptions): UseDrawerReturn {
 
   const isOpen = ref(modelValue.value)
   const rendered = ref(modelValue.value)
-  const previousActiveElement = ref<HTMLElement | null>(null)
+  // 焦点栈（嵌套弹层 LIFO 恢复，与 useModal 共享全局栈）
+  const focusStack = useFocusStack()
   let destroyTimer: ReturnType<typeof setTimeout> | undefined
   let hasUnlocked = false
 
@@ -124,7 +126,7 @@ export function useDrawer(opts: UseDrawerOptions): UseDrawerReturn {
       if (val) {
         rendered.value = true
         const ae = document.activeElement
-        previousActiveElement.value = ae instanceof HTMLElement ? ae : null
+        focusStack.push(ae instanceof HTMLElement ? ae : null)
         lockBodyScroll()
         // Register this drawer in the global z-index overlay stack
         if (!unregisterOverlay) {
@@ -145,7 +147,7 @@ export function useDrawer(opts: UseDrawerOptions): UseDrawerReturn {
           unlockBodyScroll()
           hasUnlocked = true
         }
-        previousActiveElement.value?.focus()
+        focusStack.pop()?.focus()
         // Unregister from the z-index overlay stack after transition completes
         if (unregisterOverlay) {
           const cleanup = unregisterOverlay
@@ -233,8 +235,9 @@ export function useDrawer(opts: UseDrawerOptions): UseDrawerReturn {
       hasUnlocked = true
     }
     if (isOpen.value) {
-      previousActiveElement.value?.focus()
+      focusStack.pop()?.focus()
     }
+    focusStack.destroy()
     // Clean up z-index overlay registration
     if (unregisterOverlay) {
       unregisterOverlay()

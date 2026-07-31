@@ -8,6 +8,7 @@ import {
   type Ref,
   type ComputedRef,
 } from 'vue'
+import { useFocusStack } from './useFocusStack'
 import { useZIndex } from './useZIndex'
 
 // SSR-safe scroll lock counter — keyed by document to support iframes/concurrent usage
@@ -69,7 +70,8 @@ export function useModal(opts: UseModalOptions): UseModalReturn {
 
   const visible = ref(modelValue.value)
   const rendered = ref(modelValue.value)
-  const previousActiveElement = ref<HTMLElement | null>(null)
+  // 焦点栈（嵌套弹层 LIFO 恢复，替代单实例 previousActiveElement）
+  const focusStack = useFocusStack()
   let destroyTimer: ReturnType<typeof setTimeout> | undefined
   let hasUnlocked = false
 
@@ -107,7 +109,7 @@ export function useModal(opts: UseModalOptions): UseModalReturn {
       if (val) {
         rendered.value = true
         const ae = document.activeElement
-        previousActiveElement.value = ae instanceof HTMLElement ? ae : null
+        focusStack.push(ae instanceof HTMLElement ? ae : null)
         lockBodyScroll()
         // Register this modal in the global z-index overlay stack so that
         // floating components (Select dropdowns, Tooltips, etc.) rendered
@@ -130,7 +132,7 @@ export function useModal(opts: UseModalOptions): UseModalReturn {
           unlockBodyScroll()
           hasUnlocked = true
         }
-        previousActiveElement.value?.focus()
+        focusStack.pop()?.focus()
         // Unregister from the z-index overlay stack after transition completes
         if (unregisterOverlay) {
           const cleanup = unregisterOverlay
@@ -214,8 +216,9 @@ export function useModal(opts: UseModalOptions): UseModalReturn {
       hasUnlocked = true
     }
     if (visible.value) {
-      previousActiveElement.value?.focus()
+      focusStack.pop()?.focus()
     }
+    focusStack.destroy()
     // Clean up z-index overlay registration
     if (unregisterOverlay) {
       unregisterOverlay()

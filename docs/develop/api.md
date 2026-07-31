@@ -1511,6 +1511,49 @@ interface UseFloatingPositionReturn {
 
 ---
 
+### useScrollbar
+
+```ts
+import { useScrollbar } from '@echolab-auto/ui-frame'
+import type { ScrollbarVariant, UseScrollbarOptions } from '@echolab-auto/ui-frame'
+```
+
+滚动条行为（CSS 类变体 / dots 点阵 / glow 辉光覆盖层）的 headless 封装。
+
+```ts
+interface UseScrollbarOptions {
+  variant: Ref<'standard' | 'primary' | 'none' | 'dots' | 'glow'>
+  target: Ref<string> // 目标滚动容器 CSS 选择器；空串为禁用 no-op
+  dotColor: Ref<string> // "r,g,b"
+  accentColor: Ref<string> // "r,g,b"
+  sigma: Ref<number> // 点阵高斯半径
+}
+
+interface UseScrollbarReturn {
+  overlayKind: ComputedRef<'dots' | 'glow' | null>
+  scrollY: Ref<number>
+  overlayH: Ref<number>
+  overlayDocH: Ref<number>
+  start: () => void // 挂载行为（组件 onMounted 调用）
+  stop: () => void // 卸载全部行为与监听器（composable 内 onBeforeUnmount 自动调用）
+}
+```
+
+> 自 1.0.6 起 `target` 不再默认 `.nm-layout__content`（解耦应用布局类名），使用时必须显式传入目标选择器。
+
+---
+
+### useChartInteraction
+
+```ts
+import { useChartInteraction } from '@echolab-auto/ui-frame'
+import type { UseChartInteractionOptions, UseChartInteractionReturn } from '@echolab-auto/ui-frame'
+```
+
+图表悬停交互（十字线/最近数据点/结构化 tooltip 载荷），rAF 合帧的 mousemove 处理。`UseChartInteractionOptions` 见源码类型注释；返回 `{ crosshairX, nearestIndex, isHovering, tooltipData, tooltipStyle, containerRect, onBodyMouseMove, onBodyMouseLeave }`。
+
+---
+
 ### useSelect
 
 ```ts

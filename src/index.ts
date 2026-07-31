@@ -96,6 +96,22 @@ export type {
   UseFloatingPositionReturn,
 } from './composables/useFloatingPosition'
 
+export { useScrollbar } from './composables/useScrollbar'
+export type {
+  ScrollbarVariant,
+  UseScrollbarOptions,
+  UseScrollbarReturn,
+} from './composables/useScrollbar'
+
+export { useChartInteraction } from './composables/useChartInteraction'
+export type {
+  ChartInteractionSeries,
+  ChartTooltipRow,
+  ChartTooltipState,
+  UseChartInteractionOptions,
+  UseChartInteractionReturn,
+} from './composables/useChartInteraction'
+
 export { useSelect } from './composables/useSelect'
 export type {
   UseSelectOptions,
