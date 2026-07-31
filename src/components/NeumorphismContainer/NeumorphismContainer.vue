@@ -12,7 +12,6 @@ export interface NeumorphismContainerProps {
 }
 
 const props = withDefaults(defineProps<NeumorphismContainerProps>(), {
-  mode: 'fixed',
   noPadding: false,
   tag: 'div',
 })

@@ -30,9 +30,8 @@ const props = withDefaults(defineProps<NeumorphismTableProps>(), {
   selectedKeys: () => [],
   loading: false,
   emptyText: '暂无数据',
-  size: 'medium',
-  striped: false,
-  hoverable: true,
+  striped: undefined,
+  hoverable: undefined,
   showHeader: true,
 })
 
@@ -47,6 +46,8 @@ const { t } = useLocale()
 
 const config = useConfig()
 const resolvedSize = computed(() => props.size ?? config.value.table?.size ?? 'medium')
+const resolvedStriped = computed(() => props.striped ?? config.value.table?.striped ?? false)
+const resolvedHoverable = computed(() => props.hoverable ?? config.value.table?.hoverable ?? true)
 const resolvedEmptyText = computed(() => props.emptyText || t('tableEmpty'))
 
 const selectedKeysRef = computed({
@@ -108,8 +109,8 @@ const classList = computed(() => [
   'nm-table',
   `nm-table--${resolvedSize.value}`,
   {
-    'nm-table--striped': props.striped,
-    'nm-table--hoverable': props.hoverable,
+    'nm-table--striped': resolvedStriped.value,
+    'nm-table--hoverable': resolvedHoverable.value,
     'nm-table--loading': props.loading,
   },
 ])

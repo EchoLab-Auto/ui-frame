@@ -3,6 +3,7 @@ import { computed, provide, reactive, onBeforeUnmount } from 'vue'
 import { validateFieldValue } from '@/composables/useFormValidation'
 import type { FormRule } from '@/composables/useFormValidation'
 import { FormKey } from '@/composables/injectionKeys'
+import { useConfig } from '@/composables/useConfig'
 
 export type { FormRule }
 
@@ -17,8 +18,15 @@ export interface NeumorphismFormProps {
 const props = withDefaults(defineProps<NeumorphismFormProps>(), {
   model: () => ({}),
   rules: () => ({}),
-  direction: 'vertical',
+  // 级联 prop（labelWidth/size/direction）保持 undefined，由全局配置 form 段兜底
 })
+
+const config = useConfig()
+const resolvedLabelWidth = computed(() => props.labelWidth ?? config.value.form?.labelWidth)
+const resolvedSize = computed(() => props.size ?? config.value.form?.size)
+const resolvedDirection = computed(
+  () => props.direction ?? config.value.form?.direction ?? 'vertical'
+)
 
 const emit = defineEmits<{
   (e: 'submit', model: Record<string, unknown>): void
@@ -114,10 +122,10 @@ provide(FormKey, {
   // when the parent updates these props at runtime, instead of a setup-time
   // snapshot.
   get labelWidth() {
-    return props.labelWidth
+    return resolvedLabelWidth.value
   },
   get size() {
-    return props.size
+    return resolvedSize.value
   },
   validateField,
   validateFieldOnBlur,
@@ -129,7 +137,7 @@ onBeforeUnmount(() => {
   fieldValidators.clear()
 })
 
-const classList = computed(() => ['nm-form', `nm-form--${props.direction}`])
+const classList = computed(() => ['nm-form', `nm-form--${resolvedDirection.value}`])
 
 defineExpose({ validateAll, validateField, clearErrors })
 </script>

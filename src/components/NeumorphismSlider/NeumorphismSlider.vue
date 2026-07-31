@@ -27,15 +27,14 @@ export interface NeumorphismSliderProps {
 }
 
 const props = withDefaults(defineProps<NeumorphismSliderProps>(), {
+  showStops: undefined,
+  showTooltip: undefined,
   modelValue: 0,
   min: 0,
   max: 100,
   step: 1,
   disabled: false,
-  showTooltip: true,
-  showStops: false,
   vertical: false,
-  size: 'medium',
 })
 
 const { config, resolveProp } = useNeumorphismSetup()

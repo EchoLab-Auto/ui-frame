@@ -15,8 +15,6 @@ export interface NeumorphismToastProviderProps {
 }
 
 const props = withDefaults(defineProps<NeumorphismToastProviderProps>(), {
-  position: 'top-right',
-  maxCount: 5,
   closeLabel: '',
 })
 

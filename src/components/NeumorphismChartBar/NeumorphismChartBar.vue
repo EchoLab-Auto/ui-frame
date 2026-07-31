@@ -4,6 +4,7 @@ import { useBarChart } from '@/composables/useBarChart'
 import type { ChartSeries } from '@/composables/useBarChart'
 import { useLocale } from '@/composables/useLocale'
 import { generateId } from '@/utils'
+import { useConfig } from '@/composables/useConfig'
 
 export interface NeumorphismChartBarProps {
   series?: ChartSeries[]
@@ -23,11 +24,12 @@ const props = withDefaults(defineProps<NeumorphismChartBarProps>(), {
   series: () => [],
   width: '100%',
   height: '300px',
-  showTooltip: true,
-  showLegend: true,
-  showGrid: true,
-  showAxis: true,
-  animate: true,
+  // 级联 prop 保持 undefined,由全局配置 chart 段兜底
+  showTooltip: undefined,
+  showLegend: undefined,
+  showGrid: undefined,
+  showAxis: undefined,
+  animate: undefined,
 })
 
 const emit = defineEmits<{
@@ -35,6 +37,16 @@ const emit = defineEmits<{
 }>()
 
 const { t } = useLocale()
+const config = useConfig()
+const resolvedShowTooltip = computed(
+  () => props.showTooltip ?? config.value.chart?.showTooltip ?? true
+)
+const resolvedShowLegend = computed(
+  () => props.showLegend ?? config.value.chart?.showLegend ?? true
+)
+const resolvedShowGrid = computed(() => props.showGrid ?? config.value.chart?.showGrid ?? true)
+const resolvedShowAxis = computed(() => props.showAxis ?? config.value.chart?.showAxis ?? true)
+const resolvedAnimate = computed(() => props.animate ?? config.value.chart?.animate ?? true)
 const containerRef = ref<HTMLElement | null>(null)
 const hoveredKey = ref<string | null>(null)
 const instanceId = generateId('nm-bar')
@@ -77,7 +89,7 @@ const ariaLabel = computed(() => {
   return `Bar chart: ${names}`
 })
 
-const shouldAnimate = computed(() => props.animate && !reducedMotion.value)
+const shouldAnimate = computed(() => resolvedAnimate.value && !reducedMotion.value)
 
 const tooltipStyle = computed(() => {
   if (!containerRef.value) return { display: 'none' }
@@ -156,7 +168,7 @@ const zeroY = computed(() => {
         </defs>
 
         <!-- Grid lines -->
-        <g v-if="showGrid" :clip-path="`url(#nm-plot-clip-bar-${instanceId})`">
+        <g v-if="resolvedShowGrid" :clip-path="`url(#nm-plot-clip-bar-${instanceId})`">
           <line
             v-for="(tick, i) in gridLines"
             :key="'g' + i"
@@ -190,7 +202,7 @@ const zeroY = computed(() => {
         </g>
 
         <!-- Y-axis -->
-        <g v-if="showAxis">
+        <g v-if="resolvedShowAxis">
           <line
             :x1="resolvedMargin.left"
             :y1="resolvedMargin.top"
@@ -222,7 +234,7 @@ const zeroY = computed(() => {
         </g>
 
         <!-- X-axis -->
-        <g v-if="showAxis">
+        <g v-if="resolvedShowAxis">
           <line
             :x1="resolvedMargin.left"
             :y1="resolvedMargin.top + plotSize.height"
@@ -279,7 +291,11 @@ const zeroY = computed(() => {
 
       <!-- Tooltip -->
       <Transition name="nm-chart-tooltip">
-        <div v-if="tooltip.visible && showTooltip" class="nm-chart__tooltip" :style="tooltipStyle">
+        <div
+          v-if="tooltip.visible && resolvedShowTooltip"
+          class="nm-chart__tooltip"
+          :style="tooltipStyle"
+        >
           {{ tooltip.content }}
         </div>
       </Transition>
@@ -287,7 +303,7 @@ const zeroY = computed(() => {
 
     <!-- Legend -->
     <div
-      v-if="showLegend && series.length > 0"
+      v-if="resolvedShowLegend && series.length > 0"
       class="nm-chart__legend"
       role="list"
       :aria-label="t('chartLegend')"

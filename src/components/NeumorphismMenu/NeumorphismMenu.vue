@@ -29,14 +29,12 @@ export interface NeumorphismMenuProps {
 }
 
 const props = withDefaults(defineProps<NeumorphismMenuProps>(), {
+  selectable: undefined,
   items: () => [],
-  mode: 'vertical',
   defaultActive: undefined,
   defaultExpanded: () => [],
   collapsed: false,
-  selectable: true,
   theme: undefined,
-  size: 'medium',
 })
 
 const emit = defineEmits<{

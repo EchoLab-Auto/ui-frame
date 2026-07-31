@@ -22,7 +22,6 @@ export interface NeumorphismSwitchProps {
 const props = withDefaults(defineProps<NeumorphismSwitchProps>(), {
   modelValue: false,
   disabled: false,
-  size: 'medium',
 })
 
 const config = useConfig()

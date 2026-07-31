@@ -19,13 +19,10 @@ export interface NeumorphismPaginationProps {
 }
 
 const props = withDefaults(defineProps<NeumorphismPaginationProps>(), {
+  showJumper: undefined,
+  showTotal: undefined,
   modelValue: 1,
   total: 0,
-  pageSize: 10,
-  size: 'medium',
-  showTotal: false,
-  showJumper: false,
-  maxVisiblePages: 7,
   disabled: false,
   prevLabel: '上一页',
   nextLabel: '下一页',

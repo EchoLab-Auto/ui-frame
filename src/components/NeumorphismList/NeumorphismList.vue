@@ -19,11 +19,10 @@ export interface NeumorphismListProps {
 }
 
 const props = withDefaults(defineProps<NeumorphismListProps>(), {
+  bordered: undefined,
+  hoverable: undefined,
+  split: undefined,
   items: () => [],
-  bordered: true,
-  split: true,
-  size: 'medium',
-  hoverable: true,
   loading: false,
 })
 

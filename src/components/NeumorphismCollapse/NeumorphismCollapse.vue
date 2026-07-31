@@ -15,10 +15,9 @@ export interface NeumorphismCollapseProps {
 }
 
 const props = withDefaults(defineProps<NeumorphismCollapseProps>(), {
+  accordion: undefined,
   modelValue: () => [],
-  accordion: false,
   items: () => [],
-  size: 'medium',
 })
 
 const { config, resolveProp } = useNeumorphismSetup()

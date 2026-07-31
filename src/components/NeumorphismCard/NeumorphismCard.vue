@@ -56,9 +56,8 @@ const DEPTH_TO_MAGNITUDE: Record<CardDepth, number> = {
 }
 
 const props = withDefaults(defineProps<NeumorphismCardProps>(), {
-  radius: 'large',
+  hoverable: undefined,
   noPadding: false,
-  hoverable: false,
   glass: false,
 })
 

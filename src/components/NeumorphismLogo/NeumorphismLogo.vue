@@ -26,11 +26,9 @@ export interface NeumorphismLogoProps {
 }
 
 const props = withDefaults(defineProps<NeumorphismLogoProps>(), {
-  mode: 'pulse',
-  size: 'medium',
-  goo: true,
-  autoplay: true,
-  floating: true,
+  autoplay: undefined,
+  floating: undefined,
+  goo: undefined,
   ariaLabel: '动态像素 Logo',
 })
 

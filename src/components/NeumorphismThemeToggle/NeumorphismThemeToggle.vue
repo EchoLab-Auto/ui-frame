@@ -17,9 +17,8 @@ export interface NeumorphismThemeToggleProps {
 }
 
 const props = withDefaults(defineProps<NeumorphismThemeToggleProps>(), {
+  disableAuto: undefined,
   modelValue: 'auto',
-  size: 'medium',
-  disableAuto: false,
   disabled: false,
 })
 

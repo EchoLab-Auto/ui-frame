@@ -20,11 +20,9 @@ export interface NeumorphismStepsProps {
 }
 
 const props = withDefaults(defineProps<NeumorphismStepsProps>(), {
+  center: undefined,
   steps: () => [],
   current: 0,
-  direction: 'horizontal',
-  size: 'medium',
-  center: false,
 })
 
 const emit = defineEmits<{

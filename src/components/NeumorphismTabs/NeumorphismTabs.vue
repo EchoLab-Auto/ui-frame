@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, nextTick } from 'vue'
 import { useTabs } from '@/composables/useTabs'
+import { useConfig } from '@/composables/useConfig'
 import { useLocale } from '@/composables/useLocale'
 import type { TabItem } from '@/composables/useTabs'
 
@@ -17,10 +18,13 @@ export interface NeumorphismTabsProps {
 const props = withDefaults(defineProps<NeumorphismTabsProps>(), {
   modelValue: '',
   tabs: () => [],
-  position: 'top',
-  size: 'medium',
   navLabel: '标签导航',
+  // 级联 prop（position/size）保持 undefined，由全局配置 tabs 段兜底
 })
+
+const config = useConfig()
+const resolvedPosition = computed(() => props.position ?? config.value.tabs?.position ?? 'top')
+const resolvedSize = computed(() => props.size ?? config.value.tabs?.size ?? 'medium')
 
 const { t } = useLocale()
 const resolvedNavLabel = computed(() => props.navLabel || t('tabsNavLabel'))
@@ -50,7 +54,7 @@ const {
 } = useTabs({
   modelValue: activeKey,
   tabs: computed(() => props.tabs),
-  position: computed(() => props.position),
+  position: resolvedPosition,
 })
 
 const activeTabs = computed(() => props.tabs.filter(t => !t.disabled))
@@ -72,8 +76,8 @@ function handleKeydown(event: KeyboardEvent, key: string) {
 
 const classList = computed(() => [
   'nm-tabs',
-  `nm-tabs--${props.position}`,
-  `nm-tabs--${props.size}`,
+  `nm-tabs--${resolvedPosition.value}`,
+  `nm-tabs--${resolvedSize.value}`,
 ])
 </script>
 

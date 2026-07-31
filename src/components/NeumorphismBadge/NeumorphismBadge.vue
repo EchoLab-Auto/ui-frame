@@ -12,9 +12,8 @@ export interface NeumorphismBadgeProps {
 }
 
 const props = withDefaults(defineProps<NeumorphismBadgeProps>(), {
-  max: 99,
-  dot: false,
-  showZero: false,
+  dot: undefined,
+  showZero: undefined,
 })
 
 const { config, resolveProp } = useNeumorphismSetup()

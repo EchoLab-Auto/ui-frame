@@ -17,11 +17,7 @@ export interface NeumorphismTooltipProps {
 }
 
 const props = withDefaults(defineProps<NeumorphismTooltipProps>(), {
-  position: 'top',
-  trigger: 'hover',
   disabled: false,
-  offset: 8,
-  delay: 150,
 })
 
 const { config, resolveProp } = useNeumorphismSetup()

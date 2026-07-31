@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { nextTick } from 'vue'
 import NeumorphismModal from './NeumorphismModal.vue'
+import { ConfigKey } from '@/composables/useConfig'
 
 describe('NeumorphismModal', () => {
   function mountModal(props: Record<string, unknown> = {}, slots?: Record<string, string>) {
@@ -107,5 +108,27 @@ describe('NeumorphismModal', () => {
     await nextTick()
     expect(document.querySelector('.custom-footer')).not.toBeNull()
     expect(document.querySelector('.nm-modal__btn--cancel')).toBeNull()
+  })
+
+  it('should apply maskClosable/showClose from global config', async () => {
+    mount(NeumorphismModal, {
+      props: { modelValue: true },
+      global: {
+        provide: { [ConfigKey]: { value: { modal: { showClose: false } } } },
+      },
+    })
+    await nextTick()
+    expect(document.querySelector('.nm-modal__close')).toBeNull()
+  })
+
+  it('should let explicit showClose override global config', async () => {
+    mount(NeumorphismModal, {
+      props: { modelValue: true, showClose: true },
+      global: {
+        provide: { [ConfigKey]: { value: { modal: { showClose: false } } } },
+      },
+    })
+    await nextTick()
+    expect(document.querySelector('.nm-modal__close')).not.toBeNull()
   })
 })

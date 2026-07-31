@@ -35,7 +35,6 @@ const props = withDefaults(defineProps<NeumorphismInputProps>(), {
   disabled: false,
   readonly: false,
   required: false,
-  size: 'medium',
   autocomplete: 'off',
 })
 

@@ -10,9 +10,7 @@ export interface NeumorphismEmptyProps {
   size?: EmptySize
 }
 
-const props = withDefaults(defineProps<NeumorphismEmptyProps>(), {
-  size: 'medium',
-})
+const props = withDefaults(defineProps<NeumorphismEmptyProps>(), {})
 
 const { resolveProp } = useNeumorphismSetup()
 

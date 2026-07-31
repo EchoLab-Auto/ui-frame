@@ -18,7 +18,6 @@ export interface NeumorphismRadioProps {
 
 const props = withDefaults(defineProps<NeumorphismRadioProps>(), {
   disabled: false,
-  size: 'medium',
 })
 
 const { config, resolveProp } = useNeumorphismSetup()

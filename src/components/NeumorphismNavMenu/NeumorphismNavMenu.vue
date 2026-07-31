@@ -24,12 +24,10 @@ export interface NeumorphismNavMenuProps {
 }
 
 const props = withDefaults(defineProps<NeumorphismNavMenuProps>(), {
+  showIndicator: undefined,
   items: () => [],
   defaultActive: undefined,
-  mode: 'horizontal',
-  showIndicator: true,
   theme: undefined,
-  size: 'medium',
 })
 
 const emit = defineEmits<{

@@ -25,13 +25,12 @@ export interface NeumorphismCanvasProps {
 }
 
 const props = withDefaults(defineProps<NeumorphismCanvasProps>(), {
+  showControls: undefined,
+  showGrid: undefined,
   modelValue: 1,
   minZoom: 0.1,
   maxZoom: 5,
   zoomStep: 0.1,
-  showGrid: true,
-  gridSize: 20,
-  showControls: true,
   width: '100%',
   height: '500px',
 })

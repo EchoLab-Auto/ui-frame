@@ -16,7 +16,6 @@ export interface NeumorphismCheckboxProps {
 const props = withDefaults(defineProps<NeumorphismCheckboxProps>(), {
   modelValue: false,
   disabled: false,
-  size: 'medium',
   indeterminate: false,
 })
 

@@ -3,6 +3,7 @@ import { computed, ref, onBeforeUnmount } from 'vue'
 import { useLineChart } from '@/composables/useLineChart'
 import type { ChartSeries } from '@/composables/useLineChart'
 import { useLocale } from '@/composables/useLocale'
+import { useConfig } from '@/composables/useConfig'
 import { generateId } from '@/utils'
 
 export interface NeumorphismChartLineProps {
@@ -29,17 +30,19 @@ const props = withDefaults(defineProps<NeumorphismChartLineProps>(), {
   series: () => [],
   width: '100%',
   height: '300px',
-  curve: 'smooth',
-  area: false,
+  // 级联 prop(curve/area/showPoints/lineWidth 由 useLineChart 级联解析)
   areaOpacity: 0.1,
-  showPoints: true,
   pointSize: 6,
-  lineWidth: 2.5,
-  showTooltip: true,
-  showLegend: true,
-  showGrid: true,
-  showAxis: true,
-  animate: true,
+  // 公共级联 prop 保持 undefined,由全局配置 chart 段兜底
+  showTooltip: undefined,
+  showLegend: undefined,
+  showGrid: undefined,
+  showAxis: undefined,
+  animate: undefined,
+  curve: undefined,
+  area: undefined,
+  showPoints: undefined,
+  lineWidth: undefined,
 })
 
 const emit = defineEmits<{
@@ -98,7 +101,17 @@ const ariaLabel = computed(() => {
   return `Line chart: ${names}`
 })
 
-const shouldAnimate = computed(() => props.animate && !reducedMotion.value)
+const config = useConfig()
+const resolvedShowTooltip = computed(
+  () => props.showTooltip ?? config.value.chart?.showTooltip ?? true
+)
+const resolvedShowLegend = computed(
+  () => props.showLegend ?? config.value.chart?.showLegend ?? true
+)
+const resolvedShowGrid = computed(() => props.showGrid ?? config.value.chart?.showGrid ?? true)
+const resolvedShowAxis = computed(() => props.showAxis ?? config.value.chart?.showAxis ?? true)
+const resolvedAnimate = computed(() => props.animate ?? config.value.chart?.animate ?? true)
+const shouldAnimate = computed(() => resolvedAnimate.value && !reducedMotion.value)
 
 // Cached container rect, refreshed on each mousemove. Calling
 // getBoundingClientRect() inside this computed would force a synchronous
@@ -174,7 +187,7 @@ let pendingFrame: number | null = null
 let lastMoveEvent: MouseEvent | null = null
 
 function processMouseMove(event: MouseEvent): void {
-  if (!containerRef.value || !props.showTooltip) return
+  if (!containerRef.value || !resolvedShowTooltip.value) return
   const rect = containerRef.value.getBoundingClientRect()
   containerRect.value = { left: rect.left, top: rect.top }
   const svgX = event.clientX - rect.left - resolvedMargin.value.left
@@ -221,7 +234,7 @@ function processMouseMove(event: MouseEvent): void {
 }
 
 function onBodyMouseMove(event: MouseEvent): void {
-  if (!props.showTooltip) return
+  if (!resolvedShowTooltip.value) return
   lastMoveEvent = event
   if (pendingFrame !== null) return
   pendingFrame = requestAnimationFrame(() => {
@@ -308,7 +321,7 @@ function onPointClick(pt: { dataIndex: number; seriesIndex: number; value: numbe
         </defs>
 
         <!-- Grid lines -->
-        <g v-if="showGrid" :clip-path="`url(#nm-plot-clip-line-${instanceId})`">
+        <g v-if="resolvedShowGrid" :clip-path="`url(#nm-plot-clip-line-${instanceId})`">
           <line
             v-for="(tick, i) in gridLines"
             :key="'g' + i"
@@ -333,7 +346,7 @@ function onPointClick(pt: { dataIndex: number; seriesIndex: number; value: numbe
         </g>
 
         <!-- Y-axis -->
-        <g v-if="showAxis">
+        <g v-if="resolvedShowAxis">
           <line
             :x1="resolvedMargin.left"
             :y1="resolvedMargin.top"
@@ -365,7 +378,7 @@ function onPointClick(pt: { dataIndex: number; seriesIndex: number; value: numbe
         </g>
 
         <!-- X-axis -->
-        <g v-if="showAxis">
+        <g v-if="resolvedShowAxis">
           <line
             :x1="resolvedMargin.left"
             :y1="resolvedMargin.top + plotSize.height"
@@ -485,7 +498,7 @@ function onPointClick(pt: { dataIndex: number; seriesIndex: number; value: numbe
       <!-- Tooltip -->
       <Transition name="nm-chart-tooltip">
         <div
-          v-if="tooltip.visible && showTooltip && tooltipData"
+          v-if="tooltip.visible && resolvedShowTooltip && tooltipData"
           class="nm-chart__tooltip"
           :style="tooltipStyle"
         >
@@ -502,7 +515,7 @@ function onPointClick(pt: { dataIndex: number; seriesIndex: number; value: numbe
 
     <!-- Legend -->
     <div
-      v-if="showLegend && series.length > 0"
+      v-if="resolvedShowLegend && series.length > 0"
       class="nm-chart__legend"
       role="list"
       :aria-label="t('chartLegend')"

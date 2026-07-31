@@ -14,10 +14,7 @@ export interface NeumorphismAvatarProps {
   icon?: string
 }
 
-const props = withDefaults(defineProps<NeumorphismAvatarProps>(), {
-  size: 'medium',
-  shape: 'circle',
-})
+const props = withDefaults(defineProps<NeumorphismAvatarProps>(), {})
 
 const { config, resolveProp } = useNeumorphismSetup()
 

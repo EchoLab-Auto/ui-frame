@@ -48,7 +48,6 @@ const props = withDefaults(defineProps<NeumorphismSelectProps>(), {
   options: () => [],
   placeholder: '',
   disabled: false,
-  size: 'medium',
   clearable: false,
   emptyText: '',
   clearLabel: '',
@@ -56,7 +55,6 @@ const props = withDefaults(defineProps<NeumorphismSelectProps>(), {
   loading: false,
   loadingText: '',
   maxCollapseTags: 1,
-  variant: 'default',
 })
 
 const config = useConfig()

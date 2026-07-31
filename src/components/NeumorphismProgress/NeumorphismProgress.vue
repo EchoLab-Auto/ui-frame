@@ -20,11 +20,9 @@ export interface NeumorphismProgressProps {
 }
 
 const props = withDefaults(defineProps<NeumorphismProgressProps>(), {
+  showLabel: undefined,
   modelValue: 0,
   max: 100,
-  variant: 'primary',
-  size: 'medium',
-  showLabel: false,
   indeterminate: false,
 })
 

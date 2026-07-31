@@ -21,11 +21,11 @@ export interface NeumorphismModalProps {
 
 const props = withDefaults(defineProps<NeumorphismModalProps>(), {
   modelValue: false,
-  size: 'medium',
-  closable: true,
-  maskClosable: true,
-  showClose: true,
-  destroyOnClose: false,
+  // 级联 prop 保持 undefined,由全局配置 modal 段兜底
+  closable: undefined,
+  maskClosable: undefined,
+  showClose: undefined,
+  destroyOnClose: undefined,
   footer: true,
   closeLabel: '关闭',
   cancelLabel: '取消',
@@ -36,6 +36,14 @@ const { t } = useLocale()
 
 const config = useConfig()
 const resolvedSize = computed(() => props.size ?? config.value.modal?.size ?? 'medium')
+const resolvedClosable = computed(() => props.closable ?? config.value.modal?.closable ?? true)
+const resolvedMaskClosable = computed(
+  () => props.maskClosable ?? config.value.modal?.maskClosable ?? true
+)
+const resolvedShowClose = computed(() => props.showClose ?? config.value.modal?.showClose ?? true)
+const resolvedDestroyOnClose = computed(
+  () => props.destroyOnClose ?? config.value.modal?.destroyOnClose ?? false
+)
 const resolvedCloseLabel = computed(() => props.closeLabel || t('modalClose'))
 const resolvedCancelLabel = computed(() => props.cancelLabel || t('modalCancel'))
 const resolvedConfirmLabel = computed(() => props.confirmLabel || t('modalConfirm'))
@@ -64,9 +72,9 @@ const {
   overlayZIndex,
 } = useModal({
   modelValue: modelRef,
-  maskClosable: computed(() => props.maskClosable),
-  closable: computed(() => props.closable),
-  destroyOnClose: computed(() => props.destroyOnClose),
+  maskClosable: resolvedMaskClosable,
+  closable: resolvedClosable,
+  destroyOnClose: resolvedDestroyOnClose,
 })
 
 const dialogRef = ref<HTMLDivElement>()
@@ -82,7 +90,7 @@ watch(visible, async v => {
 })
 
 function handleMaskClick() {
-  if (props.maskClosable && props.closable) {
+  if (resolvedMaskClosable.value && resolvedClosable.value) {
     close()
     emit('cancel')
   }
@@ -132,7 +140,7 @@ const classList = computed(() => ['nm-modal', `nm-modal--${resolvedSize.value}`]
               <h2 v-if="title" :id="titleId" class="nm-modal__title">{{ title }}</h2>
               <slot name="header" />
               <button
-                v-if="showClose && closable"
+                v-if="resolvedShowClose && resolvedClosable"
                 class="nm-modal__close"
                 :aria-label="resolvedCloseLabel"
                 type="button"

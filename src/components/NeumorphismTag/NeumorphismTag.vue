@@ -16,11 +16,9 @@ export interface NeumorphismTagProps {
 }
 
 const props = withDefaults(defineProps<NeumorphismTagProps>(), {
+  rounded: undefined,
   closable: false,
-  variant: 'default',
-  size: 'medium',
   disabled: false,
-  rounded: false,
   closeLabel: '',
 })
 

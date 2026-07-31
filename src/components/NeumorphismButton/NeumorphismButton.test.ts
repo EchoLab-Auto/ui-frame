@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
 import NeumorphismButton from './NeumorphismButton.vue'
+import { ConfigKey } from '@/composables/useConfig'
 
 describe('NeumorphismButton', () => {
   it('should render with default props', () => {
@@ -113,5 +114,33 @@ describe('NeumorphismButton', () => {
     })
     expect(wrapper.find('.icon').exists()).toBe(true)
     expect(wrapper.text()).toContain('Save')
+  })
+
+  // 级联配置回归：显式 prop > 全局配置 > 默认值（withDefaults 不得遮蔽全局配置）
+  it('should apply variant/size from global config when props are absent', () => {
+    const wrapper = mount(NeumorphismButton, {
+      slots: { default: 'x' },
+      global: {
+        provide: {
+          [ConfigKey]: { value: { button: { variant: 'pressed', size: 'large' } } },
+        },
+      },
+    })
+    expect(wrapper.classes()).toContain('nm-button--pressed')
+    expect(wrapper.classes()).toContain('nm-button--large')
+  })
+
+  it('should let explicit props override global config', () => {
+    const wrapper = mount(NeumorphismButton, {
+      props: { variant: 'flat', size: 'small' },
+      slots: { default: 'x' },
+      global: {
+        provide: {
+          [ConfigKey]: { value: { button: { variant: 'pressed', size: 'large' } } },
+        },
+      },
+    })
+    expect(wrapper.classes()).toContain('nm-button--flat')
+    expect(wrapper.classes()).toContain('nm-button--small')
   })
 })

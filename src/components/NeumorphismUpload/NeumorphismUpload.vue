@@ -41,17 +41,15 @@ export interface NeumorphismUploadProps {
 }
 
 const props = withDefaults(defineProps<NeumorphismUploadProps>(), {
+  autoUpload: undefined,
+  drag: undefined,
+  showUploadList: undefined,
   modelValue: () => [],
   accept: undefined,
   maxSize: undefined,
   maxCount: undefined,
   multiple: false,
   disabled: false,
-  drag: true,
-  listType: 'text',
-  showUploadList: true,
-  size: 'medium',
-  autoUpload: false,
   triggerText: '',
   dropText: '',
   removeLabel: '',

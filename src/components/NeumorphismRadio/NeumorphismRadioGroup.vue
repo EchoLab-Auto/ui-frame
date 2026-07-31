@@ -14,8 +14,6 @@ export interface NeumorphismRadioGroupProps {
 
 const props = withDefaults(defineProps<NeumorphismRadioGroupProps>(), {
   disabled: false,
-  size: 'medium',
-  direction: 'horizontal',
 })
 
 const { config, resolveProp } = useNeumorphismSetup()

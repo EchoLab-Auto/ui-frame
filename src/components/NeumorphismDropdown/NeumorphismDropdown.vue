@@ -31,10 +31,7 @@ export interface NeumorphismDropdownProps {
 
 const props = withDefaults(defineProps<NeumorphismDropdownProps>(), {
   items: () => [],
-  position: 'bottom',
-  trigger: 'click',
   disabled: false,
-  offset: 4,
 })
 
 const { resolveProp } = useNeumorphismSetup()

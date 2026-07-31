@@ -18,11 +18,10 @@ export interface NeumorphismTreeProps {
 }
 
 const props = withDefaults(defineProps<NeumorphismTreeProps>(), {
+  multiple: undefined,
+  showSearch: undefined,
   selectedKeys: () => [],
   expandedKeys: () => [],
-  searchPlaceholder: '搜索...',
-  showSearch: false,
-  multiple: false,
 })
 
 const { config, resolveProp } = useNeumorphismSetup()

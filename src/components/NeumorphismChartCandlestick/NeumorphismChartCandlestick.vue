@@ -3,6 +3,7 @@ import { computed, ref } from 'vue'
 import { useCandlestickChart } from '@/composables/useCandlestickChart'
 import type { OhlcDataPoint } from '@/composables/useCandlestickChart'
 import { useLocale } from '@/composables/useLocale'
+import { useConfig } from '@/composables/useConfig'
 import { generateId } from '@/utils'
 
 export interface NeumorphismChartCandlestickProps {
@@ -25,13 +26,14 @@ const props = withDefaults(defineProps<NeumorphismChartCandlestickProps>(), {
   data: () => [],
   width: '100%',
   height: '400px',
-  showVolume: true,
-  showMA: true,
   maPeriods: () => [5, 10, 20],
-  showTooltip: true,
-  showGrid: true,
-  showAxis: true,
-  animate: true,
+  // 级联 prop 保持 undefined,由全局配置 chart 段兜底
+  showVolume: undefined,
+  showMA: undefined,
+  showTooltip: undefined,
+  showGrid: undefined,
+  showAxis: undefined,
+  animate: undefined,
 })
 
 const emit = defineEmits<{
@@ -103,7 +105,14 @@ const ariaLabel = computed(() => {
   return `Candlestick chart with ${props.data.length} data points`
 })
 
-const shouldAnimate = computed(() => props.animate && !reducedMotion.value)
+const config = useConfig()
+const resolvedShowTooltip = computed(
+  () => props.showTooltip ?? config.value.chart?.showTooltip ?? true
+)
+const resolvedShowGrid = computed(() => props.showGrid ?? config.value.chart?.showGrid ?? true)
+const resolvedShowAxis = computed(() => props.showAxis ?? config.value.chart?.showAxis ?? true)
+const resolvedAnimate = computed(() => props.animate ?? config.value.chart?.animate ?? true)
+const shouldAnimate = computed(() => resolvedAnimate.value && !reducedMotion.value)
 
 const tooltipStyle = computed(() => {
   if (!containerRef.value) return { display: 'none' }
@@ -198,7 +207,7 @@ function onCandleMouseLeave(): void {
         </defs>
 
         <!-- Grid lines (price area) -->
-        <g v-if="showGrid" :clip-path="`url(#nm-price-clip-${instanceId})`">
+        <g v-if="resolvedShowGrid" :clip-path="`url(#nm-price-clip-${instanceId})`">
           <line
             v-for="(tick, i) in gridLines"
             :key="'g' + i"
@@ -223,7 +232,10 @@ function onCandleMouseLeave(): void {
         </g>
 
         <!-- Volume area grid -->
-        <g v-if="showGrid && resolvedShowVolume" :clip-path="`url(#nm-volume-clip-${instanceId})`">
+        <g
+          v-if="resolvedShowGrid && resolvedShowVolume"
+          :clip-path="`url(#nm-volume-clip-${instanceId})`"
+        >
           <line
             v-for="(tick, i) in volumeYAxisTicks"
             :key="'vg' + i"
@@ -348,7 +360,7 @@ function onCandleMouseLeave(): void {
         />
 
         <!-- Y-axis (price) -->
-        <g v-if="showAxis">
+        <g v-if="resolvedShowAxis">
           <line
             :x1="resolvedMargin.left"
             :y1="resolvedMargin.top"
@@ -404,7 +416,7 @@ function onCandleMouseLeave(): void {
         </g>
 
         <!-- X-axis (date) -->
-        <g v-if="showAxis">
+        <g v-if="resolvedShowAxis">
           <line
             :x1="resolvedMargin.left"
             :y1="resolvedMargin.top + plotSize.height"
@@ -431,7 +443,11 @@ function onCandleMouseLeave(): void {
 
       <!-- Tooltip -->
       <Transition name="nm-chart-tooltip">
-        <div v-if="tooltip.visible && showTooltip" class="nm-chart__tooltip" :style="tooltipStyle">
+        <div
+          v-if="tooltip.visible && resolvedShowTooltip"
+          class="nm-chart__tooltip"
+          :style="tooltipStyle"
+        >
           {{ tooltip.content }}
         </div>
       </Transition>

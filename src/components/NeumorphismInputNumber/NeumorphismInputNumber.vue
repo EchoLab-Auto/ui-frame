@@ -38,7 +38,6 @@ const props = withDefaults(defineProps<NeumorphismInputNumberProps>(), {
   step: 1,
   precision: undefined,
   disabled: false,
-  size: 'medium',
   placeholder: '',
   controls: true,
   label: undefined,

@@ -12,9 +12,7 @@ export interface NeumorphismSkeletonProps {
 }
 
 const props = withDefaults(defineProps<NeumorphismSkeletonProps>(), {
-  variant: 'text',
   count: 1,
-  animation: 'pulse',
 })
 
 const { config, resolveProp } = useNeumorphismSetup()

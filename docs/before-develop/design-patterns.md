@@ -107,6 +107,14 @@ const size = computed(() => resolveProp(props.size, config.value.button?.size, '
 - 所有带默认值的 prop 都必须经过级联解析。
 - 在 `NeumorphismGlobalConfig` interface 中新增对应配置段（如 `myComponent?: { size?: ... }`）。
 
+> ⚠️ **级联 prop 不得在 `withDefaults` 中赋默认值**——否则 `props.x` 永不为
+> `undefined`，`??` 永不落空，全局配置层不可达（全库性失效的教训）。
+> 正确做法：
+>
+> - 非布尔 prop：不写入 `withDefaults`，未传时自然为 `undefined`，由 `resolveProp` 兜底默认值
+> - 布尔 prop：Vue 会把缺席的 `boolean` prop 转型为 `false`（而非 `undefined`），
+>   必须显式写 `withDefaults(..., { closable: undefined })` 压制转型
+
 ---
 
 ## 四、类型化 Provide/Inject

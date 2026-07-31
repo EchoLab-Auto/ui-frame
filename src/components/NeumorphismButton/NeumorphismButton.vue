@@ -28,9 +28,6 @@ export interface NeumorphismButtonProps {
 }
 
 const props = withDefaults(defineProps<NeumorphismButtonProps>(), {
-  variant: 'raised',
-  size: 'medium',
-  shape: 'rounded',
   disabled: false,
   loading: false,
   type: 'button',

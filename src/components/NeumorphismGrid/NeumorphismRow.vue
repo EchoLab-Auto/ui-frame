@@ -20,10 +20,7 @@ export interface NeumorphismRowProps {
 }
 
 const props = withDefaults(defineProps<NeumorphismRowProps>(), {
-  gutter: 0,
-  justify: 'start',
-  align: 'stretch',
-  wrap: true,
+  wrap: undefined,
 })
 
 const { config, resolveProp } = useNeumorphismSetup()

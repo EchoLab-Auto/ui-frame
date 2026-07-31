@@ -20,14 +20,11 @@ export interface NeumorphismAlertProps {
 }
 
 const props = withDefaults(defineProps<NeumorphismAlertProps>(), {
-  type: 'info',
+  bordered: undefined,
+  closable: undefined,
+  icon: undefined,
   title: '',
   message: '',
-  closable: true,
-  duration: 0,
-  icon: true,
-  bordered: true,
-  size: 'medium',
   closeLabel: '',
 })
 

@@ -13,10 +13,8 @@ export interface NeumorphismDividerProps {
 }
 
 const props = withDefaults(defineProps<NeumorphismDividerProps>(), {
-  direction: 'horizontal',
-  align: 'center',
-  dashed: false,
-  inset: false,
+  dashed: undefined,
+  inset: undefined,
 })
 
 const { config, resolveProp } = useNeumorphismSetup()

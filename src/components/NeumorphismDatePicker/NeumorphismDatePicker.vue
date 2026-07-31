@@ -28,11 +28,9 @@ export interface NeumorphismDatePickerProps {
 const props = withDefaults(defineProps<NeumorphismDatePickerProps>(), {
   modelValue: null,
   placeholder: '',
-  format: 'yyyy-MM-dd',
   disabled: false,
-  clearable: true,
-  size: 'medium',
-  firstDayOfWeek: 0,
+  // 级联 prop 保持 undefined，由 resolveProp 兜底（全局配置 datePicker 段生效）
+  clearable: undefined,
 })
 
 const emit = defineEmits<{
@@ -42,12 +40,21 @@ const emit = defineEmits<{
   (e: 'blur', event: FocusEvent): void
 }>()
 
-const { resolveProp } = useNeumorphismSetup()
+const { config, resolveProp } = useNeumorphismSetup()
 const { t } = useLocale()
 
-const resolvedSize = computed(() => resolveProp(props.size, undefined, 'medium'))
-const resolvedFormat = computed(() => resolveProp(props.format, undefined, 'yyyy-MM-dd'))
-const resolvedPlaceholder = computed(() => props.placeholder || t('datePickerPlaceholder'))
+const resolvedSize = computed(() =>
+  resolveProp(props.size, config.value.datePicker?.size, 'medium')
+)
+const resolvedFormat = computed(() =>
+  resolveProp(props.format, config.value.datePicker?.format, 'yyyy-MM-dd')
+)
+const resolvedPlaceholder = computed(
+  () => props.placeholder || config.value.datePicker?.placeholder || t('datePickerPlaceholder')
+)
+const resolvedClearable = computed(() =>
+  resolveProp(props.clearable, config.value.datePicker?.clearable, true)
+)
 const resolvedClearLabel = computed(() => t('datePickerClear'))
 const resolvedTodayLabel = computed(() => t('datePickerToday'))
 const resolvedPrevMonthLabel = computed(() => t('datePickerPrevMonth'))
@@ -83,7 +90,7 @@ const {
   minDate: computed(() => props.minDate),
   maxDate: computed(() => props.maxDate),
   format: resolvedFormat,
-  firstDayOfWeek: computed(() => props.firstDayOfWeek),
+  firstDayOfWeek: computed(() => props.firstDayOfWeek ?? config.value.datePicker?.firstDayOfWeek),
 })
 
 // ---- Form field integration ----
@@ -252,7 +259,7 @@ function handleCalendarKeydown(event: KeyboardEvent) {
         </span>
         <span class="nm-datepicker__actions">
           <button
-            v-if="clearable && selectedDate"
+            v-if="resolvedClearable && selectedDate"
             class="nm-datepicker__clear"
             type="button"
             :aria-label="resolvedClearLabel"

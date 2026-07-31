@@ -3,6 +3,7 @@ import { computed, ref } from 'vue'
 import { usePieChart } from '@/composables/usePieChart'
 import type { ChartDataPoint } from '@/composables/usePieChart'
 import { useLocale } from '@/composables/useLocale'
+import { useConfig } from '@/composables/useConfig'
 
 export interface NeumorphismChartPieProps {
   data?: ChartDataPoint[]
@@ -24,15 +25,16 @@ const props = withDefaults(defineProps<NeumorphismChartPieProps>(), {
   data: () => [],
   width: '100%',
   height: '300px',
-  innerRadius: 0,
   padAngle: 0.02,
   startAngle: -90,
-  labelPosition: 'outside',
-  roundedCorners: false,
-  showTooltip: true,
-  showLegend: true,
-  animate: true,
   colorPalette: () => [],
+  // 级联 prop 保持 undefined,由全局配置 chart 段兜底
+  showTooltip: undefined,
+  showLegend: undefined,
+  animate: undefined,
+  innerRadius: undefined,
+  labelPosition: undefined,
+  roundedCorners: undefined,
 })
 
 const emit = defineEmits<{
@@ -92,7 +94,15 @@ const ariaLabel = computed(() => {
   return `Pie chart with ${count} ${count === 1 ? 'segment' : 'segments'}, total ${total}`
 })
 
-const shouldAnimate = computed(() => props.animate && !reducedMotion.value)
+const config = useConfig()
+const resolvedShowTooltip = computed(
+  () => props.showTooltip ?? config.value.chart?.showTooltip ?? true
+)
+const resolvedShowLegend = computed(
+  () => props.showLegend ?? config.value.chart?.showLegend ?? true
+)
+const resolvedAnimate = computed(() => props.animate ?? config.value.chart?.animate ?? true)
+const shouldAnimate = computed(() => resolvedAnimate.value && !reducedMotion.value)
 
 const tooltipStyle = computed(() => {
   if (!containerRef.value) return { display: 'none' }
@@ -260,7 +270,11 @@ function getColor(index: number, pointColor?: unknown): string {
 
       <!-- Tooltip -->
       <Transition name="nm-chart-tooltip">
-        <div v-if="tooltip.visible && showTooltip" class="nm-chart__tooltip" :style="tooltipStyle">
+        <div
+          v-if="tooltip.visible && resolvedShowTooltip"
+          class="nm-chart__tooltip"
+          :style="tooltipStyle"
+        >
           {{ tooltip.content }}
         </div>
       </Transition>
@@ -268,7 +282,7 @@ function getColor(index: number, pointColor?: unknown): string {
 
     <!-- Legend -->
     <div
-      v-if="showLegend && data.length > 0"
+      v-if="resolvedShowLegend && data.length > 0"
       class="nm-chart__legend"
       role="list"
       :aria-label="t('chartLegend')"

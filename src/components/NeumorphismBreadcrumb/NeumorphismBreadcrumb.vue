@@ -18,7 +18,6 @@ export interface NeumorphismBreadcrumbProps {
 const props = withDefaults(defineProps<NeumorphismBreadcrumbProps>(), {
   items: () => [],
   separator: '/',
-  size: 'medium',
 })
 
 const { config, resolveProp } = useNeumorphismSetup()

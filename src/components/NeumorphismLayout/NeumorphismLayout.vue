@@ -27,13 +27,11 @@ export interface NeumorphismLayoutProps {
 }
 
 const props = withDefaults(defineProps<NeumorphismLayoutProps>(), {
-  showHeader: true,
-  showSider: false,
-  siderWidth: 240,
-  collapsible: false,
+  collapsible: undefined,
+  mobileAutoCollapse: undefined,
+  showHeader: undefined,
+  showSider: undefined,
   defaultCollapsed: false,
-  collapsedWidth: 64,
-  mobileAutoCollapse: true,
   height: '100vh',
 })
 

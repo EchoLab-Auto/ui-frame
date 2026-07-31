@@ -31,7 +31,6 @@ const props = withDefaults(defineProps<NeumorphismTextareaProps>(), {
   disabled: false,
   readonly: false,
   required: false,
-  size: 'medium',
   rows: 4,
   autoResize: false,
   showCount: false,

@@ -25,12 +25,8 @@ export interface NeumorphismPopoverProps {
 }
 
 const props = withDefaults(defineProps<NeumorphismPopoverProps>(), {
-  position: 'auto',
-  trigger: 'click',
+  showArrow: undefined,
   disabled: false,
-  offset: 8,
-  width: 'auto',
-  showArrow: true,
 })
 
 const emit = defineEmits<{
