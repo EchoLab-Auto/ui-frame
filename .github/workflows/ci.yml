@@ -12,6 +12,32 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  changeset-check:
+    name: Changeset Status (PR)
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      HUSKY: 0
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # PR 必须携带 changeset（版本说明），否则发布无法归纳变更
+      - name: Changeset status
+        run: npx changeset status --since=origin/main
+
   check:
     name: Lint, Test & Build (Node ${{ matrix.node-version }})
     runs-on: ubuntu-latest
@@ -62,12 +88,13 @@ jobs:
 
       - name: Check bundle size
         run: |
-          JS_SIZE=$(gzip -c dist/ui-frame.js | wc -c)
+          # 全量载荷预算：所有 dist JS 逐文件 gzip 求和（当前 ~165KB，预算 180KB）
+          PAYLOAD=$(find dist -name '*.js' -exec gzip -c {} + | wc -c)
           CSS_SIZE=$(gzip -c dist/style.css | wc -c)
-          echo "dist/ui-frame.js gzipped: ${JS_SIZE} bytes"
+          echo "dist JS payload gzipped: ${PAYLOAD} bytes"
           echo "dist/style.css gzipped: ${CSS_SIZE} bytes"
-          if [ "$JS_SIZE" -ge 20000 ]; then
-            echo "ERROR: dist/ui-frame.js exceeds 20 KB gzipped (${JS_SIZE} bytes)"
+          if [ "$PAYLOAD" -ge 180000 ]; then
+            echo "ERROR: dist JS payload exceeds 180 KB gzipped (${PAYLOAD} bytes)"
             exit 1
           fi
           if [ "$CSS_SIZE" -ge 36000 ]; then

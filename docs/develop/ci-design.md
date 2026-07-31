@@ -23,12 +23,12 @@
 
 本项目采用 **4 条独立工作流** 组成 CI/CD 体系：
 
-| 工作流         | 文件                 | 职责                                  | 触发时机                 |
-| -------------- | -------------------- | ------------------------------------- | ------------------------ |
-| CI             | `ci.yml`             | 代码质量验证 + 构建 + 测试            | push/PR 到 `main`        |
-| Publish        | `publish.yml`        | 构建并发布到 npm                      | Release Published / 手动 |
-| Pages          | `pages.yml`          | 部署示例站到 GitHub Pages             | CI 成功 / 手动           |
-| PR Title Check | `pr-title-check.yml` | 校验 PR 标题符合 Conventional Commits | PR 生命周期事件          |
+| 工作流         | 文件                 | 职责                                    | 触发时机              |
+| -------------- | -------------------- | --------------------------------------- | --------------------- |
+| CI             | `ci.yml`             | 代码质量验证 + 构建 + 测试              | push/PR 到 `main`     |
+| Release        | `release.yml`        | Changesets 版本与发布（自动 CHANGELOG） | push 到 `main` / 手动 |
+| Pages          | `pages.yml`          | 部署示例站到 GitHub Pages               | CI 成功 / 手动        |
+| PR Title Check | `pr-title-check.yml` | 校验 PR 标题符合 Conventional Commits   | PR 生命周期事件       |
 
 设计原则：
 
@@ -59,24 +59,24 @@ on:
 
 **任务流水线**（`jobs.check`）：
 
-| 步骤               | 命令                                | 说明                                           |
-| ------------------ | ----------------------------------- | ---------------------------------------------- |
-| Checkout           | `actions/checkout@v4`               | 拉取代码                                       |
-| Setup Node         | `actions/setup-node@v4`             | Node 20/22 矩阵 + npm 缓存                     |
-| Upgrade npm        | `npm install -g npm@11`             | 锁定 npm 版本，避免 lock 文件兼容问题          |
-| Install            | `npm ci`                            | 纯净安装，依赖 lock 文件                       |
-| Audit              | `npm audit --audit-level=high`      | 安全检查（仅 high/critical 级别报错）          |
-| Lint               | `npm run lint`                      | ESLint 检查 `.ts` `.tsx` `.vue`                |
-| Format check       | `npm run format:check`              | Prettier 格式校验                              |
-| Component registry | `npm run check:registry`            | barrel → import → NAME_TO_COMPONENT 三者一致性 |
-| Type check         | `npm run typecheck`                 | `vue-tsc --noEmit` 全量类型检查                |
-| Test               | `npm run test:coverage`             | Vitest 单元测试 + 覆盖率阈值门禁               |
-| Build library      | `npm run build`                     | Vite 构建组件库产物                            |
-| Bundle size        | `gzip -c dist/ui-frame.js \| wc -c` | JS < 20KB gzipped, CSS < 36KB gzipped          |
-| Build example      | `npm run example:build`             | 构建示例站点                                   |
-| Verify outputs     | `test -f ...`                       | 断言产物文件全部存在                           |
-| Package lint       | `npx publint`                       | 校验 exports/sideEffects/types 等包发布契约    |
-| Upload artifacts   | `actions/upload-artifact@v4`        | Node 22 only: 上传 `dist/` 和 `dist-example/`  |
+| 步骤               | 命令                                                 | 说明                                           |
+| ------------------ | ---------------------------------------------------- | ---------------------------------------------- |
+| Checkout           | `actions/checkout@v4`                                | 拉取代码                                       |
+| Setup Node         | `actions/setup-node@v4`                              | Node 20/22 矩阵 + npm 缓存                     |
+| Upgrade npm        | `npm install -g npm@11`                              | 锁定 npm 版本，避免 lock 文件兼容问题          |
+| Install            | `npm ci`                                             | 纯净安装，依赖 lock 文件                       |
+| Audit              | `npm audit --audit-level=high`                       | 安全检查（仅 high/critical 级别报错）          |
+| Lint               | `npm run lint`                                       | ESLint 检查 `.ts` `.tsx` `.vue`                |
+| Format check       | `npm run format:check`                               | Prettier 格式校验                              |
+| Component registry | `npm run check:registry`                             | barrel → import → NAME_TO_COMPONENT 三者一致性 |
+| Type check         | `npm run typecheck`                                  | `vue-tsc --noEmit` 全量类型检查                |
+| Test               | `npm run test:coverage`                              | Vitest 单元测试 + 覆盖率阈值门禁               |
+| Build library      | `npm run build`                                      | Vite 构建组件库产物                            |
+| Bundle size        | `find dist -name '*.js' -exec gzip -c {} + \| wc -c` | 全量载荷 < 180KB gzipped, CSS < 36KB gzipped   |
+| Build example      | `npm run example:build`                              | 构建示例站点                                   |
+| Verify outputs     | `test -f ...`                                        | 断言产物文件全部存在                           |
+| Package lint       | `npx publint`                                        | 校验 exports/sideEffects/types 等包发布契约    |
+| Upload artifacts   | `actions/upload-artifact@v4`                         | Node 22 only: 上传 `dist/` 和 `dist-example/`  |
 
 **产物校验清单**：
 
@@ -98,42 +98,52 @@ Example:
 
 ---
 
-### Publish — 发布到 npm
+### Release — Changesets 发布流水线
 
-**文件**：`.github/workflows/publish.yml`
+**文件**：`.github/workflows/release.yml`
 
 **触发条件**：
 
 ```yaml
 on:
-  release:
-    types: [published] # GitHub Release 发布后自动触发
+  push:
+    branches: [main] # main 更新即评估
   workflow_dispatch: # 支持手动触发
 ```
 
-**设计要点**：
+**发布模型（Changesets 标准流）**：
 
-- **发布锁**：`concurrency.group: publish` + `cancel-in-progress: false`，禁止并发发布
-- **权限最小化**：仅申请 `contents: write`（Release 关联）和 `id-token: write`（npm provenance）
-- **自动 provenance**：`npm publish --provenance --access public` 生成 SBOM 供应链证明
-- **Token 注入**：通过 `NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}` 认证
-- **完整验证**：发布前重复 CI 全流程（lint + format + typecheck + test + build + verify），确保无漏网之鱼
+```
+开发者 PR（携带 .changeset/*.md 变更说明）
+  → 合并到 main
+  → changesets/action 检测到未发布 changeset
+  → 自动开/更新 "Version Packages" PR（bump 版本 + 生成 CHANGELOG.md）
+  → 该 PR 合并后再次触发
+  → npm run release = npm run build && changeset publish --provenance
+  → 发布到 npm 并自动创建 GitHub Release
+```
 
-**任务流水线**：
+**配套脚本（package.json）**：
 
-| 步骤         | 命令                       | 说明                               |
-| ------------ | -------------------------- | ---------------------------------- |
-| Checkout     | `actions/checkout@v4`      | 拉取代码                           |
-| Setup Node   | `actions/setup-node@v4`    | Node 22 + npm 缓存 + registry 配置 |
-| Upgrade npm  | `npm install -g npm@11`    | 锁定 npm 版本                      |
-| Install      | `npm ci`                   | 纯净安装                           |
-| Lint         | `npm run lint`             | ESLint 检查                        |
-| Format check | `npm run format:check`     | Prettier 格式校验                  |
-| Type check   | `npm run typecheck`        | 全量类型检查                       |
-| Test         | `npm run test:coverage`    | 单元测试 + 覆盖率阈值门禁          |
-| Build        | `npm run build`            | 构建库产物                         |
-| Verify       | `test -f ...`              | 断言产物文件全部存在               |
-| Publish      | `npm publish --provenance` | 发布到 npm（含供应链证明）         |
+| 脚本      | 命令                                              | 用途               |
+| --------- | ------------------------------------------------- | ------------------ |
+| version   | `changeset version && npm run format`             | 版本 bump + 格式化 |
+| release   | `npm run build && changeset publish --provenance` | 构建并发布         |
+| changeset | `changeset`                                       | 本地新增变更说明   |
+
+**配套门禁**：
+
+- **PR changeset 检查**：CI 的 `changeset-check` job（仅 PR 触发）运行
+  `npx changeset status --since=origin/main` —— 无 changeset 文件则失败，
+  强制每个变更 PR 携带版本说明
+- **完整验证**：main 上的 CI 全量跑（lint + format + typecheck + test:coverage + build + verify + publint），发布前的最后一道防线
+- **权限最小化**：仅申请 `contents: write`、`id-token: write`、`pull-requests: write`
+
+---
+
+### Publish — 发布到 npm（已废弃，见 Release）
+
+旧 `publish.yml`（GitHub Release 触发 + 直连 `npm publish`）已被 Changesets 流水线取代并删除。
 
 **产物校验清单**（与 CI 一致）：
 
@@ -234,9 +244,9 @@ Push 到 main
             │
             └──→ 触发 Pages ──→ 下载 artifacts ──→ 部署到 GitHub Pages
 
-Release Published
+Push 到 main
   │
-  └──→ Publish ──→ Lint/Test/Build ──→ 发布到 npm
+  └──→ Release ──→ changesets/action ──→ Version PR ──→ 合并后发布到 npm
 ```
 
 ---
