@@ -115,6 +115,7 @@ function onDayClick(day: import('@/composables/useDatePicker').DayCell) {
   selectDate(day.date)
   // Close popover after selection
   popoverRef.value?.hide()
+  focusTrigger()
 }
 
 function onTodayClick() {
@@ -179,6 +180,25 @@ const monthNames = computed(() => {
 
 // Arrow-key grid navigation (WAI-ARIA grid pattern)
 const focusedDayIndex = ref(-1)
+
+// 触发器键盘路径：Enter/Space/ArrowDown 打开日历并把焦点移入当前日期格
+const triggerRef = ref<HTMLElement>()
+
+function focusTrigger() {
+  triggerRef.value?.focus()
+}
+
+function onTriggerKeydown(event: KeyboardEvent) {
+  if (props.disabled) return
+  if (event.key === 'Enter' || event.key === ' ' || event.key === 'ArrowDown') {
+    event.preventDefault()
+    if (focusedDayIndex.value === -1) {
+      focusedDayIndex.value = calendarDays.value.findIndex(d => d.isCurrentMonth && !d.isDisabled)
+    }
+    popoverRef.value?.show?.()
+  }
+}
+
 function handleCalendarKeydown(event: KeyboardEvent) {
   const total = calendarDays.value.length
   if (total === 0) return
@@ -211,12 +231,14 @@ function handleCalendarKeydown(event: KeyboardEvent) {
       if (cell && !cell.isDisabled) {
         selectDate(cell.date)
         popoverRef.value?.hide?.()
+        focusTrigger() // 焦点返回触发器（combobox 模式）
       }
       event.preventDefault()
       return
     }
     case 'Escape':
       popoverRef.value?.hide?.()
+      focusTrigger()
       event.preventDefault()
       return
     default:
@@ -243,13 +265,16 @@ function handleCalendarKeydown(event: KeyboardEvent) {
     >
       <!-- Trigger: input-like display area -->
       <div
+        ref="triggerRef"
         :class="classList"
+        :tabindex="disabled ? -1 : 0"
         :aria-label="label || resolvedPlaceholder"
         role="combobox"
         :aria-expanded="isOpen"
         :aria-haspopup="'dialog'"
         @focus="(e: FocusEvent) => handleFocus(e, emit)"
         @blur="(e: FocusEvent) => handleBlur(e, emit)"
+        @keydown="onTriggerKeydown"
       >
         <span
           class="nm-datepicker__value"

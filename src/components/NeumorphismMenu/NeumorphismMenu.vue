@@ -467,6 +467,15 @@ const expandIconClass = computed(() => [
       }
     }
 
+    // 键盘焦点可见（WCAG 2.4.7）—— 与 Button 焦点圈一致
+    &:focus-visible {
+      outline: none;
+      box-shadow:
+        0 0 0 2px var(--nm-primary-color),
+        4px 4px 8px var(--nm-shadow-dark),
+        -4px -4px 8px var(--nm-shadow-light);
+    }
+
     &:active {
       transform: translateY(0);
       transition:

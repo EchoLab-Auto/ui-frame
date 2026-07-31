@@ -36,6 +36,7 @@ export const zhCN: LocaleMessages = {
 
   // Select
   selectPlaceholder: '请选择',
+  switchToggle: '开关',
   selectEmpty: '暂无选项',
   selectClear: '清除选择',
   selectListLabel: '选项列表',

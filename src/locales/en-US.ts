@@ -36,6 +36,7 @@ export const enUS: LocaleMessages = {
 
   // Select
   selectPlaceholder: 'Please select',
+  switchToggle: 'Toggle switch',
   selectEmpty: 'No options',
   selectClear: 'Clear selection',
   selectListLabel: 'Option list',

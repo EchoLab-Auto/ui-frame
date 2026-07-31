@@ -70,4 +70,17 @@ describe('NeumorphismSwitch', () => {
     await wrapper.find('input[type="checkbox"]').setValue(false)
     expect(wrapper.emitted('update:modelValue')![0]).toEqual([false])
   })
+
+  it('should expose role=switch and localized fallback accessible name', () => {
+    const wrapper = mount(NeumorphismSwitch)
+    const input = wrapper.find('input[type="checkbox"]')
+    expect(input.attributes('role')).toBe('switch')
+    expect(input.attributes('aria-checked')).toBe('false')
+    expect(input.attributes('aria-label')).toBeTruthy()
+  })
+
+  it('should prefer activeText as accessible name when provided', () => {
+    const wrapper = mount(NeumorphismSwitch, { props: { activeText: '启用' } })
+    expect(wrapper.find('input[type="checkbox"]').attributes('aria-label')).toBe('启用')
+  })
 })

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useConfig } from '@/composables/useConfig'
+import { useLocale } from '@/composables/useLocale'
 
 export interface NeumorphismSwitchProps {
   /** v-model binding */
@@ -25,7 +26,12 @@ const props = withDefaults(defineProps<NeumorphismSwitchProps>(), {
 })
 
 const config = useConfig()
+const { t } = useLocale()
 const resolvedSize = computed(() => props.size ?? config.value.switch?.size ?? 'medium')
+// 双文本缺省时提供本地化的可访问名称（无障碍门槛：交互元素必须有名称）
+const resolvedAriaLabel = computed(
+  () => props.activeText || props.inactiveText || t('switchToggle')
+)
 
 const emit = defineEmits<{
   (e: 'update:modelValue', value: boolean): void
@@ -71,10 +77,12 @@ function handleChange(event: Event): void {
     <span class="nm-switch__wrapper">
       <input
         type="checkbox"
+        role="switch"
         class="nm-switch__input"
         :checked="isChecked"
         :disabled="disabled"
-        :aria-label="activeText || inactiveText || undefined"
+        :aria-checked="isChecked"
+        :aria-label="resolvedAriaLabel"
         @change="handleChange"
       />
       <span class="nm-switch__track" aria-hidden="true" :style="trackStyle">
