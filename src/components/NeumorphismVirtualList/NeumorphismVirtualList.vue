@@ -1,10 +1,10 @@
-<script setup lang="ts">
+<script setup lang="ts" generic="T">
 import { computed } from 'vue'
 import { useVirtualList } from '@/composables/useVirtualList'
 
-export interface NeumorphismVirtualListProps {
+export interface NeumorphismVirtualListProps<T> {
   /** Data array to render virtually */
-  items?: any[]
+  items?: T[]
   /** Fixed item height in pixels */
   itemHeight?: number
   /** Number of extra items rendered above and below the viewport */
@@ -13,7 +13,7 @@ export interface NeumorphismVirtualListProps {
   keyField?: string
 }
 
-const props = withDefaults(defineProps<NeumorphismVirtualListProps>(), {
+const props = withDefaults(defineProps<NeumorphismVirtualListProps<T>>(), {
   items: () => [],
   itemHeight: 40,
   overscan: 5,
@@ -36,7 +36,7 @@ defineExpose({ scrollTo })
       <div class="nm-virtual-list__visible" :style="{ transform: `translateY(${offsetY}px)` }">
         <div
           v-for="(item, i) in visibleItems"
-          :key="item[keyField] ?? startIndex + i"
+          :key="(item as Record<string, string | number>)[keyField] ?? startIndex + i"
           class="nm-virtual-list__item"
         >
           <!-- @slot Item rendering. Bind: item, index -->

@@ -1,11 +1,11 @@
-<script setup lang="ts">
+<script setup lang="ts" generic="T">
 import { computed, useSlots } from 'vue'
 import { useLocale } from '@/composables/useLocale'
 import { useNeumorphismSetup } from '@/extensions/createComponent'
 
-export interface NeumorphismListProps {
+export interface NeumorphismListProps<T> {
   /** Data array to render (when not using manual slot) */
-  items?: any[]
+  items?: T[]
   /** Show border around the list */
   bordered?: boolean
   /** Show dividers between items */
@@ -18,7 +18,7 @@ export interface NeumorphismListProps {
   loading?: boolean
 }
 
-const props = withDefaults(defineProps<NeumorphismListProps>(), {
+const props = withDefaults(defineProps<NeumorphismListProps<T>>(), {
   bordered: undefined,
   hoverable: undefined,
   split: undefined,
@@ -42,7 +42,7 @@ const resolvedHoverable = computed(() =>
 const { t } = useLocale()
 
 const emit = defineEmits<{
-  (e: 'item-click', item: any, index: number): void
+  (e: 'item-click', item: T, index: number): void
 }>()
 
 const isEmpty = computed(() => !props.loading && props.items.length === 0)
@@ -59,12 +59,13 @@ const classList = computed(() => [
   },
 ])
 
-function handleItemClick(item: any, index: number) {
+function handleItemClick(item: T, index: number) {
   emit('item-click', item, index)
 }
 
-function getItemKey(item: any, index: number): string | number {
-  return item?.id ?? item?.key ?? index
+function getItemKey(item: T, index: number): string | number {
+  const record = item as { id?: string | number; key?: string | number }
+  return record?.id ?? record?.key ?? index
 }
 </script>
 

@@ -67,7 +67,7 @@
     "docs:build": "echo '📚 文档位于 docs/ 目录。如需构建演示站点，请使用: npm run example:build'",
     "preview": "vite preview",
     "typecheck": "vue-tsc --noEmit",
-    "lint": "eslint . --ext .ts,.tsx,.vue",
+    "lint": "eslint . --ext .ts,.tsx,.vue --max-warnings=0",
     "lint:fix": "eslint . --ext .ts,.tsx,.vue --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",

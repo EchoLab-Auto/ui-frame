@@ -1,11 +1,11 @@
 import { ref, computed, watch, onMounted, onBeforeUnmount, type Ref, type ComputedRef } from 'vue'
 
-export interface UseVirtualListOptions {
+export interface UseVirtualListOptions<T = unknown> {
   /**
    * The full data array to virtualize.
    * The composable reads `items.value.length` to compute total height.
    */
-  items: Ref<any[]>
+  items: Ref<T[]>
 
   /**
    * Item height in pixels.
@@ -23,7 +23,7 @@ export interface UseVirtualListOptions {
   overscan?: Ref<number> | number
 }
 
-export interface UseVirtualListReturn {
+export interface UseVirtualListReturn<T = unknown> {
   /**
    * Template ref to attach to the scrollable container element.
    * The container must have overflow-y: auto (or scroll).
@@ -31,7 +31,7 @@ export interface UseVirtualListReturn {
   containerRef: Ref<HTMLElement | null>
 
   /** The currently visible slice of `items` — iterate this in the template. */
-  visibleItems: ComputedRef<any[]>
+  visibleItems: ComputedRef<T[]>
 
   /** Total height of the virtual spacer (all items combined), in px. */
   totalHeight: Ref<number>
@@ -67,7 +67,9 @@ export interface UseVirtualListReturn {
  * `containerRef` on the scrollable wrapper and wire `handleScroll` to its
  * `@scroll` event.
  */
-export function useVirtualList(opts: UseVirtualListOptions): UseVirtualListReturn {
+export function useVirtualList<T = unknown>(
+  opts: UseVirtualListOptions<T>
+): UseVirtualListReturn<T> {
   const { items } = opts
 
   // ---- Normalize overscan ----

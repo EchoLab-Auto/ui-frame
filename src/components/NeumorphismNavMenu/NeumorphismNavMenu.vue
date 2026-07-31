@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, type ComponentPublicInstance } from 'vue'
 import { useMenu } from '@/composables/useMenu'
 import { useNeumorphismSetup } from '@/extensions/createComponent'
 import { useTheme } from '@/composables/useTheme'
@@ -111,8 +111,8 @@ function onSubmenuMouseLeave(item: MenuItem) {
 // ---- Popover refs for dropdown positioning ----
 const popoverRefs = ref<Record<string, InstanceType<typeof NeumorphismPopover> | null>>({})
 
-function setPopoverRef(key: string, el: any) {
-  popoverRefs.value[key] = el
+function setPopoverRef(key: string, el: Element | ComponentPublicInstance | null) {
+  popoverRefs.value[key] = el as InstanceType<typeof NeumorphismPopover> | null
 }
 
 function onPopoverVisibleChange(item: MenuItem, visible: boolean) {

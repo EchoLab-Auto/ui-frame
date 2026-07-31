@@ -60,6 +60,13 @@ export default defineConfigWithVueTs(
     },
   },
   {
+    // CLI 脚本允许 console 输出
+    files: ['scripts/**'],
+    rules: {
+      'no-console': 'off',
+    },
+  },
+  {
     files: ['**/*.test.ts'],
     rules: {
       'vue/one-component-per-file': 'off',
