@@ -12,7 +12,7 @@ import NeumorphismUI from '@echolab-auto/ui-frame'
 import '@echolab-auto/ui-frame/dist/style.css'
 
 const app = createApp(App)
-app.use(NeumorphismUI) // 全局注册所有 46 个组件
+app.use(NeumorphismUI) // 全局注册所有 51 个组件
 app.mount('#app')
 ```
 
@@ -100,7 +100,7 @@ const { theme, isDark, toggleTheme } = provideTheme()
 
 ---
 
-## 4. 完整组件目录（46 个）
+## 4. 完整组件目录（51 个）
 
 ### 基础输入（10 个）
 
@@ -266,7 +266,12 @@ import {
   usePopover, // 弹出定位/边界检测
   useDatePicker, // 日历计算
   useVirtualList, // 虚拟滚动
-  // ... 共 29 个
+  useFloatingPosition, // 浮层定位引擎（rAF 追踪 + 边界翻转）
+  useScrollbar, // 滚动条行为（点阵/辉光覆盖层）
+  useChartInteraction, // 图表悬停交互
+  useFocusStack, // 嵌套弹层焦点栈
+  useReducedMotion, // 动画降级开关
+  // ... 共 44 个
 } from '@echolab-auto/ui-frame'
 ```
 
@@ -442,8 +447,8 @@ function showMsg() {
 
 - [API 参考](docs/develop/api.md) — 每个组件的 Props/Events/Slots 完整表格
 - [用户指南](docs/develop/guide.md) — 场景驱动的教程
-- [设计理念](docs/before-develop/design-philosophy.md) — 物理隐喻、Headless 分离等原则
-- [设计模式](docs/before-develop/design-patterns.md) — 级联配置、Token 系统等的代码体现
+- [设计理念](../before-develop/design-philosophy.md) — 物理隐喻、Headless 分离等原则
+- [设计模式](../before-develop/design-patterns.md) — 级联配置、Token 系统等的代码体现
 
 ---
 

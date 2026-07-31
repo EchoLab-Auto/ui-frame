@@ -683,6 +683,84 @@ import type { NeumorphismVirtualListProps } from '@echolab-auto/ui-frame'
 
 ---
 
+#### NeumorphismChartBar / NeumorphismChartLine / NeumorphismChartPie / NeumorphismChartCandlestick
+
+```ts
+import {
+  NeumorphismChartBar,
+  NeumorphismChartLine,
+  NeumorphismChartPie,
+  NeumorphismChartCandlestick,
+} from '@echolab-auto/ui-frame'
+```
+
+| 共同 Props  | Type      | Default | Description               |
+| ----------- | --------- | ------- | ------------------------- |
+| width       | `string`  | `100%`  | 图表宽度                  |
+| height      | `string`  | `300px` | 图表高度                  |
+| showTooltip | `boolean` | `true`  | 悬停提示（级联 chart 段） |
+| showLegend  | `boolean` | `true`  | 图例（Pie 无此项）        |
+| animate     | `boolean` | `true`  | 入场动画                  |
+
+- **ChartBar**: `series: ChartSeries[]`、`orientation`、`stacked`、`barGap`
+- **ChartLine**: `series: ChartSeries[]`、`curve('linear'|'smooth'|'step')`、`area`、`showPoints`、`lineWidth`、`pointSize`
+- **ChartPie**: `data: ChartDataPoint[]`、`innerRadius`、`padAngle`、`startAngle`、`labelPosition`、`roundedCorners`、`colorPalette`
+- **ChartCandlestick**: `data: OhlcDataPoint[]`、`showVolume`、`showMA`、`maPeriods`、`upColor`、`downColor`
+
+**Events:** `bar-click` / `point-click` / `arc-click` / `candle-click`（对应图形点击）
+
+**Slots:** `title`
+
+---
+
+#### NeumorphismLogo
+
+```ts
+import { NeumorphismLogo } from '@echolab-auto/ui-frame'
+import type { NeumorphismLogoProps, LogoMode } from '@echolab-auto/ui-frame'
+```
+
+| Props    | Type                                         | Default    | Description                  |
+| -------- | -------------------------------------------- | ---------- | ---------------------------- |
+| mode     | `'pulse' \| 'liquid' \| 'wave' \| 'pointer'` | `'pulse'`  | 像素动效模式（级联 logo 段） |
+| size     | `'small' \| 'medium' \| 'large'`             | `'medium'` | 尺寸                         |
+| goo      | `boolean`                                    | `true`     | gooey 融合滤镜               |
+| autoplay | `boolean`                                    | `true`     | 自动播放                     |
+| floating | `boolean`                                    | `true`     | 浮动动画                     |
+
+---
+
+#### NeumorphismScrollbar
+
+```ts
+import { NeumorphismScrollbar } from '@echolab-auto/ui-frame'
+import type { NeumorphismScrollbarProps, ScrollbarVariant } from '@echolab-auto/ui-frame'
+```
+
+| Props       | Type                                                    | Default      | Description                                     |
+| ----------- | ------------------------------------------------------- | ------------ | ----------------------------------------------- |
+| variant     | `'standard' \| 'primary' \| 'none' \| 'dots' \| 'glow'` | `'standard'` | 滚动条变体（dots/glow 为覆盖层）                |
+| target      | `string`                                                | `''`         | 目标滚动容器 CSS 选择器（必填；空串禁用）       |
+| dotColor    | `string`                                                | —            | 点阵基础色 `"r,g,b"`（缺省读 token）            |
+| accentColor | `string`                                                | —            | 强调色 `"r,g,b"`（缺省读 `--nm-primary-color`） |
+| sigma       | `number`                                                | `14`         | 点阵高斯半径                                    |
+
+> 1.0.6 起 `target` 不再默认 `.nm-layout__content`，必须显式传入。
+
+---
+
+#### NeumorphismFieldLabel / NeumorphismFieldError
+
+```ts
+import { NeumorphismFieldLabel, NeumorphismFieldError } from '@echolab-auto/ui-frame'
+```
+
+**NeumorphismFieldLabel:** `label?: string`、`required?: boolean`、`forId?: string` —— 表单字段标签（required 时显示 `*`）。
+
+**NeumorphismFieldError:** `id: string`、`message?: string` —— 错误提示（`role="alert"`，空消息不渲染）。
+
+---
+
 ### 反馈
 
 #### NeumorphismPopover
@@ -2199,6 +2277,153 @@ interface UseAutoCompleteReturn {
 
 ---
 
+### useChart / useBarChart / useLineChart / usePieChart / useCandlestickChart
+
+```ts
+import {
+  useChart,
+  useBarChart,
+  useLineChart,
+  usePieChart,
+  useCandlestickChart,
+} from '@echolab-auto/ui-frame'
+import type {
+  ChartSeries,
+  ChartDataPoint,
+  ChartMargin,
+  TooltipState,
+  UseBarChartOptions,
+  UseLineChartOptions,
+  UsePieChartOptions,
+  UseCandlestickChartOptions,
+  OhlcDataPoint,
+  PieArc,
+  BarRect,
+  ChartPoint,
+  CandleRect,
+  VolumeBar,
+  MALine,
+} from '@echolab-auto/ui-frame'
+```
+
+图表 headless 层：`useChart` 提供共享底座（containerSize 跟踪、plotSize、niceTicks、formatValue、调色板与主题跟随、tooltip 状态、级联解析），四个图形 composable 在其上产出几何数据。
+
+```ts
+interface UseChartOptions {
+  containerRef: Ref<HTMLElement | null>
+  series: Ref<ChartSeries[]> | ComputedRef<ChartSeries[]>
+  margin?: ChartMargin // 默认 { top: 24, right: 24, bottom: 40, left: 48 }；饼图用对称 24
+}
+
+interface UseBarChartOptions extends UseChartOptions {
+  orientation?: 'vertical' | 'horizontal'
+  barGap?: number // 组间距比例（默认 0.2）
+  stacked?: boolean
+  yMin?: number
+  yMax?: number
+}
+
+interface UseLineChartOptions extends UseChartOptions {
+  curve?: 'linear' | 'smooth' | 'step'
+  area?: boolean
+  areaOpacity?: number
+  showPoints?: boolean
+  pointSize?: number
+  lineWidth?: number
+  yMin?: number
+  yMax?: number
+}
+
+interface UsePieChartOptions {
+  containerRef: Ref<HTMLElement | null>
+  data: Ref<ChartDataPoint[]> | ComputedRef<ChartDataPoint[]>
+  margin?: ChartMargin
+  innerRadius?: number // 甜甜圈内半径（默认 0）
+  outerRadius?: number // 默认 min(plotW, plotH)/2
+  padAngle?: number
+  startAngle?: number // 角度制
+  labelPosition?: 'inside' | 'outside' | 'none'
+  roundedCorners?: boolean
+  colorPalette?: string[]
+}
+
+interface UseCandlestickChartOptions {
+  containerRef: Ref<HTMLElement | null>
+  data: Ref<OhlcDataPoint[]> | ComputedRef<OhlcDataPoint[]>
+  margin?: ChartMargin
+  showVolume?: boolean
+  showMA?: boolean
+  maPeriods?: number[] // 默认 [5, 10, 20]
+  upColor?: string
+  downColor?: string
+  showGrid?: boolean
+  showAxis?: boolean
+}
+```
+
+各返回值：`useBarChart → { bars, xAxisLabels, yAxisTicks, gridLines, ... }`；`useLineChart → { lines, points, ... }`；`usePieChart → { arcs, total, ... }`；`useCandlestickChart → { candles, volumeBars, maLines, priceToY, ... }`；共享底座字段（`plotSize / resolvedMargin / palette / tooltip / reducedMotion / niceTicks / formatValue / resolveProp / config`）均随各 composable 一并返回。
+
+---
+
+### useZIndex
+
+```ts
+import { useZIndex, Z_LAYERS, Z_STRIDE } from '@echolab-auto/ui-frame'
+```
+
+全局 z-index 分层系统。`Z_LAYERS = { dropdown: 100, tooltip: 200, popover: 300, overlay: 400, toast: 500 }`，`Z_STRIDE = 1000`（嵌套步长）。
+
+```ts
+const { getZIndex, registerOverlay, overlayCount } = useZIndex()
+// getZIndex(layer) —— 浮层元素自动叠加 overlayCount × Z_STRIDE，保证渲染在遮罩之上
+// registerOverlay() —— Modal/Drawer 打开时注册，返回注销函数（关闭时调用）
+```
+
+---
+
+### useFocusStack
+
+```ts
+import { useFocusStack } from '@echolab-auto/ui-frame'
+```
+
+嵌套弹层（Modal/Drawer）的焦点栈：开栈时保存先前焦点元素，关栈按 LIFO 恢复。`{ push(el), pop(): HTMLElement | null, depth(): number, destroy(): void }`。useModal/useDrawer 内部已接入。
+
+---
+
+### useSwipe
+
+```ts
+import { useSwipe } from '@echolab-auto/ui-frame'
+import type { SwipeDirection, UseSwipeOptions, UseSwipeReturn } from '@echolab-auto/ui-frame'
+```
+
+触摸滑动手势识别（方向/阈值/取消），返回 `{ direction, deltaX, deltaY, isSwiping }`；`UseSwipeOptions = { threshold?: number; onSwipeStart?: () => void; onSwipe?: (dir) => void; onSwipeEnd?: (dir) => void }`。
+
+---
+
+### useReducedMotion
+
+```ts
+import { useReducedMotion, prefersReducedMotion } from '@echolab-auto/ui-frame'
+```
+
+`useReducedMotion()` 返回 `{ isReducedMotion: Ref<boolean> }`（跟随 `prefers-reduced-motion` 媒体查询变化）；`prefersReducedMotion()` 为一次性非响应式读取。组件动画降级统一走此开关。
+
+---
+
+## 指令
+
+### vMagnetic
+
+```ts
+import { vMagnetic } from '@echolab-auto/ui-frame'
+```
+
+磁吸指令：元素随指针靠近产生位移吸附（物理隐喻：弱引力）。用法：`v-magnetic` 或 `v-magnetic="{ strength?: number; radius?: number }"`。
+
+---
+
 ## 组合式函数
 
 ### useTheme
@@ -2650,38 +2875,54 @@ interface RowGutterContext {
 ## 国际化
 
 ```ts
-import {
-  useLocale,
-  provideLocale,
-  getLocaleMessages,
-  LocaleKey,
-  zhCN,
-  enUS,
-} from '@echolab-auto/ui-frame'
+import { useLocale, provideLocale, zhCN, enUS } from '@echolab-auto/ui-frame'
 import type { LocaleMessages, Locale } from '@echolab-auto/ui-frame'
 ```
 
-| API               | 签名                                 | 说明               |
-| ----------------- | ------------------------------------ | ------------------ |
-| provideLocale     | `(locale: string) => void`           | 在根组件中提供语言 |
-| useLocale         | `() => { t, locale, setLocale }`     | 在子组件中使用     |
-| getLocaleMessages | `(locale: string) => LocaleMessages` | 获取指定语言的消息 |
-| zhCN              | `LocaleMessages`                     | 中文语言包         |
-| enUS              | `LocaleMessages`                     | 英文语言包         |
+| API           | 签名                                               | 说明                                 |
+| ------------- | -------------------------------------------------- | ------------------------------------ |
+| provideLocale | `(messages: LocaleMessages) => void`               | 向子树提供语言包（可部分覆盖内置键） |
+| useLocale     | `() => { locale: ComputedRef<LocaleMessages>, t }` | 读取当前语言包与翻译函数             |
+| zhCN          | `LocaleMessages`                                   | 简体中文语言包                       |
+| enUS          | `LocaleMessages`                                   | 英文语言包                           |
 
 ```ts
-type Locale = 'zh-CN' | 'en-US'
-
-type LocaleMessages = Record<string, string>
-
 function useLocale(): {
-  t: (key: string, params?: Record<string, string | number>) => string
-  locale: Ref<Locale>
-  setLocale: (locale: Locale) => void
+  locale: ComputedRef<LocaleMessages>
+  t: (key: keyof LocaleMessages, params?: Record<string, string | number>) => string
+}
+```
+
+> `t()` 支持 `{key}` 插值：`t('paginationTotal', { total: 100 })` → `'共 100 条'`。
+
+---
+
+## 主题 Token
+
+所有视觉参数以 CSS 自定义属性暴露（`--nm-*`)，亮/暗双主题定义于 `src/styles/tokens.scss`（亮）与 `[data-theme='dark']`（暗）。运行时可通过覆写变量自定义主题：
+
+| 类别   | 代表变量                                                                               | 说明                               |
+| ------ | -------------------------------------------------------------------------------------- | ---------------------------------- |
+| 颜色   | `--nm-bg-color`、`--nm-surface-color`、`--nm-primary-color`、`--nm-color-error`        | 背景/表面/主色/语义色              |
+| 文字   | `--nm-text-primary`、`--nm-text-secondary`、`--nm-text-placeholder`                    | 三级文字色                         |
+| 阴影   | `--nm-shadow-dark`、`--nm-shadow-light`、`--nm-shadow-ambient-lg`、`--nm-shadow-error` | 新拟态明暗阴影与环境光             |
+| 圆角   | `--nm-border-radius-sm/md/lg/full`                                                     | 8 / 16 / 24 / 9999 px              |
+| 间距   | `--nm-spacing-xs` ~ `--nm-spacing-xl`                                                  | 4 / 8 / 12 / 16 / 24 px            |
+| 过渡   | `--nm-transition-fast`、`--nm-transition-slow`                                         | 交互/主题切换时长                  |
+| 层级   | `--nm-z-dropdown/tooltip/popover/overlay/toast`                                        | 浮层基准层级                       |
+| 组件段 | `--nm-select-*`、`--nm-progress-*`、`--nm-chart-*` 等                                  | 组件级 token（Outlined/动效/图表） |
+
+覆写示例：
+
+```css
+:root {
+  --nm-primary-color: #7c6cff;
 }
 ```
 
 ---
+
+## SCSS 资源
 
 ## SCSS 资源
 
