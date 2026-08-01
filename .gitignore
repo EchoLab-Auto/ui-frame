@@ -46,3 +46,4 @@ coverage/
 .npm
 .eslintcache
 .stylelintcache
+storybook-static
