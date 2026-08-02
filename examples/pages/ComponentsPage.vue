@@ -541,6 +541,7 @@ const treeData = [
 // ---- 画布示例 ----
 const canvasZoom = ref(1)
 const canvasShowGrid = ref(true)
+const canvasGridVariant = ref<'dots' | 'lines'>('dots')
 
 // ---- Logo 动效示例 ----
 const logoMode = ref<'pulse' | 'liquid' | 'wave' | 'pointer'>('pulse')
@@ -2920,12 +2921,14 @@ const chartStockData = ref([
               <template #header>
                 <div class="demo-header">
                   <h3 class="demo-title">NeumorphismCanvas 画布</h3>
-                  <span class="demo-badge">网格背景 · 缩放控制 · SVG 流程图</span>
+                  <span class="demo-badge">拖拽平移 · 滚轮缩放 · 适应屏幕 · 全屏</span>
                 </div>
               </template>
 
               <div class="demo-block">
-                <h4 class="demo-label">SVG 流程图示例（缩放与网格可切换）</h4>
+                <h4 class="demo-label">
+                  SVG 流程图示例（拖拽平移、Ctrl/⌘+滚轮缩放，方向键平移，+/-/0 缩放）
+                </h4>
                 <div class="demo-row" style="margin-bottom: 10px">
                   <NeumorphismButton
                     size="small"
@@ -2933,6 +2936,13 @@ const chartStockData = ref([
                     @click="canvasShowGrid = !canvasShowGrid"
                   >
                     {{ canvasShowGrid ? '隐藏网格' : '显示网格' }}
+                  </NeumorphismButton>
+                  <NeumorphismButton
+                    size="small"
+                    variant="flat"
+                    @click="canvasGridVariant = canvasGridVariant === 'dots' ? 'lines' : 'dots'"
+                  >
+                    {{ canvasGridVariant === 'dots' ? '线条网格' : '点状网格' }}
                   </NeumorphismButton>
                   <NeumorphismButton size="small" variant="flat" @click="canvasZoom = 1">
                     重置缩放
@@ -2942,6 +2952,7 @@ const chartStockData = ref([
                 <NeumorphismCanvas
                   v-model="canvasZoom"
                   :show-grid="canvasShowGrid"
+                  :grid-variant="canvasGridVariant"
                   :grid-size="20"
                   :min-zoom="0.25"
                   :max-zoom="3"

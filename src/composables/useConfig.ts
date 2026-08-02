@@ -186,6 +186,7 @@ export interface NeumorphismGlobalConfig {
   canvas?: {
     showGrid?: boolean
     gridSize?: number
+    gridVariant?: 'dots' | 'lines'
     showControls?: boolean
   }
   /** Default skeleton props */

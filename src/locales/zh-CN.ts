@@ -19,6 +19,10 @@ export const zhCN: LocaleMessages = {
   canvasZoomOut: '缩小',
   canvasZoomIn: '放大',
   canvasZoomReset: '重置缩放',
+  canvasZoomFit: '适应屏幕',
+  canvasFullscreen: '进入全屏',
+  canvasExitFullscreen: '退出全屏',
+  canvasLabel: '画布视口,方向键平移,加减键缩放,0 重置',
 
   // Tree
   treeExpandAll: '全部展开',

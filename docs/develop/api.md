@@ -1327,19 +1327,28 @@ import { NeumorphismCanvas } from '@echolab-auto/ui-frame'
 import type { NeumorphismCanvasProps } from '@echolab-auto/ui-frame'
 ```
 
-| Props        | Type      | Default   | Description      |
-| ------------ | --------- | --------- | ---------------- |
-| modelValue   | `number`  | `1`       | 缩放比例         |
-| minZoom      | `number`  | `0.1`     | 最小缩放         |
-| maxZoom      | `number`  | `5`       | 最大缩放         |
-| zoomStep     | `number`  | `0.1`     | 缩放步长         |
-| showGrid     | `boolean` | `true`    | 是否显示网格     |
-| gridSize     | `number`  | `20`      | 网格大小(px)     |
-| showControls | `boolean` | `true`    | 是否显示控制按钮 |
-| width        | `string`  | `'100%'`  | 宽度             |
-| height       | `string`  | `'500px'` | 高度             |
+| Props          | Type                | Default   | Description                     |
+| -------------- | ------------------- | --------- | ------------------------------- |
+| modelValue     | `number`            | `1`       | 缩放比例                        |
+| minZoom        | `number`            | `0.1`     | 最小缩放                        |
+| maxZoom        | `number`            | `5`       | 最大缩放                        |
+| zoomStep       | `number`            | `0.1`     | 缩放步长                        |
+| showGrid       | `boolean`           | `true`    | 是否显示网格                    |
+| gridSize       | `number`            | `20`      | 网格大小(px)                    |
+| gridVariant    | `'dots' \| 'lines'` | `'dots'`  | 网格样式(点阵/线条)             |
+| showControls   | `boolean`           | `true`    | 是否显示控制按钮                |
+| showFit        | `boolean`           | `true`    | 是否显示"适应屏幕"按钮          |
+| showFullscreen | `boolean`           | `true`    | 是否显示全屏按钮                |
+| panOnDrag      | `boolean`           | `true`    | 鼠标拖拽平移(空格+拖拽始终可用) |
+| wheelZoom      | `boolean`           | `true`    | Ctrl/⌘ + 滚轮缩放至光标         |
+| width          | `string`            | `'100%'`  | 宽度                            |
+| height         | `string`            | `'500px'` | 高度                            |
 
 **Events:** `update:modelValue`, `zoom-change`
+
+**Exposes:** `zoomIn()`, `zoomOut()`, `resetZoom()`, `fit()`, `toggleFullscreen()`
+
+**键盘交互:** 视口聚焦后,方向键平移(Shift 加速),`+`/`-` 缩放,`0` 重置;按住空格可随时拖拽平移。
 
 ---
 
@@ -2793,7 +2802,7 @@ interface NeumorphismGlobalConfig {
   layout?: { siderWidth?: number; collapsible?: boolean }
   themeToggle?: { size?: ThemeToggleSize }
   tree?: { showSearch?: boolean; multiple?: boolean }
-  canvas?: { showGrid?: boolean; gridSize?: number }
+  canvas?: { showGrid?: boolean; gridSize?: number; gridVariant?: 'dots' | 'lines' }
   popover?: {
     position?: PopoverPosition
     trigger?: PopoverTrigger

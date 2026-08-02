@@ -21,6 +21,10 @@ export interface LocaleMessages {
   canvasZoomOut?: string
   canvasZoomIn?: string
   canvasZoomReset?: string
+  canvasZoomFit?: string
+  canvasFullscreen?: string
+  canvasExitFullscreen?: string
+  canvasLabel?: string
 
   /** Tree */
   treeExpandAll?: string

@@ -476,6 +476,9 @@
   --nm-chart-tooltip-text: var(--nm-text-primary);
   --nm-chart-axis-font-size: var(--nm-font-xs);
   --nm-chart-label-font-size: var(--nm-font-sm);
+
+  // Canvas (点阵网格颜色 —— 比占位文本柔和,避免喧宾夺主)
+  --nm-canvas-grid-color: color-mix(in srgb, var(--nm-text-placeholder) 45%, transparent);
   --nm-chart-line-width: 2.5px;
   --nm-chart-point-size: 6px;
   --nm-chart-bar-radius: 4px;
@@ -579,6 +582,9 @@
   --nm-chart-color-5: #5dade2;
   --nm-chart-color-6: #af7ac5;
   --nm-chart-grid-color: color-mix(in srgb, var(--nm-text-placeholder) 15%, transparent);
+
+  // Canvas (dark mode —— 点阵网格)
+  --nm-canvas-grid-color: color-mix(in srgb, var(--nm-text-placeholder) 55%, transparent);
 
   // Candlestick / Stock (dark mode — brighter for visibility)
   --nm-chart-up-color: #ef5350;

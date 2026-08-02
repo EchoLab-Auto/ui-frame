@@ -19,6 +19,10 @@ export const enUS: LocaleMessages = {
   canvasZoomOut: 'Zoom out',
   canvasZoomIn: 'Zoom in',
   canvasZoomReset: 'Reset zoom',
+  canvasZoomFit: 'Fit to screen',
+  canvasFullscreen: 'Enter fullscreen',
+  canvasExitFullscreen: 'Exit fullscreen',
+  canvasLabel: 'Canvas viewport, arrow keys to pan, plus/minus to zoom, 0 to reset',
 
   // Tree
   treeExpandAll: 'Expand all',
