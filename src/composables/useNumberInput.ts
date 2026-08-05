@@ -133,8 +133,10 @@ export function useNumberInput(opts: UseNumberInputOptions): UseNumberInputRetur
   function roundToStep(value: number): number {
     if (step <= 0) return value
     const p = precision.value
-    // Calculate from min so that stepping aligns on step boundaries
-    const stepped = Math.round((value - min) / step) * step + min
+    // 步进网格以 min 为原点对齐；min 为 -Infinity（未设置）时退化为以 0
+    // 为原点 —— 否则 (value - (-Infinity)) 直接产出 Infinity/NaN
+    const origin = Number.isFinite(min) ? min : 0
+    const stepped = Math.round((value - origin) / step) * step + origin
     return roundPrecision(stepped, p)
   }
 
@@ -155,13 +157,15 @@ export function useNumberInput(opts: UseNumberInputOptions): UseNumberInputRetur
   // ==========================================
 
   function increment(): void {
-    const current = modelValue.value ?? min
+    // 空值基值为 0（与原生 input[type=number] stepUp 对齐）—— 此前以 min
+    // 为基值，min 未设置（-Infinity）时第一步就产出 NaN 并永久卡死
+    const current = modelValue.value ?? 0
     const next = clamp(current + step, min, max)
     setValue(roundToStep(next))
   }
 
   function decrement(): void {
-    const current = modelValue.value ?? max
+    const current = modelValue.value ?? 0
     const next = clamp(current - step, min, max)
     setValue(roundToStep(next))
   }

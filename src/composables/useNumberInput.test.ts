@@ -174,4 +174,37 @@ describe('useNumberInput', () => {
     decrement()
     expect(modelValue.value).toBe(-5)
   })
+
+  it('未设置 min 时 increment 不应产出 NaN（roundToStep 无穷原点缺陷）', () => {
+    const modelValue = ref(3)
+    const { increment, decrement } = useNumberInput({ modelValue })
+    increment()
+    expect(modelValue.value).toBe(4)
+    decrement()
+    expect(modelValue.value).toBe(3)
+  })
+
+  it('未设置 min 时空值从 0 起步（对齐原生 stepUp/stepDown）', () => {
+    const modelValue = ref<number | undefined>(undefined)
+    const { increment, decrement } = useNumberInput({ modelValue })
+    increment()
+    expect(modelValue.value).toBe(1)
+    // 连续点击不得卡死（NaN 粘滞缺陷的回归保护）
+    increment()
+    expect(modelValue.value).toBe(2)
+
+    modelValue.value = undefined
+    decrement()
+    expect(modelValue.value).toBe(-1)
+    decrement()
+    expect(modelValue.value).toBe(-2)
+  })
+
+  it('空值步进尊重有限边界（clamp 到界内）', () => {
+    const modelValue = ref<number | undefined>(undefined)
+    const { increment } = useNumberInput({ modelValue, min: 5, max: 10 })
+    // 0 + 1 = 1 → clamp 到 min=5（与原生行为一致：空值首次步进落在 min）
+    increment()
+    expect(modelValue.value).toBe(5)
+  })
 })

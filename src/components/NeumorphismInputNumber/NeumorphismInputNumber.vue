@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onBeforeUnmount } from 'vue'
 import { useNeumorphismSetup } from '@/extensions/createComponent'
 import { useNumberInput } from '@/composables/useNumberInput'
 import NeumorphismFieldLabel from '@/components/NeumorphismField/NeumorphismFieldLabel.vue'
@@ -83,6 +83,47 @@ const { displayValue, increment, decrement, handleInput, handleKeydown, handleBl
   })
 
 // ==========================================
+// 边界禁用 —— 到达 min/max 时对应按钮呈禁用态（此前外观始终可点，
+// 点击却无效果，affordance 与实际行为矛盾）。空值视为可操作
+// ==========================================
+const canDecrement = computed(
+  () => props.modelValue === undefined || props.modelValue > (props.min ?? -Infinity)
+)
+const canIncrement = computed(
+  () => props.modelValue === undefined || props.modelValue < (props.max ?? Infinity)
+)
+
+// ==========================================
+// 长按连续步进 —— 对齐原生 spinner 与键盘长按（方向键有系统级重复）。
+// pointerdown 立即步进一次，400ms 后每 80ms 步进；抬起/取消/移出即停
+// ==========================================
+const REPEAT_DELAY = 400
+const REPEAT_INTERVAL = 80
+let repeatDelayId: number | undefined
+let repeatTimerId: number | undefined
+
+function stopRepeat(): void {
+  if (repeatDelayId !== undefined) {
+    clearTimeout(repeatDelayId)
+    repeatDelayId = undefined
+  }
+  if (repeatTimerId !== undefined) {
+    clearInterval(repeatTimerId)
+    repeatTimerId = undefined
+  }
+}
+
+function startRepeat(action: () => void): void {
+  stopRepeat()
+  action()
+  repeatDelayId = window.setTimeout(() => {
+    repeatTimerId = window.setInterval(action, REPEAT_INTERVAL)
+  }, REPEAT_DELAY)
+}
+
+onBeforeUnmount(stopRepeat)
+
+// ==========================================
 // CSS class list
 // ==========================================
 
@@ -119,10 +160,13 @@ function onFocus(event: FocusEvent): void {
         v-if="controls"
         type="button"
         class="nm-input-number__btn nm-input-number__btn--decrement"
-        :disabled="disabled"
+        :disabled="disabled || !canDecrement"
         :aria-label="'Decrement'"
         tabindex="-1"
-        @pointerdown.prevent="decrement"
+        @pointerdown.prevent="startRepeat(decrement)"
+        @pointerup="stopRepeat"
+        @pointercancel="stopRepeat"
+        @pointerleave="stopRepeat"
         @dblclick.prevent
       >
         <span class="nm-input-number__btn-icon">−</span>
@@ -150,10 +194,13 @@ function onFocus(event: FocusEvent): void {
         v-if="controls"
         type="button"
         class="nm-input-number__btn nm-input-number__btn--increment"
-        :disabled="disabled"
+        :disabled="disabled || !canIncrement"
         :aria-label="'Increment'"
         tabindex="-1"
-        @pointerdown.prevent="increment"
+        @pointerdown.prevent="startRepeat(increment)"
+        @pointerup="stopRepeat"
+        @pointercancel="stopRepeat"
+        @pointerleave="stopRepeat"
         @dblclick.prevent
       >
         <span class="nm-input-number__btn-icon">+</span>
@@ -191,6 +238,14 @@ $number-ambient: cubic-bezier(0.4, 0, 0.2, 1);
   width: 100%;
   border-radius: var(--nm-border-radius-md);
   overflow: hidden;
+  transition: box-shadow 0.3s $number-spring;
+
+  // 焦点外环必须绘在 body 层：input-wrapper 的外阴影会被 body 的
+  // overflow:hidden 裁掉上下两边（右侧还会被 + 按钮盖住），只剩左接缝
+  // 一小段残影；body 自身的外阴影不受自身 overflow 影响，整圈包住控件
+  &:focus-within {
+    box-shadow: 0 0 0 3px var(--nm-primary-color);
+  }
 }
 
 // ==========================================
@@ -208,10 +263,10 @@ $number-ambient: cubic-bezier(0.4, 0, 0.2, 1);
     background-color 0.3s $number-ambient;
 
   &:focus-within {
+    // 仅保留凹陷加深（"预压"物理隐喻）；外发光环由 body 层承担
     box-shadow:
       inset 5px 5px 10px var(--nm-shadow-dark),
-      inset -5px -5px 10px var(--nm-shadow-light),
-      0 0 0 3px var(--nm-primary-color);
+      inset -5px -5px 10px var(--nm-shadow-light);
     transition:
       box-shadow 0.3s $number-spring,
       background-color 0.3s $number-ambient;
@@ -306,7 +361,9 @@ $number-ambient: cubic-bezier(0.4, 0, 0.2, 1);
 // Disabled state
 // ==========================================
 .nm-input-number--disabled {
-  .nm-input-number__input-wrapper {
+  // 整体禁用：输入槽与按钮统一 0.6（此前 0.6/0.5 不一，整组发灰不均）
+  .nm-input-number__input-wrapper,
+  .nm-input-number__btn {
     opacity: 0.6;
     cursor: not-allowed;
   }
