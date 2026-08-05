@@ -297,6 +297,10 @@ const {
   offset: dropGap,
   floating: dropdownRef,
   candidates: ['bottom', 'top'],
+  // outlined 单盒会随展开长高 —— 逐帧判向会把盒底增长误判为空间不足，
+  // 展开中途翻转（下拉从下方瞬跳到上方）。锁定为打开时一次性决策；
+  // default 浮层翻转廉价，保留滚动中的滞后翻转
+  lockPlacement: computed(() => resolvedVariant.value === 'outlined'),
   onFrame: syncMarginCompensation,
 })
 
@@ -314,8 +318,25 @@ watch([selectedOption, activeValue], () => {
   if (isOpen.value) nextTick(scrollActiveIntoView)
 })
 
+// ==========================================
+// 外部点击关闭
+// ==========================================
+// blur 关闭只在焦点曾落到触发器/输入框时有效 —— 但 tags 区、清除钮、
+// 选项均有 @mousedown.prevent，从这些区域展开后焦点从未就位，
+// Escape 与 blur 双双失效，多选会卡在展开态。以 document 捕获阶段
+// pointerdown 兜底（捕获阶段不受选项 @mousedown.prevent / @click.stop 影响）。
+function onDocumentPointerDown(event: PointerEvent) {
+  const target = event.target as Node
+  if (triggerRef.value?.contains(target) || dropdownRef.value?.contains(target)) return
+  isOpen.value = false
+}
+
 watch(isOpen, open => {
   emit('visible-change', open)
+  if (typeof document !== 'undefined') {
+    if (open) document.addEventListener('pointerdown', onDocumentPointerDown, true)
+    else document.removeEventListener('pointerdown', onDocumentPointerDown, true)
+  }
   if (open) {
     visualOpen.value = true
     // watch 先于渲染触发，此时盒体仍是闭合态 —— 记录闭合高度作为负 margin 基准
@@ -342,9 +363,14 @@ function onAfterLeave() {
   }
 }
 
-// 组件在展开状态下被卸载（v-if / 路由切换）时停止逐帧轮询，
+// 组件在展开状态下被卸载（v-if / 路由切换）时停止逐帧轮询并解绑外部监听，
 // 否则 rAF 回调连同 triggerRef 闭包会泄漏
-onBeforeUnmount(stopPositionTracking)
+onBeforeUnmount(() => {
+  stopPositionTracking()
+  if (typeof document !== 'undefined') {
+    document.removeEventListener('pointerdown', onDocumentPointerDown, true)
+  }
+})
 
 const { getZIndex } = useZIndex()
 
@@ -797,10 +823,12 @@ function onContainerBlur(e: FocusEvent) {
 
   &--multiple {
     flex-wrap: wrap;
-    row-gap: var(--nm-spacing-xs);
     height: auto;
     padding-top: var(--nm-field-padding-y-sm);
     padding-bottom: var(--nm-field-padding-y-sm);
+    // 注意：不要在此设 row-gap —— 标签换行间距由 .nm-select__tags 自身的
+    // gap 承担；盒级 row-gap 在 outlined（column 布局）下会作用于
+    // face 与下拉两行之间，产生 4px 接缝，破坏"连体"构造
   }
 }
 
@@ -1089,6 +1117,16 @@ function onContainerBlur(e: FocusEvent) {
   border-radius: 0;
   box-shadow: none;
   z-index: auto;
+  // border-box 下 padding 不被 max-height:0 压缩 —— 展开首帧/收起末帧会
+  // 残留一条 8px 细条（露出被截断的选项文字）。纵向间距改由伪元素占位，
+  // 在盒内随 max-height→0 一起被裁掉；横向 padding 保留
+  padding: 0 var(--nm-spacing-xs);
+  &::before,
+  &::after {
+    content: '';
+    display: block;
+    height: var(--nm-spacing-xs);
+  }
   // 稳态高度调整（滚动/过滤改变可用空间或内容时）与展开同参缓动
   transition: max-height 0.34s $nm-ease-pull;
 

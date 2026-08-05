@@ -10,8 +10,13 @@ describe('NeumorphismSelect', () => {
     { label: 'Option C', value: 'c', disabled: true },
   ]
 
+  // 展开态的 Select 会在 document 上注册 pointerdown 监听（外部点击关闭），
+  // 不卸载会跨测试残留：后续测试分发的 document 事件会让陈年组件响应，
+  // 而其 teleport 锚点已被 innerHTML 清空 → 卸载补丁崩溃。逐个卸载再清 DOM。
+  const mountedWrappers: Array<{ unmount: () => void }> = []
+
   function mountSelect(props: Record<string, unknown> = {}, slots?: Record<string, string>) {
-    return mount(NeumorphismSelect, {
+    const wrapper = mount(NeumorphismSelect, {
       props: { options, ...props },
       slots,
       global: {
@@ -19,9 +24,12 @@ describe('NeumorphismSelect', () => {
       },
       attachTo: document.body,
     })
+    mountedWrappers.push(wrapper)
+    return wrapper
   }
 
   afterEach(() => {
+    while (mountedWrappers.length) mountedWrappers.pop()!.unmount()
     document.body.innerHTML = ''
   })
 
@@ -100,6 +108,7 @@ describe('NeumorphismSelect', () => {
       global: { stubs: { teleport: false, transition: false } },
       attachTo: document.body,
     })
+    mountedWrappers.push(wrapper)
     await wrapper.find('.nm-select').trigger('click')
     await nextTick()
     expect(document.querySelector('.nm-select__option--empty')).not.toBeNull()
@@ -193,6 +202,39 @@ describe('NeumorphismSelect', () => {
     const dropdown = document.querySelector('.nm-select__dropdown')
     expect(dropdown).not.toBeNull()
     expect(dropdown!.classList.contains('nm-select__dropdown--up')).toBe(false)
+  })
+
+  it('多选：从 tags 区域展开后点击文档外部可关闭（mousedown.prevent 使焦点未就位，blur 路径失效）', async () => {
+    // 用 outlined 变体：teleport 禁用、下拉内联渲染 —— 本文件其他用例的
+    // 真实 teleport + 真实 transition 组合在 happy-dom 下会留锚点残骸，
+    // 使 document 级事件分发引发跨组件崩溃。监听的 contains 判定与变体无关
+    const wrapper = mount(NeumorphismSelect, {
+      props: { options, multiple: true, modelValue: ['a'], variant: 'outlined' },
+    })
+    mountedWrappers.push(wrapper)
+    // tags 区域有 @mousedown.prevent —— 点击展开后焦点不会落到触发器，
+    // 依赖 blur 的关闭路径全部失效；document pointerdown 捕获兜底
+    await wrapper.find('.nm-select__tags').trigger('click')
+    await nextTick()
+    expect(wrapper.find('.nm-select__dropdown').exists()).toBe(true)
+
+    document.body.dispatchEvent(new Event('pointerdown', { bubbles: true }))
+    await nextTick()
+    expect(wrapper.find('.nm-select__dropdown').exists()).toBe(false)
+  })
+
+  it('展开时点击下拉内部不关闭', async () => {
+    const wrapper = mount(NeumorphismSelect, {
+      props: { options, variant: 'outlined' },
+    })
+    mountedWrappers.push(wrapper)
+    await wrapper.find('.nm-select').trigger('click')
+    await nextTick()
+    const dropdown = wrapper.find('.nm-select__dropdown')
+    expect(dropdown.exists()).toBe(true)
+    ;(dropdown.element as HTMLElement).dispatchEvent(new Event('pointerdown', { bubbles: true }))
+    await nextTick()
+    expect(wrapper.find('.nm-select__dropdown').exists()).toBe(true)
   })
 })
 

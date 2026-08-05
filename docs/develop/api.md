@@ -1584,6 +1584,7 @@ interface UseFloatingPositionOptions {
   flipHysteresis?: number // 翻转滞后 px（默认 48）
   minSpace?: number // 当前侧不足该值才考虑翻转（默认 120）
   estimateSize?: { width: number; height: number } // 浮层未挂载时的尺寸估计
+  lockPlacement?: Ref<boolean> // 锁定展开期间方向：打开决策一次后冻结至关闭（适合单盒连体变体）
   onFrame?: () => void // 每帧回调（用于逐帧同步，如负 margin 补偿）
 }
 

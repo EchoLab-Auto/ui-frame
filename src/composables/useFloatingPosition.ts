@@ -30,6 +30,14 @@ export interface UseFloatingPositionOptions {
   minSpace?: number
   /** floating 未挂载时的内容尺寸估计（默认 200×120） */
   estimateSize?: { width: number; height: number }
+  /**
+   * 锁定展开期间的方向：打开时以当前几何决策一次后冻结，逐帧追踪与
+   * refresh/resize 均不再重新判向，直到关闭（下次打开重新决策）。
+   * 适用于单盒连体变体（outlined）—— 其触发器本身会随展开长高，
+   * 逐帧判向会把盒底增长误判为"空间不足"而中途翻转；且翻转意味着
+   * 盒体 column-reverse 重构，任何中途翻转都极度刺眼。
+   */
+  lockPlacement?: Ref<boolean>
   /** 每帧回调（跟随 rAF 追踪，用于消费方做逐帧同步，如负 margin 补偿） */
   onFrame?: () => void
 }
@@ -82,6 +90,7 @@ export function useFloatingPosition(opts: UseFloatingPositionOptions): UseFloati
     flipHysteresis = 48,
     minSpace = 120,
     estimateSize = { width: 200, height: 120 },
+    lockPlacement,
     onFrame,
   } = opts
 
@@ -146,7 +155,10 @@ export function useFloatingPosition(opts: UseFloatingPositionOptions): UseFloati
     }
 
     let nextPlacement: FloatingPlacement
-    if (placement.value === 'auto') {
+    if (lockPlacement?.value && !pendingDecision) {
+      // 锁定：整段展开期间冻结方向，rect/available 照常逐帧同步
+      nextPlacement = actualPlacement.value
+    } else if (placement.value === 'auto') {
       // auto 仅在全量重估时重新选向，滚动中冻结防抖动
       nextPlacement = fullRecompute ? pickAuto(next) : actualPlacement.value
     } else {
@@ -154,6 +166,7 @@ export function useFloatingPosition(opts: UseFloatingPositionOptions): UseFloati
         ? pickWithHysteresis(next, placement.value)
         : pickWithHysteresis(next, actualPlacement.value)
     }
+    pendingDecision = false
     const flipped = nextPlacement !== actualPlacement.value
 
     // available 仅在打开/翻转/resize 时重估 —— 滚动中逐帧收缩会引起面板
@@ -181,6 +194,8 @@ export function useFloatingPosition(opts: UseFloatingPositionOptions): UseFloati
   // ---- rAF 逐帧追踪（open 驱动启停） ----
   let rafId: number | null = null
   let needsFullRecompute = false
+  // 锁定模式下仅打开转换后的首次 update 判向，其后冻结直到关闭
+  let pendingDecision = true
 
   function onWindowResize() {
     needsFullRecompute = true
@@ -227,6 +242,8 @@ export function useFloatingPosition(opts: UseFloatingPositionOptions): UseFloati
         window.removeEventListener('resize', onWindowResize)
       }
       actualPlacement.value = placement.value === 'auto' ? candidates[0] : placement.value
+      // 下次打开重新判向（锁定模式的一次决策随关闭失效）
+      pendingDecision = true
     }
   })
 
