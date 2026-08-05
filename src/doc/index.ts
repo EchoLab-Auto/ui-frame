@@ -24,11 +24,28 @@ export type { DocEditorProps } from './DocEditor.vue'
 export { default as MarkdownEditor } from './MarkdownEditor.vue'
 export type { MarkdownEditorProps } from './MarkdownEditor.vue'
 
+export { default as DocFlowCanvas } from './DocFlowCanvas.vue'
+export type { DocFlowCanvasProps } from './DocFlowCanvas.vue'
+
 // === 核心类型 ===
 export type { ProDocNode, DocTree, ProDocOptions } from './types.js'
+export type {
+  ProDocFlowDirection,
+  ProDocFlowNodeShape,
+  ProDocFlowNode,
+  ProDocFlowEdge,
+  ProDocFlowError,
+  ProDocFlowGraph,
+} from './types.js'
 
 // === 解析器 ===
 export { parseFrontmatter, pathToId, extractTitle, createNode, buildDocTree } from './parser.js'
+
+// === 流程图（prodoc-flow） ===
+export { parseProDocFlow, extractFlowBlocks } from './flow-parser.js'
+export { layoutProDocFlow } from './flow-layout.js'
+export type { FlowLayoutNode, FlowLayoutEdge, FlowLayoutResult } from './flow-layout.js'
+export { resolveCanvasGraph, buildHierarchyGraph } from './flow-graph.js'
 
 // === 文档树工具 ===
 export { createDocTree, flattenDocTree, getAncestors } from './doc-tree.js'

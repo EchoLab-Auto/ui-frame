@@ -1,5 +1,7 @@
 <script setup lang="ts">
+import { computed, ref, watch } from 'vue'
 import { useDocLayout } from './useDocLayout'
+import { resolveCanvasGraph } from './flow-graph'
 import type { ProDocNode } from './types.js'
 import NeumorphismLayout from '@/components/NeumorphismLayout/NeumorphismLayout.vue'
 import NeumorphismButton from '@/components/NeumorphismButton/NeumorphismButton.vue'
@@ -11,6 +13,7 @@ import NeumorphismTag from '@/components/NeumorphismTag/NeumorphismTag.vue'
 import NeumorphismContainer from '@/components/NeumorphismContainer/NeumorphismContainer.vue'
 import NeumorphismInput from '@/components/NeumorphismInput/NeumorphismInput.vue'
 import MarkdownRenderer from './MarkdownRenderer.vue'
+import DocFlowCanvas from './DocFlowCanvas.vue'
 
 export interface DocViewerProps {
   /** 文档树根节点 */
@@ -38,6 +41,7 @@ const {
   themeModel,
   searchQuery,
   searchResults,
+  docTree,
   handleTreeSelect,
   handleDocLink,
   handleSearchSelect,
@@ -45,6 +49,41 @@ const {
 
 function onDocLink(path: string) {
   handleDocLink(emit, path)
+}
+
+// ==========================================
+// 画布视图 —— 流程优先 / 层级地图回退 / 点击钻取（抽象 → 具体）
+// ==========================================
+
+/** 视图模式：文档正文 / 流程画布 */
+const viewMode = ref<'doc' | 'canvas'>('doc')
+
+/** 当前节点的画布图（无流程且无子级时为 null，画布入口禁用） */
+const canvasGraph = computed(() =>
+  displayNode.value ? resolveCanvasGraph(displayNode.value) : null
+)
+
+/** 切换文档时回到文档视图（新文档的画布语义由用户重新选择） */
+watch(displayNode, () => {
+  viewMode.value = 'doc'
+})
+
+/**
+ * 画布钻取：链接路径在树 key 上做三级归一（无前导斜杠存储 / 加斜杠 / 去斜杠），
+ * 命中后以真实节点 path 选中（避免 selectedNode 落空回退到首页）。
+ * 目标仍可出画布（有流程或有子级）→ 保持画布继续钻取；
+ * 否则落回文档视图 —— 抽象→具体的终点是正文。
+ */
+function onCanvasNavigate(path: string) {
+  const target =
+    docTree.value.findByPath(path) ??
+    docTree.value.findByPath(`/${path}`) ??
+    docTree.value.findByPath(path.replace(/^\//, ''))
+  if (!target) return
+  handleDocLink(emit, target.path)
+  if (!resolveCanvasGraph(target)) {
+    viewMode.value = 'doc'
+  }
 }
 </script>
 
@@ -57,6 +96,29 @@ function onDocLink(path: string) {
       </template>
 
       <template #header-right>
+        <!-- 视图切换：文档正文 / 流程画布 -->
+        <div class="neumorphism-view-switch" role="tablist" aria-label="视图切换">
+          <NeumorphismButton
+            size="small"
+            :variant="viewMode === 'doc' ? 'raised' : 'flat'"
+            role="tab"
+            :aria-selected="viewMode === 'doc'"
+            @click="viewMode = 'doc'"
+          >
+            📄 文档
+          </NeumorphismButton>
+          <NeumorphismButton
+            size="small"
+            :variant="viewMode === 'canvas' ? 'raised' : 'flat'"
+            role="tab"
+            :aria-selected="viewMode === 'canvas'"
+            :disabled="!canvasGraph"
+            :title="canvasGraph ? '流程画布' : '当前文档无流程图与子文档'"
+            @click="viewMode = 'canvas'"
+          >
+            🗺 画布
+          </NeumorphismButton>
+        </div>
         <div class="neumorphism-header-search">
           <NeumorphismInput
             v-model="searchQuery"
@@ -126,9 +188,17 @@ function onDocLink(path: string) {
               <div class="neumorphism-doc-body">
                 <Transition name="neumorphism-doc-switch" mode="out-in">
                   <MarkdownRenderer
+                    v-if="viewMode === 'doc'"
                     :key="displayNode.path"
                     :content="displayNode.body"
                     @doc-link="onDocLink"
+                  />
+                  <DocFlowCanvas
+                    v-else-if="canvasGraph"
+                    :key="`${displayNode.path}:canvas`"
+                    :graph="canvasGraph"
+                    height="calc(100vh - 320px)"
+                    @navigate="onCanvasNavigate"
                   />
                 </Transition>
               </div>
@@ -171,6 +241,13 @@ function onDocLink(path: string) {
 .neumorphism-header-brand {
   font-weight: 700;
   font-size: 17px;
+}
+
+/* 视图切换分段控件 */
+.neumorphism-view-switch {
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
 /* Header search */

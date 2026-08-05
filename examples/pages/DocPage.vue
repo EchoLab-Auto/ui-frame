@@ -74,6 +74,22 @@ class Person {
 
 ---
 
+## ProDoc 流程画布
+
+\`prodoc-flow\` 代码块会渲染为可交互的流程画布（NeumorphismCanvas 承载），
+带 ↗ 的节点可以点击跳转（触发 docLink 事件）：
+
+\`\`\`prodoc-flow
+graph LR
+  Start[开始|/index.md] --> Parse{解析 prodoc-flow}
+  Parse -->|有效| Canvas[/画布渲染/]
+  Parse -->|无效| Fallback[代码块回退]
+  Canvas --> Nav(点击节点跳转)
+\`\`\`
+
+语法要点：\`graph LR\` 声明方向（LR/RL/TB/BT）；\`[]\` 矩形、\`[/ /]\` 圆角、\`()\` 体育场、\`{}\` 菱形；
+\`显示文本|/路径.md\` 关联文档链接。
+
 ## 链接
 
 - [外部链接](https://github.com)
@@ -165,6 +181,24 @@ order: 0
 - 🔍 文档搜索
 - 🎨 主题切换
 - 📱 响应式布局
+`,
+  'guide/index.md': `---
+title: 使用指南
+order: 1
+---
+
+# 使用指南
+
+本章节包含使用说明。**点击头部右侧「🗺 画布」可以查看本章节的流程画布视图**。
+
+\`\`\`prodoc-flow
+graph LR
+  Home[首页|/index.md] --> Guide[使用指南|/guide/index.md]
+  Guide --> Quick[快速开始|/guide/getting-started.md]
+  Guide --> Comps[组件列表|/guide/components.md]
+  Quick --> API[API 文档|/api/index.md]
+  Comps --> API
+\`\`\`
 `,
   'guide/getting-started.md': `---
 title: 快速开始

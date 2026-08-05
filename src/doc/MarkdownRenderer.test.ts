@@ -308,4 +308,65 @@ describe('MarkdownRenderer', () => {
     const links = wrapper.findAll('.neumorphism-toc-item a')
     expect(links.length).toBeGreaterThan(0)
   })
+
+  // ==========================================
+  // prodoc-flow 画布集成
+  // ==========================================
+
+  const FLOW_MD =
+    '# 流程\n\n```prodoc-flow\ngraph LR\nA[首页|/guide/index.md] --> B{判断}\nB --> C[结束]\n```'
+
+  it('prodoc-flow 代码块挂载为 DocFlowCanvas 子树', async () => {
+    const wrapper = mountRenderer(FLOW_MD)
+    await nextTick()
+    await nextTick()
+
+    const placeholder = wrapper.find('.prodoc-flow-diagram')
+    expect(placeholder.exists()).toBe(true)
+    // 占位内渲染出流程画布（节点 3 个、边 2 条）
+    expect(placeholder.find('.nm-flow').exists()).toBe(true)
+    expect(placeholder.findAll('.nm-flow__node')).toHaveLength(3)
+    expect(placeholder.findAll('.nm-flow__edge')).toHaveLength(2)
+    // <pre> 源码回退已被替换
+    expect(placeholder.find('pre').exists()).toBe(false)
+  })
+
+  it('点击链接节点透传 docLink 事件', async () => {
+    const wrapper = mountRenderer(FLOW_MD)
+    await nextTick()
+    await nextTick()
+
+    const link = wrapper.find('.prodoc-flow-diagram .nm-flow__node--link')
+    expect(link.exists()).toBe(true)
+    await link.trigger('click')
+    expect(wrapper.emitted('docLink')).toEqual([['guide/index.md']])
+  })
+
+  it('内容切换后旧画布卸载、无残留无重复挂载', async () => {
+    const wrapper = mountRenderer(FLOW_MD)
+    await nextTick()
+    await nextTick()
+    expect(wrapper.findAll('.nm-flow')).toHaveLength(1)
+
+    await wrapper.setProps({ content: '# 新文档\n\n无流程图' })
+    await nextTick()
+    await nextTick()
+    expect(wrapper.findAll('.nm-flow')).toHaveLength(0)
+
+    // 换回流程内容：重新挂载且唯一
+    await wrapper.setProps({ content: FLOW_MD })
+    await nextTick()
+    await nextTick()
+    expect(wrapper.findAll('.nm-flow')).toHaveLength(1)
+  })
+
+  it('全非法源码保留 <pre> 回退', async () => {
+    const wrapper = mountRenderer('# 坏图\n\n```prodoc-flow\n这不是合法语句!!\n也不是!!\n```')
+    await nextTick()
+    await nextTick()
+    const placeholder = wrapper.find('.prodoc-flow-diagram')
+    expect(placeholder.exists()).toBe(true)
+    expect(placeholder.find('pre').exists()).toBe(true)
+    expect(placeholder.find('.nm-flow').exists()).toBe(false)
+  })
 })

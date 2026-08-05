@@ -1,5 +1,15 @@
 <script setup lang="ts">
-import { ref, computed, watch, nextTick, onBeforeUnmount } from 'vue'
+import {
+  ref,
+  computed,
+  watch,
+  nextTick,
+  onMounted,
+  onBeforeUnmount,
+  h,
+  render,
+  getCurrentInstance,
+} from 'vue'
 // TODO(perf): Change to dynamic import for lazy-loading (~40KB saving for non-doc consumers).
 // Requires refactoring extractToc + doRender + renderer setup to async patterns.
 import { marked } from 'marked'
@@ -7,6 +17,8 @@ import NeumorphismCard from '@/components/NeumorphismCard/NeumorphismCard.vue'
 import { generateId, escapeHtml, slugify } from '@/utils'
 import { useLocale } from '@/composables/useLocale'
 import TocNodeItem from './TocNodeItem.vue'
+import DocFlowCanvas from './DocFlowCanvas.vue'
+import { parseProDocFlow } from './flow-parser'
 
 export interface MarkdownRendererProps {
   /** Markdown 内容 */
@@ -125,6 +137,14 @@ renderer.code = ({ text, lang }) => {
   // Mermaid diagram support (optional, loaded dynamically on-mounted)
   if (lang === 'mermaid') {
     return `<div class="mermaid-diagram" data-mermaid="${escapeHtml(text)}"><pre><code>${escapeHtml(text)}</code></pre></div>`
+  }
+
+  // ProDoc 流程画布：占位 div + 挂载后替换为 DocFlowCanvas（见 mountFlowDiagrams）。
+  // 源码不放在 data-* 属性里 —— DOMPurify 的 mXSS 防护会剥除值含 "-->"
+  // 的自定义属性（流程图箭头必然命中）。<pre><code> 既作源码回退显示，
+  // 又是挂载时 textContent 还原源码的唯一来源（属性无法承担的通道）。
+  if (lang === 'prodoc-flow') {
+    return `<div class="prodoc-flow-diagram"><pre><code>${escapeHtml(text)}</code></pre></div>`
   }
 
   const highlighted = highlightCode(text, lang)
@@ -275,12 +295,63 @@ async function renderMermaidDiagrams() {
   }
 }
 
-// content 或 renderedHtml 变化后尝试渲染 mermaid 图表
+// content 或 renderedHtml 变化后重跑后处理（mermaid 替换 + 流程画布挂载）
 watch(renderedHtml, () => {
-  nextTick(() => {
-    renderMermaidDiagrams()
-  })
+  // v-html 即将替换 innerHTML —— 旧占位上的流程画布子树必须先手动卸载，
+  // 否则其 watcher/ResizeObserver 会随 DOM 移除而泄漏（Vue 运行时感知不到
+  // v-html 内部的手动挂载）
+  unmountFlowDiagrams()
+  nextTick(runPostRender)
 })
+
+// 首次挂载也必须跑后处理：renderedHtml 由 immediate watch 在本 watch 注册
+// 之前就已赋值，初始渲染不会触发上述 watch（此前 mermaid 首挂载同样依赖
+// purify 二次渲染"碰巧"触发，无 purify 时首挂载 mermaid 静默不渲染）
+onMounted(runPostRender)
+
+function runPostRender(): void {
+  renderMermaidDiagrams()
+  mountFlowDiagrams()
+}
+
+// ==========================================
+// prodoc-flow 画布挂载管线（占位 → DocFlowCanvas 子树）
+// ==========================================
+// 登记制：每个被替换的占位元素都记录在案，内容更新前与组件卸载时统一清理
+const flowMounts: HTMLElement[] = []
+// 关键：手动 render 的子树默认没有应用上下文，useLocale / 全局配置注入会静默
+// 回退默认值 —— 必须继承当前组件实例的 appContext
+const currentInstance = getCurrentInstance()
+
+function unmountFlowDiagrams(): void {
+  for (const el of flowMounts) {
+    render(null, el)
+  }
+  flowMounts.length = 0
+}
+
+function mountFlowDiagrams(): void {
+  if (!contentRef.value) return
+  const placeholders = contentRef.value.querySelectorAll('.prodoc-flow-diagram')
+  for (const el of placeholders) {
+    // 源码从 <pre><code> 回退内容的 textContent 还原（实体自动解码）——
+    // data-* 属性通道会被 DOMPurify 的 mXSS 规则剥除（值含 "-->"）
+    const source = el.querySelector('pre code')?.textContent ?? el.textContent ?? ''
+    const graph = parseProDocFlow(source)
+    // 无有效节点（全非法/空源码）→ 保留 <pre> 源码回退
+    if (graph.nodes.length === 0) continue
+
+    const vnode = h(DocFlowCanvas, {
+      graph,
+      height: '420px',
+      onNavigate: (path: string) => emit('docLink', path),
+    })
+    vnode.appContext = currentInstance?.appContext ?? null
+    el.innerHTML = ''
+    render(vnode, el as HTMLElement)
+    flowMounts.push(el as HTMLElement)
+  }
+}
 
 /** 将扁平 TOC 构建为层级树 */
 const tocTree = computed(() => {
@@ -626,6 +697,7 @@ watch([contentRef, renderedHtml], ([el]) => {
 onBeforeUnmount(() => {
   disconnectObservers()
   if (clickScrollTimer) clearTimeout(clickScrollTimer)
+  unmountFlowDiagrams()
 })
 
 /** autoHeading 变化时，自动展开被折叠的祖先节点 */

@@ -43,3 +43,54 @@ export interface ProDocOptions {
   /** 首页路径 */
   indexPath?: string
 }
+
+// ==========================================
+// ProDoc Flow —— 流程图（prodoc-flow 代码块）
+// ==========================================
+
+/** 流程图方向 */
+export type ProDocFlowDirection = 'LR' | 'RL' | 'TB' | 'BT'
+
+/** 流程图节点形状 */
+export type ProDocFlowNodeShape = 'rect' | 'rounded' | 'stadium' | 'diamond'
+
+/** 流程图节点 */
+export interface ProDocFlowNode {
+  /** 节点标识（源码中的裸标识符） */
+  id: string
+  /** 显示文本（缺省为 id） */
+  label: string
+  /** 形状 */
+  shape: ProDocFlowNodeShape
+  /**
+   * 关联文档路径（"显示文本|/路径.md" 语法）。
+   * 统一存储为**无前导斜杠**形式（如 `guide/index.md`），
+   * 查找文档树时按树 key 形态再做归一。
+   */
+  docPath?: string
+}
+
+/** 流程图边 */
+export interface ProDocFlowEdge {
+  from: string
+  to: string
+  label?: string
+}
+
+/** 流程图语法容错记录 */
+export interface ProDocFlowError {
+  /** 1-based 行号 */
+  line: number
+  /** 原始行文本 */
+  source: string
+  message: string
+}
+
+/** 解析后的流程图 */
+export interface ProDocFlowGraph {
+  direction: ProDocFlowDirection
+  nodes: ProDocFlowNode[]
+  edges: ProDocFlowEdge[]
+  /** 语法容错：非法行收集于此，渲染器可提示但不阻断 */
+  errors: ProDocFlowError[]
+}
