@@ -174,6 +174,55 @@ describe('useSlider', () => {
     isDragging.value = true
     expect(isDragging.value).toBe(true)
   })
+
+  it('rounds fractional steps without floating-point noise', () => {
+    const modelValue = ref(0)
+    const { setValue } = useSlider({
+      modelValue,
+      min: 0,
+      max: 1,
+      step: 0.1,
+    })
+    setValue(0.3)
+    expect(modelValue.value).toBe(0.3)
+  })
+
+  it('clamps after step rounding so the value never exceeds max', () => {
+    const modelValue = ref(0)
+    const { setValue } = useSlider({
+      modelValue,
+      min: 0,
+      max: 10,
+      step: 4,
+    })
+    // Math.round(10 / 4) * 4 = 12 — without the post-round clamp this
+    // would overshoot max.
+    setValue(10)
+    expect(modelValue.value).toBe(10)
+  })
+
+  it('setValue returns the applied value', () => {
+    const modelValue = ref(0)
+    const { setValue } = useSlider({
+      modelValue,
+      min: 0,
+      max: 100,
+      step: 5,
+    })
+    expect(setValue(7)).toBe(5)
+  })
+
+  it('handleKeydown returns the applied value, undefined for other keys', () => {
+    const modelValue = ref(50)
+    const { handleKeydown } = useSlider({
+      modelValue,
+      min: 0,
+      max: 100,
+      step: 10,
+    })
+    expect(handleKeydown(new KeyboardEvent('keydown', { key: 'ArrowRight' }))).toBe(60)
+    expect(handleKeydown(new KeyboardEvent('keydown', { key: 'a' }))).toBeUndefined()
+  })
 })
 
 describe('coordinateToValue', () => {
@@ -206,5 +255,11 @@ describe('coordinateToValue', () => {
   it('should round to step', () => {
     const value = coordinateToValue(23, 0, 100, 0, 100, 10, false)
     expect(value).toBe(20)
+  })
+
+  it('clamps after rounding so a coarse step cannot overshoot max', () => {
+    // ratio 1 → raw 10 → rounds to 12 with step 4 → must clamp back to 10
+    const value = coordinateToValue(10, 0, 10, 0, 10, 4, false)
+    expect(value).toBe(10)
   })
 })

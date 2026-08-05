@@ -20,10 +20,13 @@ export interface UseSliderReturn {
   sliderValue: ComputedRef<number>
   /** Value expressed as a percentage (0–100) */
   percentage: ComputedRef<number>
-  /** Programmatically set the slider value */
-  setValue: (value: number) => void
-  /** Keyboard event handler */
-  handleKeydown: (event: KeyboardEvent) => void
+  /** Programmatically set the slider value; returns the applied (clamped, stepped) value */
+  setValue: (value: number) => number
+  /**
+   * Keyboard event handler. Returns the applied value when a key was handled,
+   * `undefined` otherwise (disabled or unrecognized key).
+   */
+  handleKeydown: (event: KeyboardEvent) => number | undefined
   /** Whether the thumb is currently being dragged */
   isDragging: Ref<boolean>
 }
@@ -38,10 +41,14 @@ function clamp(value: number, min: number, max: number): number {
 
 /**
  * Round a value to the nearest step boundary relative to min.
+ * Decimal precision is derived from `step` so fractional steps don't leak
+ * floating-point noise (e.g. step 0.1 producing 0.30000000000000004).
  */
 function roundToStep(value: number, min: number, step: number): number {
   if (step <= 0) return value
-  return Math.round((value - min) / step) * step + min
+  const stepped = Math.round((value - min) / step) * step + min
+  const decimals = (String(step).split('.')[1] ?? '').length
+  return decimals > 0 ? Number(stepped.toFixed(decimals)) : stepped
 }
 
 /**
@@ -70,7 +77,9 @@ export function coordinateToValue(
 
   ratio = clamp(ratio, 0, 1)
   const raw = min + ratio * (max - min)
-  return roundToStep(raw, min, step)
+  // Rounding to the nearest step can overshoot the range (e.g. max=10, step=4
+  // rounds 10 → 12), so clamp again after rounding.
+  return clamp(roundToStep(raw, min, step), min, max)
 }
 
 /**
@@ -98,21 +107,23 @@ export function useSlider(opts: UseSliderOptions): UseSliderReturn {
   // Set value with clamping and step rounding
   // ==========================================
 
-  function setValue(value: number): void {
-    if (disabled?.value) return
-    const clamped = clamp(value, min, max)
-    const stepped = roundToStep(clamped, min, step)
-    modelValue.value = stepped
+  function setValue(value: number): number {
+    if (disabled?.value) return sliderValue.value
+    // Round before clamping: rounding can push the value out of range
+    // (e.g. max=10, step=4 rounds 10 → 12), so clamp last.
+    const applied = clamp(roundToStep(value, min, step), min, max)
+    modelValue.value = applied
+    return applied
   }
 
   // ==========================================
   // Keyboard navigation
   // ==========================================
 
-  function handleKeydown(event: KeyboardEvent): void {
-    if (disabled?.value) return
+  function handleKeydown(event: KeyboardEvent): number | undefined {
+    if (disabled?.value) return undefined
 
-    let prevent = true
+    let applied: number | undefined
     const current = sliderValue.value
 
     switch (event.key) {
@@ -121,45 +132,41 @@ export function useSlider(opts: UseSliderOptions): UseSliderReturn {
         const increment = step
         // ArrowUp in horizontal mode still increases; ArrowRight in vertical
         // follows the logical "increase" direction regardless of orientation.
-        const next = clamp(current + increment, min, max)
-        setValue(next)
+        applied = setValue(clamp(current + increment, min, max))
         break
       }
       case 'ArrowLeft':
       case 'ArrowDown': {
         const decrement = step
-        const next = clamp(current - decrement, min, max)
-        setValue(next)
+        applied = setValue(clamp(current - decrement, min, max))
         break
       }
       case 'Home': {
-        setValue(min)
+        applied = setValue(min)
         break
       }
       case 'End': {
-        setValue(max)
+        applied = setValue(max)
         break
       }
       case 'PageUp': {
         // Jump by 10 steps (or 10% of range if step is very small)
         const jump = Math.max(step * 10, (max - min) / 10)
-        setValue(clamp(current + jump, min, max))
+        applied = setValue(clamp(current + jump, min, max))
         break
       }
       case 'PageDown': {
         const jump = Math.max(step * 10, (max - min) / 10)
-        setValue(clamp(current - jump, min, max))
+        applied = setValue(clamp(current - jump, min, max))
         break
       }
       default: {
-        prevent = false
-        break
+        return undefined
       }
     }
 
-    if (prevent) {
-      event.preventDefault()
-    }
+    event.preventDefault()
+    return applied
   }
 
   return {

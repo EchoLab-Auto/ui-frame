@@ -56,6 +56,11 @@ const resolvedShowStops = computed<boolean>(() =>
 
 const emit = defineEmits<{
   (e: 'update:modelValue', value: number): void
+  /**
+   * Committed value — fires once per interaction (drag release / keyboard),
+   * matching native `<input type="range">` semantics. `update:modelValue`
+   * fires continuously; listen to that one for live feedback instead.
+   */
   (e: 'change', value: number): void
 }>()
 
@@ -71,7 +76,6 @@ const { sliderValue, percentage, setValue, handleKeydown, isDragging } = useSlid
     get: () => props.modelValue,
     set: val => {
       emit('update:modelValue', val)
-      emit('change', val)
     },
   }),
   min: props.min,
@@ -88,17 +92,27 @@ const { sliderValue, percentage, setValue, handleKeydown, isDragging } = useSlid
 const railRef = ref<HTMLElement | null>(null)
 const dragging = ref(false)
 
-function getTrackRect(): DOMRect | null {
-  return railRef.value?.getBoundingClientRect() ?? null
+// Track geometry, cached at drag start. Reading getBoundingClientRect on
+// every pointermove would force a synchronous reflow each frame, because the
+// previous frame's value update already dirtied layout — the classic drag
+// jank pattern.
+let trackRect: DOMRect | null = null
+// pointermove only records the latest coordinate; a rAF callback applies at
+// most one value update per frame, keeping high-frequency pointers (120Hz+
+// mice, high-refresh touchscreens) aligned with the display refresh.
+let pendingCoord: { x: number; y: number } | null = null
+let rafId = 0
+
+function cacheTrackRect(): void {
+  trackRect = railRef.value?.getBoundingClientRect() ?? null
 }
 
-function updateValueFromEvent(clientX: number, clientY: number): void {
-  const rect = getTrackRect()
-  if (!rect) return
+function updateValueFromCoord(clientX: number, clientY: number): number | undefined {
+  if (!trackRect) return undefined
 
   const coord = props.vertical ? clientY : clientX
-  const trackStart = props.vertical ? rect.top : rect.left
-  const trackSize = props.vertical ? rect.height : rect.width
+  const trackStart = props.vertical ? trackRect.top : trackRect.left
+  const trackSize = props.vertical ? trackRect.height : trackRect.width
 
   const value = coordinateToValue(
     coord,
@@ -109,7 +123,15 @@ function updateValueFromEvent(clientX: number, clientY: number): void {
     props.step,
     props.vertical
   )
-  setValue(value)
+  return setValue(value)
+}
+
+function flushPendingCoord(): void {
+  rafId = 0
+  if (!pendingCoord) return
+  const { x, y } = pendingCoord
+  pendingCoord = null
+  updateValueFromCoord(x, y)
 }
 
 function onPointerDown(event: PointerEvent): void {
@@ -121,12 +143,21 @@ function onPointerDown(event: PointerEvent): void {
   const target = event.currentTarget as HTMLElement
   target.setPointerCapture(event.pointerId)
 
-  updateValueFromEvent(event.clientX, event.clientY)
+  cacheTrackRect()
+  // The rect is viewport-relative, so refresh it if the page scrolls or
+  // resizes mid-drag.
+  window.addEventListener('scroll', cacheTrackRect, { passive: true, capture: true })
+  window.addEventListener('resize', cacheTrackRect, { passive: true })
+
+  updateValueFromCoord(event.clientX, event.clientY)
 }
 
 function onPointerMove(event: PointerEvent): void {
   if (!dragging.value) return
-  updateValueFromEvent(event.clientX, event.clientY)
+  pendingCoord = { x: event.clientX, y: event.clientY }
+  if (!rafId) {
+    rafId = requestAnimationFrame(flushPendingCoord)
+  }
 }
 
 function onPointerUp(event: PointerEvent): void {
@@ -136,6 +167,28 @@ function onPointerUp(event: PointerEvent): void {
 
   const target = event.currentTarget as HTMLElement
   target.releasePointerCapture(event.pointerId)
+
+  window.removeEventListener('scroll', cacheTrackRect, { capture: true })
+  window.removeEventListener('resize', cacheTrackRect)
+
+  // Apply the release point synchronously so the final value is exact,
+  // then commit it with a single `change` event.
+  if (rafId) {
+    cancelAnimationFrame(rafId)
+    rafId = 0
+  }
+  pendingCoord = null
+  const applied = updateValueFromCoord(event.clientX, event.clientY)
+  if (applied !== undefined) {
+    emit('change', applied)
+  }
+}
+
+function onThumbKeydown(event: KeyboardEvent): void {
+  const applied = handleKeydown(event)
+  if (applied !== undefined) {
+    emit('change', applied)
+  }
 }
 
 // ==========================================
@@ -234,7 +287,7 @@ const classList = computed(() => [
           :aria-label="`${t('sliderThumb')}: ${ariaValueText}`"
           :aria-disabled="disabled || undefined"
           :aria-orientation="vertical ? 'vertical' : 'horizontal'"
-          @keydown="handleKeydown"
+          @keydown="onThumbKeydown"
           @pointerdown.stop="onPointerDown"
         />
 
@@ -340,7 +393,17 @@ $slider-thumb-spring: cubic-bezier(0.34, 1.1, 0.64, 1);
     var(--nm-slider-track-color, var(--nm-primary-color)),
     color-mix(in srgb, var(--nm-primary-color) 85%, var(--nm-primary-light))
   );
-  transition: all 0.3s $slider-ambient;
+  // Size transition gives keyboard / programmatic changes a gentle glide…
+  transition:
+    width 0.3s $slider-ambient,
+    height 0.3s $slider-ambient,
+    background 0.3s $slider-ambient;
+
+  // …but while dragging the fill must follow the thumb instantly, otherwise
+  // it visibly trails ~300ms behind (rubber-band effect).
+  .nm-slider--dragging & {
+    transition: none;
+  }
 
   .nm-slider:not(.nm-slider--vertical) & {
     top: 0;
