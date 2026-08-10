@@ -110,4 +110,25 @@ describe('layoutProDocFlow', () => {
       expect(n.y + n.h).toBeLessThanOrEqual(r.height)
     }
   })
+
+  it('跨层边与回边走正交通道绕行，不穿越节点', () => {
+    // 跨层边 A→D、回边 C→A 均为 L 折线通道；逐段采样不得进入任何第三方节点
+    const r = layout('graph LR\nA --> B --> C --> A\nB --> D\nA --> D')
+    const channel = r.edges.filter(e => e.path.includes(' L '))
+    expect(channel.length).toBe(2)
+    for (const e of channel) {
+      const pts = [...e.path.matchAll(/[ML] ([\d.-]+),([\d.-]+)/g)].map(m => [+m[1], +m[2]])
+      for (let i = 0; i < pts.length - 1; i++) {
+        for (let k = 0; k <= 12; k++) {
+          const x = pts[i][0] + ((pts[i + 1][0] - pts[i][0]) * k) / 12
+          const y = pts[i][1] + ((pts[i + 1][1] - pts[i][1]) * k) / 12
+          for (const n of r.nodes.values()) {
+            if (n.id === e.from || n.id === e.to) continue
+            const inside = x > n.x + 2 && x < n.x + n.w - 2 && y > n.y + 2 && y < n.y + n.h - 2
+            expect(inside).toBe(false)
+          }
+        }
+      }
+    }
+  })
 })

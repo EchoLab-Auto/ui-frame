@@ -3,7 +3,9 @@
  *
  * 零依赖、纯函数、输出确定（同输入必同输出）。
  * 流程：尺寸估算 → 方向归一化（RL→LR、BT→TB，末步镜像）→ Kahn 分层（防环，
- * 回边仍绘制）→ 层内单轮 barycenter 排序 → 坐标分配 → 贝塞尔边路径。
+ * 回边仍绘制）→ 层内多轮往返 barycenter 排序 → 坐标分配 → 贝塞尔边路径。
+ * 跨层边（span ≥ 2）与回边统一走**外侧通道**绕行（水平布局走底部、垂直布局
+ * 走右侧），避免穿越中间层节点；边标签定位于曲线上（t=0.5）。
  * 复杂度 O(V+E)，文档级流程图（< 50 节点）瞬时完成。
  */
 
@@ -48,8 +50,11 @@ const ASCII_W = 8
 const LAYER_GAP = 90
 const NODE_GAP = 28
 const CANVAS_PAD = 48
-/** barycenter 排序轮数（默认 1；复杂图可调大） */
-const DEFAULT_PASSES = 1
+/** barycenter 排序往返扫掠轮数（每轮 = 下行 + 上行各一遍） */
+const DEFAULT_SWEEPS = 4
+/** 外侧通道（跨层边/回边绕行）距节点边界的偏移与通道间距 */
+const CHANNEL_OFFSET = 28
+const CHANNEL_GAP = 20
 
 /** CJK / 全角字符区间 */
 const CJK_RE = /[぀-ヿ㐀-鿿豈-﫿￠-￦⺀-�＀-￯]/
@@ -81,11 +86,11 @@ interface SizeMap {
 /**
  * 分层 DAG 布局。
  * @param graph 解析后的流程图
- * @param passes 层内 barycenter 排序轮数（默认 1）
+ * @param sweeps 层内 barycenter 往返扫掠轮数（默认 4）
  */
 export function layoutProDocFlow(
   graph: ProDocFlowGraph,
-  passes: number = DEFAULT_PASSES
+  sweeps: number = DEFAULT_SWEEPS
 ): FlowLayoutResult {
   const { nodes, edges, direction } = graph
   const result: FlowLayoutResult = { nodes: new Map(), edges: [], width: 0, height: 0 }
@@ -142,7 +147,7 @@ export function layoutProDocFlow(
   })
 
   // ==========================================
-  // 层内排序（单轮 barycenter，初始序 = 声明序）
+  // 层内排序（多轮往返 barycenter：下行按前层重心、上行按后层重心）
   // ==========================================
   const maxLayer = Math.max(...layer.values())
   const layers: string[][] = Array.from({ length: maxLayer + 1 }, () => [])
@@ -167,24 +172,40 @@ export function layoutProDocFlow(
     inEdges.get(e.to)!.push(e.from)
   }
 
-  for (let pass = 0; pass < passes; pass++) {
+  function barycenter(
+    id: string,
+    refLayerIds: Set<string>,
+    neighbors: Map<string, string[]>
+  ): number {
+    const refs = (neighbors.get(id) ?? []).filter(f => refLayerIds.has(f))
+    if (refs.length === 0) return orderInLayer.get(id)!
+    const sum = refs.reduce((acc, f) => acc + (orderInLayer.get(f) ?? 0), 0)
+    return sum / refs.length
+  }
+
+  for (let sweep = 0; sweep < sweeps; sweep++) {
+    // 下行：按前驱在上一层的重心排序
     for (let li = 1; li < layers.length; li++) {
       const prevLayerIds = new Set(layers[li - 1])
       layers[li].sort((a, b) => {
-        const baryA = barycenter(a, prevLayerIds)
-        const baryB = barycenter(b, prevLayerIds)
+        const baryA = barycenter(a, prevLayerIds, inEdges)
+        const baryB = barycenter(b, prevLayerIds, inEdges)
         if (baryA !== baryB) return baryA - baryB
         return orderInLayer.get(a)! - orderInLayer.get(b)! // 稳定
       })
       refreshOrder()
     }
-  }
-
-  function barycenter(id: string, prevLayerIds: Set<string>): number {
-    const froms = (inEdges.get(id) ?? []).filter(f => prevLayerIds.has(f))
-    if (froms.length === 0) return orderInLayer.get(id)!
-    const sum = froms.reduce((acc, f) => acc + (orderInLayer.get(f) ?? 0), 0)
-    return sum / froms.length
+    // 上行：按后继在下一层的重心排序
+    for (let li = layers.length - 2; li >= 0; li--) {
+      const nextLayerIds = new Set(layers[li + 1])
+      layers[li].sort((a, b) => {
+        const baryA = barycenter(a, nextLayerIds, outEdges)
+        const baryB = barycenter(b, nextLayerIds, outEdges)
+        if (baryA !== baryB) return baryA - baryB
+        return orderInLayer.get(a)! - orderInLayer.get(b)!
+      })
+      refreshOrder()
+    }
   }
 
   // ==========================================
@@ -252,73 +273,112 @@ export function layoutProDocFlow(
   }
 
   // ==========================================
-  // 边路径（三次贝塞尔；回边绕行虚线）
+  // 边路径
+  // 邻层边：三次贝塞尔 S 形直连；跨层边（span ≥ 2）与回边：正交通道绕行——
+  // 先进入层间空隙（安全区），再汇入外侧高速通道（水平布局在底部、垂直布局
+  // 在右侧，多条按声明序依次外扩），最后从目标层后方空隙进入目标尾部侧边。
+  // 全程不穿越任何节点。标签：贝塞尔边取曲线上 t=0.5，通道边取通道段中点。
   // ==========================================
+  const nodesMaxX = Math.max(0, ...[...placed.values()].map(p => p.x + p.w))
+  const nodesMaxY = Math.max(0, ...[...placed.values()].map(p => p.y + p.h))
+
+  // 需要绕行的边按声明序分配通道（确定性）
+  const channelIdx = new Map<number, number>()
+  {
+    let ch = 0
+    edges.forEach((e, i) => {
+      const span = Math.abs((layer.get(e.to) ?? 0) - (layer.get(e.from) ?? 0))
+      if (backEdgeIdx.has(i) || span >= 2) channelIdx.set(i, ch++)
+    })
+  }
+
   const layoutEdges: FlowLayoutEdge[] = []
   edges.forEach((e, i) => {
     const from = placed.get(e.from)
     const to = placed.get(e.to)
     if (!from || !to) return
     const isBack = backEdgeIdx.has(i)
+    const chIdx = channelIdx.get(i)
 
-    let sx: number,
-      sy: number,
-      tx: number,
-      ty: number,
-      c1x: number,
-      c1y: number,
-      c2x: number,
-      c2y: number
-    if (isVertical) {
-      const dirSign = mirror ? -1 : 1
-      sx = from.x + from.w / 2
-      sy = from.y + (dirSign > 0 ? from.h : 0)
-      tx = to.x + to.w / 2
-      ty = to.y + (dirSign > 0 ? 0 : to.h)
-      const dy = Math.max(40, Math.abs(ty - sy) / 2)
-      if (isBack) {
-        // 回边：同侧绕行（右侧绕出）
-        const detour = 40
-        c1x = sx + (from.w / 2 + detour)
-        c1y = sy
-        c2x = tx + (to.w / 2 + detour)
-        c2y = ty
+    let path: string
+    let labelPos: { x: number; y: number }
+
+    if (chIdx !== undefined) {
+      if (isVertical) {
+        // TB/BT：出底边 → 行间空隙 → 右侧高速通道 → 目标后方行隙 → 入底边
+        const sx = from.x + from.w / 2
+        const sy = from.y + from.h
+        const tx = to.x + to.w / 2
+        const ty = to.y + to.h
+        const gapY1 = sy + CHANNEL_GAP
+        const gapY2 = ty + CHANNEL_GAP
+        const channelX = nodesMaxX + CHANNEL_OFFSET + chIdx * CHANNEL_GAP
+        path = `M ${sx},${sy} L ${sx},${gapY1} L ${channelX},${gapY1} L ${channelX},${gapY2} L ${tx},${gapY2} L ${tx},${ty}`
+        labelPos = { x: channelX, y: (gapY1 + gapY2) / 2 }
       } else {
+        // LR/RL：出右侧边 → 列间空隙 → 底部高速通道 → 目标后方列隙 → 入右侧边
+        const sx = from.x + from.w
+        const sy = from.y + from.h / 2
+        const tx = to.x + to.w
+        const ty = to.y + to.h / 2
+        const gapX1 = sx + CHANNEL_GAP
+        const gapX2 = tx + CHANNEL_GAP
+        const channelY = nodesMaxY + CHANNEL_OFFSET + chIdx * CHANNEL_GAP
+        path = `M ${sx},${sy} L ${gapX1},${sy} L ${gapX1},${channelY} L ${gapX2},${channelY} L ${gapX2},${ty} L ${tx},${ty}`
+        labelPos = { x: (gapX1 + gapX2) / 2, y: channelY }
+      }
+    } else {
+      let sx: number,
+        sy: number,
+        tx: number,
+        ty: number,
+        c1x: number,
+        c1y: number,
+        c2x: number,
+        c2y: number
+      if (isVertical) {
+        const dirSign = mirror ? -1 : 1
+        sx = from.x + from.w / 2
+        sy = from.y + (dirSign > 0 ? from.h : 0)
+        tx = to.x + to.w / 2
+        ty = to.y + (dirSign > 0 ? 0 : to.h)
+        const dy = Math.max(40, Math.abs(ty - sy) / 2)
         c1x = sx
         c1y = sy + dy * dirSign
         c2x = tx
         c2y = ty - dy * dirSign
-      }
-    } else {
-      const dirSign = mirror ? -1 : 1
-      sx = from.x + (dirSign > 0 ? from.w : 0)
-      sy = from.y + from.h / 2
-      tx = to.x + (dirSign > 0 ? 0 : to.w)
-      ty = to.y + to.h / 2
-      const dx = Math.max(40, Math.abs(tx - sx) / 2)
-      if (isBack) {
-        const detour = 40
-        c1x = sx
-        c1y = sy + (from.h / 2 + detour)
-        c2x = tx
-        c2y = ty + (to.h / 2 + detour)
       } else {
+        const dirSign = mirror ? -1 : 1
+        sx = from.x + (dirSign > 0 ? from.w : 0)
+        sy = from.y + from.h / 2
+        tx = to.x + (dirSign > 0 ? 0 : to.w)
+        ty = to.y + to.h / 2
+        const dx = Math.max(40, Math.abs(tx - sx) / 2)
         c1x = sx + dx * dirSign
         c1y = sy
         c2x = tx - dx * dirSign
         c2y = ty
       }
+      path = `M ${sx},${sy} C ${c1x},${c1y} ${c2x},${c2y} ${tx},${ty}`
+      // 标签落在曲线上（三次贝塞尔 t=0.5：(P0 + 3C1 + 3C2 + P1) / 8）
+      labelPos = {
+        x: (sx + 3 * c1x + 3 * c2x + tx) / 8,
+        y: (sy + 3 * c1y + 3 * c2y + ty) / 8,
+      }
     }
 
-    layoutEdges.push({
-      from: e.from,
-      to: e.to,
-      label: e.label,
-      path: `M ${sx},${sy} C ${c1x},${c1y} ${c2x},${c2y} ${tx},${ty}`,
-      labelPos: { x: (c1x + c2x) / 2, y: (c1y + c2y) / 2 },
-      isBackEdge: isBack,
-    })
+    layoutEdges.push({ from: e.from, to: e.to, label: e.label, path, labelPos, isBackEdge: isBack })
   })
+
+  // 通道外扩后同步扩大画布
+  if (channelIdx.size > 0) {
+    const last = channelIdx.size - 1
+    if (isVertical) {
+      width = Math.max(width, nodesMaxX + CHANNEL_OFFSET + last * CHANNEL_GAP + CANVAS_PAD)
+    } else {
+      height = Math.max(height, nodesMaxY + CHANNEL_OFFSET + last * CHANNEL_GAP + CANVAS_PAD)
+    }
+  }
 
   return { nodes: placed, edges: layoutEdges, width, height }
 }
