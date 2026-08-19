@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useLocale } from '@/composables/useLocale'
-import type { TocNode } from './MarkdownRenderer.vue'
+import type { TocNode } from './useMarkdownToc'
 
 const props = defineProps<{
   node: TocNode

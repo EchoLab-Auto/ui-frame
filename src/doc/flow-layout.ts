@@ -76,6 +76,8 @@ function estimateSize(node: ProDocFlowNode): { w: number; h: number } {
     const w = Math.min(Math.max(labelW * 1.5 + 32, NODE_MIN_W * 1.4), NODE_MAX_W * 1.4)
     return { w, h: Math.max(64, w * 0.55) }
   }
+  // 文本超过最大宽度时会折成两行（前端 line-clamp: 2），加高一行避免溢出
+  if (labelW > NODE_MAX_W) return { w: NODE_MAX_W, h: NODE_H + 20 }
   return { w: Math.min(Math.max(labelW, NODE_MIN_W), NODE_MAX_W), h: NODE_H }
 }
 
@@ -269,6 +271,34 @@ export function layoutProDocFlow(
     for (const p of placed.values()) {
       if (direction === 'RL') p.x = width - p.x - p.w
       else p.y = height - p.y - p.h
+    }
+  }
+
+  // 手动排版覆盖（`@ x, y` 标注）：坐标即最终视觉坐标，在镜像之后应用；
+  // 覆盖后重算画布尺寸
+  {
+    let hasManual = false
+    for (const n of nodes) {
+      const p = placed.get(n.id)
+      if (!p) continue
+      if (typeof n.x === 'number') {
+        p.x = n.x
+        hasManual = true
+      }
+      if (typeof n.y === 'number') {
+        p.y = n.y
+        hasManual = true
+      }
+    }
+    if (hasManual) {
+      width = 0
+      height = 0
+      for (const p of placed.values()) {
+        width = Math.max(width, p.x + p.w)
+        height = Math.max(height, p.y + p.h)
+      }
+      width += CANVAS_PAD
+      height += CANVAS_PAD
     }
   }
 

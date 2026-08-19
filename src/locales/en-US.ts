@@ -143,6 +143,7 @@ export const enUS: LocaleMessages = {
 
   // Markdown
   markdownCodeCopied: 'Copied!',
+  markdownCodeCopy: 'Copy',
   markdownTocLabel: 'Table of Contents',
   markdownTocToggle: 'Toggle table of contents',
   markdownTocClose: 'Close table of contents',
@@ -162,4 +163,40 @@ export const enUS: LocaleMessages = {
   // AutoComplete
   autoCompleteLoading: 'Loading...',
   autoCompleteEmpty: 'No results',
+
+  // StatusDot
+  statusDotOnline: 'Online',
+  statusDotOffline: 'Offline',
+  statusDotBusy: 'Busy',
+  statusDotConnecting: 'Connecting',
+
+  // Spinner
+  spinnerLoading: 'Loading',
+
+  // Segmented
+  segmentedLabel: 'Segmented options',
+
+  // Chat
+  chatRoleUser: 'User',
+  chatRoleAgent: 'Agent',
+  chatRoleSystem: 'System',
+  chatRoleTool: 'Tool',
+  chatCopy: 'Copy',
+  chatCopied: 'Copied',
+  chatToolRunning: 'Running',
+  chatToolSucceeded: 'Succeeded',
+  chatToolFailed: 'Failed',
+  chatToolDetails: 'Details ({count} chars)',
+  chatToolCollapse: 'Collapse details',
+  chatCollapse: 'Collapse',
+  chatReasoning: 'Reasoning ({count} parts)',
+  chatBranchMerge: 'Branch merge',
+  chatBranchStats: '{tools} tools · {reasonings} reasoning',
+  chatBranchEmpty: '(No activity recorded for this branch)',
+  chatSourceGroup: 'group {name}',
+  chatJumpToBottom: 'Jump to latest messages',
+  chatEmpty: '(No messages yet)',
+  chatInputPlaceholder: 'Type a message — Enter to send, Shift+Enter for newline',
+  chatSend: 'Send',
+  chatCancel: 'Cancel task',
 }

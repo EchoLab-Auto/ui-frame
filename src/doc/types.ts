@@ -68,6 +68,9 @@ export interface ProDocFlowNode {
    * 查找文档树时按树 key 形态再做归一。
    */
   docPath?: string
+  /** 手动排版：节点左上角画布坐标（`A[文本] @ 100, 200` 语法）；缺省自动布局 */
+  x?: number
+  y?: number
 }
 
 /** 流程图边 */

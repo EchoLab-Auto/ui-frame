@@ -284,6 +284,27 @@ export interface NeumorphismGlobalConfig {
     size?: 'small' | 'medium' | 'large'
     clearable?: boolean
   }
+  /** Default status dot props */
+  statusDot?: {
+    status?: 'online' | 'offline' | 'busy' | 'connecting'
+    size?: 'small' | 'medium' | 'large'
+    pulse?: boolean
+  }
+  /** Default spinner props */
+  spinner?: {
+    size?: 'small' | 'medium' | 'large' | number
+  }
+  /** Default segmented props */
+  segmented?: {
+    size?: 'small' | 'medium' | 'large'
+    disabled?: boolean
+  }
+  /** Default chat module props */
+  chat?: {
+    markdown?: boolean
+    autoScroll?: boolean
+    scrollThreshold?: number
+  }
 
   /** Locale configuration */
   locale?: 'zh-CN' | 'en-US'

@@ -26,6 +26,8 @@ const GRAPH_RE = /^graph\s+(LR|RL|TB|BT)\s*$/i
 const NODE_RE = /([A-Za-z_][\w-]*)\s*(\[[^\]]*\]|\{[^}]*\}|\([^)]*\))?/y
 /** 边 token：--> 带可选 |标签|（sticky） */
 const ARROW_RE = /-->\s*(?:\|([^|]*)\|)?/y
+/** 手动排版标注：`@ x, y`（仅允许出现在行尾，绑定到该行最后一个节点） */
+const POS_RE = /@\s*(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)\s*$/y
 /** 文档链接路径形态：以 /、./、../ 开头且 .md 结尾（防误吞含竖线普通文本） */
 const DOC_PATH_RE = /^(\/|\.\/|\.\.\/)[^\s]*\.md$/
 
@@ -40,6 +42,61 @@ export function extractFlowBlocks(body: string): string[] {
     blocks.push(match[1])
   }
   return blocks
+}
+
+/**
+ * 把节点的手动排版坐标写回 markdown 正文中的指定 prodoc-flow 块。
+ *
+ * 定位：与 blockSource 内容一致的围栏块（忽略首尾空白）。
+ * 写回：节点有独立声明行时就地替换/追加 `@ x, y`（保留行尾 %% 注释）；
+ * 仅出现在边链中的节点，在块尾新增 `id @ x, y` 行。
+ * 找不到匹配块时原样返回。
+ */
+export function writeFlowNodePosition(
+  body: string,
+  blockSource: string,
+  nodeId: string,
+  x: number,
+  y: number
+): string {
+  FLOW_BLOCK_RE.lastIndex = 0
+  let match: RegExpExecArray | null
+  while ((match = FLOW_BLOCK_RE.exec(body)) !== null) {
+    const inner = match[1]
+    if (inner.trim() !== blockSource.trim()) continue
+
+    const nodeRe = new RegExp(
+      `^${nodeId.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?=[\\s\\[\\{\\(@]|$)`
+    )
+    const lines = inner.split('\n')
+    let written = false
+    for (let i = 0; i < lines.length; i++) {
+      const commentAt = lines[i].indexOf('%%')
+      const code = commentAt >= 0 ? lines[i].slice(0, commentAt) : lines[i]
+      const comment = commentAt >= 0 ? lines[i].slice(commentAt) : ''
+      const trimmed = code.trim()
+      // 只写独立声明行（含 --> 的边链行跳过：行尾标注会绑定到链尾节点）
+      if (trimmed.includes('-->') || !nodeRe.test(trimmed)) continue
+      const stripped = trimmed.replace(/\s*@\s*-?[\d.]+\s*,\s*-?[\d.]+\s*$/, '')
+      lines[i] = `${stripped} @ ${x}, ${y}${comment ? `  ${comment}` : ''}`
+      written = true
+      break
+    }
+    if (!written) {
+      // 块尾追加（inner 通常以换行结尾）
+      const entry = `${nodeId} @ ${x}, ${y}`
+      if (lines.length > 0 && lines[lines.length - 1].trim() === '') {
+        lines.splice(lines.length - 1, 0, entry)
+      } else {
+        lines.push(entry)
+      }
+    }
+
+    const newInner = lines.join('\n')
+    const start = match.index + match[0].indexOf(inner)
+    return body.slice(0, start) + newInner + body.slice(start + inner.length)
+  }
+  return body
 }
 
 /** 形状括号 → 形状 + 内部文本 */
@@ -100,6 +157,15 @@ export function parseProDocFlow(source: string): ProDocFlowGraph {
     }
   }
 
+  /** 手动排版标注：设置节点坐标（后者覆盖前者） */
+  function setNodePos(id: string, x: number, y: number): void {
+    const node = nodeMap.get(id)
+    if (node) {
+      node.x = x
+      node.y = y
+    }
+  }
+
   function registerEdge(from: string, to: string, label?: string): void {
     const key = `${from}→${to}${label ?? ''}`
     if (edgeKeys.has(key)) return
@@ -152,11 +218,27 @@ export function parseProDocFlow(source: string): ProDocFlowGraph {
     registerNode(nodeMatch[1], nodeMatch[2])
     pos = NODE_RE.lastIndex
 
-    // (ARROW NODE)*
+    // (ARROW NODE)*，行尾可带 `@ x, y` 手动排版标注（绑定最后一个节点）
     while (true) {
       // 跳过空白
       while (pos < raw.length && /\s/.test(raw[pos])) pos++
       if (pos >= raw.length) break
+
+      // 手动排版标注（仅行尾）：@ x, y
+      if (raw[pos] === '@') {
+        POS_RE.lastIndex = pos
+        const posMatch = POS_RE.exec(raw)
+        if (posMatch && posMatch.index === pos) {
+          setNodePos(fromId, parseFloat(posMatch[1]), parseFloat(posMatch[2]))
+          return true
+        }
+        errors.push({
+          line: lineNo,
+          source: original,
+          message: '无法识别的排版标注（应为行尾 @ x, y）',
+        })
+        return false
+      }
 
       ARROW_RE.lastIndex = pos
       const arrowMatch = ARROW_RE.exec(raw)

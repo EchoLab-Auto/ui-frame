@@ -10,6 +10,7 @@
 - [子路径导出](#子路径导出)
 - [Vue 组件](#vue-组件)
 - [Doc 文档渲染](#doc-文档渲染)
+- [Chat 聊天面板](#chat-聊天面板)
 - [Headless Composables](#headless-composables)
 - [组合式函数](#组合式函数)
 - [类型导出](#类型导出)
@@ -56,6 +57,7 @@ import { NeumorphismButton, NeumorphismCard, useTheme } from '@echolab-auto/ui-f
 | `@echolab-auto/ui-frame/extensions`    | 扩展系统                | `import { ComponentRegistry } from '@echolab-auto/ui-frame/extensions'`    |
 | `@echolab-auto/ui-frame/utils`         | 工具函数                | `import { debounce } from '@echolab-auto/ui-frame/utils'`                  |
 | `@echolab-auto/ui-frame/doc`           | 文档渲染模块            | `import { DocViewer } from '@echolab-auto/ui-frame/doc'`                   |
+| `@echolab-auto/ui-frame/chat`          | 聊天面板模块            | `import { ChatMessageList } from '@echolab-auto/ui-frame/chat'`            |
 
 > 使用子路径导出时样式同样自动注入；仅无打包器场景需手动引入 `import '@echolab-auto/ui-frame/dist/style.css'`
 
@@ -255,6 +257,31 @@ interface SelectOption {
 - 下拉靠近视口底部时自动向上翻转展开，空间受限时自动收缩高度
 - `filterable` 模式下触发器内嵌输入框，combobox ARIA 语义移至原生 input
 - `default` 变体的下拉 teleport 到 `<body>`（浮层，不受祖先 `overflow` 裁剪）；`outlined` 变体为**单盒模型**：触发器盒体本身就是容器，下拉选项渲染在盒内第二行，展开时盒体随高度过渡纵向延展（负 margin 同步补偿，布局零抖动），滚动时与页面天然同步、无接缝——因此 outlined 触发器不应放在 `overflow: hidden/auto` 的祖先容器内，否则盒体延展会被裁剪
+
+---
+
+#### NeumorphismSegmented
+
+```ts
+import { NeumorphismSegmented } from '@echolab-auto/ui-frame'
+import type {
+  NeumorphismSegmentedProps,
+  SegmentedOption,
+  SegmentedSize,
+} from '@echolab-auto/ui-frame'
+```
+
+| Props      | Type                             | Default     | Description                    |
+| ---------- | -------------------------------- | ----------- | ------------------------------ |
+| modelValue | `string \| number`               | `undefined` | 选中值（v-model）              |
+| options    | `SegmentedOption[]`              | —           | 可选项（label/value/disabled） |
+| size       | `'small' \| 'medium' \| 'large'` | `'medium'`  | 尺寸                           |
+| disabled   | `boolean`                        | `false`     | 整体禁用                       |
+| ariaLabel  | `string`                         | locale 文案 | radiogroup 无障碍标签          |
+
+**Events:** `update:modelValue`, `change`
+
+**行为说明：** 单选语义（`role="radiogroup"` + `role="radio"`），roving tabindex；方向键 ←/→/↑/↓ 移动并即时选中（跳过禁用项），Home/End 跳首末可用项。凹陷轨道 + 凸起选中项符合物理隐喻。
 
 ---
 
@@ -863,6 +890,40 @@ import type { NeumorphismEmptyProps, EmptySize } from '@echolab-auto/ui-frame'
 | size        | `'small' \| 'medium' \| 'large'` | `'medium'` | 尺寸         |
 
 **Slots:** `image`, default（底部操作区）
+
+---
+
+#### NeumorphismStatusDot
+
+```ts
+import { NeumorphismStatusDot } from '@echolab-auto/ui-frame'
+import type {
+  NeumorphismStatusDotProps,
+  StatusDotStatus,
+  StatusDotSize,
+} from '@echolab-auto/ui-frame'
+```
+
+| Props  | Type                                              | Default              | Description                       |
+| ------ | ------------------------------------------------- | -------------------- | --------------------------------- |
+| status | `'online' \| 'offline' \| 'busy' \| 'connecting'` | `'online'`           | 状态（决定颜色与 locale 标签）    |
+| size   | `'small' \| 'medium' \| 'large'`                  | `'medium'`           | 直径 8/10/12px                    |
+| pulse  | `boolean`                                         | `true`               | 过渡态（busy/connecting）呼吸脉冲 |
+| label  | `string`                                          | 按状态的 locale 文案 | 无障碍标签                        |
+
+---
+
+#### NeumorphismSpinner
+
+```ts
+import { NeumorphismSpinner } from '@echolab-auto/ui-frame'
+import type { NeumorphismSpinnerProps, SpinnerSize } from '@echolab-auto/ui-frame'
+```
+
+| Props | Type                                       | Default     | Description  |
+| ----- | ------------------------------------------ | ----------- | ------------ |
+| size  | `'small' \| 'medium' \| 'large' \| number` | `'medium'`  | 档位或像素值 |
+| label | `string`                                   | locale 文案 | 无障碍标签   |
 
 ---
 
@@ -1523,6 +1584,85 @@ import {
 
 ---
 
+### Doc 元组件（纯 UI 原语）
+
+#### DocCodeBlock
+
+```ts
+import { DocCodeBlock } from '@echolab-auto/ui-frame/doc'
+import type { DocCodeBlockProps } from '@echolab-auto/ui-frame/doc'
+```
+
+代码块卡片：语言标签 + 行数 + 行号 + 一键复制（`useClipboard` 驱动），内置 `highlightCode` 正则高亮。MarkdownRenderer 的代码块即由它挂载渲染。
+
+| Props           | Type      | Default  | Description                   |
+| --------------- | --------- | -------- | ----------------------------- |
+| code            | `string`  | —        | 源代码原文                    |
+| lang            | `string`  | `'text'` | 语言标记（text/plain 不高亮） |
+| showLineNumbers | `boolean` | `true`   | 是否显示行号                  |
+
+#### DocTocNav
+
+```ts
+import { DocTocNav } from '@echolab-auto/ui-frame/doc'
+import type { DocTocNavProps, TocNode } from '@echolab-auto/ui-frame/doc'
+```
+
+目录导航面板：层级折叠、激活高亮、激活项变化时自动展开祖先并滚动到可见位置（滞回防抖动）。可脱离 MarkdownRenderer 单独使用（`activeId` 由宿主持有，通常配合 `useScrollSpy`）。
+
+| Props    | Type        | Default     | Description                           |
+| -------- | ----------- | ----------- | ------------------------------------- |
+| items    | `TocNode[]` | —           | 层级目录树（`useMarkdownToc` 的产物） |
+| activeId | `string`    | `''`        | 当前激活标题 id                       |
+| title    | `string`    | locale 文案 | 面板标题                              |
+| framed   | `boolean`   | `true`      | false 时只渲染裸列表（嵌入自有容器）  |
+
+**Events:** `select(id)`（宿主负责滚动）
+
+**Exposes:** `scrollTocToActive()`
+
+### useMarkdownToc
+
+```ts
+import { useMarkdownToc } from '@echolab-auto/ui-frame/doc'
+import type { UseMarkdownTocReturn, TocItem, TocNode } from '@echolab-auto/ui-frame/doc'
+```
+
+从 markdown 内容提取 heading 列表并构建层级树。id 带实例级唯一前缀，同名标题自动去重加后缀。
+
+```ts
+interface UseMarkdownTocReturn {
+  toc: ComputedRef<TocItem[]> // { level, text, id }
+  tocTree: ComputedRef<TocNode[]> // 层级树（children）
+  makeUniqueId: (text: string) => string
+}
+```
+
+### useScrollSpy
+
+```ts
+import { useScrollSpy, getScrollBehavior } from '@echolab-auto/ui-frame/doc'
+import type { UseScrollSpyOptions, UseScrollSpyReturn } from '@echolab-auto/ui-frame/doc'
+```
+
+scroll-spy：IntersectionObserver 跟踪内容区标题，输出激活 id；`scrollToHeading` 点击导航（平滑滚动 + 高亮锁定 800ms，避免动画中途闪烁）；`getScrollBehavior()` 遵循 prefers-reduced-motion。
+
+```ts
+interface UseScrollSpyOptions {
+  content: Ref<HTMLElement | null> // 内容容器（heading 在其中）
+  scrollContainer?: Ref<HTMLElement | string | undefined> // 默认向上找 .nm-layout__content
+  headingSelector?: string // 默认 'h1, h2, h3'
+  watchSource?: () => unknown // 内容版本信号（变化时重建观察器）
+  onActiveChange?: (id: string) => void
+}
+
+interface UseScrollSpyReturn {
+  activeHeading: Ref<string>
+  scrollToHeading: (id: string) => void
+  syncActiveHeading: () => void
+}
+```
+
 ### useDocLayout
 
 ```ts
@@ -1551,6 +1691,207 @@ interface UseDocLayoutReturn {
   handleDocLink: (emit: (e: 'docLink', path: string) => void, path: string) => void
 }
 ```
+
+---
+
+## Chat 聊天面板
+
+聊天 / Agent 面板领域组件，纯渲染层。分两层：**元组件**是纯 UI 原语（零领域类型、slot 驱动，可自由组装任意聊天式 UI）；**组合组件**由元组件拼成，直接消费 `ChatMessage` 数据。组件不持有业务状态、不发起网络请求。
+
+> **依赖**：Agent 正文的 Markdown 渲染复用 doc 模块的 MarkdownRenderer，使用本模块需安装可选 peer 依赖 `marked` + `dompurify`。
+
+```ts
+// 组合组件（现成可用）
+import { ChatMessageList, ChatComposer } from '@echolab-auto/ui-frame/chat'
+import type { ChatMessage } from '@echolab-auto/ui-frame/chat'
+
+// 元组件（自由组装）
+import { ChatBubble, ChatTray, ChatFold } from '@echolab-auto/ui-frame/chat'
+```
+
+### 元组件
+
+#### ChatBubble
+
+消息气泡壳：对齐与色调正交组合，头部/正文全插槽。
+
+| Props    | Type                                | Default     | Description                                            |
+| -------- | ----------------------------------- | ----------- | ------------------------------------------------------ |
+| align    | `'start' \| 'end' \| 'center'`      | `'start'`   | 水平对齐（end 居右、center 居中）                      |
+| tone     | `'default' \| 'primary' \| 'plain'` | `'default'` | default 中性气泡 / primary 主色气泡 / plain 无气泡平铺 |
+| copyText | `string`                            | `''`        | 传入则头部显示悬停浮现的复制按钮                       |
+
+**Slots:** `head`（头部行）、default（正文）
+
+**说明：** `primary + end` 压右下角、`default + start` 压左下角（非对称圆角暗示方向）；`plain + center` 出"细线夹文本"系统消息样式。
+
+#### ChatTray
+
+凹陷滚动托盘：吸底跟随 + 离开底部时的"回到底部"按钮。初始挂载瞬时吸底。
+
+| Props           | Type            | Default     | Description                                  |
+| --------------- | --------------- | ----------- | -------------------------------------------- |
+| autoScroll      | `boolean`       | `true`      | 新内容到达时自动吸底（用户本就在底部才跟随） |
+| scrollThreshold | `number`        | `120`       | 距底部多少 px 内视为贴底                     |
+| watchSource     | `() => unknown` | `undefined` | 内容变化侦听源（如 `() => messages.length`） |
+| jumpLabel       | `string`        | locale 文案 | 跳转按钮无障碍文本                           |
+
+**Slots:** default（托盘内容）
+
+**Exposes:** `isNearBottom`、`showJumpButton`、`scrollToBottom(behavior?)`、`recheck()`
+
+#### ChatFold
+
+折叠块原语：头部触发器 + 可折叠体。复制等独立交互元素放 `actions` 插槽（不嵌进按钮）。
+
+| Props       | Type      | Default     | Description                              |
+| ----------- | --------- | ----------- | ---------------------------------------- |
+| open        | `boolean` | `undefined` | 受控展开态（配合 `update:open`）         |
+| defaultOpen | `boolean` | `false`     | 非受控初始展开态                         |
+| sunk        | `boolean` | `true`      | 凹陷详情井 / false 凸起卡片              |
+| expandable  | `boolean` | `true`      | false 时头部为静态行（无箭头、无折叠体） |
+
+**Events:** `update:open`, `toggle`
+
+**Slots:** `head`（scope: `{ open }`，在触发按钮内）、`actions`（触发器外）、`subhead`（始终可见区）、default（折叠体）
+
+#### ChatComposer
+
+聊天输入器：Enter 发送 / Shift+Enter 换行 / **IME 组合中不发送**（中文输入法安全）。
+
+| Props       | Type               | Default     | Description         |
+| ----------- | ------------------ | ----------- | ------------------- |
+| modelValue  | `string`           | `''`        | 输入内容（v-model） |
+| disabled    | `boolean`          | `false`     | 禁用（如未连接）    |
+| placeholder | `string`           | locale 文案 | 占位文本            |
+| cancelable  | `boolean`          | `false`     | 显示"取消任务"按钮  |
+| sendLabel   | `string`           | locale 文案 | 发送按钮文本        |
+| cancelLabel | `string`           | locale 文案 | 取消按钮文本        |
+| rows        | `number \| string` | `3`         | 初始行数            |
+| autoResize  | `boolean`          | `true`      | 随内容自动增高      |
+| maxlength   | `number \| string` | `undefined` | 最大输入长度        |
+
+**Events:** `update:modelValue`, `send(content)`（trim 后的非空字符串）, `cancel`
+
+**Slots:** `meta`（输入框上方元信息条）、`actions`（scope: `{ submit, canSubmit }`，整体替换默认发送按钮）
+
+#### ChatCopyButton
+
+悬停复制按钮（`useClipboard` 驱动），复制成功短暂变为 ✓。
+
+| Props | Type     | Default | Description |
+| ----- | -------- | ------- | ----------- |
+| text  | `string` | —       | 待复制文本  |
+
+### 组合组件
+
+#### ChatMessageList
+
+`ChatTray` + `ChatMessageItem` 的组合：消息流渲染与吸底滚动。
+
+| Props           | Type                       | Default      | Description                                         |
+| --------------- | -------------------------- | ------------ | --------------------------------------------------- |
+| messages        | `ChatMessage[]`            | —            | 消息列表（按时间升序）                              |
+| markdown        | `boolean`                  | `true`       | Agent 正文 Markdown 渲染（用户/系统消息始终纯文本） |
+| autoScroll      | `boolean`                  | `true`       | 新内容到达时自动吸底                                |
+| scrollThreshold | `number`                   | `120`        | 距底部多少 px 内视为贴底                            |
+| emptyText       | `string`                   | locale 文案  | 空消息提示                                          |
+| formatTime      | `(time: number) => string` | 本地化时分秒 | 自定义时间格式化（入参为秒级时间戳）                |
+
+**Slots:** `message`（scope: `{ message }`，自定义单条渲染）、`empty`（空状态）
+
+#### ChatMessageItem
+
+单条消息：按 `role` 分发——`tool` → 工具调用块、`branch` → 分支合并块、`system` → 居中平铺，`user`/`agent` 渲染气泡（agent 居左中性、user 居右主色）。
+
+| Props      | Type                       | Default      | Description              |
+| ---------- | -------------------------- | ------------ | ------------------------ |
+| message    | `ChatMessage`              | —            | 消息数据                 |
+| markdown   | `boolean`                  | `true`       | Agent 正文 Markdown 渲染 |
+| formatTime | `(time: number) => string` | 本地化时分秒 | 自定义时间格式化         |
+
+#### ChatToolCallBlock
+
+工具调用块（`ChatFold` 凹陷）：工具名 + 状态（running 带 spinner）+ 参数/输出折叠（默认收起，显示字符数）+ 输出复制。
+
+| Props  | Type             | Default     | Description              |
+| ------ | ---------------- | ----------- | ------------------------ |
+| name   | `string`         | —           | 工具名                   |
+| input  | `string`         | `''`        | 摘要化参数文本           |
+| output | `string \| null` | `null`      | 工具输出                 |
+| status | `ChatToolStatus` | `undefined` | running/succeeded/failed |
+| time   | `string`         | `''`        | 已格式化时间             |
+
+#### ChatReasoningBlock
+
+推理折叠块（`ChatFold` 凹陷，默认展开）。
+
+| Props       | Type       | Default | Description  |
+| ----------- | ---------- | ------- | ------------ |
+| parts       | `string[]` | —       | 推理分段     |
+| time        | `string`   | `''`    | 已格式化时间 |
+| defaultOpen | `boolean`  | `true`  | 初始是否展开 |
+
+#### ChatBranchMergeBlock
+
+分支合并块（`ChatFold` 凸起）：摘要（subhead 常显）+ "N 工具 · M 推理"统计，展开后嵌套展示分支内的工具调用 / 推理 / 内容记录。
+
+| Props  | Type                | Default | Description    |
+| ------ | ------------------- | ------- | -------------- |
+| branch | `ChatBranchSummary` | —       | 分支合并块数据 |
+| time   | `string`            | `''`    | 已格式化时间   |
+
+### Chat 类型定义
+
+```ts
+type ChatRole = 'user' | 'agent' | 'system' | 'tool' | 'branch'
+type ChatToolStatus = 'running' | 'succeeded' | 'failed'
+
+interface ChatMessageSource {
+  adapterName?: string
+  platform?: string
+  userId?: string
+  userName?: string
+  channel?: string
+  groupName?: string | null
+}
+
+interface ChatToolCall {
+  name: string
+  input?: string
+  output?: string | null
+  status?: ChatToolStatus
+}
+
+interface ChatBranchEntry {
+  kind: 'reasoning' | 'tool' | 'content' | 'notice'
+  text: string
+  time?: number
+  toolName?: string
+  input?: string
+  output?: string
+  status?: ChatToolStatus
+}
+
+interface ChatBranchSummary {
+  branchId: string
+  summary: string
+  entries: ChatBranchEntry[]
+}
+
+interface ChatMessage {
+  id: string | number
+  role: ChatRole
+  content: string
+  time?: number // 秒级 Unix 时间戳
+  source?: ChatMessageSource | null
+  reasoning?: string[]
+  tool?: ChatToolCall
+  branch?: ChatBranchSummary
+}
+```
+
+**全局配置段**：`chat?: { markdown?: boolean; autoScroll?: boolean; scrollThreshold?: number }`（级联优先级：显式 prop > 全局配置 > 默认值）。
 
 ---
 
@@ -2419,6 +2760,106 @@ import { useReducedMotion, prefersReducedMotion } from '@echolab-auto/ui-frame'
 ```
 
 `useReducedMotion()` 返回 `{ isReducedMotion: Ref<boolean> }`（跟随 `prefers-reduced-motion` 媒体查询变化）；`prefersReducedMotion()` 为一次性非响应式读取。组件动画降级统一走此开关。
+
+---
+
+### useClipboard
+
+```ts
+import { useClipboard } from '@echolab-auto/ui-frame'
+import type { UseClipboardOptions, UseClipboardReturn } from '@echolab-auto/ui-frame'
+```
+
+剪贴板复制与"已复制"状态自动复位。`copy(text)` 成功返回 `true`（无权限/非安全上下文返回 `false`）；`copied` 在 `resetDelay`（默认 1200ms）后自动复位。
+
+```ts
+interface UseClipboardOptions {
+  resetDelay?: number
+}
+interface UseClipboardReturn {
+  copied: Ref<boolean>
+  copy: (text: string) => Promise<boolean>
+}
+```
+
+---
+
+### useChatScroll
+
+```ts
+import { useChatScroll } from '@echolab-auto/ui-frame'
+import type { UseChatScrollOptions, UseChatScrollReturn } from '@echolab-auto/ui-frame'
+```
+
+聊天吸底滚动：用户位于底部（`threshold` px 内，默认 120）时新内容自动跟随，向上翻阅不打断；`showJumpButton` 驱动"回到底部"按钮。`watchSource` 传入内容侦听源（如消息条数、最后一条的流式输出），变化时下一帧重新评估。
+
+```ts
+interface UseChatScrollOptions {
+  container: Ref<HTMLElement | null>
+  threshold?: number | Ref<number>
+  autoScroll?: boolean | Ref<boolean>
+  watchSource?: WatchSource | WatchSource[]
+}
+interface UseChatScrollReturn {
+  isNearBottom: Ref<boolean>
+  showJumpButton: ComputedRef<boolean>
+  handleScroll: () => void
+  scrollToBottom: (behavior?: ScrollBehavior) => void
+  recheck: () => void
+}
+```
+
+---
+
+### useChatInput
+
+```ts
+import { useChatInput, isImeComposing } from '@echolab-auto/ui-frame'
+import type { UseChatInputOptions, UseChatInputReturn } from '@echolab-auto/ui-frame'
+```
+
+聊天输入提交逻辑：Enter 提交 / Shift+Enter 换行 / IME 组合中不提交（`isComposing` / `Process` 键 / `keyCode 229` 三重判定）；提交内容为 trim 后的非空字符串，提交后自动清空。
+
+```ts
+interface UseChatInputOptions {
+  modelValue: Ref<string>
+  disabled?: Ref<boolean>
+  onSubmit: (content: string) => void
+}
+interface UseChatInputReturn {
+  handleKeydown: (event: KeyboardEvent) => void
+  submit: () => void
+  canSubmit: ComputedRef<boolean>
+}
+```
+
+---
+
+### useSegmented
+
+```ts
+import { useSegmented } from '@echolab-auto/ui-frame'
+import type { UseSegmentedOptions, UseSegmentedReturn } from '@echolab-auto/ui-frame'
+```
+
+分段选择器单选逻辑：roving tabindex + 方向键/Home/End 导航（跳过禁用项，移动即选中）。
+
+```ts
+interface UseSegmentedOptions {
+  modelValue: Ref<string | number | undefined>
+  options: Ref<SegmentedOption[]>
+  disabled?: Ref<boolean>
+  onChange?: (value: string | number) => void
+}
+interface UseSegmentedReturn {
+  isActive: (option: SegmentedOption) => boolean
+  isItemDisabled: (option: SegmentedOption) => boolean
+  select: (option: SegmentedOption) => void
+  focusIndex: Ref<number>
+  tabindexFor: (index: number) => 0 | -1
+  handleKeydown: (event: KeyboardEvent) => void
+}
+```
 
 ---
 

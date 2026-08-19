@@ -4,6 +4,8 @@ import { useTheme } from '../../src/composables/useTheme'
 import { useSelect } from '../../src/composables/useSelect'
 import { usePagination } from '../../src/composables/usePagination'
 import { useToast } from '../../src/composables/useToast'
+import { ChatBubble, ChatTray, ChatFold, ChatComposer, ChatCopyButton } from '../../src/chat'
+import { DocCodeBlock, DocTocNav, type TocNode } from '../../src/doc'
 
 // ---- 注入全局主题（由 App.vue provide） ----
 const themeContext = useTheme()
@@ -112,6 +114,50 @@ const demoStepsItems = [
 // --- 上传 ---
 const demoUploadFiles = ref([])
 
+// --- 分段选择 ---
+const demoSegmented = ref<string | number>('allowlist')
+const demoSegmentedOptions = [
+  { label: '无约束', value: 'none' },
+  { label: '白名单', value: 'allowlist' },
+  { label: '黑名单', value: 'denylist' },
+]
+
+// --- 聊天元组件 ---
+const trayDemoItems = ref<string[]>(Array.from({ length: 12 }, (_, i) => `历史消息 ${i + 1}`))
+let trayDemoSeq = 12
+function trayDemoAdd() {
+  trayDemoSeq += 1
+  trayDemoItems.value.push(`新消息 ${trayDemoSeq}（贴底时自动跟随）`)
+}
+
+const composerDemoValue = ref('')
+const composerDemoSent = ref('')
+function composerDemoSend(content: string) {
+  composerDemoSent.value = content
+}
+
+// --- 文档元组件 ---
+const tocDemoActiveId = ref('toc-demo-start')
+const tocDemoItems: TocNode[] = [
+  {
+    level: 1,
+    text: '指南',
+    id: 'toc-demo-guide',
+    children: [
+      { level: 2, text: '快速开始', id: 'toc-demo-start', children: [] },
+      { level: 2, text: '进阶用法', id: 'toc-demo-adv', children: [] },
+    ],
+  },
+  { level: 1, text: 'API 参考', id: 'toc-demo-api', children: [] },
+]
+
+const codeDemoTs = `// 快速开始
+import { createApp } from 'vue'
+import NeumorphismUI from '@echolab-auto/ui-frame'
+
+const app = createApp(App)
+app.use(NeumorphismUI)`
+
 // --- 虚拟列表 ---
 const demoVirtualItems = computed(() =>
   Array.from({ length: 1000 }, (_, i) => ({ id: i, text: `虚拟列表项 #${i + 1}` }))
@@ -189,6 +235,23 @@ const navCategories = [
       { id: 'toast', label: '消息提示 Toast' },
       { id: 'tooltip', label: '文字提示 Tooltip' },
       { id: 'collapse', label: '折叠面板 Collapse' },
+      { id: 'status-feedback', label: '状态点 · 加载 · 分段' },
+    ],
+  },
+  {
+    title: '聊天元组件',
+    items: [
+      { id: 'chat-bubble', label: '气泡 ChatBubble' },
+      { id: 'chat-tray', label: '托盘 ChatTray' },
+      { id: 'chat-fold', label: '折叠块 ChatFold' },
+      { id: 'chat-composer', label: '输入器 ChatComposer' },
+    ],
+  },
+  {
+    title: '文档元组件',
+    items: [
+      { id: 'doc-code-block', label: '代码块 DocCodeBlock' },
+      { id: 'doc-toc-nav', label: '目录导航 DocTocNav' },
     ],
   },
   {
@@ -2578,6 +2641,310 @@ const chartStockData = ref([
                 </div>
               </div>
             </NeumorphismCard>
+
+            <!-- 状态反馈原件 -->
+            <NeumorphismCard id="status-feedback" :elevation="1" class="demo-card demo-card--full">
+              <template #header>
+                <div class="demo-header">
+                  <h3 class="demo-title">StatusDot · Spinner · Segmented</h3>
+                  <span class="demo-badge">状态点呼吸脉冲 · 加载指示 · 分段单选</span>
+                </div>
+              </template>
+
+              <div class="demo-row" style="gap: 24px; align-items: flex-start; flex-wrap: wrap">
+                <div style="flex: 1; min-width: 220px">
+                  <h4 class="demo-label">StatusDot 状态点</h4>
+                  <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap">
+                    <span style="display: inline-flex; align-items: center; gap: 6px">
+                      <NeumorphismStatusDot status="online" /> 在线
+                    </span>
+                    <span style="display: inline-flex; align-items: center; gap: 6px">
+                      <NeumorphismStatusDot status="offline" /> 离线
+                    </span>
+                    <span style="display: inline-flex; align-items: center; gap: 6px">
+                      <NeumorphismStatusDot status="busy" /> 忙碌
+                    </span>
+                    <span style="display: inline-flex; align-items: center; gap: 6px">
+                      <NeumorphismStatusDot status="connecting" /> 连接中
+                    </span>
+                  </div>
+                </div>
+                <div style="flex: 1; min-width: 220px">
+                  <h4 class="demo-label">Spinner 加载指示</h4>
+                  <div style="display: flex; align-items: center; gap: 16px">
+                    <NeumorphismSpinner size="small" />
+                    <NeumorphismSpinner />
+                    <NeumorphismSpinner size="large" />
+                  </div>
+                </div>
+              </div>
+
+              <div class="demo-block">
+                <h4 class="demo-label">Segmented 分段选择（方向键可导航）</h4>
+                <NeumorphismSegmented v-model="demoSegmented" :options="demoSegmentedOptions" />
+              </div>
+            </NeumorphismCard>
+          </section>
+
+          <NeumorphismDivider />
+
+          <!-- ============================================= -->
+          <!-- 分类：聊天元组件（chat 子路径模块）               -->
+          <!-- ============================================= -->
+          <section class="category-section">
+            <h2 class="category-title">聊天元组件</h2>
+            <p class="category-desc">
+              <code>@echolab-auto/ui-frame/chat</code> 子路径模块的纯 UI
+              原语：零领域类型、插槽驱动，可自由组装任意聊天式 UI。
+              数据驱动的整体组合效果见顶部导航「聊天组件」页。
+            </p>
+
+            <!-- ChatBubble -->
+            <NeumorphismCard id="chat-bubble" :elevation="1" class="demo-card demo-card--full">
+              <template #header>
+                <div class="demo-header">
+                  <h3 class="demo-title">ChatBubble 气泡</h3>
+                  <span class="demo-badge">对齐 × 色调正交组合 · 悬停复制</span>
+                </div>
+              </template>
+
+              <div class="demo-block">
+                <h4 class="demo-label">对齐 × 色调</h4>
+                <div class="chat-demo-stage">
+                  <ChatBubble align="start">start + default：中性气泡（Agent 侧）</ChatBubble>
+                  <ChatBubble align="end" tone="primary">
+                    end + primary：主色气泡（用户侧）
+                  </ChatBubble>
+                  <ChatBubble align="center" tone="plain">
+                    center + plain：系统消息（细线夹文本）
+                  </ChatBubble>
+                </div>
+              </div>
+
+              <div class="demo-block">
+                <h4 class="demo-label">头部插槽 + 悬停复制</h4>
+                <div class="chat-demo-stage">
+                  <ChatBubble align="start" copy-text="这段正文可以被复制">
+                    <template #head>
+                      <strong style="font-size: var(--nm-font-xs)">Agent</strong>
+                      <span style="font-size: var(--nm-font-xs); color: var(--nm-text-placeholder)">
+                        16:32
+                      </span>
+                    </template>
+                    悬停气泡，头部右侧浮现复制按钮（触屏设备常显）。
+                  </ChatBubble>
+                </div>
+              </div>
+            </NeumorphismCard>
+
+            <!-- ChatTray -->
+            <NeumorphismCard id="chat-tray" :elevation="1" class="demo-card demo-card--full">
+              <template #header>
+                <div class="demo-header">
+                  <h3 class="demo-title">ChatTray 托盘</h3>
+                  <span class="demo-badge">凹陷托盘 · 吸底跟随 · 回到底部</span>
+                </div>
+              </template>
+
+              <div class="demo-block">
+                <h4 class="demo-label">与 ChatBubble 组合</h4>
+                <ChatTray :watch-source="() => trayDemoItems.length" class="chat-tray-demo">
+                  <ChatBubble
+                    v-for="(text, i) in trayDemoItems"
+                    :key="i"
+                    :align="i % 2 ? 'end' : 'start'"
+                    :tone="i % 2 ? 'primary' : 'default'"
+                  >
+                    {{ text }}
+                  </ChatBubble>
+                </ChatTray>
+                <div style="margin-top: 12px; display: flex; gap: 12px; align-items: center">
+                  <NeumorphismButton size="small" @click="trayDemoAdd">
+                    追加一条消息
+                  </NeumorphismButton>
+                  <span style="font-size: var(--nm-font-xs); color: var(--nm-text-placeholder)">
+                    贴底时新消息自动跟随；向上滚动出现"回到底部"按钮
+                  </span>
+                </div>
+              </div>
+            </NeumorphismCard>
+
+            <!-- ChatFold -->
+            <NeumorphismCard id="chat-fold" :elevation="1" class="demo-card demo-card--full">
+              <template #header>
+                <div class="demo-header">
+                  <h3 class="demo-title">ChatFold 折叠块</h3>
+                  <span class="demo-badge">凹陷 / 凸起 · 四插槽 · 受控可选</span>
+                </div>
+              </template>
+
+              <div class="demo-row" style="gap: 24px; align-items: flex-start; flex-wrap: wrap">
+                <div style="flex: 1; min-width: 260px">
+                  <h4 class="demo-label">凹陷详情井</h4>
+                  <div style="display: flex; flex-direction: column; gap: 12px">
+                    <ChatFold>
+                      <template #head="{ open }">
+                        <span style="font-size: var(--nm-font-sm)">
+                          {{ open ? '收起工具详情' : '展开工具详情' }}
+                        </span>
+                      </template>
+                      <p
+                        style="
+                          margin: 0;
+                          font-size: var(--nm-font-sm);
+                          color: var(--nm-text-secondary);
+                        "
+                      >
+                        折叠体内容：参数、输出，或任意 DOM。
+                      </p>
+                    </ChatFold>
+                    <ChatFold default-open>
+                      <template #head>
+                        <span style="font-size: var(--nm-font-sm)">推理过程（默认展开）</span>
+                      </template>
+                      <p
+                        style="
+                          margin: 0;
+                          font-size: var(--nm-font-sm);
+                          color: var(--nm-text-secondary);
+                        "
+                      >
+                        先分析输入，再组织输出。
+                      </p>
+                    </ChatFold>
+                  </div>
+                </div>
+                <div style="flex: 1; min-width: 260px">
+                  <h4 class="demo-label">凸起卡片 + subhead 常显 + actions</h4>
+                  <ChatFold :sunk="false">
+                    <template #head="{ open }">
+                      <strong style="font-size: var(--nm-font-sm)">分支合并</strong>
+                      <span
+                        style="
+                          margin-left: auto;
+                          font-size: var(--nm-font-xs);
+                          color: var(--nm-text-placeholder);
+                        "
+                      >
+                        {{ open ? '收起' : '2 工具 · 1 推理' }}
+                      </span>
+                    </template>
+                    <template #actions>
+                      <ChatCopyButton text="分支结果内容" />
+                    </template>
+                    <template #subhead>
+                      <p style="margin: 0; font-size: var(--nm-font-sm)">
+                        摘要区（subhead）始终可见，不受折叠影响。
+                      </p>
+                    </template>
+                    <p
+                      style="
+                        margin: 0;
+                        font-size: var(--nm-font-sm);
+                        color: var(--nm-text-secondary);
+                      "
+                    >
+                      折叠体：分支内的详细活动记录。actions 插槽的复制按钮独立于触发器。
+                    </p>
+                  </ChatFold>
+                </div>
+              </div>
+            </NeumorphismCard>
+
+            <!-- ChatComposer -->
+            <NeumorphismCard id="chat-composer" :elevation="1" class="demo-card demo-card--full">
+              <template #header>
+                <div class="demo-header">
+                  <h3 class="demo-title">ChatComposer 输入器</h3>
+                  <span class="demo-badge">Enter 发送 · Shift+Enter 换行 · IME 安全</span>
+                </div>
+              </template>
+
+              <div class="demo-block">
+                <ChatComposer
+                  v-model="composerDemoValue"
+                  cancelable
+                  @send="composerDemoSend"
+                  @cancel="composerDemoSent = '（已请求取消任务）'"
+                >
+                  <template #meta>
+                    <span>会话：demo</span>
+                  </template>
+                </ChatComposer>
+                <p
+                  v-if="composerDemoSent"
+                  style="
+                    margin: 8px 0 0;
+                    font-size: var(--nm-font-xs);
+                    color: var(--nm-text-placeholder);
+                  "
+                >
+                  最近事件：{{ composerDemoSent }}
+                </p>
+              </div>
+            </NeumorphismCard>
+          </section>
+
+          <NeumorphismDivider />
+
+          <!-- ============================================= -->
+          <!-- 分类：文档元组件（doc 子路径模块）                -->
+          <!-- ============================================= -->
+          <section class="category-section">
+            <h2 class="category-title">文档元组件</h2>
+            <p class="category-desc">
+              <code>@echolab-auto/ui-frame/doc</code> 子路径模块拆出的纯 UI 原语与 headless
+              元逻辑：代码块、目录导航可脱离 MarkdownRenderer 单独使用；scroll-spy 与目录提取是独立
+              composable。整体组合效果见顶部导航「文档组件」页。
+            </p>
+
+            <!-- DocCodeBlock -->
+            <NeumorphismCard id="doc-code-block" :elevation="1" class="demo-card demo-card--full">
+              <template #header>
+                <div class="demo-header">
+                  <h3 class="demo-title">DocCodeBlock 代码块</h3>
+                  <span class="demo-badge">语法高亮 · 行号 · 一键复制</span>
+                </div>
+              </template>
+
+              <div class="demo-row" style="gap: 24px; align-items: flex-start; flex-wrap: wrap">
+                <div style="flex: 1; min-width: 320px">
+                  <h4 class="demo-label">TypeScript（带行号）</h4>
+                  <DocCodeBlock :code="codeDemoTs" lang="ts" />
+                </div>
+                <div style="flex: 1; min-width: 320px">
+                  <h4 class="demo-label">bash（无行号）</h4>
+                  <DocCodeBlock
+                    code="npm install @echolab-auto/ui-frame"
+                    lang="bash"
+                    :show-line-numbers="false"
+                  />
+                </div>
+              </div>
+            </NeumorphismCard>
+
+            <!-- DocTocNav -->
+            <NeumorphismCard id="doc-toc-nav" :elevation="1" class="demo-card demo-card--full">
+              <template #header>
+                <div class="demo-header">
+                  <h3 class="demo-title">DocTocNav 目录导航</h3>
+                  <span class="demo-badge">层级折叠 · 激活高亮 · 自动展开祖先</span>
+                </div>
+              </template>
+
+              <div class="demo-block">
+                <h4 class="demo-label">
+                  点击目录项模拟 scroll-spy 激活（activeId 由宿主持有，配合 useScrollSpy 使用）
+                </h4>
+                <div style="max-width: 320px">
+                  <DocTocNav
+                    :items="tocDemoItems"
+                    :active-id="tocDemoActiveId"
+                    @select="id => (tocDemoActiveId = id)"
+                  />
+                </div>
+              </div>
+            </NeumorphismCard>
           </section>
 
           <NeumorphismDivider />
@@ -3795,5 +4162,24 @@ const chartStockData = ref([
   border: 1px solid rgba(108, 122, 224, 0.2);
   border-radius: var(--nm-border-radius-sm);
   font-family: 'SF Mono', 'Fira Code', Menlo, Consolas, monospace;
+}
+
+// —— 聊天元组件演示 ——
+.chat-demo-stage {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: var(--nm-spacing-md);
+  border-radius: var(--nm-border-radius-md);
+  background-color: var(--nm-chat-tray-bg);
+  box-shadow:
+    inset 2px 2px 6px var(--nm-shadow-dark),
+    inset -2px -2px 5px var(--nm-shadow-light);
+}
+
+.chat-tray-demo {
+  height: 260px;
+  border-radius: var(--nm-border-radius-md);
+  overflow: hidden;
 }
 </style>

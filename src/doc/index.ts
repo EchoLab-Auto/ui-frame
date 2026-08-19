@@ -27,6 +27,24 @@ export type { MarkdownEditorProps } from './MarkdownEditor.vue'
 export { default as DocFlowCanvas } from './DocFlowCanvas.vue'
 export type { DocFlowCanvasProps } from './DocFlowCanvas.vue'
 
+// === 元组件（纯 UI 原语） ===
+export { default as DocCodeBlock } from './DocCodeBlock.vue'
+export type { DocCodeBlockProps } from './DocCodeBlock.vue'
+
+export { default as DocTocNav } from './DocTocNav.vue'
+export type { DocTocNavProps } from './DocTocNav.vue'
+
+export { default as TocNodeItem } from './TocNodeItem.vue'
+
+// === Headless 元逻辑 ===
+export { useMarkdownToc } from './useMarkdownToc'
+export type { TocItem, TocNode, UseMarkdownTocReturn } from './useMarkdownToc'
+
+export { useScrollSpy, getScrollBehavior } from './useScrollSpy'
+export type { UseScrollSpyOptions, UseScrollSpyReturn } from './useScrollSpy'
+
+export { highlightCode } from './highlight'
+
 // === 核心类型 ===
 export type { ProDocNode, DocTree, ProDocOptions } from './types.js'
 export type {
@@ -42,7 +60,7 @@ export type {
 export { parseFrontmatter, pathToId, extractTitle, createNode, buildDocTree } from './parser.js'
 
 // === 流程图（prodoc-flow） ===
-export { parseProDocFlow, extractFlowBlocks } from './flow-parser.js'
+export { parseProDocFlow, extractFlowBlocks, writeFlowNodePosition } from './flow-parser.js'
 export { layoutProDocFlow } from './flow-layout.js'
 export type { FlowLayoutNode, FlowLayoutEdge, FlowLayoutResult } from './flow-layout.js'
 export { resolveCanvasGraph, buildHierarchyGraph } from './flow-graph.js'

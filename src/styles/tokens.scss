@@ -498,6 +498,13 @@
   --nm-chart-ma-color-10: #3498db;
   --nm-chart-ma-color-20: #9b59b6;
   --nm-chart-ma-color-60: #e74c3c;
+
+  // Chat（聊天气泡 / 凹陷详情区 —— 凹陷处必须比所在表面更深，符合物理隐喻）
+  --nm-chat-user-bg: color-mix(in srgb, var(--nm-primary-color) 22%, var(--nm-surface-color));
+  --nm-chat-agent-bg: var(--nm-surface-raised);
+  --nm-chat-system-color: var(--nm-text-placeholder);
+  --nm-chat-sunk-bg: color-mix(in srgb, var(--nm-bg-color) 92%, #000000);
+  --nm-chat-tray-bg: color-mix(in srgb, var(--nm-bg-color) 96%, #000000);
 }
 
 // ---------- Dark Mode Tokens ----------
@@ -593,4 +600,9 @@
   --nm-chart-ma-color-10: #5dade2;
   --nm-chart-ma-color-20: #af7ac5;
   --nm-chart-ma-color-60: #ef5350;
+
+  // Chat（暗色：凹陷区比表面更深；用户气泡降低主色浓度避免刺眼）
+  --nm-chat-user-bg: color-mix(in srgb, var(--nm-primary-color) 14%, var(--nm-surface-color));
+  --nm-chat-sunk-bg: color-mix(in srgb, var(--nm-bg-color) 82%, #000000);
+  --nm-chat-tray-bg: color-mix(in srgb, var(--nm-bg-color) 88%, #000000);
 }

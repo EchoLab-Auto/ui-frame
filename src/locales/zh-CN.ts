@@ -143,6 +143,7 @@ export const zhCN: LocaleMessages = {
 
   // Markdown
   markdownCodeCopied: '已复制!',
+  markdownCodeCopy: '复制',
   markdownTocLabel: '文档目录',
   markdownTocToggle: '切换目录',
   markdownTocClose: '关闭目录',
@@ -162,4 +163,40 @@ export const zhCN: LocaleMessages = {
   // AutoComplete
   autoCompleteLoading: '加载中...',
   autoCompleteEmpty: '暂无匹配结果',
+
+  // StatusDot
+  statusDotOnline: '在线',
+  statusDotOffline: '离线',
+  statusDotBusy: '忙碌',
+  statusDotConnecting: '连接中',
+
+  // Spinner
+  spinnerLoading: '加载中',
+
+  // Segmented
+  segmentedLabel: '分段选择',
+
+  // Chat
+  chatRoleUser: '用户',
+  chatRoleAgent: 'Agent',
+  chatRoleSystem: '系统',
+  chatRoleTool: '工具',
+  chatCopy: '复制',
+  chatCopied: '已复制',
+  chatToolRunning: '运行中',
+  chatToolSucceeded: '成功',
+  chatToolFailed: '失败',
+  chatToolDetails: '详情 {count} 字符',
+  chatToolCollapse: '收起详情',
+  chatCollapse: '收起',
+  chatReasoning: '推理过程（{count} 段）',
+  chatBranchMerge: '分支合并',
+  chatBranchStats: '{tools} 工具 · {reasonings} 推理',
+  chatBranchEmpty: '（分支无详细活动记录）',
+  chatSourceGroup: '群 {name}',
+  chatJumpToBottom: '跳转到最新消息',
+  chatEmpty: '（暂无消息）',
+  chatInputPlaceholder: '输入消息，Enter 发送（Shift+Enter 换行）',
+  chatSend: '发送',
+  chatCancel: '取消任务',
 }

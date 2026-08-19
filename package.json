@@ -21,6 +21,10 @@
       "types": "./dist/doc/index.d.ts",
       "import": "./dist/doc/index.js"
     },
+    "./chat": {
+      "types": "./dist/chat/index.d.ts",
+      "import": "./dist/chat/index.js"
+    },
     "./extensions": {
       "types": "./dist/extensions/index.d.ts",
       "import": "./dist/extensions/index.js"

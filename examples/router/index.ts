@@ -21,6 +21,11 @@ const routes: RouteRecordRaw[] = [
     name: 'Doc',
     component: () => import('../pages/DocPage.vue'),
   },
+  {
+    path: '/chat',
+    name: 'Chat',
+    component: () => import('../pages/ChatPage.vue'),
+  },
 ]
 
 export default createRouter({

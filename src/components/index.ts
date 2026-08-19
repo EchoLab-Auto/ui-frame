@@ -182,3 +182,21 @@ export type { NeumorphismChartPieProps } from './NeumorphismChartPie'
 
 export { default as NeumorphismChartCandlestick } from './NeumorphismChartCandlestick'
 export type { NeumorphismChartCandlestickProps } from './NeumorphismChartCandlestick'
+
+// Status & feedback primitives
+export { default as NeumorphismSpinner } from './NeumorphismSpinner'
+export type { NeumorphismSpinnerProps, SpinnerSize } from './NeumorphismSpinner'
+
+export { default as NeumorphismStatusDot } from './NeumorphismStatusDot'
+export type {
+  NeumorphismStatusDotProps,
+  StatusDotStatus,
+  StatusDotSize,
+} from './NeumorphismStatusDot'
+
+export { default as NeumorphismSegmented } from './NeumorphismSegmented'
+export type {
+  NeumorphismSegmentedProps,
+  SegmentedOption,
+  SegmentedSize,
+} from './NeumorphismSegmented'

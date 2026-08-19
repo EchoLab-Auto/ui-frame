@@ -147,6 +147,7 @@ export interface LocaleMessages {
 
   /** Markdown */
   markdownCodeCopied?: string
+  markdownCodeCopy?: string
   markdownTocLabel?: string
   markdownTocToggle?: string
   markdownTocClose?: string
@@ -166,6 +167,42 @@ export interface LocaleMessages {
   /** AutoComplete */
   autoCompleteLoading?: string
   autoCompleteEmpty?: string
+
+  /** StatusDot */
+  statusDotOnline?: string
+  statusDotOffline?: string
+  statusDotBusy?: string
+  statusDotConnecting?: string
+
+  /** Spinner */
+  spinnerLoading?: string
+
+  /** Segmented */
+  segmentedLabel?: string
+
+  /** Chat */
+  chatRoleUser?: string
+  chatRoleAgent?: string
+  chatRoleSystem?: string
+  chatRoleTool?: string
+  chatCopy?: string
+  chatCopied?: string
+  chatToolRunning?: string
+  chatToolSucceeded?: string
+  chatToolFailed?: string
+  chatToolDetails?: string
+  chatToolCollapse?: string
+  chatCollapse?: string
+  chatReasoning?: string
+  chatBranchMerge?: string
+  chatBranchStats?: string
+  chatBranchEmpty?: string
+  chatSourceGroup?: string
+  chatJumpToBottom?: string
+  chatEmpty?: string
+  chatInputPlaceholder?: string
+  chatSend?: string
+  chatCancel?: string
 }
 
 export type Locale = 'zh-CN' | 'en-US'

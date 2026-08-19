@@ -81,6 +81,7 @@ import { NeumorphismButton } from '@echolab-auto/ui-frame'
 | `NeumorphismInputNumber`                     | 数字输入（±步进器）    | `v-model`, `min`, `max`, `step`                    |
 | `NeumorphismAutoComplete`                    | 输入联想               | `v-model`, `options`, `loading`                    |
 | `NeumorphismSlider`                          | 滑块                   | `v-model`, `min`, `max`, `step`, `vertical`        |
+| `NeumorphismSegmented`                       | 分段选择（单选）       | `v-model`, `options`, `size`                       |
 
 ### 表单
 
@@ -108,6 +109,7 @@ import { NeumorphismButton } from '@echolab-auto/ui-frame'
 | `NeumorphismChartLine`        | 折线图                   | `series`, `curve`, `area`, `showPoints`   |
 | `NeumorphismChartPie`         | 饼图/环图                | `data`, `innerRadius`, `roundedCorners`   |
 | `NeumorphismChartCandlestick` | K 线图                   | `data`, `showMA`, `showVolume`            |
+| `NeumorphismStatusDot`        | 状态点（呼吸脉冲）       | `status`(online/offline/busy/connecting)  |
 
 ### 反馈
 
@@ -121,6 +123,7 @@ import { NeumorphismButton } from '@echolab-auto/ui-frame'
 | `NeumorphismAlert`         | 警告横幅 | `type`(info/success/warning/error), `closable` |
 | `NeumorphismEmpty`         | 空状态   | `description`, `size`                          |
 | `NeumorphismCollapse`      | 折叠面板 | `items`, `accordion`                           |
+| `NeumorphismSpinner`       | 加载指示 | `size`(档位或像素), `label`                    |
 
 ### 导航
 
@@ -152,6 +155,13 @@ import { NeumorphismButton } from '@echolab-auto/ui-frame'
 | `NeumorphismUpload`      | 文件上传（拖拽）  | `v-model:files`, `accept`, `drag`, `listType` |
 | `ThemeProvider`          | 亮色/暗色主题管理 | `defaultTheme`(light/dark/auto)               |
 | `NeumorphismThemeToggle` | 主题切换按钮      | `v-model`, `size`                             |
+
+### 领域模块（子路径按需引入）
+
+| 模块             | 说明                                                                                                         | 引入                          |
+| ---------------- | ------------------------------------------------------------------------------------------------------------ | ----------------------------- |
+| 文档渲染（doc）  | Markdown 渲染（代码高亮/复制、mermaid、prodoc-flow 流程画布）、文档查看器/编辑器                             | `@echolab-auto/ui-frame/doc`  |
+| 聊天面板（chat） | 消息列表（用户/Agent/工具/系统/分支合并）、吸底滚动、IME 安全输入区；元组件可自由组装；需 marked + dompurify | `@echolab-auto/ui-frame/chat` |
 
 详细文档：
 

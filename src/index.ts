@@ -62,6 +62,9 @@ import {
   NeumorphismChartLine,
   NeumorphismChartPie,
   NeumorphismChartCandlestick,
+  NeumorphismSpinner,
+  NeumorphismStatusDot,
+  NeumorphismSegmented,
 } from './components'
 
 import './styles/index.scss'
@@ -247,6 +250,18 @@ export type {
   UseAutoCompleteOptions,
   UseAutoCompleteReturn,
 } from './composables/useAutoComplete'
+export { useClipboard } from './composables/useClipboard'
+export type { UseClipboardOptions, UseClipboardReturn } from './composables/useClipboard'
+export { useChatScroll } from './composables/useChatScroll'
+export type { UseChatScrollOptions, UseChatScrollReturn } from './composables/useChatScroll'
+export { useChatInput, isImeComposing } from './composables/useChatInput'
+export type { UseChatInputOptions, UseChatInputReturn } from './composables/useChatInput'
+export { useSegmented } from './composables/useSegmented'
+export type {
+  UseSegmentedOptions,
+  UseSegmentedReturn,
+  SegmentedOption as HeadlessSegmentedOption,
+} from './composables/useSegmented'
 export { validateFieldValue } from './composables/useFormValidation'
 export type { FormRule as HeadlessFormRule } from './composables/useFormValidation'
 
@@ -381,6 +396,9 @@ const NAME_TO_COMPONENT = {
   NeumorphismChartLine,
   NeumorphismChartPie,
   NeumorphismChartCandlestick,
+  NeumorphismSpinner,
+  NeumorphismStatusDot,
+  NeumorphismSegmented,
 } as const
 
 /**

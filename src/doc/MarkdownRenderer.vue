@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import {
   ref,
-  computed,
   watch,
   nextTick,
   onMounted,
@@ -9,16 +8,22 @@ import {
   h,
   render,
   getCurrentInstance,
+  toRef,
 } from 'vue'
 // TODO(perf): Change to dynamic import for lazy-loading (~40KB saving for non-doc consumers).
 // Requires refactoring extractToc + doRender + renderer setup to async patterns.
 import { marked } from 'marked'
 import NeumorphismCard from '@/components/NeumorphismCard/NeumorphismCard.vue'
-import { generateId, escapeHtml, slugify } from '@/utils'
+import { escapeHtml } from '@/utils'
 import { useLocale } from '@/composables/useLocale'
-import TocNodeItem from './TocNodeItem.vue'
+import DocTocNav from './DocTocNav.vue'
+import DocCodeBlock from './DocCodeBlock.vue'
 import DocFlowCanvas from './DocFlowCanvas.vue'
 import { parseProDocFlow } from './flow-parser'
+import { useMarkdownToc } from './useMarkdownToc'
+import { useScrollSpy } from './useScrollSpy'
+
+export type { TocNode } from './useMarkdownToc'
 
 export interface MarkdownRendererProps {
   /** Markdown 内容 */
@@ -29,101 +34,34 @@ export interface MarkdownRendererProps {
   showToc?: boolean
   /** 滚动容器（HTMLElement 或 CSS 选择器）。不传则自动查找 .nm-layout__content */
   scrollContainer?: HTMLElement | string
-}
-
-export interface TocNode {
-  level: number
-  text: string
-  id: string
-  children: TocNode[]
+  /** prodoc-flow 画布节点可拖拽编辑（松手触发 flowNodeMove，由宿主持久化） */
+  flowEditable?: boolean
 }
 
 const props = withDefaults(defineProps<MarkdownRendererProps>(), {
   className: '',
   showToc: true,
+  flowEditable: false,
 })
 
 const emit = defineEmits<{
   (e: 'docLink', path: string): void
+  /** 流程画布节点拖拽松手（source 为该 prodoc-flow 块的源码，供宿主定位写回） */
+  (e: 'flowNodeMove', payload: { id: string; x: number; y: number; source: string }): void
 }>()
 
 const contentRef = ref<HTMLDivElement | null>(null)
-const tocNavRef = ref<HTMLElement | null>(null)
-const activeHeading = ref('')
 const showMobileToc = ref(false)
-const collapsedGroups = ref<Set<string>>(new Set())
 
 const { t } = useLocale()
 
-/** 实例级唯一前缀，避免多实例 id 冲突 */
-const tocPrefix = generateId('toc')
+// 目录提取（headless，见 useMarkdownToc）—— 必须先于 doRender 接线（其依赖 toc）
+const { toc, tocTree, makeUniqueId } = useMarkdownToc(toRef(props, 'content'))
 
-/** 生成带前缀的唯一 heading id */
-function makeUniqueId(text: string): string {
-  return `${tocPrefix}-${slugify(text)}`
-}
-
-// ==========================================
-// 模块级正则 — 避免每次调用重复编译
-// ==========================================
-const COMMENT_RE = /(\/\/.*$|\/\*[\s\S]*?\*\/|#\s+.*$|--.*$)/gm
-const STRING_RE = /(&quot;.*?&quot;|\'.*?\'|`.*?`)/g
-const KEYWORD_RE =
-  /\b(const|let|var|function|return|if|else|for|while|do|switch|case|break|continue|default|try|catch|finally|throw|new|this|typeof|instanceof|class|extends|import|export|from|async|await|yield|static|public|private|protected|interface|type|enum|namespace|module|declare|abstract|readonly|implements|void|number|string|boolean|any|never|unknown|null|undefined|true|false)\b/g
-const FUNCTION_RE = /\b([a-zA-Z_]\w*)(?=\()/g
-const NUMBER_RE = /\b(\d+\.?\d*)\b/g
-const TYPE_RE = /\b([A-Z][a-zA-Z0-9_]*)\b/g
-
-/** 简易代码高亮 */
-function highlightCode(code: string, lang?: string): string {
-  if (!lang || lang === 'text' || lang === 'plain') {
-    return escapeHtml(code)
-  }
-  let html = escapeHtml(code)
-  html = html.replace(COMMENT_RE, '<span class="token-comment">$1</span>')
-  html = html.replace(STRING_RE, '<span class="token-string">$1</span>')
-  html = html.replace(KEYWORD_RE, '<span class="token-keyword">$1</span>')
-  html = html.replace(FUNCTION_RE, '<span class="token-function">$1</span>')
-  html = html.replace(NUMBER_RE, '<span class="token-number">$1</span>')
-  html = html.replace(TYPE_RE, '<span class="token-type">$1</span>')
-  return html
-}
-
-function extractTextFromTokens(tokens: unknown[]): string {
-  return tokens
-    .map(t => {
-      const token = t as Record<string, unknown>
-      if (token.text) return String(token.text)
-      if (token.tokens) return extractTextFromTokens(token.tokens as unknown[])
-      return ''
-    })
-    .join('')
-}
-
-function extractToc(content: string): { level: number; text: string; id: string }[] {
-  const headings: { level: number; text: string; id: string }[] = []
-  const usedIds = new Set<string>()
-  const tokens = marked.lexer(content)
-  for (const token of tokens) {
-    if (token.type === 'heading') {
-      const text = extractTextFromTokens(token.tokens as unknown[])
-      let baseSlug = slugify(text)
-      if (!baseSlug) baseSlug = 'heading'
-      let id = `${tocPrefix}-${baseSlug}`
-      let suffix = 1
-      while (usedIds.has(id)) {
-        id = `${tocPrefix}-${baseSlug}-${suffix}`
-        suffix++
-      }
-      usedIds.add(id)
-      headings.push({
-        level: token.depth,
-        text,
-        id,
-      })
-    }
-  }
-  return headings
+/** 滚动到指定 heading 并关闭移动端 TOC */
+function scrollToHeadingAndClose(id: string) {
+  scrollToHeading(id)
+  showMobileToc.value = false
 }
 
 // ==========================================
@@ -132,8 +70,6 @@ function extractToc(content: string): { level: number; text: string; id: string 
 const renderer = new marked.Renderer()
 
 renderer.code = ({ text, lang }) => {
-  const language = lang || 'text'
-
   // Mermaid diagram support (optional, loaded dynamically on-mounted)
   if (lang === 'mermaid') {
     return `<div class="mermaid-diagram" data-mermaid="${escapeHtml(text)}"><pre><code>${escapeHtml(text)}</code></pre></div>`
@@ -147,24 +83,9 @@ renderer.code = ({ text, lang }) => {
     return `<div class="prodoc-flow-diagram"><pre><code>${escapeHtml(text)}</code></pre></div>`
   }
 
-  const highlighted = highlightCode(text, lang)
-  const lines = text.split('\n').length
-  const lineNumbers = Array.from({ length: lines }, (_, i) => i + 1)
-    .map(n => `<span class="line-num">${n}</span>`)
-    .join('')
-  return `
-    <div class="code-block-wrapper">
-      <div class="code-block-header">
-        <span class="code-lang">${language}</span>
-        <span class="code-lines">${lines} lines</span>
-        <button class="code-copy-btn" data-code="${escapeHtml(text)}">复制</button>
-      </div>
-      <div class="code-block-body">
-        <div class="line-numbers">${lineNumbers}</div>
-        <pre><code class="language-${language}">${highlighted}</code></pre>
-      </div>
-    </div>
-  `
+  // 常规代码块：占位 div + 挂载后替换为 DocCodeBlock（同流程画布管线）。
+  const language = lang || 'text'
+  return `<div class="doc-code-block-mount" data-lang="${escapeHtml(language)}"><pre><code>${escapeHtml(text)}</code></pre></div>`
 }
 
 renderer.codespan = ({ text }) => {
@@ -196,9 +117,6 @@ const renderError = ref<string | null>(null)
 /** 渲染后的 HTML */
 const renderedHtml = ref('')
 
-/** 目录 */
-const toc = computed(() => extractToc(props.content))
-
 /**
  * 可选 XSS 净化：动态加载 DOMPurify（可选 peer dependency）对 marked 输出净化。
  * marked 默认放行原始 HTML，对外部/不可信 markdown 必须净化后再 v-html。
@@ -219,7 +137,7 @@ function loadPurify(): void {
         purify = (html: string) =>
           dp.sanitize(html, {
             // Preserve the data-* hooks emitted by this renderer.
-            ADD_ATTR: ['data-mermaid', 'data-code', 'data-heading-id', 'target'],
+            ADD_ATTR: ['data-mermaid', 'data-code', 'data-heading-id', 'data-lang', 'target'],
           })
         // Re-render now that sanitization is available.
         doRender()
@@ -238,7 +156,7 @@ function loadPurify(): void {
 function doRender() {
   renderError.value = null
   try {
-    // 使用 extractToc 预计算的 heading ID，确保目录与渲染标题 ID 一致（含碰撞后缀）
+    // 使用 useMarkdownToc 预计算的 heading ID，确保目录与渲染标题 ID 一致（含碰撞后缀）
     const headingIds = toc.value.map(h => h.id)
     let headingIndex = 0
 
@@ -263,11 +181,33 @@ function doRender() {
   }
 }
 
+function extractTextFromTokens(tokens: unknown[]): string {
+  return tokens
+    .map(t => {
+      const token = t as Record<string, unknown>
+      if (token.text) return String(token.text)
+      if (token.tokens) return extractTextFromTokens(token.tokens as unknown[])
+      return ''
+    })
+    .join('')
+}
+
 // Kick off the optional DOMPurify load; once ready it re-renders sanitized.
 loadPurify()
 watch(() => props.content, doRender, { immediate: true })
 
-/** 文档内容切换时重置 TOC 折叠状态，避免旧文档状态污染新文档 */
+// ==========================================
+// scroll-spy（headless，见 useScrollSpy）
+// 注意顺序：watchSource 引用 renderedHtml，必须在声明之后接线
+// ==========================================
+const { activeHeading, scrollToHeading } = useScrollSpy({
+  content: contentRef,
+  scrollContainer: toRef(props, 'scrollContainer'),
+  watchSource: () => renderedHtml.value,
+})
+
+// 桌面侧栏与移动端抽屉共享同一份目录折叠状态；内容切换时重置
+const collapsedGroups = ref<Set<string>>(new Set())
 watch(
   () => props.content,
   () => {
@@ -295,12 +235,12 @@ async function renderMermaidDiagrams() {
   }
 }
 
-// content 或 renderedHtml 变化后重跑后处理（mermaid 替换 + 流程画布挂载）
+// content 或 renderedHtml 变化后重跑后处理（mermaid 替换 + 流程画布/代码块挂载）
 watch(renderedHtml, () => {
-  // v-html 即将替换 innerHTML —— 旧占位上的流程画布子树必须先手动卸载，
+  // v-html 即将替换 innerHTML —— 旧占位上的手动挂载子树必须先卸载，
   // 否则其 watcher/ResizeObserver 会随 DOM 移除而泄漏（Vue 运行时感知不到
   // v-html 内部的手动挂载）
-  unmountFlowDiagrams()
+  unmountMountedBlocks()
   nextTick(runPostRender)
 })
 
@@ -312,22 +252,23 @@ onMounted(runPostRender)
 function runPostRender(): void {
   renderMermaidDiagrams()
   mountFlowDiagrams()
+  mountCodeBlocks()
 }
 
 // ==========================================
-// prodoc-flow 画布挂载管线（占位 → DocFlowCanvas 子树）
+// 手动挂载管线（占位 → Vue 子树：流程画布 / 代码块）
 // ==========================================
 // 登记制：每个被替换的占位元素都记录在案，内容更新前与组件卸载时统一清理
-const flowMounts: HTMLElement[] = []
+const mountedBlocks: HTMLElement[] = []
 // 关键：手动 render 的子树默认没有应用上下文，useLocale / 全局配置注入会静默
 // 回退默认值 —— 必须继承当前组件实例的 appContext
 const currentInstance = getCurrentInstance()
 
-function unmountFlowDiagrams(): void {
-  for (const el of flowMounts) {
+function unmountMountedBlocks(): void {
+  for (const el of mountedBlocks) {
     render(null, el)
   }
-  flowMounts.length = 0
+  mountedBlocks.length = 0
 }
 
 function mountFlowDiagrams(): void {
@@ -344,193 +285,37 @@ function mountFlowDiagrams(): void {
     const vnode = h(DocFlowCanvas, {
       graph,
       height: '420px',
+      editable: props.flowEditable,
       onNavigate: (path: string) => emit('docLink', path),
+      onNodeMove: (p: { id: string; x: number; y: number }) =>
+        emit('flowNodeMove', { ...p, source }),
     })
     vnode.appContext = currentInstance?.appContext ?? null
     el.innerHTML = ''
     render(vnode, el as HTMLElement)
-    flowMounts.push(el as HTMLElement)
+    mountedBlocks.push(el as HTMLElement)
   }
 }
 
-/** 将扁平 TOC 构建为层级树 */
-const tocTree = computed(() => {
-  const items = toc.value
-  const root: TocNode[] = []
-  const stack: TocNode[] = []
-
-  for (const item of items) {
-    const node: TocNode = { level: item.level, text: item.text, id: item.id, children: [] }
-
-    // 弹出栈中 level >= 当前节点的项，找到父节点
-    while (stack.length > 0 && stack[stack.length - 1].level >= node.level) {
-      stack.pop()
-    }
-
-    if (stack.length === 0) {
-      root.push(node)
-    } else {
-      stack[stack.length - 1].children.push(node)
-    }
-
-    stack.push(node)
-  }
-
-  return root
-})
-
-/** 点击导航标志 — smooth scroll 期间屏蔽 scroll-spy，避免动画中途高亮闪烁 */
-let isClickScrolling = false
-let clickScrollTimer: ReturnType<typeof setTimeout> | null = null
-
-/** 清除点击导航标志，重新启用 scroll-spy */
-function clearClickScroll() {
-  isClickScrolling = false
-  if (clickScrollTimer) {
-    clearTimeout(clickScrollTimer)
-    clickScrollTimer = null
-  }
-  syncActiveHeading()
-}
-
-/** 滚动到指定 heading 并立即高亮（类似 sidebar 的点击选中行为） */
-function scrollToHeading(id: string) {
-  // 取消之前的等待
-  if (clickScrollTimer) clearTimeout(clickScrollTimer)
-
-  isClickScrolling = true
-  activeHeading.value = id
-
-  const target = contentRef.value?.querySelector(`[id="${id}"]`)
-  if (target) {
-    target.scrollIntoView({ behavior: getTocScrollBehavior() })
-  }
-
-  // 800ms 后恢复 scroll-spy（smooth scroll 动画通常在 300-500ms 内完成）
-  clickScrollTimer = setTimeout(clearClickScroll, 800)
-}
-
-/** 滚动到指定 heading 并关闭移动端 TOC */
-function scrollToHeadingAndClose(id: string) {
-  scrollToHeading(id)
-  showMobileToc.value = false
-}
-
-/** 切换 TOC 节点折叠状态，展开时自动滚动以显示子项 */
-function toggleCollapse(id: string) {
-  const next = new Set(collapsedGroups.value)
-  const wasCollapsed = next.has(id)
-  if (wasCollapsed) {
-    next.delete(id)
-  } else {
-    next.add(id)
-  }
-  collapsedGroups.value = next
-
-  // 展开时自动滚动 TOC，确保新显示的子项可见
-  if (wasCollapsed) {
-    nextTick(() => scrollTocToNode(id))
+function mountCodeBlocks(): void {
+  if (!contentRef.value) return
+  const placeholders = contentRef.value.querySelectorAll('.doc-code-block-mount')
+  for (const el of placeholders) {
+    const source = el.querySelector('pre code')?.textContent ?? el.textContent ?? ''
+    const lang = (el as HTMLElement).dataset.lang || 'text'
+    const vnode = h(DocCodeBlock, { code: source, lang })
+    vnode.appContext = currentInstance?.appContext ?? null
+    el.innerHTML = ''
+    render(vnode, el as HTMLElement)
+    mountedBlocks.push(el as HTMLElement)
   }
 }
 
-/** 将 TOC 侧边栏滚动到指定节点，确保展开后的子项可见 */
-function scrollTocToNode(id: string) {
-  if (!tocNavRef.value) return
-  if (window.innerWidth <= 1100) return
-
-  const container = tocNavRef.value
-  const nodeEl = container.querySelector(`[data-toc-id="${CSS.escape(id)}"]`) as HTMLElement | null
-  if (!nodeEl) return
-
-  // 检查子列表是否已在 TOC 视口内完全可见
-  const containerRect = container.getBoundingClientRect()
-  const listItem = nodeEl.closest('.neumorphism-toc-item') as HTMLElement | null
-  const childList = Array.from(listItem?.children ?? []).find(child =>
-    child.classList.contains('neumorphism-toc-list')
-  ) as HTMLElement | null
-
-  if (childList) {
-    const childRect = childList.getBoundingClientRect()
-    // 如果子列表底部未超出 TOC 底部（+10px 容差），则无需滚动
-    if (childRect.bottom <= containerRect.bottom + 10) {
-      return
-    }
-  }
-
-  // 直接操作容器 scrollTop，避免 scrollIntoView 在 sticky 容器中的浏览器兼容问题
-  const elTop = nodeEl.getBoundingClientRect().top - containerRect.top + container.scrollTop
-  container.scrollTo({
-    top: Math.max(0, elTop),
-    behavior: getTocScrollBehavior(),
-  })
-}
-
-/** 返回 'smooth' 或 'auto'，取决于用户的 reduced-motion 偏好 */
-function getTocScrollBehavior(): ScrollBehavior {
-  if (
-    typeof window !== 'undefined' &&
-    window.matchMedia('(prefers-reduced-motion: reduce)').matches
-  ) {
-    return 'auto'
-  }
-  return 'smooth'
-}
-
-/** 将 TOC 侧边栏滚动到当前激活项（仅桌面端可见时执行） */
-function scrollTocToActive() {
-  if (!tocNavRef.value) return
-  // 桌面端 TOC 隐藏时（移动端），跳过滚动
-  if (window.innerWidth <= 1100) return
-
-  const container = tocNavRef.value
-  const activeEl = container.querySelector('.neumorphism-toc-item.active') as HTMLElement | null
-  if (!activeEl) return
-
-  const containerRect = container.getBoundingClientRect()
-  const elRect = activeEl.getBoundingClientRect()
-
-  // 滞回区间：激活项在视口中间 50% 区域时不滚动，减少抖动
-  const upperThreshold = containerRect.top + containerRect.height * 0.25
-  const lowerThreshold = containerRect.top + containerRect.height * 0.75
-
-  if (elRect.top >= upperThreshold && elRect.bottom <= lowerThreshold) {
-    return // 已在舒适区域，无需滚动
-  }
-
-  // 直接操作容器 scrollTop，避免 scrollIntoView 在 sticky 容器中触发祖先滚动
-  const elCenter = elRect.top - containerRect.top + container.scrollTop - elRect.height / 2
-  const targetScrollTop = elCenter - containerRect.height / 2
-  container.scrollTo({
-    top: Math.max(0, targetScrollTop),
-    behavior: getTocScrollBehavior(),
-  })
-}
-
-/** 统一处理内容区点击：复制按钮 + heading 锚点 + 文档链接 */
+/** 统一处理内容区点击：heading 锚点 + 文档链接（代码块复制由 DocCodeBlock 自理） */
 function handleContentClick(e: MouseEvent) {
   const target = e.target as HTMLElement
 
-  // 1. 处理代码复制按钮
-  const copyBtn = target.closest('.code-copy-btn') as HTMLButtonElement | null
-  if (copyBtn) {
-    const code = copyBtn.dataset.code
-    if (code) {
-      e.preventDefault()
-      navigator.clipboard.writeText(code).then(() => {
-        const originalText = copyBtn.dataset.originalText ?? copyBtn.textContent
-        if (copyBtn.dataset.originalText == null) {
-          copyBtn.dataset.originalText = originalText ?? ''
-        }
-        copyBtn.textContent = t('markdownCodeCopied')
-        setTimeout(() => {
-          if (copyBtn) copyBtn.textContent = copyBtn.dataset.originalText ?? originalText
-        }, 1500)
-      })
-    }
-    return
-  }
-
-  // 2. 处理 heading 锚点点击（阻止 hash 变更，改为平滑滚动）
+  // 1. 处理 heading 锚点点击（阻止 hash 变更，改为平滑滚动）
   const anchor = target.closest('.heading-anchor') as HTMLAnchorElement | null
   if (anchor) {
     const id = anchor.dataset.headingId
@@ -541,7 +326,7 @@ function handleContentClick(e: MouseEvent) {
     return
   }
 
-  // 3. 处理文档链接拦截
+  // 2. 处理文档链接拦截
   const link = target.closest('a')
   if (link) {
     const href = link.getAttribute('href')
@@ -556,170 +341,9 @@ function handleContentClick(e: MouseEvent) {
   }
 }
 
-/**
- * 从给定元素向上查找滚动容器。
- * 接受可选 fromEl 用于组件卸载/切换时基于旧 DOM 节点清理。
- */
-function resolveScrollContainer(fromEl?: HTMLElement): HTMLElement | null {
-  const el = fromEl ?? contentRef.value
-  if (!el) return null
-  if (props.scrollContainer instanceof HTMLElement) {
-    return props.scrollContainer
-  }
-  if (typeof props.scrollContainer === 'string') {
-    return el.closest(props.scrollContainer) as HTMLElement | null
-  }
-  return el.closest('.nm-layout__content') as HTMLElement | null
-}
-
-/** 动态获取 header 高度（用于 scroll-spy 偏移计算） */
-function getHeaderHeight(scrollContainer?: HTMLElement): number {
-  const container = scrollContainer ?? resolveScrollContainer()
-  if (!container) return 64
-
-  const layout = container.closest('.nm-layout') as HTMLElement | null
-  const header = layout?.querySelector('.nm-layout__header') as HTMLElement | null
-  if (header) {
-    return header.getBoundingClientRect().height
-  }
-  return 64
-}
-
-/** 根据当前视口位置手动同步 activeHeading（用于 smooth scroll 结束后兜底） */
-function syncActiveHeading() {
-  const main = resolveScrollContainer()
-  if (!main) return
-  const headings = contentRef.value?.querySelectorAll('h1, h2, h3')
-  if (!headings) return
-  const offset = getHeaderHeight(main) + 20
-  let current = ''
-  for (const h of headings) {
-    const rect = h.getBoundingClientRect()
-    const containerRect = main.getBoundingClientRect()
-    if (rect.top - containerRect.top <= offset) {
-      current = h.id
-    } else {
-      break
-    }
-  }
-  if (current !== activeHeading.value) {
-    activeHeading.value = current
-    nextTick(() => scrollTocToActive())
-  }
-}
-
-/** 监听滚动，高亮当前目录项并同步 TOC 滚动位置（IntersectionObserver 实现） */
-let headingObserver: IntersectionObserver | null = null
-let headerResizeObserver: ResizeObserver | null = null
-
-function disconnectObservers() {
-  headingObserver?.disconnect()
-  headingObserver = null
-  headerResizeObserver?.disconnect()
-  headerResizeObserver = null
-}
-
-function setupHeadingObserver() {
-  disconnectObservers()
-
-  const main = resolveScrollContainer()
-  if (!main || !contentRef.value) return
-
-  const headerHeight = getHeaderHeight(main)
-  const headings = Array.from(contentRef.value.querySelectorAll('h1, h2, h3'))
-  if (headings.length === 0) return
-
-  // 跟踪当前在观察区域（offset 以下、底部 60% 以上）内的 heading
-  const topMap = new Map<Element, number>()
-
-  headingObserver = new IntersectionObserver(
-    entries => {
-      if (isClickScrolling) return
-
-      for (const entry of entries) {
-        if (entry.isIntersecting) {
-          topMap.set(entry.target, entry.boundingClientRect.top)
-        } else {
-          topMap.delete(entry.target)
-        }
-      }
-
-      let current = ''
-      let maxTop = -Infinity
-      for (const [el, top] of topMap) {
-        if (top > maxTop) {
-          maxTop = top
-          current = el.id
-        }
-      }
-
-      if (current && current !== activeHeading.value) {
-        activeHeading.value = current
-        nextTick(() => scrollTocToActive())
-      }
-    },
-    {
-      root: main,
-      rootMargin: `-${headerHeight + 20}px 0px -60% 0px`,
-      threshold: 0,
-    }
-  )
-
-  for (const h of headings) {
-    headingObserver.observe(h)
-  }
-
-  // 监听 header 高度变化，动态调整 rootMargin
-  const layout = main.closest('.nm-layout') as HTMLElement | null
-  const header = layout?.querySelector('.nm-layout__header') as HTMLElement | null
-  if (header && typeof ResizeObserver !== 'undefined') {
-    headerResizeObserver = new ResizeObserver(() => {
-      nextTick(() => setupHeadingObserver())
-    })
-    headerResizeObserver.observe(header)
-  }
-}
-
-// content 或 renderedHtml 变化后重新设置 observer
-watch([contentRef, renderedHtml], ([el]) => {
-  if (el) {
-    nextTick(() => {
-      setupHeadingObserver()
-      // 初始同步 TOC 滚动位置，确保挂载时即正确高亮当前区域
-      syncActiveHeading()
-    })
-  } else {
-    disconnectObservers()
-  }
-})
-
-// 卸载时清理
+// 卸载时清理手动挂载的子树
 onBeforeUnmount(() => {
-  disconnectObservers()
-  if (clickScrollTimer) clearTimeout(clickScrollTimer)
-  unmountFlowDiagrams()
-})
-
-/** autoHeading 变化时，自动展开被折叠的祖先节点 */
-watch(activeHeading, newId => {
-  if (!newId) return
-
-  function findAndExpand(nodes: TocNode[]): boolean {
-    for (const node of nodes) {
-      if (node.id === newId) return true
-      if (findAndExpand(node.children)) {
-        if (collapsedGroups.value.has(node.id)) {
-          const next = new Set(collapsedGroups.value)
-          next.delete(node.id)
-          collapsedGroups.value = next
-        }
-        return true
-      }
-    }
-    return false
-  }
-
-  findAndExpand(tocTree.value)
+  unmountMountedBlocks()
 })
 </script>
 
@@ -741,29 +365,13 @@ watch(activeHeading, newId => {
     </div>
 
     <!-- 目录侧边栏（桌面端） -->
-    <nav
+    <DocTocNav
       v-if="showToc && toc.length > 0"
-      ref="tocNavRef"
-      class="neumorphism-toc"
-      :aria-label="t('markdownTocLabel')"
-    >
-      <NeumorphismCard :elevation="-2" no-padding class="neumorphism-toc-card">
-        <div class="neumorphism-toc-header">
-          <span>📑 {{ t('markdownTocLabel') }}</span>
-        </div>
-        <ul class="neumorphism-toc-list" role="list">
-          <TocNodeItem
-            v-for="node in tocTree"
-            :key="node.id"
-            :node="node"
-            :active-heading="activeHeading"
-            :collapsed-groups="collapsedGroups"
-            @toggle="toggleCollapse"
-            @select="scrollToHeading"
-          />
-        </ul>
-      </NeumorphismCard>
-    </nav>
+      v-model:collapsed-groups="collapsedGroups"
+      :items="tocTree"
+      :active-id="activeHeading"
+      @select="scrollToHeading"
+    />
 
     <!-- 移动端 TOC 浮动按钮 -->
     <button
@@ -794,17 +402,13 @@ watch(activeHeading, newId => {
               ✕
             </button>
           </div>
-          <ul class="neumorphism-toc-list" role="list">
-            <TocNodeItem
-              v-for="node in tocTree"
-              :key="node.id"
-              :node="node"
-              :active-heading="activeHeading"
-              :collapsed-groups="collapsedGroups"
-              @toggle="toggleCollapse"
-              @select="scrollToHeadingAndClose"
-            />
-          </ul>
+          <DocTocNav
+            v-model:collapsed-groups="collapsedGroups"
+            :items="tocTree"
+            :active-id="activeHeading"
+            :framed="false"
+            @select="scrollToHeadingAndClose"
+          />
         </NeumorphismCard>
       </div>
     </Transition>
@@ -825,146 +429,6 @@ watch(activeHeading, newId => {
 .neumorphism-markdown-body {
   flex: 1;
   min-width: 0;
-}
-
-/* TOC — sticky sidebar that floats alongside content when scrolling */
-.neumorphism-toc {
-  width: 220px;
-  min-width: 200px;
-  flex-shrink: 0;
-  position: sticky;
-  top: 20px;
-  align-self: flex-start;
-  max-height: calc(100vh - 100px);
-  overflow-y: auto;
-  z-index: 10;
-  /* 防止 TOC 触顶/触底时滚轮事件链接到页面滚动 */
-  overscroll-behavior-y: contain;
-  /* Scrollbar styling for the TOC itself */
-  scrollbar-width: thin;
-  scrollbar-color: var(--nm-surface-raised) transparent;
-}
-.neumorphism-toc::-webkit-scrollbar {
-  width: 5px;
-}
-.neumorphism-toc::-webkit-scrollbar-track {
-  background: transparent;
-}
-.neumorphism-toc::-webkit-scrollbar-thumb {
-  background: color-mix(in srgb, var(--nm-text-placeholder) 25%, transparent);
-  border-radius: 3px;
-}
-.neumorphism-toc::-webkit-scrollbar-thumb:hover {
-  background: color-mix(in srgb, var(--nm-text-secondary) 40%, transparent);
-}
-
-.neumorphism-toc-card {
-  background-color: var(--nm-surface-raised);
-}
-
-.neumorphism-toc-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 16px 10px 16px;
-  font-size: 10px;
-  font-weight: 700;
-  color: var(--nm-text-placeholder);
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  border-bottom: 1px solid var(--nm-border-subtle);
-  margin-bottom: 8px;
-}
-
-.neumorphism-toc-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-.neumorphism-toc-item {
-  margin: 0;
-}
-
-/* 嵌套列表缩进：每一级增加 16px */
-.neumorphism-toc-list .neumorphism-toc-list {
-  padding-left: 16px;
-}
-
-.toc-item-row {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.neumorphism-toc-item a {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  padding: 5px 12px 5px 4px;
-  font-size: 13px;
-  color: var(--nm-text-secondary);
-  text-decoration: none;
-  border-right: 2px solid transparent;
-  transition:
-    color 0.2s ease,
-    border-right-color 0.2s ease,
-    background-color 0.2s ease;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* 有子项的标题略微加粗 */
-.neumorphism-toc-item.has-children > .toc-item-row > a .toc-text {
-  font-weight: 500;
-}
-
-/* TOC 折叠/展开按钮 */
-.toc-toggle {
-  flex-shrink: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 16px;
-  height: 16px;
-  padding: 0;
-  margin: 0;
-  border: none;
-  border-radius: var(--nm-border-radius-sm);
-  background: transparent;
-  color: var(--nm-text-placeholder);
-  font-size: 10px;
-  line-height: 16px;
-  text-align: center;
-  cursor: pointer;
-  font-family: monospace;
-  transition:
-    color 0.15s ease,
-    background-color 0.15s ease;
-}
-
-.toc-toggle:hover {
-  color: var(--nm-primary-color);
-  background-color: color-mix(in srgb, var(--nm-primary-color) 10%, transparent);
-}
-
-.toc-text {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.neumorphism-toc-item a:hover {
-  color: var(--nm-primary-color);
-  border-right-color: color-mix(in srgb, var(--nm-primary-color) 15%, transparent);
-}
-
-.neumorphism-toc-item.active a {
-  color: var(--nm-primary-color);
-  border-right-color: var(--nm-primary-color);
-  background: color-mix(in srgb, var(--nm-primary-color) 12%, transparent);
 }
 
 /* Markdown render error */
@@ -1168,132 +632,6 @@ watch(activeHeading, newId => {
   border: 1px solid var(--nm-border-subtle);
 }
 
-.code-block-wrapper {
-  margin: 0 0 20px 0;
-  border-radius: var(--nm-border-radius-lg);
-  overflow: hidden;
-  background-color: var(--nm-surface-color);
-  border: 1px solid var(--nm-border-subtle);
-}
-
-.code-block-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px 20px;
-  border-bottom: 1px solid var(--nm-border-subtle);
-}
-
-.code-lang {
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--nm-primary-color);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  font-family: var(--nm-font-mono);
-}
-
-.code-lines {
-  font-size: 11px;
-  color: var(--nm-text-placeholder);
-  font-family: var(--nm-font-mono);
-  margin-left: auto;
-  margin-right: 12px;
-}
-
-.code-copy-btn {
-  padding: 4px 10px;
-  border: none;
-  border-radius: var(--nm-border-radius-sm);
-  font-size: 11px;
-  font-weight: 500;
-  color: var(--nm-text-secondary);
-  background-color: var(--nm-surface-color);
-  cursor: pointer;
-  transition:
-    color 0.2s ease,
-    background-color 0.2s ease;
-}
-
-.code-copy-btn:hover {
-  color: var(--nm-primary-color);
-}
-
-.code-copy-btn.copied {
-  background-color: var(--nm-primary-color);
-  color: #fff;
-}
-
-.code-block-body {
-  display: flex;
-  overflow-x: auto;
-}
-
-.line-numbers {
-  display: flex;
-  flex-direction: column;
-  padding: 14px 0 14px 14px;
-  flex-shrink: 0;
-  user-select: none;
-  border-right: 1px solid var(--nm-border-subtle);
-}
-
-.line-num {
-  font-size: 12px;
-  line-height: 1.65;
-  color: var(--nm-text-placeholder);
-  font-family: var(--nm-font-mono);
-  text-align: right;
-  padding-right: 14px;
-  min-width: 28px;
-}
-
-.code-block-body pre {
-  flex: 1;
-  margin: 0;
-  padding: 14px 20px;
-  background: transparent;
-  overflow-x: auto;
-  box-shadow: none;
-}
-
-.code-block-body pre code {
-  display: block;
-  font-size: 13px;
-  line-height: 1.65;
-  font-family: var(--nm-font-mono);
-  background: transparent;
-  padding: 0;
-  box-shadow: none;
-}
-
-.token-comment {
-  color: var(--nm-code-comment);
-  font-style: italic;
-}
-.token-string {
-  color: var(--nm-code-string);
-}
-.token-keyword {
-  color: var(--nm-code-keyword);
-  font-weight: 600;
-}
-.token-function {
-  color: var(--nm-code-function);
-}
-.token-number {
-  color: var(--nm-code-number);
-}
-.token-type {
-  color: var(--nm-code-type);
-}
-.token-operator {
-  color: var(--nm-code-operator);
-}
-.token-punctuation {
-  color: var(--nm-code-punctuation);
-}
-
 .neumorphism-markdown-content blockquote {
   margin: 0 0 18px 0;
   padding: 16px 22px;
@@ -1373,9 +711,7 @@ watch(activeHeading, newId => {
 /* ==========================================
    Focus-visible for accessibility
    ========================================== */
-.neumorphism-toc-item a:focus-visible,
 .neumorphism-markdown-content a:focus-visible,
-.code-copy-btn:focus-visible,
 .heading-anchor:focus-visible,
 .neumorphism-toc-mobile-btn:focus-visible,
 .neumorphism-toc-mobile-close:focus-visible {
@@ -1508,10 +844,6 @@ watch(activeHeading, newId => {
    Responsive
    ========================================== */
 @media (max-width: 1100px) {
-  .neumorphism-toc {
-    display: none;
-  }
-
   .neumorphism-toc-mobile-btn,
   .neumorphism-toc-mobile-overlay {
     display: block;
@@ -1525,7 +857,6 @@ watch(activeHeading, newId => {
   .neumorphism-toc,
   .neumorphism-toc-mobile-btn,
   .neumorphism-toc-mobile-overlay,
-  .code-copy-btn,
   .code-block-header .code-copy-btn,
   .heading-anchor {
     display: none !important;
@@ -1575,9 +906,7 @@ watch(activeHeading, newId => {
    prefers-reduced-motion
    ========================================== */
 @media (prefers-reduced-motion: reduce) {
-  .neumorphism-toc-item a,
   .heading-anchor,
-  .code-copy-btn,
   .checkmark,
   .neumorphism-toc-mobile-btn,
   .neumorphism-toc-drawer-enter-active,

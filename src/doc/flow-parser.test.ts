@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { parseProDocFlow, extractFlowBlocks } from './flow-parser'
+import { parseProDocFlow, extractFlowBlocks, writeFlowNodePosition } from './flow-parser'
 
 describe('parseProDocFlow', () => {
   it('解析方向声明（四种方向）', () => {
@@ -150,5 +150,67 @@ const x = 1
 
   it('无流程块时返回空数组', () => {
     expect(extractFlowBlocks('# 无流程\n\n```ts\ncode\n```')).toEqual([])
+  })
+})
+
+describe('手动排版标注（@ x, y）', () => {
+  it('声明行尾标注解析为节点坐标', () => {
+    const g = parseProDocFlow('graph LR\nA[开始] @ 100, 200\nA --> B')
+    expect(g.errors).toEqual([])
+    expect(g.nodes.find(n => n.id === 'A')).toMatchObject({ x: 100, y: 200 })
+    expect(g.nodes.find(n => n.id === 'B')!.x).toBeUndefined()
+  })
+
+  it('裸 id 行与边链行尾标注均可', () => {
+    const g = parseProDocFlow('graph LR\nA --> B @ 40, 64\nC @ 8, 8')
+    expect(g.nodes.find(n => n.id === 'B')).toMatchObject({ x: 40, y: 64 })
+    expect(g.nodes.find(n => n.id === 'C')).toMatchObject({ x: 8, y: 8 })
+  })
+
+  it('标注后的普通内容照常解析', () => {
+    const g = parseProDocFlow('graph LR\nA @ 1, 2\nA --> B[说明]')
+    expect(g.edges).toEqual([{ from: 'A', to: 'B', label: undefined }])
+  })
+})
+
+describe('writeFlowNodePosition', () => {
+  const body = [
+    '# 文档',
+    '',
+    '```prodoc-flow',
+    'graph LR',
+    '  A[开始] --> B[结束]',
+    '```',
+    '',
+  ].join('\n')
+
+  it('为边链中的节点在块尾追加坐标行', () => {
+    const out = writeFlowNodePosition(body, 'graph LR\n  A[开始] --> B[结束]', 'A', 100, 200)
+    expect(out).toContain('A @ 100, 200')
+    expect(out).toContain('A[开始] --> B[结束]')
+    // 写回后解析坐标生效
+    const blocks = extractFlowBlocks(out)
+    const g = parseProDocFlow(blocks[0])
+    expect(g.nodes.find(n => n.id === 'A')).toMatchObject({ x: 100, y: 200 })
+  })
+
+  it('独立声明行就地追加，重复写回时替换旧坐标', () => {
+    const withDecl = body.replace(
+      '  A[开始] --> B[结束]',
+      '  A[开始] @ 1, 2\n  A[开始] --> B[结束]'
+    )
+    const out = writeFlowNodePosition(
+      withDecl,
+      'graph LR\n  A[开始] @ 1, 2\n  A[开始] --> B[结束]',
+      'A',
+      300,
+      400
+    )
+    expect(out).toContain('A[开始] @ 300, 400')
+    expect(out).not.toContain('@ 1, 2')
+  })
+
+  it('找不到匹配块时原样返回', () => {
+    expect(writeFlowNodePosition(body, 'graph TB\nX --> Y', 'A', 1, 2)).toBe(body)
   })
 })

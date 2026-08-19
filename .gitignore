@@ -47,3 +47,6 @@ coverage/
 .eslintcache
 .stylelintcache
 storybook-static
+
+# 视觉检查截图（本地分析产物，不入库）
+data/

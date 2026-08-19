@@ -11,21 +11,36 @@ export interface DocFlowCanvasProps {
   height?: string
   /** 是否显示点阵网格 */
   showGrid?: boolean
+  /** 是否可拖拽编辑节点位置（松手时触发 nodeMove，由宿主持久化） */
+  editable?: boolean
 }
 
 const props = withDefaults(defineProps<DocFlowCanvasProps>(), {
   height: '480px',
   showGrid: true,
+  editable: false,
 })
 
 const emit = defineEmits<{
   /** 点击带文档链接的节点 */
   (e: 'navigate', path: string): void
+  /** 拖拽松手：节点新坐标（画布 px，左上角） */
+  (e: 'nodeMove', payload: { id: string; x: number; y: number }): void
 }>()
 
 const canvasRef = ref<InstanceType<typeof NeumorphismCanvas>>()
 
-const layout = computed(() => layoutProDocFlow(props.graph))
+/** 拖拽预览中的节点位置（每帧全量重排代价极低：O(V+E)，边自动跟随） */
+const dragPreview = ref<{ id: string; x: number; y: number } | null>(null)
+
+const layout = computed(() => {
+  const preview = dragPreview.value
+  if (!preview) return layoutProDocFlow(props.graph)
+  const nodes = props.graph.nodes.map(n =>
+    n.id === preview.id ? { ...n, x: preview.x, y: preview.y } : n
+  )
+  return layoutProDocFlow({ ...props.graph, nodes })
+})
 
 /** 布局坐标 + 图节点信息合并（避免模板中重复 find） */
 const layoutNodes = computed(() => {
@@ -54,7 +69,87 @@ watch(
 )
 
 function onNodeClick(docPath?: string): void {
+  if (suppressClick) {
+    suppressClick = false
+    return
+  }
   if (docPath) emit('navigate', docPath)
+}
+
+// ==========================================
+// 节点拖拽（editable 时可用；阈值区分点击与拖拽，rAF 节流）
+// ==========================================
+const flowEl = ref<HTMLElement | null>(null)
+const dragNode = ref<{
+  id: string
+  startClientX: number
+  startClientY: number
+  lastClientX: number
+  lastClientY: number
+  scale: number
+  baseX: number
+  baseY: number
+  moved: boolean
+  raf: number
+} | null>(null)
+let suppressClick = false
+
+function onNodePointerdown(event: PointerEvent, node: { id: string; x: number; y: number }): void {
+  if (!props.editable || event.button !== 0) return
+  const rect = flowEl.value?.getBoundingClientRect()
+  const scale = rect && layout.value.width > 0 ? rect.width / layout.value.width : 1
+  dragNode.value = {
+    id: node.id,
+    startClientX: event.clientX,
+    startClientY: event.clientY,
+    lastClientX: event.clientX,
+    lastClientY: event.clientY,
+    scale: scale || 1,
+    baseX: node.x,
+    baseY: node.y,
+    moved: false,
+    raf: 0,
+  }
+  window.addEventListener('pointermove', onNodeDragMove)
+  window.addEventListener('pointerup', onNodeDragEnd)
+  window.addEventListener('pointercancel', onNodeDragEnd)
+}
+
+function onNodeDragMove(event: PointerEvent): void {
+  const d = dragNode.value
+  if (!d) return
+  d.lastClientX = event.clientX
+  d.lastClientY = event.clientY
+  if (!d.raf) d.raf = requestAnimationFrame(applyNodeDrag)
+}
+
+function applyNodeDrag(): void {
+  const d = dragNode.value
+  if (!d) return
+  d.raf = 0
+  const dx = (d.lastClientX - d.startClientX) / d.scale
+  const dy = (d.lastClientY - d.startClientY) / d.scale
+  if (!d.moved && Math.hypot(dx, dy) < 3) return
+  d.moved = true
+  dragPreview.value = {
+    id: d.id,
+    x: Math.round(d.baseX + dx),
+    y: Math.round(d.baseY + dy),
+  }
+}
+
+function onNodeDragEnd(): void {
+  window.removeEventListener('pointermove', onNodeDragMove)
+  window.removeEventListener('pointerup', onNodeDragEnd)
+  window.removeEventListener('pointercancel', onNodeDragEnd)
+  const d = dragNode.value
+  dragNode.value = null
+  if (d?.raf) cancelAnimationFrame(d.raf)
+  const preview = dragPreview.value
+  dragPreview.value = null
+  if (!d?.moved || !preview) return
+  suppressClick = true
+  emit('nodeMove', { id: d.id, x: preview.x, y: preview.y })
 }
 
 function onNodeKeydown(event: KeyboardEvent, docPath?: string): void {
@@ -78,7 +173,12 @@ function onNodeKeydown(event: KeyboardEvent, docPath?: string): void {
       :min-zoom="0.25"
       :max-zoom="3"
     >
-      <div class="nm-flow" :style="{ width: `${layout.width}px`, height: `${layout.height}px` }">
+      <div
+        ref="flowEl"
+        class="nm-flow"
+        :class="{ 'nm-flow--editable': editable }"
+        :style="{ width: `${layout.width}px`, height: `${layout.height}px` }"
+      >
         <!-- 边层（SVG，不接收指针事件，点击穿透到画布/节点） -->
         <svg
           class="nm-flow__edges"
@@ -136,6 +236,7 @@ function onNodeKeydown(event: KeyboardEvent, docPath?: string): void {
           :tabindex="n.docPath ? 0 : undefined"
           :aria-label="n.docPath ? `${n.label}（跳转到文档）` : n.label"
           data-nm-no-pan
+          @pointerdown="onNodePointerdown($event, n)"
           @click="onNodeClick(n.docPath)"
           @keydown="onNodeKeydown($event, n.docPath)"
         >
@@ -156,6 +257,18 @@ function onNodeKeydown(event: KeyboardEvent, docPath?: string): void {
 
 .nm-flow {
   position: relative;
+}
+
+// 可编辑：节点可拖拽（拖拽时禁用悬停上浮与过渡，保证跟手）
+.nm-flow--editable {
+  .nm-flow__node {
+    cursor: grab;
+    touch-action: none;
+
+    &:active {
+      cursor: grabbing;
+    }
+  }
 }
 
 // ==========================================
