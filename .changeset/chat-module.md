@@ -21,3 +21,16 @@ doc 模块同步完成元组件拆分：
 - 新增 `highlightCode` 共享高亮模块：修复正则高亮的两个既有缺陷——插入的 span 标记被后续词法轮次破坏（如注释 span 的 class 被 keyword 命中），以及字符串中的 `#`/`//` 被注释正则吞并导致引号实体配对破坏（两遍式占位符保护 + 字符串优先于注释）
 - `MarkdownRenderer` 重构为薄组合：渲染管线 + mermaid + 流程画布/代码块挂载（占位 → 子树，登记制卸载），TOC/scroll-spy/代码块全部委托元组件与 composable，DOM 结构与行为零回归（既有 94 个集成测试全过）
 - 组件总览新增「文档元组件」分节；locale 新增 `markdownCodeCopy` 键
+
+fix: 评审发现的十一项缺陷全部修复
+
+- highlightCode：注释正则按语言族分发（SQL 风格 `--` 不再吞并 JS 自减 `i--` 与 CSS 自定义属性）
+- MarkdownRenderer 挂载管线保活：v-html 全量替换时同源子树根节点整体迁移认领（流式更新不再重建，复制反馈/滚动位置保留），无人认领才卸载
+- renderer.listitem 修复行内解析：改用 tokens 块级解析（列表项内加粗/行内代码/链接/任务列表生效）
+- DocFlowCanvas 拖拽管线：预览不再触发 fit（消除每帧重排与 scale 过期发散）；pointercancel 丢弃拖拽；箭头 marker id 实例唯一（多画布共存不失引用）；suppressClick 松手兜底清除（不再吞点击）；onBeforeUnmount 清理 window 监听与挂起 rAF
+- flow-layout：通道边安全间隙按整列/整行内容带计算（修复宽兄弟节点穿边）；BT/RL 回边与跨层边从流向端边出线（镜像语义修正）
+- writeFlowNodePosition：CRLF 归一化比较（Windows 文档拖拽写回不再静默失败）；新增 blockIndex 按序定位（重复块场景），flowNodeMove 载荷携带 blockIndex
+- useScrollSpy：header ResizeObserver 高度未变时跳过重建（消除初始通知自旋）
+- useChatScroll：跟随判定改用增长前贴底态（长流式回复不再脱随）+ 程序化滚动防闪烁
+- useSegmented：roving tabindex 初始落点/点击同步/焦点移动/收缩钳制四项 a11y 修复
+- DocTocNav：collapsedGroups 支持受控共享（桌面侧栏与移动端抽屉状态一致）

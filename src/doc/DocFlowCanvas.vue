@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { computed, nextTick, ref, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue'
 import NeumorphismCanvas from '@/components/NeumorphismCanvas/NeumorphismCanvas.vue'
+import { generateId } from '@/utils'
 import { layoutProDocFlow } from './flow-layout'
 import type { ProDocFlowGraph } from './types.js'
 
@@ -30,6 +31,9 @@ const emit = defineEmits<{
 
 const canvasRef = ref<InstanceType<typeof NeumorphismCanvas>>()
 
+/** 实例级唯一箭头 marker id —— 多画布共存时全局 id 冲突会导致首个实例卸载后其余画布箭头失引用 */
+const arrowMarkerId = generateId('nm-flow-arrow')
+
 /** 拖拽预览中的节点位置（每帧全量重排代价极低：O(V+E)，边自动跟随） */
 const dragPreview = ref<{ id: string; x: number; y: number } | null>(null)
 
@@ -57,16 +61,22 @@ const labeledEdges = computed(() => layout.value.edges.filter(e => e.label))
 
 // 图形变化后重新适配视野。Canvas 以 ResizeObserver 异步测量自然尺寸，
 // 仅 nextTick 时测量可能未就绪（fit 读到 0 尺寸静默失效）——
-// 顺延到下一帧再 fit，确保 RO 已回写测量值
+// 顺延到下一帧再 fit，确保 RO 已回写测量值。
+// 拖拽预览期间跳过：preview 每帧驱动 layout 重算，若此时 fit 会 60 次/秒
+// 重置缩放/视野，且 pointerdown 捕获的 scale 随之过期（节点与光标发散）
 watch(
   layout,
   () => {
+    if (dragPreview.value) return
     nextTick(() => {
       requestAnimationFrame(() => canvasRef.value?.fit())
     })
   },
   { immediate: true }
 )
+
+/** 拖拽刚结束时吞掉紧随的配套 click（避免误触发节点跳转） */
+let suppressClick = false
 
 function onNodeClick(docPath?: string): void {
   if (suppressClick) {
@@ -92,7 +102,18 @@ const dragNode = ref<{
   moved: boolean
   raf: number
 } | null>(null)
-let suppressClick = false
+
+function addDragListeners(): void {
+  window.addEventListener('pointermove', onNodeDragMove)
+  window.addEventListener('pointerup', onNodeDragEnd)
+  window.addEventListener('pointercancel', onNodeDragCancel)
+}
+
+function removeDragListeners(): void {
+  window.removeEventListener('pointermove', onNodeDragMove)
+  window.removeEventListener('pointerup', onNodeDragEnd)
+  window.removeEventListener('pointercancel', onNodeDragCancel)
+}
 
 function onNodePointerdown(event: PointerEvent, node: { id: string; x: number; y: number }): void {
   if (!props.editable || event.button !== 0) return
@@ -110,9 +131,7 @@ function onNodePointerdown(event: PointerEvent, node: { id: string; x: number; y
     moved: false,
     raf: 0,
   }
-  window.addEventListener('pointermove', onNodeDragMove)
-  window.addEventListener('pointerup', onNodeDragEnd)
-  window.addEventListener('pointercancel', onNodeDragEnd)
+  addDragListeners()
 }
 
 function onNodeDragMove(event: PointerEvent): void {
@@ -138,10 +157,9 @@ function applyNodeDrag(): void {
   }
 }
 
+/** 正常松手：提交拖拽结果 */
 function onNodeDragEnd(): void {
-  window.removeEventListener('pointermove', onNodeDragMove)
-  window.removeEventListener('pointerup', onNodeDragEnd)
-  window.removeEventListener('pointercancel', onNodeDragEnd)
+  removeDragListeners()
   const d = dragNode.value
   dragNode.value = null
   if (d?.raf) cancelAnimationFrame(d.raf)
@@ -149,8 +167,28 @@ function onNodeDragEnd(): void {
   dragPreview.value = null
   if (!d?.moved || !preview) return
   suppressClick = true
+  // 配套 click 未落到节点上（松手在空白处）时 onNodeClick 不会执行，
+  // setTimeout 兜底清除，避免吞掉下一次合法点击
+  setTimeout(() => {
+    suppressClick = false
+  }, 0)
   emit('nodeMove', { id: d.id, x: preview.x, y: preview.y })
 }
+
+/** 手势被取消（浏览器接管滚动等）：丢弃拖拽，不提交坐标 */
+function onNodeDragCancel(): void {
+  removeDragListeners()
+  const d = dragNode.value
+  dragNode.value = null
+  if (d?.raf) cancelAnimationFrame(d.raf)
+  dragPreview.value = null
+}
+
+// 拖拽中途组件被卸载（宿主切换文档等）：兜底清理 window 监听与挂起 rAF
+onBeforeUnmount(() => {
+  removeDragListeners()
+  if (dragNode.value?.raf) cancelAnimationFrame(dragNode.value.raf)
+})
 
 function onNodeKeydown(event: KeyboardEvent, docPath?: string): void {
   if (!docPath) return
@@ -188,7 +226,7 @@ function onNodeKeydown(event: KeyboardEvent, docPath?: string): void {
         >
           <defs>
             <marker
-              id="nm-flow-arrow"
+              :id="arrowMarkerId"
               viewBox="0 0 10 10"
               refX="9"
               refY="5"
@@ -196,7 +234,7 @@ function onNodeKeydown(event: KeyboardEvent, docPath?: string): void {
               markerHeight="7"
               orient="auto-start-reverse"
             >
-              <path d="M 0 1 L 9 5 L 0 9 z" />
+              <path class="nm-flow__arrow-path" d="M 0 1 L 9 5 L 0 9 z" />
             </marker>
           </defs>
           <path
@@ -205,7 +243,7 @@ function onNodeKeydown(event: KeyboardEvent, docPath?: string): void {
             :d="e.path"
             class="nm-flow__edge"
             :class="{ 'nm-flow__edge--back': e.isBackEdge }"
-            marker-end="url(#nm-flow-arrow)"
+            :marker-end="`url(#${arrowMarkerId})`"
           />
         </svg>
 
@@ -292,7 +330,7 @@ function onNodeKeydown(event: KeyboardEvent, docPath?: string): void {
   }
 }
 
-#nm-flow-arrow path {
+.nm-flow__arrow-path {
   fill: var(--nm-text-secondary);
 }
 

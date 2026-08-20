@@ -305,12 +305,38 @@ export function layoutProDocFlow(
   // ==========================================
   // 边路径
   // 邻层边：三次贝塞尔 S 形直连；跨层边（span ≥ 2）与回边：正交通道绕行——
-  // 先进入层间空隙（安全区），再汇入外侧高速通道（水平布局在底部、垂直布局
-  // 在右侧，多条按声明序依次外扩），最后从目标层后方空隙进入目标尾部侧边。
-  // 全程不穿越任何节点。标签：贝塞尔边取曲线上 t=0.5，通道边取通道段中点。
+  // 先进入层带外侧空隙（安全区按**整列/整行内容带**计算，而非端点自身边缘，
+  // 否则会穿越同层更宽的兄弟节点），再汇入外侧高速通道（水平布局在底部、
+  // 垂直布局在右侧，多条按声明序依次外扩），最后从目标层带外侧空隙进入
+  // 目标的流向端边。全程不穿越任何节点。RL/BT 镜像时出/入边取流向端边。
+  // 标签：贝塞尔边取曲线上 t=0.5，通道边取通道段中点。
   // ==========================================
   const nodesMaxX = Math.max(0, ...[...placed.values()].map(p => p.x + p.w))
   const nodesMaxY = Math.max(0, ...[...placed.values()].map(p => p.y + p.h))
+
+  // 各层内容带在最终坐标（含镜像与手动排版覆盖）下的范围
+  const bandMinX: number[] = []
+  const bandMaxX: number[] = []
+  const bandMinY: number[] = []
+  const bandMaxY: number[] = []
+  layers.forEach((ids, li) => {
+    let minX = Infinity
+    let maxX = -Infinity
+    let minY = Infinity
+    let maxY = -Infinity
+    for (const id of ids) {
+      const p = placed.get(id)
+      if (!p) continue
+      minX = Math.min(minX, p.x)
+      maxX = Math.max(maxX, p.x + p.w)
+      minY = Math.min(minY, p.y)
+      maxY = Math.max(maxY, p.y + p.h)
+    }
+    bandMinX[li] = minX
+    bandMaxX[li] = maxX
+    bandMinY[li] = minY
+    bandMaxY[li] = maxY
+  })
 
   // 需要绕行的边按声明序分配通道（确定性）
   const channelIdx = new Map<number, number>()
@@ -334,25 +360,27 @@ export function layoutProDocFlow(
     let labelPos: { x: number; y: number }
 
     if (chIdx !== undefined) {
+      const fromLayer = layer.get(e.from) ?? 0
+      const toLayer = layer.get(e.to) ?? 0
       if (isVertical) {
-        // TB/BT：出底边 → 行间空隙 → 右侧高速通道 → 目标后方行隙 → 入底边
+        // TB/BT：出流向端边（TB 底边 / BT 顶边）→ 行带外侧空隙 → 右侧高速通道 → 入目标流向端边
         const sx = from.x + from.w / 2
-        const sy = from.y + from.h
+        const sy = mirror ? from.y : from.y + from.h
         const tx = to.x + to.w / 2
-        const ty = to.y + to.h
-        const gapY1 = sy + CHANNEL_GAP
-        const gapY2 = ty + CHANNEL_GAP
+        const ty = mirror ? to.y : to.y + to.h
+        const gapY1 = mirror ? bandMinY[fromLayer] - CHANNEL_GAP : bandMaxY[fromLayer] + CHANNEL_GAP
+        const gapY2 = mirror ? bandMinY[toLayer] - CHANNEL_GAP : bandMaxY[toLayer] + CHANNEL_GAP
         const channelX = nodesMaxX + CHANNEL_OFFSET + chIdx * CHANNEL_GAP
         path = `M ${sx},${sy} L ${sx},${gapY1} L ${channelX},${gapY1} L ${channelX},${gapY2} L ${tx},${gapY2} L ${tx},${ty}`
         labelPos = { x: channelX, y: (gapY1 + gapY2) / 2 }
       } else {
-        // LR/RL：出右侧边 → 列间空隙 → 底部高速通道 → 目标后方列隙 → 入右侧边
-        const sx = from.x + from.w
+        // LR/RL：出流向端边（LR 右边 / RL 左边）→ 列带外侧空隙 → 底部高速通道 → 入目标流向端边
+        const sx = mirror ? from.x : from.x + from.w
         const sy = from.y + from.h / 2
-        const tx = to.x + to.w
+        const tx = mirror ? to.x : to.x + to.w
         const ty = to.y + to.h / 2
-        const gapX1 = sx + CHANNEL_GAP
-        const gapX2 = tx + CHANNEL_GAP
+        const gapX1 = mirror ? bandMinX[fromLayer] - CHANNEL_GAP : bandMaxX[fromLayer] + CHANNEL_GAP
+        const gapX2 = mirror ? bandMinX[toLayer] - CHANNEL_GAP : bandMaxX[toLayer] + CHANNEL_GAP
         const channelY = nodesMaxY + CHANNEL_OFFSET + chIdx * CHANNEL_GAP
         path = `M ${sx},${sy} L ${gapX1},${sy} L ${gapX1},${channelY} L ${gapX2},${channelY} L ${gapX2},${ty} L ${tx},${ty}`
         labelPos = { x: (gapX1 + gapX2) / 2, y: channelY }

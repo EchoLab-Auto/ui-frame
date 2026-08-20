@@ -47,7 +47,10 @@ export function extractFlowBlocks(body: string): string[] {
 /**
  * 把节点的手动排版坐标写回 markdown 正文中的指定 prodoc-flow 块。
  *
- * 定位：与 blockSource 内容一致的围栏块（忽略首尾空白）。
+ * 定位：与 blockSource 内容一致的围栏块（忽略首尾空白；行尾归一化后比较——
+ * marked 会把 CRLF 归一为 LF，而正文 inner 保留 \r）。传入 blockIndex 时
+ * 按文档内第 N 个 prodoc-flow 块直接定位（内容相同的重复块场景），
+ * 此时仍以归一化后的内容一致性作为校验，不匹配则不写入。
  * 写回：节点有独立声明行时就地替换/追加 `@ x, y`（保留行尾 %% 注释）；
  * 仅出现在边链中的节点，在块尾新增 `id @ x, y` 行。
  * 找不到匹配块时原样返回。
@@ -57,13 +60,18 @@ export function writeFlowNodePosition(
   blockSource: string,
   nodeId: string,
   x: number,
-  y: number
+  y: number,
+  blockIndex?: number
 ): string {
   FLOW_BLOCK_RE.lastIndex = 0
+  const normSource = blockSource.replace(/\r\n/g, '\n').trim()
   let match: RegExpExecArray | null
+  let ordinal = -1
   while ((match = FLOW_BLOCK_RE.exec(body)) !== null) {
+    ordinal++
+    if (blockIndex !== undefined && ordinal !== blockIndex) continue
     const inner = match[1]
-    if (inner.trim() !== blockSource.trim()) continue
+    if (inner.replace(/\r\n/g, '\n').trim() !== normSource) continue
 
     const nodeRe = new RegExp(
       `^${nodeId.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?=[\\s\\[\\{\\(@]|$)`

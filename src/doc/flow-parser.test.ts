@@ -213,4 +213,31 @@ describe('writeFlowNodePosition', () => {
   it('找不到匹配块时原样返回', () => {
     expect(writeFlowNodePosition(body, 'graph TB\nX --> Y', 'A', 1, 2)).toBe(body)
   })
+
+  it('CRLF 文档：归一化比较后正常写回（marked 产物的 source 为 LF）', () => {
+    const crlfBody = '# 文档\r\n\r\n```prodoc-flow\r\ngraph LR\r\n  A[开始] --> B[结束]\r\n```\r\n'
+    // blockSource 来自 marked（CRLF 已归一为 LF）
+    const out = writeFlowNodePosition(crlfBody, 'graph LR\n  A[开始] --> B[结束]', 'A', 100, 200)
+    expect(out).not.toBe(crlfBody)
+    expect(out).toContain('A @ 100, 200')
+  })
+
+  it('内容相同的重复块：blockIndex 按序定位第二个', () => {
+    const fence = '```prodoc-flow\ngraph LR\n  A --> B\n```'
+    const dupBody = `# 文档\n\n${fence}\n\n中段\n\n${fence}\n`
+    const src = 'graph LR\n  A --> B'
+    // 不带 index：写第一个匹配块
+    const first = writeFlowNodePosition(dupBody, src, 'A', 1, 2)
+    expect(first.indexOf('A @ 1, 2')).toBeLessThan(first.indexOf('中段'))
+    // 带 blockIndex=1：写第二个块
+    const second = writeFlowNodePosition(dupBody, src, 'A', 1, 2, 1)
+    expect(second.indexOf('A @ 1, 2')).toBeGreaterThan(second.indexOf('中段'))
+  })
+
+  it('blockIndex 指向的块内容不匹配时不写入', () => {
+    const body2 =
+      '# 文档\n\n```prodoc-flow\ngraph LR\n  A --> B\n```\n\n```prodoc-flow\ngraph TB\n  C --> D\n```\n'
+    const out = writeFlowNodePosition(body2, 'graph LR\n  A --> B', 'A', 1, 2, 1)
+    expect(out).toBe(body2)
+  })
 })

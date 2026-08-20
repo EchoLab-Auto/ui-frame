@@ -369,4 +369,76 @@ describe('MarkdownRenderer', () => {
     expect(placeholder.find('pre').exists()).toBe(true)
     expect(placeholder.find('.nm-flow').exists()).toBe(false)
   })
+
+  // ==========================================
+  // 列表项行内解析（listitem 覆写回归）
+  // ==========================================
+
+  it('无序/有序列表项内的加粗与行内代码正常解析', () => {
+    const wrapper = mountRenderer('- 支持 **加粗** 与 `code`\n\n1. 有序 **项**')
+    const html = wrapper.find('.neumorphism-markdown-content').html()
+    expect(html).toContain('<strong>加粗</strong>')
+    expect(html).toContain('<code class="inline-code">code</code>')
+    expect(html).toContain('<strong>项</strong>')
+  })
+
+  it('列表项内的链接正常解析', () => {
+    const wrapper = mountRenderer('- 见 [文档](/guide)')
+    const link = wrapper.find('.neumorphism-markdown-content li a')
+    expect(link.exists()).toBe(true)
+    expect(link.attributes('href')).toBe('/guide')
+  })
+
+  it('任务列表项内行内格式生效且复选框结构保留', () => {
+    const wrapper = mountRenderer('- [ ] 待办 **重要**\n- [x] 已完成')
+    const items = wrapper.findAll('.task-list-item')
+    expect(items).toHaveLength(2)
+    expect(items[0].find('input[type="checkbox"]').exists()).toBe(true)
+    expect(items[0].html()).toContain('<strong>重要</strong>')
+    expect((items[1].find('input[type="checkbox"]').element as HTMLInputElement).checked).toBe(true)
+  })
+
+  it('代码块挂载为 DocCodeBlock 子树（语言标签 + 行号 + 复制按钮）', async () => {
+    const wrapper = mountRenderer('```ts\nconst a = 1\n```')
+    await nextTick()
+    await nextTick()
+    const block = wrapper.find('.doc-code-block-mount .doc-code-block')
+    expect(block.exists()).toBe(true)
+    expect(block.find('.code-lang').text()).toBe('ts')
+    expect(block.find('.code-copy-btn').exists()).toBe(true)
+    expect(block.findAll('.line-num')).toHaveLength(1)
+  })
+
+  it('内容追加时同源代码块子树保活（DOM 节点复用，不重建）', async () => {
+    const wrapper = mountRenderer('```ts\nconst a = 1\n```')
+    await nextTick()
+    await nextTick()
+    const blockBefore = wrapper.find('.doc-code-block-mount .doc-code-block')
+    expect(blockBefore.exists()).toBe(true)
+    const elBefore = blockBefore.element
+
+    await wrapper.setProps({ content: '新增一段文字\n\n```ts\nconst a = 1\n```' })
+    await nextTick()
+    await nextTick()
+    await nextTick()
+
+    const blockAfter = wrapper.find('.doc-code-block-mount .doc-code-block')
+    expect(blockAfter.exists()).toBe(true)
+    // DOM 节点同一 → 子树被认领迁移而非卸载重建
+    expect(blockAfter.element).toBe(elBefore)
+  })
+
+  it('内容变化导致代码块消失时子树正确卸载', async () => {
+    const wrapper = mountRenderer('```ts\nconst a = 1\n```')
+    await nextTick()
+    await nextTick()
+    expect(wrapper.find('.doc-code-block').exists()).toBe(true)
+
+    await wrapper.setProps({ content: '# 只剩标题' })
+    await nextTick()
+    await nextTick()
+    await nextTick()
+    expect(wrapper.find('.doc-code-block').exists()).toBe(false)
+    expect(wrapper.find('.doc-code-block-mount pre').exists()).toBe(false)
+  })
 })

@@ -131,4 +131,51 @@ describe('layoutProDocFlow', () => {
       }
     }
   })
+
+  it('跨层边通道越过同列更宽的兄弟节点（按列内容带取隙）', () => {
+    // W 与 A 同列且明显更宽：通道干线必须越过整列内容带，而非 A 自身右缘
+    const r = layout('graph LR\nA[短] --> B[x]\nW[这是一个标签很长的节点名称]\nB --> D[y]\nA --> D')
+    const w = r.nodes.get('W')!
+    const edge = r.edges.find(e => e.from === 'A' && e.to === 'D')!
+    expect(edge.path.includes(' L ')).toBe(true)
+    const pts = [...edge.path.matchAll(/[ML] ([\d.-]+),([\d.-]+)/g)].map(m => [+m[1], +m[2]])
+    // 垂直干线段（相邻点 x 相同且非端点邻接段）的 x 必须越过 W 的右缘
+    for (let i = 1; i < pts.length - 1; i++) {
+      const [x1, y1] = pts[i]
+      const [x2, y2] = pts[i + 1]
+      if (x1 === x2 && Math.abs(y2 - y1) > 0) {
+        expect(Math.max(x1, x2)).toBeGreaterThan(w.x + w.w)
+      }
+    }
+    // 通道全段采样不进入 W
+    for (let i = 0; i < pts.length - 1; i++) {
+      for (let k = 0; k <= 16; k++) {
+        const x = pts[i][0] + ((pts[i + 1][0] - pts[i][0]) * k) / 16
+        const y = pts[i][1] + ((pts[i + 1][1] - pts[i][1]) * k) / 16
+        const inside = x > w.x + 2 && x < w.x + w.w - 2 && y > w.y + 2 && y < w.y + w.h - 2
+        expect(inside).toBe(false)
+      }
+    }
+  })
+
+  it('BT 回边从流向端边（顶边）出线', () => {
+    const r = layout('graph BT\nA --> B --> C --> A')
+    const back = r.edges.find(e => e.isBackEdge)!
+    expect(back).toBeDefined()
+    const c = r.nodes.get('C')!
+    // 回边 C→A：应从 C 的顶边（flow 端）出线，即路径起点 y 等于 C 的顶部
+    const pts = [...back.path.matchAll(/[ML] ([\d.-]+),([\d.-]+)/g)].map(m => [+m[1], +m[2]])
+    expect(pts[0][1]).toBe(c.y)
+  })
+
+  it('RL 跨层边从流向端边（左边）出线', () => {
+    const r = layout('graph RL\nA --> M --> D\nA --> D')
+    // A→D 跨 2 层，走通道
+    const span = r.edges.find(e => e.from === 'A' && e.to === 'D')!
+    expect(span.path.includes(' L ')).toBe(true)
+    const a = r.nodes.get('A')!
+    const pts = [...span.path.matchAll(/[ML] ([\d.-]+),([\d.-]+)/g)].map(m => [+m[1], +m[2]])
+    // RL：从 A 的左边出线
+    expect(pts[0][0]).toBe(a.x)
+  })
 })

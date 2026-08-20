@@ -3,7 +3,41 @@ import { escapeHtml } from '@/utils'
 // ==========================================
 // 模块级正则 — 避免每次调用重复编译
 // ==========================================
-const COMMENT_RE = /(\/\/.*$|\/\*[\s\S]*?\*\/|#\s+.*$|--.*$)/gm
+// 注释风格按语言族分发：SQL 风格的 `--` 若对所有语言生效，会把 JS 自减
+// `i--` 与 CSS 自定义属性 `--nm-x` 吞为注释
+const COMMENT_RE_CLIKE = /(\/\/.*$|\/\*[\s\S]*?\*\/)/gm
+const COMMENT_RE_HASH = /(#\s+.*$)/gm
+// SQL/Lua：`--` 后要求随空白，避免 `i--`、`x--y` 这类递减/运算符被误判
+const COMMENT_RE_SQL = /(--\s.*$)/gm
+// 不匹配任何内容（无行注释概念的语言）
+const COMMENT_RE_NONE = /$.^/gm
+
+const HASH_COMMENT_LANGS = new Set([
+  'bash',
+  'sh',
+  'shell',
+  'zsh',
+  'python',
+  'py',
+  'yaml',
+  'yml',
+  'toml',
+  'ruby',
+  'rb',
+  'ini',
+  'makefile',
+  'dockerfile',
+])
+const SQL_COMMENT_LANGS = new Set(['sql', 'mysql', 'pgsql', 'plsql', 'lua'])
+
+function commentReFor(lang?: string): RegExp {
+  const normalized = (lang ?? '').toLowerCase()
+  if (HASH_COMMENT_LANGS.has(normalized)) return COMMENT_RE_HASH
+  if (SQL_COMMENT_LANGS.has(normalized)) return COMMENT_RE_SQL
+  if (normalized === 'html' || normalized === 'xml' || normalized === 'vue') return COMMENT_RE_NONE
+  return COMMENT_RE_CLIKE
+}
+
 // 输入已先经 escapeHtml：引号只剩实体形态（&quot; / &#039;）或反引号
 const STRING_RE = /(&quot;.*?&quot;|&#0?39;.*?&#0?39;|`.*?`)/g
 const KEYWORD_RE =
@@ -56,7 +90,7 @@ export function highlightCode(code: string, lang?: string): string {
     return toPlaceholder(stash.length - 1)
   }
   html = html.replace(STRING_RE, stashPush('token-string'))
-  html = html.replace(COMMENT_RE, stashPush('token-comment'))
+  html = html.replace(commentReFor(lang), stashPush('token-comment'))
 
   // 第二遍：剩余裸文本的词法高亮（span 标记无括号/数字/大写，互不干扰）
   html = html.replace(KEYWORD_RE, '<span class="token-keyword">$1</span>')

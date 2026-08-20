@@ -24,6 +24,31 @@ describe('highlightCode', () => {
     expect(out).toBe('<span class="token-comment">// const import</span>')
   })
 
+  it('JS/TS 自减运算符不被当作注释', () => {
+    const out = highlightCode('for (let i = 0; i < n; i--) {', 'ts')
+    expect(out).not.toContain('token-comment')
+    expect(out).toContain('i--')
+  })
+
+  it('CSS 自定义属性不被当作注释，块注释仍高亮', () => {
+    const out = highlightCode(':root { --nm-x: 1; }', 'css')
+    expect(out).not.toContain('token-comment')
+    expect(out).toContain('--nm-x')
+
+    const withComment = highlightCode('/* 重置 */ :root { --nm-x: 1; }', 'css')
+    expect(withComment).toContain('<span class="token-comment">/* 重置 */</span>')
+  })
+
+  it('bash 的 # 注释高亮', () => {
+    const out = highlightCode('# 安装依赖', 'bash')
+    expect(out).toBe('<span class="token-comment"># 安装依赖</span>')
+  })
+
+  it('sql 的 -- 注释高亮，但要求后随空白', () => {
+    const out = highlightCode('-- 查询全部', 'sql')
+    expect(out).toBe('<span class="token-comment">-- 查询全部</span>')
+  })
+
   it('转义后的引号实体整体识别为字符串，数字不被拆解', () => {
     const out = highlightCode("import { a } from 'vue'", 'ts')
     expect(out).toContain('<span class="token-string">&#039;vue&#039;</span>')

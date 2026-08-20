@@ -9,6 +9,7 @@ import {
   render,
   getCurrentInstance,
   toRef,
+  type VNode,
 } from 'vue'
 // TODO(perf): Change to dynamic import for lazy-loading (~40KB saving for non-doc consumers).
 // Requires refactoring extractToc + doRender + renderer setup to async patterns.
@@ -47,7 +48,10 @@ const props = withDefaults(defineProps<MarkdownRendererProps>(), {
 const emit = defineEmits<{
   (e: 'docLink', path: string): void
   /** 流程画布节点拖拽松手（source 为该 prodoc-flow 块的源码，供宿主定位写回） */
-  (e: 'flowNodeMove', payload: { id: string; x: number; y: number; source: string }): void
+  (
+    e: 'flowNodeMove',
+    payload: { id: string; x: number; y: number; source: string; blockIndex: number }
+  ): void
 }>()
 
 const contentRef = ref<HTMLDivElement | null>(null)
@@ -96,19 +100,25 @@ renderer.image = ({ href, title, text }) => {
   return `<img src="${href}" alt="${escapeHtml(text)}" title="${escapeHtml(title || '')}" loading="lazy" />`
 }
 
-renderer.listitem = ({ text, task, checked }) => {
+renderer.listitem = function (
+  this: InstanceType<typeof marked.Renderer>,
+  { tokens, task, checked }
+) {
   if (task) {
+    // 任务列表：首个 token 为 checkbox，其余内容做完整块级解析（行内格式生效）
+    const body = this.parser.parse(tokens.slice(1))
     return `
       <li class="task-list-item">
         <label class="task-checkbox">
           <input type="checkbox" ${checked ? 'checked' : ''} disabled />
           <span class="checkmark"></span>
-          <span class="task-text">${text.replace(/^\[[ x]\]\s*/, '')}</span>
+          <span class="task-text">${body}</span>
         </label>
       </li>
     `
   }
-  return `<li>${text}</li>`
+  // 默认行为：块级解析 item tokens（行内格式 **加粗**、`code`、链接等正常生效）
+  return `<li>${this.parser.parse(tokens)}</li>`
 }
 
 /** 渲染错误状态 */
@@ -237,10 +247,9 @@ async function renderMermaidDiagrams() {
 
 // content 或 renderedHtml 变化后重跑后处理（mermaid 替换 + 流程画布/代码块挂载）
 watch(renderedHtml, () => {
-  // v-html 即将替换 innerHTML —— 旧占位上的手动挂载子树必须先卸载，
-  // 否则其 watcher/ResizeObserver 会随 DOM 移除而泄漏（Vue 运行时感知不到
-  // v-html 内部的手动挂载）
-  unmountMountedBlocks()
+  // v-html 即将替换 innerHTML —— 先把存活子树的根节点摘下暂存，
+  // runPostRender 里同源占位可直接认领（保活组件状态，避免流式更新全量重建）
+  stashMountedBlocks()
   nextTick(runPostRender)
 })
 
@@ -253,48 +262,108 @@ function runPostRender(): void {
   renderMermaidDiagrams()
   mountFlowDiagrams()
   mountCodeBlocks()
+  cleanupUnclaimedBlocks()
 }
 
 // ==========================================
 // 手动挂载管线（占位 → Vue 子树：流程画布 / 代码块）
 // ==========================================
-// 登记制：每个被替换的占位元素都记录在案，内容更新前与组件卸载时统一清理
-const mountedBlocks: HTMLElement[] = []
+// 登记制：每个被替换的占位元素都记录在案，内容更新前与组件卸载时统一清理。
+// 保活机制：v-html 全量替换 DOM 时，同源（key 相同）的子树根节点被整体迁移到
+// 新占位下继续存活（复制反馈态、块内滚动位置不丢失），只有真正消失/变更的
+// 子树才走 render(null) 卸载。
+interface MountedBlock {
+  key: string
+  /** 子树根节点（随 DOM 迁移而换父级） */
+  rootEl: HTMLElement
+  /**
+   * render() 初次挂载的容器 —— Vue 的卸载凭证（container._vnode 关联），
+   * 即使 DOM 已迁移，也必须用它调用 render(null, …) 才能正确卸载。
+   */
+  ownerContainer: HTMLElement
+}
+
+let mountedBlocks: MountedBlock[] = []
+/** 待认领暂存：key → 同源候选队列（重复相同代码块按序认领） */
+let pendingAdopt: Map<string, Array<{ rootEl: HTMLElement; ownerContainer: HTMLElement }>> | null =
+  null
+
 // 关键：手动 render 的子树默认没有应用上下文，useLocale / 全局配置注入会静默
 // 回退默认值 —— 必须继承当前组件实例的 appContext
 const currentInstance = getCurrentInstance()
 
-function unmountMountedBlocks(): void {
-  for (const el of mountedBlocks) {
-    render(null, el)
+function stashMountedBlocks(): void {
+  const stash = new Map<string, Array<{ rootEl: HTMLElement; ownerContainer: HTMLElement }>>()
+  for (const block of mountedBlocks) {
+    const bucket = stash.get(block.key) ?? []
+    bucket.push({ rootEl: block.rootEl, ownerContainer: block.ownerContainer })
+    stash.set(block.key, bucket)
   }
-  mountedBlocks.length = 0
+  mountedBlocks = []
+  pendingAdopt = stash
+}
+
+/** 暂存区无人认领的子树真正卸载（runPostRender 末尾调用） */
+function cleanupUnclaimedBlocks(): void {
+  if (!pendingAdopt) return
+  for (const bucket of pendingAdopt.values()) {
+    for (const item of bucket) {
+      render(null, item.ownerContainer)
+    }
+  }
+  pendingAdopt = null
+}
+
+/** 同源子树优先认领；否则全新挂载 */
+function adoptOrMount(el: Element, key: string, createVnode: () => VNode): void {
+  const bucket = pendingAdopt?.get(key)
+  const candidate = bucket?.shift()
+  if (bucket && bucket.length === 0) pendingAdopt?.delete(key)
+
+  el.innerHTML = ''
+  if (candidate) {
+    el.appendChild(candidate.rootEl)
+    mountedBlocks.push({
+      key,
+      rootEl: candidate.rootEl,
+      ownerContainer: candidate.ownerContainer,
+    })
+    return
+  }
+
+  const vnode = createVnode()
+  vnode.appContext = currentInstance?.appContext ?? null
+  render(vnode, el as HTMLElement)
+  const rootEl = el.firstElementChild as HTMLElement | null
+  if (rootEl) {
+    mountedBlocks.push({ key, rootEl, ownerContainer: el as HTMLElement })
+  }
 }
 
 function mountFlowDiagrams(): void {
   if (!contentRef.value) return
   const placeholders = contentRef.value.querySelectorAll('.prodoc-flow-diagram')
-  for (const el of placeholders) {
+  placeholders.forEach((el, blockIndex) => {
     // 源码从 <pre><code> 回退内容的 textContent 还原（实体自动解码）——
     // data-* 属性通道会被 DOMPurify 的 mXSS 规则剥除（值含 "-->"）
     const source = el.querySelector('pre code')?.textContent ?? el.textContent ?? ''
     const graph = parseProDocFlow(source)
     // 无有效节点（全非法/空源码）→ 保留 <pre> 源码回退
-    if (graph.nodes.length === 0) continue
+    if (graph.nodes.length === 0) return
 
-    const vnode = h(DocFlowCanvas, {
-      graph,
-      height: '420px',
-      editable: props.flowEditable,
-      onNavigate: (path: string) => emit('docLink', path),
-      onNodeMove: (p: { id: string; x: number; y: number }) =>
-        emit('flowNodeMove', { ...p, source }),
-    })
-    vnode.appContext = currentInstance?.appContext ?? null
-    el.innerHTML = ''
-    render(vnode, el as HTMLElement)
-    mountedBlocks.push(el as HTMLElement)
-  }
+    // blockIndex = 文档内第 N 个 prodoc-flow 块（含非法块的占位），
+    // 与正文中 FLOW_BLOCK_RE 的匹配序一致，供宿主写回时按序号唯一定位
+    adoptOrMount(el, `flow:${source}`, () =>
+      h(DocFlowCanvas, {
+        graph,
+        height: '420px',
+        editable: props.flowEditable,
+        onNavigate: (path: string) => emit('docLink', path),
+        onNodeMove: (p: { id: string; x: number; y: number }) =>
+          emit('flowNodeMove', { ...p, source, blockIndex }),
+      })
+    )
+  })
 }
 
 function mountCodeBlocks(): void {
@@ -303,11 +372,7 @@ function mountCodeBlocks(): void {
   for (const el of placeholders) {
     const source = el.querySelector('pre code')?.textContent ?? el.textContent ?? ''
     const lang = (el as HTMLElement).dataset.lang || 'text'
-    const vnode = h(DocCodeBlock, { code: source, lang })
-    vnode.appContext = currentInstance?.appContext ?? null
-    el.innerHTML = ''
-    render(vnode, el as HTMLElement)
-    mountedBlocks.push(el as HTMLElement)
+    adoptOrMount(el, `code:${lang}:${source}`, () => h(DocCodeBlock, { code: source, lang }))
   }
 }
 
@@ -343,7 +408,19 @@ function handleContentClick(e: MouseEvent) {
 
 // 卸载时清理手动挂载的子树
 onBeforeUnmount(() => {
-  unmountMountedBlocks()
+  // 存活子树与暂存区（若有）全部经 ownerContainer 正确卸载
+  for (const block of mountedBlocks) {
+    render(null, block.ownerContainer)
+  }
+  mountedBlocks = []
+  if (pendingAdopt) {
+    for (const bucket of pendingAdopt.values()) {
+      for (const item of bucket) {
+        render(null, item.ownerContainer)
+      }
+    }
+    pendingAdopt = null
+  }
 })
 </script>
 
