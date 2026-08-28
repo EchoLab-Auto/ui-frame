@@ -72,7 +72,7 @@ describe('useChatScroll', () => {
     Object.defineProperty(el, 'scrollHeight', { value: 1500, configurable: true })
     await nextTick()
     await nextTick()
-    expect(el.scrollTo).toHaveBeenCalledWith({ top: 1500, behavior: 'smooth' })
+    expect(el.scrollTo).toHaveBeenCalledWith({ top: 1500, behavior: 'auto' })
     expect(s.isNearBottom.value).toBe(true)
   })
 

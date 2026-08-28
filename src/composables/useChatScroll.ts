@@ -22,7 +22,7 @@ export interface UseChatScrollReturn {
   showJumpButton: ComputedRef<boolean>
   /** 绑定到容器 scroll 事件 */
   handleScroll: () => void
-  /** 滚动到底部（默认 smooth） */
+  /** 滚动到底部（默认 smooth，用于手动'回到底部'；内容自动跟随请传 'auto'） */
   scrollToBottom: (behavior?: ScrollBehavior) => void
   /** 立即重新评估贴底状态（容器尺寸变化等场景手动触发） */
   recheck: () => void
@@ -94,7 +94,9 @@ export function useChatScroll(options: UseChatScrollOptions): UseChatScrollRetur
       const shouldFollow = autoScroll.value && isNearBottom.value
       if (shouldFollow) {
         await nextTick()
-        scrollToBottom()
+        // 内容变化跟随用瞬时定位（auto）：会话/历史整体替换时若用 smooth
+        // 会从顶部播放一次滚动动画；用户本就贴底，直接保持贴底即可。
+        scrollToBottom('auto')
       }
     })
   }
