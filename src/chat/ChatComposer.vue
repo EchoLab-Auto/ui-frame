@@ -72,7 +72,6 @@ const { handleKeydown, submit, canSubmit } = useChatInput({
         v-if="cancelable"
         class="nm-chat-composer__cancel"
         size="small"
-        variant="flat"
         :disabled="disabled"
         @click="emit('cancel')"
       >

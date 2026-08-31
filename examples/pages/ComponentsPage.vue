@@ -986,16 +986,16 @@ const chartStockData = ref([
               </template>
 
               <div class="demo-row" style="margin-bottom: 14px">
-                <NeumorphismButton size="small" variant="flat" @click="showHeadlessToast('success')"
+                <NeumorphismButton size="small" @click="showHeadlessToast('success')"
                   >成功</NeumorphismButton
                 >
-                <NeumorphismButton size="small" variant="flat" @click="showHeadlessToast('error')"
+                <NeumorphismButton size="small" @click="showHeadlessToast('error')"
                   >错误</NeumorphismButton
                 >
-                <NeumorphismButton size="small" variant="flat" @click="showHeadlessToast('info')"
+                <NeumorphismButton size="small" @click="showHeadlessToast('info')"
                   >信息</NeumorphismButton
                 >
-                <NeumorphismButton size="small" variant="flat" @click="showHeadlessToast('warning')"
+                <NeumorphismButton size="small" @click="showHeadlessToast('warning')"
                   >警告</NeumorphismButton
                 >
               </div>
@@ -1152,16 +1152,45 @@ const chartStockData = ref([
               <template #header>
                 <div class="demo-header">
                   <h3 class="demo-title">NeumorphismButton 按钮</h3>
-                  <span class="demo-badge">3 变体 · 3 尺寸 · 3 形状</span>
+                  <span class="demo-badge">6 变体 · 3 尺寸 · 3 形状</span>
                 </div>
               </template>
 
               <div class="demo-block">
-                <h4 class="demo-label">变体类型</h4>
-                <div class="demo-row">
-                  <NeumorphismButton variant="raised">凸起</NeumorphismButton>
-                  <NeumorphismButton variant="flat">扁平</NeumorphismButton>
-                  <NeumorphismButton variant="pressed">凹陷</NeumorphismButton>
+                <h4 class="demo-label">预设变体</h4>
+                <div class="demo-row demo-row--stacked">
+                  <div class="demo-row">
+                    <NeumorphismButton variant="raised">凸起</NeumorphismButton>
+                    <code>variant="raised"</code>
+                  </div>
+                  <div class="demo-row">
+                    <NeumorphismButton variant="pressed">凹陷</NeumorphismButton>
+                    <code>variant="pressed"</code>
+                  </div>
+                  <div class="demo-row">
+                    <NeumorphismButton variant="primary">主色</NeumorphismButton>
+                    <code>variant="primary"</code>
+                  </div>
+                  <div class="demo-row">
+                    <NeumorphismButton variant="glow">辉光</NeumorphismButton>
+                    <code>variant="glow"</code>
+                  </div>
+                </div>
+              </div>
+
+              <div class="demo-block">
+                <h4 class="demo-label">玻璃拟态（磨砂玻璃，置于彩色背景上可见半透明效果）</h4>
+                <div class="demo-row demo-glass-backdrop">
+                  <div class="demo-row demo-row--stacked">
+                    <div class="demo-row">
+                      <NeumorphismButton variant="glass">悬浮玻璃</NeumorphismButton>
+                      <code>variant="glass"</code>
+                    </div>
+                    <div class="demo-row">
+                      <NeumorphismButton variant="glass-raised">凸面玻璃</NeumorphismButton>
+                      <code>variant="glass-raised"</code>
+                    </div>
+                  </div>
                 </div>
               </div>
 
@@ -1650,7 +1679,7 @@ const chartStockData = ref([
 
                   <div class="demo-row" style="margin-top: 12px">
                     <NeumorphismButton type="submit" variant="raised">提交</NeumorphismButton>
-                    <NeumorphismButton type="button" variant="flat" @click="formRef?.clearErrors()"
+                    <NeumorphismButton type="button" @click="formRef?.clearErrors()"
                       >清除错误</NeumorphismButton
                     >
                   </div>
@@ -1893,24 +1922,17 @@ const chartStockData = ref([
                 <div class="demo-row" style="margin-top: 12px">
                   <NeumorphismButton
                     size="small"
-                    variant="flat"
                     :disabled="isSimulating"
                     @click="progressVal = Math.max(0, progressVal - 10)"
                     >-10%</NeumorphismButton
                   >
                   <NeumorphismButton
                     size="small"
-                    variant="flat"
                     :disabled="isSimulating"
                     @click="progressVal = Math.min(100, progressVal + 10)"
                     >+10%</NeumorphismButton
                   >
-                  <NeumorphismButton
-                    size="small"
-                    variant="flat"
-                    :disabled="isSimulating"
-                    @click="simulateLoading"
-                  >
+                  <NeumorphismButton size="small" :disabled="isSimulating" @click="simulateLoading">
                     {{ isSimulating ? '加载中…' : '模拟加载' }}
                   </NeumorphismButton>
                 </div>
@@ -2010,11 +2032,7 @@ const chartStockData = ref([
               </template>
 
               <div class="demo-row" style="margin-bottom: 14px">
-                <NeumorphismButton
-                  size="small"
-                  variant="flat"
-                  @click="skeletonLoading = !skeletonLoading"
-                >
+                <NeumorphismButton size="small" @click="skeletonLoading = !skeletonLoading">
                   {{ skeletonLoading ? '隐藏骨架屏' : '显示骨架屏' }}
                 </NeumorphismButton>
               </div>
@@ -2500,9 +2518,7 @@ const chartStockData = ref([
                       position="bottom"
                       content="Popover 应在遮罩之上"
                     >
-                      <NeumorphismButton variant="flat" size="small"
-                        >点击 Popover</NeumorphismButton
-                      >
+                      <NeumorphismButton size="small">点击 Popover</NeumorphismButton>
                     </NeumorphismPopover>
                   </div>
                 </NeumorphismForm>
@@ -2519,18 +2535,10 @@ const chartStockData = ref([
               </template>
 
               <div class="demo-row">
-                <NeumorphismButton variant="flat" @click="showToast('info')"
-                  >信息</NeumorphismButton
-                >
-                <NeumorphismButton variant="flat" @click="showToast('success')"
-                  >成功</NeumorphismButton
-                >
-                <NeumorphismButton variant="flat" @click="showToast('warning')"
-                  >警告</NeumorphismButton
-                >
-                <NeumorphismButton variant="flat" @click="showToast('error')"
-                  >错误</NeumorphismButton
-                >
+                <NeumorphismButton @click="showToast('info')">信息</NeumorphismButton>
+                <NeumorphismButton @click="showToast('success')">成功</NeumorphismButton>
+                <NeumorphismButton @click="showToast('warning')">警告</NeumorphismButton>
+                <NeumorphismButton @click="showToast('error')">错误</NeumorphismButton>
               </div>
 
               <NeumorphismToastProvider ref="toastContainer" position="top-right" :max-count="5" />
@@ -2559,7 +2567,7 @@ const chartStockData = ref([
                   <NeumorphismButton variant="pressed" size="small">悬停（右）</NeumorphismButton>
                 </NeumorphismTooltip>
                 <NeumorphismTooltip position="top" trigger="click">
-                  <NeumorphismButton variant="flat" size="small">点击触发</NeumorphismButton>
+                  <NeumorphismButton size="small">点击触发</NeumorphismButton>
                   <template #content>
                     <span>自定义<strong>富文本</strong>内容</span>
                   </template>
@@ -2598,7 +2606,6 @@ const chartStockData = ref([
               <div style="margin-top: 14px">
                 <NeumorphismButton
                   size="small"
-                  variant="flat"
                   @click="collapseActive = collapseActive.length ? [] : ['item1', 'item2']"
                 >
                   {{ collapseActive.length ? '全部折叠' : '全部展开' }}
@@ -3297,21 +3304,16 @@ const chartStockData = ref([
                   SVG 流程图示例（拖拽平移、Ctrl/⌘+滚轮缩放，方向键平移，+/-/0 缩放）
                 </h4>
                 <div class="demo-row" style="margin-bottom: 10px">
-                  <NeumorphismButton
-                    size="small"
-                    variant="flat"
-                    @click="canvasShowGrid = !canvasShowGrid"
-                  >
+                  <NeumorphismButton size="small" @click="canvasShowGrid = !canvasShowGrid">
                     {{ canvasShowGrid ? '隐藏网格' : '显示网格' }}
                   </NeumorphismButton>
                   <NeumorphismButton
                     size="small"
-                    variant="flat"
                     @click="canvasGridVariant = canvasGridVariant === 'dots' ? 'lines' : 'dots'"
                   >
                     {{ canvasGridVariant === 'dots' ? '线条网格' : '点状网格' }}
                   </NeumorphismButton>
-                  <NeumorphismButton size="small" variant="flat" @click="canvasZoom = 1">
+                  <NeumorphismButton size="small" @click="canvasZoom = 1">
                     重置缩放
                   </NeumorphismButton>
                 </div>
@@ -3471,7 +3473,7 @@ const chartStockData = ref([
                     <NeumorphismLogo v-model:mode="logoMode" :size="logoSize" :goo="logoGoo">
                       <template #default="{ replay }">
                         <div style="margin-top: 12px">
-                          <NeumorphismButton size="small" variant="flat" @click="replay"
+                          <NeumorphismButton size="small" @click="replay"
                             >↻ 重播汇聚</NeumorphismButton
                           >
                         </div>
@@ -3548,6 +3550,26 @@ const chartStockData = ref([
 <style scoped lang="scss">
 @use '../../src/styles/variables.scss' as *;
 @use '../../src/styles/mixins.scss' as *;
+
+// 玻璃拟态演示背景：彩色渐变衬托 backdrop-filter 的磨砂半透明效果
+.demo-glass-backdrop {
+  padding: 24px;
+  border-radius: var(--nm-border-radius-md);
+  background: linear-gradient(
+    135deg,
+    var(--nm-color-primary-300),
+    var(--nm-color-info, #5a8def),
+    var(--nm-color-success, #3fb27f)
+  );
+
+  // 渐变背景上 code 标注用深色半透明底保证双主题可读
+  code {
+    padding: 2px 8px;
+    border-radius: 6px;
+    background: rgb(0 0 0 / 55%);
+    color: #fff;
+  }
+}
 
 // ---- Root ----
 // flex: 1 fills .page-content. display:flex passes the flex context

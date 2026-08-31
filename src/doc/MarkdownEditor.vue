@@ -226,33 +226,25 @@ function syncEditScroll() {
     <!-- Formatting toolbar -->
     <div class="neumorphism-editor-toolbar">
       <div class="neumorphism-editor-toolbar-left">
-        <NeumorphismButton variant="flat" size="small" title="粗体 (Ctrl+B)" @click="insertBold">
+        <NeumorphismButton size="small" title="粗体 (Ctrl+B)" @click="insertBold">
           <strong>B</strong>
         </NeumorphismButton>
-        <NeumorphismButton variant="flat" size="small" title="斜体 (Ctrl+I)" @click="insertItalic">
+        <NeumorphismButton size="small" title="斜体 (Ctrl+I)" @click="insertItalic">
           <em>I</em>
         </NeumorphismButton>
-        <NeumorphismButton variant="flat" size="small" title="标题" @click="insertHeading">
-          H
-        </NeumorphismButton>
-        <NeumorphismButton variant="flat" size="small" title="链接" @click="insertLink">
-          🔗
-        </NeumorphismButton>
-        <NeumorphismButton variant="flat" size="small" title="图片" @click="insertImage">
-          🖼
-        </NeumorphismButton>
-        <NeumorphismButton variant="flat" size="small" title="行内代码" @click="insertCode">
+        <NeumorphismButton size="small" title="标题" @click="insertHeading"> H </NeumorphismButton>
+        <NeumorphismButton size="small" title="链接" @click="insertLink"> 🔗 </NeumorphismButton>
+        <NeumorphismButton size="small" title="图片" @click="insertImage"> 🖼 </NeumorphismButton>
+        <NeumorphismButton size="small" title="行内代码" @click="insertCode">
           &lt;/&gt;
         </NeumorphismButton>
-        <NeumorphismButton variant="flat" size="small" title="代码块" @click="insertCodeBlock">
+        <NeumorphismButton size="small" title="代码块" @click="insertCodeBlock">
           📋
         </NeumorphismButton>
-        <NeumorphismButton variant="flat" size="small" title="无序列表" @click="insertList">
+        <NeumorphismButton size="small" title="无序列表" @click="insertList">
           •≡
         </NeumorphismButton>
-        <NeumorphismButton variant="flat" size="small" title="表格" @click="insertTable">
-          ⏏
-        </NeumorphismButton>
+        <NeumorphismButton size="small" title="表格" @click="insertTable"> ⏏ </NeumorphismButton>
       </div>
       <div class="neumorphism-editor-toolbar-right">
         <NeumorphismTabs

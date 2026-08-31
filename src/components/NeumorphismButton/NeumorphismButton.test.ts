@@ -18,7 +18,7 @@ describe('NeumorphismButton', () => {
   })
 
   it('should apply variant classes', () => {
-    const variants = ['raised', 'flat', 'pressed'] as const
+    const variants = ['raised', 'pressed', 'primary', 'glow', 'glass', 'glass-raised'] as const
     for (const variant of variants) {
       const wrapper = mount(NeumorphismButton, { props: { variant } })
       expect(wrapper.find('button').classes()).toContain(`nm-button--${variant}`)
@@ -132,7 +132,7 @@ describe('NeumorphismButton', () => {
 
   it('should let explicit props override global config', () => {
     const wrapper = mount(NeumorphismButton, {
-      props: { variant: 'flat', size: 'small' },
+      props: { variant: 'glow', size: 'small' },
       slots: { default: 'x' },
       global: {
         provide: {
@@ -140,7 +140,7 @@ describe('NeumorphismButton', () => {
         },
       },
     })
-    expect(wrapper.classes()).toContain('nm-button--flat')
+    expect(wrapper.classes()).toContain('nm-button--glow')
     expect(wrapper.classes()).toContain('nm-button--small')
   })
 })

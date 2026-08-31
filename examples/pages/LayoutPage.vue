@@ -146,7 +146,7 @@ const containerModes = [
                 <div class="panel-header">
                   <strong>最近通知</strong>
                   <NeumorphismBadge :value="notifications.length">
-                    <NeumorphismButton variant="flat" size="small">全部</NeumorphismButton>
+                    <NeumorphismButton size="small">全部</NeumorphismButton>
                   </NeumorphismBadge>
                 </div>
               </template>
@@ -193,9 +193,7 @@ const containerModes = [
             <template #header-right>
               <div style="display: flex; align-items: center; gap: 10px">
                 <NeumorphismBadge dot>
-                  <NeumorphismButton variant="flat" size="small" aria-label="通知"
-                    >🔔</NeumorphismButton
-                  >
+                  <NeumorphismButton size="small" aria-label="通知">🔔</NeumorphismButton>
                 </NeumorphismBadge>
                 <NeumorphismAvatar src="https://i.pravatar.cc/32?img=5" size="small" />
               </div>

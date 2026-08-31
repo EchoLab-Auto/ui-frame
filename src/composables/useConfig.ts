@@ -8,7 +8,7 @@ import type { InjectionKey } from 'vue'
 export interface NeumorphismGlobalConfig {
   /** Default button props applied to all NeumorphismButton instances */
   button?: {
-    variant?: 'raised' | 'flat' | 'pressed'
+    variant?: 'raised' | 'pressed'
     size?: 'small' | 'medium' | 'large'
     shape?: 'rounded' | 'pill' | 'circle'
   }

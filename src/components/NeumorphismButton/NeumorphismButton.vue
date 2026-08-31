@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 import { useConfig } from '@/composables/useConfig'
 
-export type ButtonVariant = 'raised' | 'flat' | 'pressed' | 'primary' | 'glow'
+export type ButtonVariant = 'raised' | 'pressed' | 'primary' | 'glow' | 'glass' | 'glass-raised'
 export type ButtonSize = 'small' | 'medium' | 'large'
 export type ButtonShape = 'rounded' | 'pill' | 'circle'
 
@@ -203,35 +203,6 @@ function handleClick(event: MouseEvent): void {
   }
 }
 
-// Flat — subtle shadow, firms up on hover
-.nm-button--flat {
-  box-shadow:
-    0 1px 2px var(--nm-shadow-ambient-sm),
-    2px 2px 4px var(--nm-shadow-dark),
-    -1px -1px 3px var(--nm-shadow-light);
-  transition:
-    box-shadow 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
-    transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-
-  &:not(.nm-button--disabled):hover {
-    transform: translateY(-1px);
-    box-shadow:
-      0 2px 4px var(--nm-shadow-ambient-md),
-      4px 4px 8px var(--nm-shadow-dark),
-      -2px -2px 6px var(--nm-shadow-light);
-  }
-
-  &:not(.nm-button--disabled):active {
-    transform: translateY(0);
-    box-shadow:
-      inset 2px 2px 4px var(--nm-shadow-dark-deep),
-      inset -2px -2px 4px var(--nm-shadow-light-deep);
-    transition:
-      box-shadow 0.1s ease,
-      transform 0.1s ease;
-  }
-}
-
 // Pressed — inset shadow, sinks deeper on press
 .nm-button--pressed {
   box-shadow:
@@ -306,6 +277,76 @@ function handleClick(event: MouseEvent): void {
 
   &:not(.nm-button--disabled):active {
     transform: translateY(1px);
+    box-shadow:
+      inset 3px 3px 6px var(--nm-shadow-dark-deep),
+      inset -3px -3px 6px var(--nm-shadow-light-deep);
+    transition:
+      box-shadow 0.15s ease,
+      transform 0.15s ease;
+  }
+}
+
+// Glass — floating frosted glass, levitates further on hover
+.nm-button--glass {
+  background: var(--nm-glass-bg);
+  backdrop-filter: blur(var(--nm-glass-blur));
+  -webkit-backdrop-filter: blur(var(--nm-glass-blur));
+  border: 1px solid color-mix(in srgb, var(--nm-shadow-light) 25%, transparent);
+  box-shadow:
+    0 8px 24px var(--nm-shadow-ambient-lg),
+    0 2px 6px color-mix(in srgb, var(--nm-shadow-dark) 25%, transparent);
+  transition:
+    box-shadow 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
+    transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
+    background-color var(--nm-transition-slow);
+
+  &:not(.nm-button--disabled):hover {
+    transform: translateY(-3px);
+    background: color-mix(in srgb, var(--nm-surface-color) 75%, transparent);
+    box-shadow:
+      0 14px 36px var(--nm-shadow-ambient-xl),
+      0 4px 10px color-mix(in srgb, var(--nm-shadow-dark) 30%, transparent);
+  }
+
+  &:not(.nm-button--disabled):active {
+    transform: translateY(1px);
+    background: color-mix(in srgb, var(--nm-surface-color) 55%, transparent);
+    box-shadow:
+      0 2px 8px var(--nm-shadow-ambient-sm),
+      0 1px 3px color-mix(in srgb, var(--nm-shadow-dark) 20%, transparent);
+    transition:
+      box-shadow 0.15s ease,
+      transform 0.15s ease;
+  }
+}
+
+// Glass raised — neumorphic convex shadows over a frosted glass surface
+.nm-button--glass-raised {
+  background: var(--nm-glass-bg);
+  backdrop-filter: blur(var(--nm-glass-blur));
+  -webkit-backdrop-filter: blur(var(--nm-glass-blur));
+  border: 1px solid color-mix(in srgb, var(--nm-shadow-light) 18%, transparent);
+  box-shadow:
+    0 1px 2px var(--nm-shadow-ambient-md),
+    4px 4px 8px var(--nm-shadow-dark),
+    -2px -2px 6px var(--nm-shadow-light);
+  transition:
+    box-shadow 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
+    transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
+    background-color var(--nm-transition-slow);
+
+  &:not(.nm-button--disabled):hover {
+    transform: translateY(-2px);
+    background: color-mix(in srgb, var(--nm-surface-color) 75%, transparent);
+    box-shadow:
+      0 3px 6px var(--nm-shadow-ambient-xl),
+      6px 6px 14px var(--nm-shadow-dark),
+      -3px -3px 10px var(--nm-shadow-light);
+  }
+
+  &:not(.nm-button--disabled):active {
+    transform: translateY(1px);
+    background: color-mix(in srgb, var(--nm-surface-color) 55%, transparent);
     box-shadow:
       inset 3px 3px 6px var(--nm-shadow-dark-deep),
       inset -3px -3px 6px var(--nm-shadow-light-deep);

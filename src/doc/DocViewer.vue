@@ -100,7 +100,7 @@ function onCanvasNavigate(path: string) {
         <div class="neumorphism-view-switch" role="tablist" aria-label="视图切换">
           <NeumorphismButton
             size="small"
-            :variant="viewMode === 'doc' ? 'raised' : 'flat'"
+            :variant="viewMode === 'doc' ? 'pressed' : 'raised'"
             role="tab"
             :aria-selected="viewMode === 'doc'"
             @click="viewMode = 'doc'"
@@ -109,7 +109,7 @@ function onCanvasNavigate(path: string) {
           </NeumorphismButton>
           <NeumorphismButton
             size="small"
-            :variant="viewMode === 'canvas' ? 'raised' : 'flat'"
+            :variant="viewMode === 'canvas' ? 'pressed' : 'raised'"
             role="tab"
             :aria-selected="viewMode === 'canvas'"
             :disabled="!canvasGraph"
