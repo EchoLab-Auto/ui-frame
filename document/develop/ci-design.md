@@ -1,3 +1,11 @@
+---
+id: ci-design
+title: 'CI/CD 设计'
+x: 40
+y: 869
+group: 开发
+---
+
 # CI/CD 设计说明
 
 > 本文档完整描述 `@echolab-auto/ui-frame` 的 GitHub Actions CI/CD 架构，包括工作流设计、触发策略、任务链关系及故障排查。

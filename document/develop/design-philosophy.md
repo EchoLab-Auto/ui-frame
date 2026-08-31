@@ -1,3 +1,11 @@
+---
+id: design-philosophy
+title: '设计理念'
+x: 660
+y: 821
+group: 开发
+---
+
 # @echolab-auto/ui-frame 设计理念
 
 > 本文档面向参与本项目的开发者。理解这些设计原则后，你应当能够在不查看现有组件源码的情况下，预判新组件该如何实现。
@@ -63,4 +71,4 @@
 
 ---
 
-> 检查清单与快速参考见 [project.md](./project.md)。
+> 检查清单与快速参考见 [develop.md](./develop.md)。

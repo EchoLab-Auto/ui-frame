@@ -1,6 +1,23 @@
-# @echolab-auto/ui-frame 开发前必读索引
+---
+id: develop
+title: '开发指南'
+x: 40
+y: 400
+group: 开发
+link:
+  [
+    'design-philosophy | 设计理念',
+    'design-patterns | 设计模式',
+    'develop-pipeline | 开发流程',
+    'documentation-guide | 文档规范',
+    'ci-pipeline | CI 流程',
+    'readme-specification | README 规范',
+  ]
+---
 
-> 本文档是 `docs/before-develop/` 的入口索引，汇总所有开发前必读文件的职责与快速参考。开发任何功能前，请按以下顺序阅读。
+# 开发指南
+
+> 本文档是 `document/develop/` 的入口索引，面向参与 `@echolab-auto/ui-frame` 开发的开发者（含 AI Agent），汇总所有开发前必读文件的职责与快速参考。开发任何功能前，请按以下顺序阅读。
 
 ---
 
@@ -14,6 +31,7 @@
 | [documentation-guide.md](./documentation-guide.md)   | 文档分层结构与撰写规范       | 需要写/改文档时    |
 | [ci-pipeline.md](./ci-pipeline.md)                   | CI 流程设计与验证链路        | 提交前/开 PR 前    |
 | [readme-specification.md](./readme-specification.md) | 项目 README 的内容结构与标准 | 修改 README 时     |
+| [ci-design.md](./ci-design.md)                       | CI/CD 架构设计说明           | 需要改 CI 时       |
 
 ---
 
@@ -80,21 +98,29 @@ npm run build && npm run example:build
 ## 文档分层速查
 
 ```
-docs/
-├── before-develop/    # 约束层 — "该怎么写"（面向开发者）
-│   ├── ci-pipeline.md
-│   ├── design-philosophy.md
-│   ├── design-patterns.md
-│   ├── develop-pipeline.md
-│   ├── documentation-guide.md
-│   └── readme-specification.md
+document/
+├── project.md         # 文档群图根入口
 │
-└── develop/           # 参考层 — "怎么用"（面向使用者）
-    ├── agent-guide.md # Agent 构建指南，组件目录 + 模式 + 决策
-    ├── api.md         # 参考手册式，按模块名检索
-    ├── ci-design.md   # CI/CD 架构设计说明
-    └── guide.md       # 教程式，按场景阅读
+├── user/              # 使用层 — "怎么用"（面向使用者）
+│   ├── user.md        # 使用指南：教程式，按场景阅读
+│   ├── api.md         # API 参考：参考手册式，按模块名检索
+│   ├── components.md  # 组件总览：分类说明、关键 props 与亮点
+│   ├── animation.md   # 动画效果：阴影模型、缓动与全局动效
+│   ├── interaction.md # 交互效果：键盘、焦点、弹出层与反馈
+│   └── agent-guide.md # Agent 构建指南，组件目录 + 模式 + 决策
+│
+└── develop/           # 开发层 — "该怎么写"（面向开发者）
+    ├── develop.md     # 本文件：开发入口索引
+    ├── design-philosophy.md
+    ├── design-patterns.md
+    ├── develop-pipeline.md
+    ├── documentation-guide.md
+    ├── readme-specification.md
+    ├── ci-pipeline.md
+    └── ci-design.md   # CI/CD 架构设计说明
 ```
+
+文档群遵循 [ProDoc 标准](https://github.com/EchoLab-Auto/DocRenderer)：每篇文档开头有框架参数区（id/title/x/y/link/group），可用 `echo-prodoc view ./document` 渲染为文档图画布。
 
 详细规范见 [documentation-guide.md](./documentation-guide.md)。
 
@@ -171,4 +197,4 @@ docs/
 | 示例构建 | `npm run example:build` | 示例站点损坏          |
 | 产物校验 | 5 个关键文件存在检查    | 产物不完整            |
 
-详细 CI 架构说明见 [../develop/ci-design.md](../develop/ci-design.md)。
+详细 CI 架构说明见 [ci-design.md](./ci-design.md)。

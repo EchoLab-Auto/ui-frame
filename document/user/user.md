@@ -1,3 +1,12 @@
+---
+id: user
+title: '使用指南'
+x: 1029
+y: 532
+group: 使用
+link: ['api | API 参考 | r>l', 'agent-guide | Agent 构建指南 | r>l', 'components | 组件总览']
+---
+
 # 用户指南
 
 > 面向使用 `@echolab-auto/ui-frame` 构建应用的用户，以教程和最佳实践为主。
@@ -410,7 +419,7 @@ async function onVisibleChange(open) {
 | `--nm-border-radius-md` | 中等圆角 | `16px`         |
 | `--nm-transition-fast`  | 快速过渡 | `0.2s ease`    |
 
-完整 Token 列表请参考 [API 文档 - 主题系统](api.md#主题系统)。
+完整 Token 列表请参考 [API 文档 - 主题系统](./api.md#主题系统)。
 
 ---
 
@@ -686,7 +695,7 @@ const items = [
 ```vue
 <template>
   <NeumorphismEmpty description="暂无数据">
-    <NeumorphismButton variant="flat">刷新</NeumorphismButton>
+    <NeumorphismButton>刷新</NeumorphismButton>
   </NeumorphismEmpty>
 </template>
 ```
@@ -836,7 +845,7 @@ const visible = ref(false)
     <p>抽屉内容...</p>
 
     <template #footer>
-      <NeumorphismButton variant="flat" @click="visible = false">取消</NeumorphismButton>
+      <NeumorphismButton @click="visible = false">取消</NeumorphismButton>
       <NeumorphismButton @click="saveSettings">保存</NeumorphismButton>
     </template>
   </NeumorphismDrawer>
@@ -1205,3 +1214,12 @@ import { ChatMessageList, ChatComposer } from '@echolab-auto/ui-frame/chat'
 
 > 使用子路径导出时样式同样自动注入；仅无打包器场景需手动引入：
 > `import '@echolab-auto/ui-frame/dist/style.css'`
+
+---
+
+## 深入
+
+- [组件总览](./components.md) — 全部 60 个组件的分类说明、关键 props 与亮点
+- [动画效果](./animation.md) — 台阶高度模型、缓动曲线、悬停与加载动效
+- [交互效果](./interaction.md) — 键盘导航、焦点管理、弹出层与反馈交互
+- [API 参考](./api.md) — 完整的 Props/Events/Slots 手册

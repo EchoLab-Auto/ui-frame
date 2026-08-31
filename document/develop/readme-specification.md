@@ -1,3 +1,11 @@
+---
+id: readme-specification
+title: 'README 规范'
+x: 660
+y: 676
+group: 开发
+---
+
 # 项目 README 内容规范
 
 > 本文档严格定义 @echolab-auto/ui-frame 项目根目录 `README.md` 的内容结构与撰写标准。Agent 在创建或修改 README 时必须逐项对照。
@@ -61,8 +69,8 @@ import '@echolab-auto/ui-frame/dist/style.css'
 
 提供指向完整文档的链接：
 
-- 用户指南 → `docs/develop/guide.md`
-- API 参考 → `docs/develop/api.md`
+- 用户指南 → `document/user/user.md`
+- API 参考 → `document/user/api.md`
 - 在线示例（如已部署 Pages）→ 示例站点地址
 
 ### 2.6 浏览器支持
@@ -87,4 +95,4 @@ import '@echolab-auto/ui-frame/dist/style.css'
 
 ## 四、检查清单
 
-> README 检查清单见 [project.md](./project.md)。
+> README 检查清单见 [develop.md](./develop.md)。

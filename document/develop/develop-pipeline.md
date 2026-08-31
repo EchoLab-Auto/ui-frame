@@ -1,3 +1,11 @@
+---
+id: develop-pipeline
+title: '开发验证 Pipeline'
+x: 660
+y: 965
+group: 开发
+---
+
 # Agent 开发验证 Pipeline
 
 > 本 pipeline 适用于 AI Agent 参与 @echolab-auto/ui-frame 项目开发时的标准化验证流程。
@@ -7,7 +15,7 @@
 ## 前置检查（任何修改前必做）
 
 ```
-1. 读取 docs/before-develop/design-philosophy.md
+1. 读取 document/develop/design-philosophy.md
    → 确认理解六条核心设计原则
 
 2. 确认修改范围类型
@@ -171,7 +179,7 @@ ls dist/ui-frame.js dist/ui-frame.umd.cjs dist/style.css dist/index.d.ts
 
 ---
 
-> 提交前检查清单、CI 验证清单与 Quick Check 见 [project.md](./project.md)。
+> 提交前检查清单、CI 验证清单与 Quick Check 见 [develop.md](./develop.md)。
 
 ---
 
@@ -251,4 +259,4 @@ ls dist/ui-frame.js dist/ui-frame.umd.cjs dist/style.css dist/index.d.ts
 └─────────────────────────────────────────────────────────────┘
 ```
 
-> 完整检查清单与 Quick Check 见 [project.md](./project.md)。
+> 完整检查清单与 Quick Check 见 [develop.md](./develop.md)。

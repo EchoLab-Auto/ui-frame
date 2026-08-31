@@ -165,9 +165,9 @@ import { NeumorphismButton } from '@echolab-auto/ui-frame'
 
 详细文档：
 
-- [Agent 构建指南](docs/develop/agent-guide.md) — Agent 专用，组件目录 + 模式 + 决策指南
-- [用户指南](docs/develop/guide.md) — 教程式，按场景阅读
-- [API 参考](docs/develop/api.md) — 参考手册式，按模块名检索
+- [Agent 构建指南](document/user/agent-guide.md) — Agent 专用，组件目录 + 模式 + 决策指南
+- [用户指南](document/user/user.md) — 教程式，按场景阅读
+- [API 参考](document/user/api.md) — 参考手册式，按模块名检索
 
 ## 示例
 

@@ -1,3 +1,11 @@
+---
+id: design-patterns
+title: '设计模式'
+x: 660
+y: 400
+group: 开发
+---
+
 # @echolab-auto/ui-frame 设计模式
 
 > 本文档从源码实现中提炼本项目使用的设计模式，帮助开发者在不阅读全部组件的情况下，预判新功能该如何组织。
@@ -326,7 +334,7 @@ const classList = computed(() => [
 ### 新增组件时的应用
 
 - 视觉变体优先用 BEM 类名（`block--modifier`）区分。
-- 变体命名必须能对应物理状态：`raised` / `flat` / `pressed` / `sunk` 等。
+- 变体命名必须能对应物理状态：`raised` / `pressed` / `sunk` 等。
 
 ---
 
@@ -470,4 +478,4 @@ export function useTheme(): ThemeContext {
 
 ---
 
-> 设计原则的一句话解释见 [project.md](./project.md)。
+> 设计原则的一句话解释见 [develop.md](./develop.md)。

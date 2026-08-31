@@ -1,3 +1,12 @@
+---
+id: ci-pipeline
+title: 'CI 流程'
+x: 40
+y: 644
+group: 开发
+link: ['ci-design | 架构说明']
+---
+
 # CI 流程设计
 
 > 本文档定义 `@echolab-auto/ui-frame` 的 CI/CD 设计原则与验证链路。开发者在提交或开 PR 前应理解本文，确保变更可顺利通过 CI。

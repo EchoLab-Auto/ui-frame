@@ -1,3 +1,11 @@
+---
+id: agent-guide
+title: 'Agent 构建指南'
+x: 1317
+y: 400
+group: '使用 @ 934, 366, 1283, 899'
+---
+
 # @echolab-auto/ui-frame — Agent 构建指南
 
 > **一句话**：Vue 3 新拟态（Neumorphism）组件库，通过多层阴影模拟 3D 浮雕效果。Agent 构建 UI 时，只需知道**组件名 + props + slot**即可使用，无需阅读源码。
@@ -12,7 +20,7 @@ import NeumorphismUI from '@echolab-auto/ui-frame'
 import '@echolab-auto/ui-frame/dist/style.css'
 
 const app = createApp(App)
-app.use(NeumorphismUI) // 全局注册所有 51 个组件
+app.use(NeumorphismUI) // 全局注册所有 60 个组件
 app.mount('#app')
 ```
 
@@ -100,22 +108,22 @@ const { theme, isDark, toggleTheme } = provideTheme()
 
 ---
 
-## 4. 完整组件目录（51 个）
+## 4. 完整组件目录（60 个）
 
 ### 基础输入（10 个）
 
-| 组件                      | 用途               | 核心 Props                                                                                                   |
-| ------------------------- | ------------------ | ------------------------------------------------------------------------------------------------------------ |
-| `NeumorphismButton`       | 凸起/扁平/凹陷按钮 | `variant`(raised\|flat\|pressed), `size`, `shape`, `loading`                                                 |
-| `NeumorphismSwitch`       | 开关切换           | `v-model`, `size`, `activeText`, `inactiveText`                                                              |
-| `NeumorphismCheckbox`     | 复选框             | `v-model`, `label`, `size`, `indeterminate`                                                                  |
-| `NeumorphismRadio`        | 单选按钮           | `v-model`, `value`, `size`, `disabled`                                                                       |
-| `NeumorphismRadioGroup`   | 单选按钮组         | `v-model`, `direction`(horizontal\|vertical)                                                                 |
-| `NeumorphismInput`        | 文本输入框         | `v-model`, `label`, `placeholder`, `size`, `error`                                                           |
-| `NeumorphismTextarea`     | 多行文本           | `v-model`, `rows`, `autoResize`, `showCount`                                                                 |
-| `NeumorphismSelect`       | 下拉选择           | `v-model`, `options`, `clearable`, `multiple`, `filterable`, `loading`, `variant`(default\|outlined), `size` |
-| `NeumorphismInputNumber`  | 数字输入           | `v-model`, `min`, `max`, `step`, `controls`(±按钮)                                                           |
-| `NeumorphismAutoComplete` | 输入联想           | `v-model`, `options`, `loading`, `debounce`                                                                  |
+| 组件                      | 用途                    | 核心 Props                                                                                                   |
+| ------------------------- | ----------------------- | ------------------------------------------------------------------------------------------------------------ |
+| `NeumorphismButton`       | 凸起/凹陷/主色/玻璃按钮 | `variant`(raised\|pressed\|primary\|glow\|glass\|glass-raised), `size`, `shape`, `loading`                   |
+| `NeumorphismSwitch`       | 开关切换                | `v-model`, `size`, `activeText`, `inactiveText`                                                              |
+| `NeumorphismCheckbox`     | 复选框                  | `v-model`, `label`, `size`, `indeterminate`                                                                  |
+| `NeumorphismRadio`        | 单选按钮                | `v-model`, `value`, `size`, `disabled`                                                                       |
+| `NeumorphismRadioGroup`   | 单选按钮组              | `v-model`, `direction`(horizontal\|vertical)                                                                 |
+| `NeumorphismInput`        | 文本输入框              | `v-model`, `label`, `placeholder`, `size`, `error`                                                           |
+| `NeumorphismTextarea`     | 多行文本                | `v-model`, `rows`, `autoResize`, `showCount`                                                                 |
+| `NeumorphismSelect`       | 下拉选择                | `v-model`, `options`, `clearable`, `multiple`, `filterable`, `loading`, `variant`(default\|outlined), `size` |
+| `NeumorphismInputNumber`  | 数字输入                | `v-model`, `min`, `max`, `step`, `controls`(±按钮)                                                           |
+| `NeumorphismAutoComplete` | 输入联想                | `v-model`, `options`, `loading`, `debounce`                                                                  |
 
 ### 表单（3 个）
 
@@ -241,7 +249,7 @@ const { theme, isDark, toggleTheme } = provideTheme()
 <NeumorphismModal v-model="visible" title="确认删除" size="small" @confirm="handleDelete">
   确定要删除此项吗？此操作不可撤销。
   <template #footer>
-    <NeumorphismButton variant="flat" @click="visible = false">取消</NeumorphismButton>
+    <NeumorphismButton @click="visible = false">取消</NeumorphismButton>
     <NeumorphismButton variant="raised" @click="handleDelete">确认</NeumorphismButton>
   </template>
 </NeumorphismModal>
@@ -399,7 +407,7 @@ function showMsg() {
   ]"
   @select="onSelect"
 >
-  <NeumorphismButton variant="flat" size="small">操作 ▾</NeumorphismButton>
+  <NeumorphismButton size="small">操作 ▾</NeumorphismButton>
 </NeumorphismDropdown>
 ```
 
@@ -445,10 +453,13 @@ function showMsg() {
 
 ## 11. 详细文档链接
 
-- [API 参考](docs/develop/api.md) — 每个组件的 Props/Events/Slots 完整表格
-- [用户指南](docs/develop/guide.md) — 场景驱动的教程
-- [设计理念](../before-develop/design-philosophy.md) — 物理隐喻、Headless 分离等原则
-- [设计模式](../before-develop/design-patterns.md) — 级联配置、Token 系统等的代码体现
+- [组件总览](./components.md) — 全组件分类说明、关键 props 与亮点
+- [API 参考](./api.md) — 每个组件的 Props/Events/Slots 完整表格
+- [用户指南](./user.md) — 场景驱动的教程
+- [动画效果](./animation.md) — 台阶高度模型、缓动曲线与全局动效
+- [交互效果](./interaction.md) — 键盘、焦点、弹出层与反馈交互
+- [设计理念](../develop/design-philosophy.md) — 物理隐喻、Headless 分离等原则
+- [设计模式](../develop/design-patterns.md) — 级联配置、Token 系统等的代码体现
 
 ---
 
