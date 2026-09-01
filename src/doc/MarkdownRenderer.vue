@@ -237,9 +237,21 @@ async function renderMermaidDiagrams() {
     const mermaid = await import('mermaid').catch(() => null)
     if (!mermaid?.default) return
 
-    await mermaid.default.run({
-      nodes: Array.from(diagrams),
-    })
+    let seq = 0
+    for (const el of Array.from(diagrams)) {
+      // 图源取 data-mermaid 属性（DOM 解析后实体已还原）。
+      // 不能用 mermaid.run({ nodes })：它读取元素 innerHTML，会把
+      // 展示用的 <pre><code> 包装标签一并喂给解析器，导致必然语法错误
+      const source = el.getAttribute('data-mermaid') ?? el.textContent ?? ''
+      if (!source.trim()) continue
+      try {
+        const { svg } = await mermaid.default.render(`nm-mermaid-${Date.now()}-${seq++}`, source)
+        el.innerHTML = svg
+        el.setAttribute('data-processed', 'true')
+      } catch {
+        // 单图渲染失败时保留该图的 <pre><code> 回退，不影响其他图
+      }
+    }
   } catch {
     // Mermaid 不可用时，保留原始的 <pre><code> 回退
   }

@@ -9,7 +9,12 @@ import {
   createResizeObserverMock,
 } from '@/__test-utils__/test-helpers'
 
-vi.mock('mermaid', () => ({ default: { run: vi.fn() } }))
+vi.mock('mermaid', () => ({
+  default: {
+    run: vi.fn(),
+    render: vi.fn(async () => ({ svg: '<svg class="mermaid-mock-svg"></svg>' })),
+  },
+}))
 
 describe('MarkdownRenderer', () => {
   const originalIntersectionObserver = globalThis.IntersectionObserver
@@ -34,6 +39,22 @@ describe('MarkdownRenderer', () => {
       props: { content, ...props },
     })
   }
+
+  it('renders mermaid diagrams from the decoded data-mermaid source (not the <pre><code> wrapper)', async () => {
+    const fence = '```'
+    mountRenderer(fence + 'mermaid\ngraph LR\n  A[开始] --> B{判断}\n' + fence)
+    const mermaid = (await import('mermaid')).default
+    await vi.waitFor(() => expect(mermaid.render).toHaveBeenCalled())
+    const [, source] = (mermaid.render as ReturnType<typeof vi.fn>).mock.calls[0] as [
+      string,
+      string,
+    ]
+    // 源文本必须是 DOM 还原后的图源（--> 而非 &gt;），且不含包装标签
+    expect(source).toContain('-->')
+    expect(source).not.toContain('&gt;')
+    expect(source).not.toContain('<pre>')
+    expect(source).not.toContain('<code>')
+  })
 
   it('renders markdown content', () => {
     const wrapper = mountRenderer('# Hello\n\nWorld')
