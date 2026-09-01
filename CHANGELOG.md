@@ -1,5 +1,15 @@
 # @echolab-auto/ui-frame
 
+## 1.3.0
+
+### Minor Changes
+
+- Button 变体收敛与扩展：移除 `flat`（与 `raised` 物理同构、仅高度低一档，原 `variant="flat"` 请改用默认 `raised`）；新增 `glass`（悬浮磨砂玻璃）与 `glass-raised`（凸面磨砂玻璃）变体，复用 `--nm-glass-*` token，亮/暗主题与 reduced-motion 全覆盖。DocViewer 视图切换激活态改用 `pressed` 表达「已按下」语义。
+
+### Patch Changes
+
+- 修复 doc 模块 mermaid 渲染：改用 `data-mermaid` 属性中的解码图源逐图调用 `mermaid.render`，不再把展示用的 `<pre><code>` 包装标签喂给解析器；单图失败保留原文回退，不影响其他图。
+
 ## 1.2.0
 
 ### Minor Changes
