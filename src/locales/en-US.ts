@@ -23,6 +23,8 @@ export const enUS: LocaleMessages = {
   canvasFullscreen: 'Enter fullscreen',
   canvasExitFullscreen: 'Exit fullscreen',
   canvasLabel: 'Canvas viewport, arrow keys to pan, plus/minus to zoom, 0 to reset',
+  artLabel: 'Generative art canvas',
+  asciiArtLabel: 'ASCII art',
 
   // Tree
   treeExpandAll: 'Expand all',

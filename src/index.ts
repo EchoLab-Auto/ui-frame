@@ -45,6 +45,8 @@ import {
   NeumorphismTreeNode,
   NeumorphismCanvas,
   NeumorphismLogo,
+  NeumorphismArt,
+  NeumorphismAsciiArt,
   NeumorphismFieldLabel,
   NeumorphismFieldError,
   NeumorphismSlider,
@@ -125,6 +127,7 @@ export type {
 } from './composables/useSelect'
 
 export { usePixelLogoAnimation } from './composables/usePixelLogoAnimation'
+export { useArtRenderer } from './composables/useArtRenderer'
 export type {
   UsePixelLogoAnimationOptions,
   UsePixelLogoAnimationReturn,
@@ -379,6 +382,8 @@ const NAME_TO_COMPONENT = {
   NeumorphismTreeNode,
   NeumorphismCanvas,
   NeumorphismLogo,
+  NeumorphismArt,
+  NeumorphismAsciiArt,
   NeumorphismFieldLabel,
   NeumorphismFieldError,
   NeumorphismSlider,

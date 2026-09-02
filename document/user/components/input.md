@@ -1,8 +1,8 @@
 ---
 id: comp-input
 title: 'NeumorphismInput'
-x: 1029
-y: 676
+x: 1709
+y: 1199
 group: 使用
 ---
 

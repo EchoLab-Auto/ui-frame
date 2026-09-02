@@ -25,6 +25,8 @@ export interface LocaleMessages {
   canvasFullscreen?: string
   canvasExitFullscreen?: string
   canvasLabel?: string
+  artLabel?: string
+  asciiArtLabel?: string
 
   /** Tree */
   treeExpandAll?: string

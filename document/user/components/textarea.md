@@ -1,8 +1,8 @@
 ---
 id: comp-textarea
 title: 'NeumorphismTextarea'
-x: 1029
-y: 809
+x: 1709
+y: 1323
 group: 使用
 ---
 

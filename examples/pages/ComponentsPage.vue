@@ -6,6 +6,7 @@ import { usePagination } from '../../src/composables/usePagination'
 import { useToast } from '../../src/composables/useToast'
 import { ChatBubble, ChatTray, ChatFold, ChatComposer, ChatCopyButton } from '../../src/chat'
 import { DocCodeBlock, DocTocNav, type TocNode } from '../../src/doc'
+import artImage from '../assets/images.jpeg'
 
 // ---- 注入全局主题（由 App.vue provide） ----
 const themeContext = useTheme()
@@ -269,6 +270,8 @@ const navCategories = [
       { id: 'tree', label: '树形导航 Tree' },
       { id: 'canvas', label: '画布 Canvas' },
       { id: 'logo', label: 'Logo 动效 Logo' },
+      { id: 'art', label: '试验效果 Art' },
+      { id: 'ascii-art', label: '字符画 AsciiArt' },
     ],
   },
 ]
@@ -615,6 +618,35 @@ const logoModeOptions = [
   { label: '液态律动', value: 'liquid' },
   { label: '潮汐波纹', value: 'wave' },
   { label: '指针引力', value: 'pointer' },
+]
+
+// ---- AsciiArt 字符画调参面板 ----
+const asciiDensity = ref(1.2)
+const asciiSpeed = ref(1)
+const asciiReactive = ref(true)
+const asciiRadius = ref<'none' | 'small' | 'medium' | 'large' | 'xl'>('large')
+const asciiSizeMode = ref<'auto' | 'fixed'>('auto')
+const asciiWidth = ref(360)
+const asciiHeight = ref(340)
+const asciiPaletteName = ref<'theme' | 'warm' | 'cool'>('theme')
+const asciiPalette = computed(() => {
+  if (asciiPaletteName.value === 'warm') return ['#ff6b6b', '#feca57', '#ff9f43']
+  if (asciiPaletteName.value === 'cool') return ['#48dbfb', '#54a0ff', '#5f27cd']
+  return undefined
+})
+const asciiAriaLabel = ref('字符画')
+
+// ---- Art 试验效果示例 ----
+const artEffect = ref<'pixel-field' | 'particles' | 'waves' | 'goo' | 'ascii'>('pixel-field')
+const artReactive = ref(true)
+const artSpeed = ref(1)
+const artDensity = ref(1)
+const artEffectOptions = [
+  { label: '像素脉冲场', value: 'pixel-field' },
+  { label: '粒子连线', value: 'particles' },
+  { label: '流动波浪', value: 'waves' },
+  { label: '融合色团', value: 'goo' },
+  { label: '字符画', value: 'ascii' },
 ]
 
 // 流程图示例节点
@@ -3455,7 +3487,7 @@ const chartStockData = ref([
                     v-for="opt in logoModeOptions"
                     :key="opt.value"
                     size="small"
-                    :variant="logoMode === opt.value ? 'raised' : 'flat'"
+                    :variant="logoMode === opt.value ? 'pressed' : 'raised'"
                     @click="logoMode = opt.value"
                   >
                     {{ opt.label }}
@@ -3488,19 +3520,19 @@ const chartStockData = ref([
                     <div class="demo-row">
                       <NeumorphismButton
                         size="small"
-                        :variant="logoSize === 'small' ? 'raised' : 'flat'"
+                        :variant="logoSize === 'small' ? 'pressed' : 'raised'"
                         @click="logoSize = 'small'"
                         >small</NeumorphismButton
                       >
                       <NeumorphismButton
                         size="small"
-                        :variant="logoSize === 'medium' ? 'raised' : 'flat'"
+                        :variant="logoSize === 'medium' ? 'pressed' : 'raised'"
                         @click="logoSize = 'medium'"
                         >medium</NeumorphismButton
                       >
                       <NeumorphismButton
                         size="small"
-                        :variant="logoSize === 'large' ? 'raised' : 'flat'"
+                        :variant="logoSize === 'large' ? 'pressed' : 'raised'"
                         @click="logoSize = 'large'"
                         >large</NeumorphismButton
                       >
@@ -3530,6 +3562,193 @@ const chartStockData = ref([
                 </div>
               </div>
             </NeumorphismCard>
+
+            <!-- Art 试验效果 -->
+            <NeumorphismCard id="art" :elevation="1" class="demo-card demo-card--full">
+              <template #header>
+                <div class="demo-header">
+                  <h3 class="demo-title">NeumorphismArt 试验效果</h3>
+                  <span class="demo-badge">5 效果 · 指针交互 · 速度/密度可调</span>
+                </div>
+              </template>
+
+              <div class="demo-block">
+                <h4 class="demo-label">效果选择（试验性动态效果孵化器）</h4>
+                <div class="demo-row">
+                  <NeumorphismSegmented v-model="artEffect" :options="artEffectOptions" />
+                </div>
+              </div>
+
+              <NeumorphismArt
+                :effect="artEffect"
+                :reactive="artReactive"
+                :speed="artSpeed"
+                :density="artDensity"
+                :height="280"
+                :src="artImage"
+              >
+                <h3 v-if="artEffect !== 'ascii'" style="font-weight: 600; opacity: 0.85">
+                  {{ artEffectOptions.find(o => o.value === artEffect)?.label }}
+                </h3>
+              </NeumorphismArt>
+
+              <div class="demo-block" style="margin-top: 16px">
+                <h4 class="demo-label">参数</h4>
+                <div class="demo-row" style="flex-wrap: wrap; gap: 24px; align-items: center">
+                  <div class="demo-row">
+                    <NeumorphismSwitch v-model="artReactive" />
+                    <code>reactive（指针交互）</code>
+                  </div>
+                  <div class="demo-row" style="min-width: 220px">
+                    <NeumorphismSlider v-model="artSpeed" :min="0.2" :max="3" :step="0.1" />
+                    <code>speed: {{ artSpeed.toFixed(1) }}</code>
+                  </div>
+                  <div class="demo-row" style="min-width: 220px">
+                    <NeumorphismSlider v-model="artDensity" :min="0.5" :max="3" :step="0.1" />
+                    <code>density: {{ artDensity.toFixed(1) }}</code>
+                  </div>
+                </div>
+                <p class="demo-hint">
+                  提示：开启 reactive
+                  后将指针移入画布——像素场以指针为波源、粒子被吸附、波浪隆起、色团被排斥、字符画提亮。触屏与
+                  prefers-reduced-motion 下自动降级为静态画面。
+                </p>
+              </div>
+            </NeumorphismCard>
+
+            <!-- 字符画（正式组件） -->
+            <NeumorphismCard id="ascii-art" :elevation="1" class="demo-card demo-card--full">
+              <template #header>
+                <div class="demo-header">
+                  <h3 class="demo-title">NeumorphismAsciiArt 字符画</h3>
+                  <span class="demo-badge">图片 → ASCII · 调参面板 · 实时预览</span>
+                </div>
+              </template>
+
+              <div class="demo-block">
+                <h4 class="demo-label">调参面板（右侧面板实时调整全部参数）</h4>
+                <div class="demo-row" style="align-items: flex-start; flex-wrap: wrap; gap: 24px">
+                  <!-- 实时预览（限宽居中，避免自适应模式下竖图过高） -->
+                  <div style="flex: 1; min-width: 300px; max-width: 480px; margin: 0 auto">
+                    <NeumorphismAsciiArt
+                      :src="artImage"
+                      :density="asciiDensity"
+                      :speed="asciiSpeed"
+                      :reactive="asciiReactive"
+                      :radius="asciiRadius"
+                      :width="asciiSizeMode === 'fixed' ? asciiWidth : undefined"
+                      :height="asciiSizeMode === 'fixed' ? asciiHeight : undefined"
+                      :palette="asciiPalette"
+                      :aria-label="asciiAriaLabel"
+                    />
+                    <p class="demo-hint" style="margin-top: 8px">
+                      {{
+                        asciiSizeMode === 'auto'
+                          ? '当前为自适应：高度按原图宽高比自动定高'
+                          : `当前固定 ${asciiWidth}×${asciiHeight}px`
+                      }}
+                    </p>
+                  </div>
+
+                  <!-- 参数表单 -->
+                  <div style="width: 300px; flex-shrink: 0">
+                    <div class="demo-row demo-row--stacked" style="gap: 14px">
+                      <div class="demo-row">
+                        <span class="demo-form-label">密度 density</span>
+                        <NeumorphismSlider
+                          v-model="asciiDensity"
+                          :min="0.5"
+                          :max="3"
+                          :step="0.1"
+                          style="flex: 1"
+                        />
+                        <code>{{ asciiDensity.toFixed(1) }}</code>
+                      </div>
+                      <div class="demo-row">
+                        <span class="demo-form-label">速度 speed</span>
+                        <NeumorphismSlider
+                          v-model="asciiSpeed"
+                          :min="0"
+                          :max="3"
+                          :step="0.1"
+                          style="flex: 1"
+                        />
+                        <code>{{ asciiSpeed.toFixed(1) }}</code>
+                      </div>
+                      <div class="demo-row">
+                        <span class="demo-form-label">指针交互 reactive</span>
+                        <NeumorphismSwitch v-model="asciiReactive" />
+                      </div>
+                      <div class="demo-row" style="flex-wrap: wrap">
+                        <span class="demo-form-label">圆角 radius</span>
+                        <NeumorphismSegmented
+                          v-model="asciiRadius"
+                          :options="[
+                            { label: '直角', value: 'none' },
+                            { label: '小', value: 'small' },
+                            { label: '中', value: 'medium' },
+                            { label: '大', value: 'large' },
+                            { label: '特大', value: 'xl' },
+                          ]"
+                          size="small"
+                        />
+                      </div>
+                      <div class="demo-row">
+                        <span class="demo-form-label">尺寸</span>
+                        <NeumorphismSegmented
+                          v-model="asciiSizeMode"
+                          :options="[
+                            { label: '自适应', value: 'auto' },
+                            { label: '固定尺寸', value: 'fixed' },
+                          ]"
+                          size="small"
+                        />
+                      </div>
+                      <template v-if="asciiSizeMode === 'fixed'">
+                        <div class="demo-row">
+                          <span class="demo-form-label">宽度 width</span>
+                          <NeumorphismSlider
+                            v-model="asciiWidth"
+                            :min="240"
+                            :max="720"
+                            :step="10"
+                            style="flex: 1"
+                          />
+                          <code>{{ asciiWidth }}px</code>
+                        </div>
+                        <div class="demo-row">
+                          <span class="demo-form-label">高度 height</span>
+                          <NeumorphismSlider
+                            v-model="asciiHeight"
+                            :min="200"
+                            :max="600"
+                            :step="10"
+                            style="flex: 1"
+                          />
+                          <code>{{ asciiHeight }}px</code>
+                        </div>
+                      </template>
+                      <div class="demo-row" style="flex-wrap: wrap">
+                        <span class="demo-form-label">配色 palette</span>
+                        <NeumorphismSegmented
+                          v-model="asciiPaletteName"
+                          :options="[
+                            { label: '主题默认', value: 'theme' },
+                            { label: '暖色', value: 'warm' },
+                            { label: '冷色', value: 'cool' },
+                          ]"
+                          size="small"
+                        />
+                      </div>
+                      <div class="demo-row">
+                        <span class="demo-form-label">无障碍名 ariaLabel</span>
+                        <NeumorphismInput v-model="asciiAriaLabel" size="small" style="flex: 1" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </NeumorphismCard>
           </section>
 
           <!-- ===== 页脚 ===== -->
@@ -3550,6 +3769,14 @@ const chartStockData = ref([
 <style scoped lang="scss">
 @use '../../src/styles/variables.scss' as *;
 @use '../../src/styles/mixins.scss' as *;
+
+// 调参面板的表单标签
+.demo-form-label {
+  font-size: 13px;
+  color: var(--nm-text-secondary);
+  white-space: nowrap;
+  min-width: 96px;
+}
 
 // 玻璃拟态演示背景：彩色渐变衬托 backdrop-filter 的磨砂半透明效果
 .demo-glass-backdrop {

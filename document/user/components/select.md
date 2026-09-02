@@ -1,8 +1,8 @@
 ---
 id: comp-select
 title: 'NeumorphismSelect'
-x: 1029
-y: 943
+x: 1709
+y: 1448
 group: 使用
 ---
 

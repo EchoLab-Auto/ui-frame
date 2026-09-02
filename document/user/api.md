@@ -1389,6 +1389,56 @@ interface TreeNodeData {
 
 ---
 
+#### NeumorphismAsciiArt
+
+```ts
+import { NeumorphismAsciiArt } from '@echolab-auto/ui-frame'
+import type { NeumorphismAsciiArtProps } from '@echolab-auto/ui-frame'
+```
+
+| Props     | Type                                               | Default                | Description                        |
+| --------- | -------------------------------------------------- | ---------------------- | ---------------------------------- |
+| src       | `string`                                           | **必填**               | 图片地址（渲染为 ASCII 字符画）    |
+| density   | `number`                                           | `1`                    | 字符栅格密度倍率                   |
+| width     | `string \| number`                                 | `'100%'`               | 容器宽度                           |
+| height    | `string \| number`                                 | —（自适应）            | 容器高度；留空按图片宽高比自动定高 |
+| radius    | `'none' \| 'small' \| 'medium' \| 'large' \| 'xl'` | `'large'`              | 容器圆角档位（`none` 为直角）      |
+| reactive  | `boolean`                                          | `false`                | 指针交互（字符提亮放大）           |
+| speed     | `number`                                           | `1`                    | 呼吸流光速度倍率                   |
+| palette   | `string[]`                                         | 主题 token             | 自定义配色                         |
+| ariaLabel | `string`                                           | locale `asciiArtLabel` | 无障碍名称（`role="img"`）         |
+
+**Slots:** 默认插槽（覆盖层内容，不响应指针）
+
+---
+
+#### NeumorphismArt
+
+```ts
+import { NeumorphismArt } from '@echolab-auto/ui-frame'
+import type { NeumorphismArtProps, ArtEffectName } from '@echolab-auto/ui-frame'
+```
+
+| Props     | Type                                                          | Default           | Description                               |
+| --------- | ------------------------------------------------------------- | ----------------- | ----------------------------------------- |
+| effect    | `'pixel-field' \| 'particles' \| 'waves' \| 'goo' \| 'ascii'` | `'pixel-field'`   | 试验性效果选择（可全局配置 `art.effect`） |
+| reactive  | `boolean`                                                     | `false`           | 指针交互（触屏/reduced-motion 自动禁用）  |
+| speed     | `number`                                                      | `1`               | 播放速度倍率                              |
+| density   | `number`                                                      | `1`               | 密度倍率（像素格/粒子/波层/色团）         |
+| palette   | `string[]`                                                    | 主题 token        | 自定义配色                                |
+| seed      | `number`                                                      | 随机              | 固定种子可复现图案                        |
+| src       | `string`                                                      | —                 | 图片资源地址（ascii 字符画效果）          |
+| height    | `string \| number`                                            | `240`             | 容器高度                                  |
+| ariaLabel | `string`                                                      | locale `artLabel` | 无障碍名称（`role="img"`）                |
+
+**Events:** `effect-change`
+
+**Slots:** 默认插槽（覆盖层内容，不响应指针）
+
+**Composables:** `useArtRenderer`（headless 渲染循环：rAF + DPR 适配 + ResizeObserver + 主题联动；reduced-motion 静态帧）
+
+---
+
 #### NeumorphismCanvas
 
 ```ts
@@ -3044,6 +3094,8 @@ function validateFieldValue(value: unknown, rules: FormRule[]): string | undefin
 | `NeumorphismThemeToggleProps`   | ThemeToggle   |
 | `NeumorphismTreeProps`          | Tree          |
 | `NeumorphismTreeNodeProps`      | TreeNode      |
+| `NeumorphismArtProps`           | Art           |
+| `NeumorphismAsciiArtProps`      | AsciiArt      |
 | `NeumorphismCanvasProps`        | Canvas        |
 | `NeumorphismPopoverProps`       | Popover       |
 | `NeumorphismDropdownProps`      | Dropdown      |

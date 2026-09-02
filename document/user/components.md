@@ -12,6 +12,11 @@ link:
     'comp-switch | Switch | r>l',
     'comp-checkbox | Checkbox | r>_',
     'comp-radio | Radio',
+    'comp-input | Input | r>l',
+    'comp-textarea | Textarea | r>l',
+    'comp-select | Select | r>_',
+    'comp-art | Art | r>_',
+    'comp-ascii-art | 字符画 | l>_',
   ]
 ---
 
@@ -19,7 +24,7 @@ link:
 
 > 本文档按功能分类介绍 `@echolab-auto/ui-frame` 的全部组件：每个组件的职责、关键 props 与特有亮点。完整的 Props/Events/Slots 表格见 [API 参考](./api.md)，动画与交互的通用机制见 [动画效果](./animation.md) 与 [交互效果](./interaction.md)。
 
-主库全局注册 **60 个组件**（`app.use(NeumorphismUI)` 后全部可用）；Chat 聊天面板与 Doc 文档渲染为独立模块，经子路径 `@echolab-auto/ui-frame/chat`、`@echolab-auto/ui-frame/doc` 引入。
+主库全局注册 **62 个组件**（`app.use(NeumorphismUI)` 后全部可用）；Chat 聊天面板与 Doc 文档渲染为独立模块，经子路径 `@echolab-auto/ui-frame/chat`、`@echolab-auto/ui-frame/doc` 引入。
 
 **通用约定**：
 
@@ -151,10 +156,12 @@ link:
 
 ## 扩展与工具
 
-| 组件                | 职责            | 关键 props                                                                                                                            | 亮点                                                   |
-| ------------------- | --------------- | ------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------ |
-| `ThemeProvider`     | 主题提供者      | `defaultTheme`（light/dark/auto）、`storageKey`、`followSystem`                                                                       | 配套 `useTheme` / `getAntiFlickerScript`（防闪烁脚本） |
-| `NeumorphismCanvas` | 可缩放/平移画布 | `modelValue`（缩放 v-model）、`minZoom`/`maxZoom`、`showGrid`、`gridVariant`（dots/lines）、`showControls`/`showFit`/`showFullscreen` | 空格+拖拽平移；Ctrl/Cmd+滚轮缩放；一键适配与全屏       |
+| 组件                                               | 职责                   | 关键 props                                                                                                                            | 亮点                                                      |
+| -------------------------------------------------- | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------- |
+| `ThemeProvider`                                    | 主题提供者             | `defaultTheme`（light/dark/auto）、`storageKey`、`followSystem`                                                                       | 配套 `useTheme` / `getAntiFlickerScript`（防闪烁脚本）    |
+| [`NeumorphismAsciiArt`](./components/ascii-art.md) | 字符画（图片 → ASCII） | `src`、`density`、`reactive`、`speed`、`height`                                                                                       | 保持原图比例；直方图拉伸；指针提亮                        |
+| [`NeumorphismArt`](./components/art.md)            | 试验性动态效果画布     | `effect`（pixel-field/particles/waves/goo/ascii）、`reactive`、`speed`、`density`、`seed`、`palette`、`src`                           | 5 种程序化效果；指针交互；DPR 适配；reduced-motion 静态帧 |
+| `NeumorphismCanvas`                                | 可缩放/平移画布        | `modelValue`（缩放 v-model）、`minZoom`/`maxZoom`、`showGrid`、`gridVariant`（dots/lines）、`showControls`/`showFit`/`showFullscreen` | 空格+拖拽平移；Ctrl/Cmd+滚轮缩放；一键适配与全屏          |
 
 ---
 

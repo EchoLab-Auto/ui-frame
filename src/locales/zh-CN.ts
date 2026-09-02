@@ -23,6 +23,8 @@ export const zhCN: LocaleMessages = {
   canvasFullscreen: '进入全屏',
   canvasExitFullscreen: '退出全屏',
   canvasLabel: '画布视口,方向键平移,加减键缩放,0 重置',
+  artLabel: '动态效果画布',
+  asciiArtLabel: '字符画',
 
   // Tree
   treeExpandAll: '全部展开',

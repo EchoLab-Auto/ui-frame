@@ -3,7 +3,7 @@ id: agent-guide
 title: 'Agent 构建指南'
 x: 1317
 y: 400
-group: '使用 @ 934, 366, 1283, 899'
+group: '使用 @ 934, 366, 1330, 1323'
 ---
 
 # @echolab-auto/ui-frame — Agent 构建指南
@@ -20,7 +20,7 @@ import NeumorphismUI from '@echolab-auto/ui-frame'
 import '@echolab-auto/ui-frame/dist/style.css'
 
 const app = createApp(App)
-app.use(NeumorphismUI) // 全局注册所有 60 个组件
+app.use(NeumorphismUI) // 全局注册所有 62 个组件
 app.mount('#app')
 ```
 
@@ -108,7 +108,7 @@ const { theme, isDark, toggleTheme } = provideTheme()
 
 ---
 
-## 4. 完整组件目录（60 个）
+## 4. 完整组件目录（62 个）
 
 ### 基础输入（10 个）
 

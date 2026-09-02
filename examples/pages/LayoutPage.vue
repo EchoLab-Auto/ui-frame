@@ -267,7 +267,7 @@ const containerModes = [
             v-for="bp in breakpoints"
             :key="bp.key"
             size="small"
-            :variant="breakpointDemo === bp.key ? 'raised' : 'flat'"
+            :variant="breakpointDemo === bp.key ? 'pressed' : 'raised'"
             @click="breakpointDemo = bp.key"
           >
             {{ bp.label }}

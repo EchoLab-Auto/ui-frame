@@ -240,6 +240,11 @@ export interface NeumorphismGlobalConfig {
     autoplay?: boolean
     floating?: boolean
   }
+  /** Default art props */
+  art?: {
+    effect?: 'pixel-field' | 'particles' | 'waves' | 'goo' | 'ascii'
+    reactive?: boolean
+  }
   /** Default alert props */
   alert?: {
     type?: 'success' | 'warning' | 'error' | 'info'
