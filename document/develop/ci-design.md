@@ -20,6 +20,7 @@ group: 开发
   - [Publish — 发布到 npm](#publish--发布到-npm)
   - [Pages — 示例站部署](#pages--示例站部署)
   - [PR Title Check — PR 标题校验](#pr-title-check--pr-标题校验)
+- [版本命名与预发规则](#版本命名与预发规则)
 - [工作流触发链](#工作流触发链)
 - [环境配置](#环境配置)
 - [产物与缓存](#产物与缓存)
@@ -237,7 +238,60 @@ echo "${{ github.event.pull_request.title }}" | npx commitlint
 
 ---
 
-## 工作流触发链
+## 版本命名与预发规则
+
+> 本节是版本号的约定规范：正式版如何递进、预发版（带后缀）如何命名与排序、npm tag 如何配合。
+
+### 语义化版本基线
+
+遵循 [semver](https://semver.org/lang/zh-CN/)：`MAJOR.MINOR.PATCH`，与 changeset 类型一一对应：
+
+| changeset 类型 | 版本递进      | 适用场景                     |
+| -------------- | ------------- | ---------------------------- |
+| `patch`        | 1.3.1 → 1.3.2 | bug 修复、内部重构、文档更新 |
+| `minor`        | 1.3.2 → 1.4.0 | 新增组件 / API，向后兼容     |
+| `major`        | 1.4.0 → 2.0.0 | 破坏性变更                   |
+
+**不可变约束**：npm registry 中已发布的版本不可覆盖、不可复用（`--force` 无效）；`npm unpublish` 仅限发布后 72 小时内，且下架后该版本号永久作废。发错版本的唯一稳妥做法是 bump 新版本。
+
+### 预发版本（带后缀）
+
+格式：`X.Y.Z-<标识符>.<序号>`，标识符仅允许 `[0-9A-Za-z-]`，点号分段。
+
+**排序规则**（预发版小于同号正式版，逐段比较：数字段按数值、字母段按字典序）：
+
+```
+1.4.0-alpha.2 < 1.4.0-beta.0 < 1.4.0-rc.1 < 1.4.0
+```
+
+> ⚠️ **同号预发版永远早于正式版**：`1.3.2-hotfix.0 < 1.3.2`。因此要给「已发布的 1.3.2」出带后缀的修复版，必须把基础号抬到下一个 patch——`1.3.3-hotfix.0`，而不是 `1.3.2-hotfix.x`。
+
+**常用后缀约定**：
+
+| 后缀                 | 语义                     | 示例              |
+| -------------------- | ------------------------ | ----------------- |
+| `alpha`              | 内部早期测试，功能不完整 | `1.4.0-alpha.0`   |
+| `beta`               | 功能完备，公开测试       | `1.4.0-beta.1`    |
+| `rc`                 | 候选正式版，无问题即转正 | `1.4.0-rc.0`      |
+| `hotfix` / `fix`     | 紧急修复线               | `1.3.3-hotfix.0`  |
+| `canary` / `nightly` | 每次提交 / 每日自动构建  | `1.4.0-canary.42` |
+| `next`               | 下一版预览               | `1.4.0-next.0`    |
+
+### npm tag 配合规则
+
+- **预发版发布必须带 tag**：`npm publish --tag hotfix`——npm 拒绝预发版默认进入 `latest`（报错 `You must specify a tag using --tag when publishing a prerelease version`）
+- 版本后缀与 tag 名惯例保持同名（`1.3.3-hotfix.0` 配 `--tag hotfix`），两者是不同概念：后缀决定版本排序，tag 决定 `npm install pkg@<tag>` 解析到哪个版本
+- **semver 范围不选中预发版**：`^1.3.2` 不会自动装到 `1.3.3-hotfix.0`；使用方必须显式 `@hotfix` 或写精确版本号——这正是预发版的安全性所在
+- 转正：把版本号改回无后缀（如 `1.3.3`）直接 `npm publish`，已发过的预发版号不影响正式版
+
+### 本项目实操约定
+
+- **正常发布流**：PR 携带 changeset → 合并后 Release 工作流开「Version Packages」PR → 合并即自动发布（见 [Release — Changesets 发布流水线](#release--changesets-发布流水线)）
+- **预发模式（changesets 原生）**：`npx changeset pre enter <tag>` 后正常走 changeset 流程即产出 `X.Y.Z-<tag>.n` 版本；`changeset pre exit` 退出
+- **手工预发（应急）**：直接编辑 `package.json` 与 `package-lock.json` 的根版本字段（**勿用 `npm version`**——它会触发 package.json 的 `version` 脚本 `changeset version`，把待发 changeset 全部消费掉）；CHANGELOG 手工补 `## X.Y.Z-<tag>.<n>` 条目
+- **待发 changeset 保护**：存在未发布的更高级别 changeset 时（如 minor 的 `.changeset/art-component.md`），手工 patch bump 前先临时移出该文件，bump 完成后还原，防止版本被意外抬高
+
+---
 
 ```
 PR 创建/更新
