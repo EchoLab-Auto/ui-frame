@@ -1,5 +1,11 @@
 # @echolab-auto/ui-frame
 
+## 1.3.2
+
+### Patch Changes
+
+- 开发依赖范围内更新（eslint / eslint-plugin-vue 10.10、prettier 3.9.6、vitest 4.1.11、@vue/test-utils 2.5、sass 1.104、marked 18.0.11、@commitlint 21.2.2 等）；源码与文档格式化对齐 prettier 3.9 联合类型新规则。无运行时与对外 API 变更。
+
 ## 1.3.1
 
 ### Patch Changes
