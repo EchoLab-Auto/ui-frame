@@ -10,6 +10,7 @@
  */
 
 import { vi } from 'vitest'
+import type { Mock } from 'vitest'
 import { mount } from '@vue/test-utils'
 import type { VueWrapper } from '@vue/test-utils'
 import type { Component, ComponentPublicInstance } from 'vue'
@@ -153,10 +154,19 @@ export function endKey(): KeyboardEvent {
 // 浏览器 API Mock
 // ============================================================
 
+/** 三个观察器 mock 共用的实例形状（显式标注，避免 TS2742 非可移植推断） */
+interface ObserverMock {
+  observe: Mock
+  unobserve: Mock
+  disconnect: Mock
+}
+
 /**
  * 创建 ResizeObserver mock（用于 useVirtualList 等依赖元素尺寸的测试）。
  */
-export function createResizeObserverMock() {
+export function createResizeObserverMock(): ObserverMock & {
+  ResizeObserver: new () => ObserverMock
+} {
   const observe = vi.fn()
   const unobserve = vi.fn()
   const disconnect = vi.fn()
@@ -173,7 +183,12 @@ export function createResizeObserverMock() {
 /**
  * 创建 IntersectionObserver mock（用于 scroll-spy、懒加载等测试）。
  */
-export function createIntersectionObserverMock() {
+export function createIntersectionObserverMock(): ObserverMock & {
+  IntersectionObserver: (new (cb: IntersectionObserverCallback) => ObserverMock) & {
+    trigger: (entries: Partial<IntersectionObserverEntry>[]) => void
+  }
+  callback: () => IntersectionObserverCallback | null
+} {
   let callback: IntersectionObserverCallback | null = null
 
   const observe = vi.fn()
@@ -231,7 +246,16 @@ export function createLocalStorageMock() {
 /**
  * 创建 matchMedia mock（用于响应主题、设备检测等测试）。
  */
-export function createMatchMediaMock(matches: boolean) {
+export function createMatchMediaMock(matches: boolean): () => {
+  matches: boolean
+  media: string
+  onchange: null
+  addListener: Mock
+  removeListener: Mock
+  addEventListener: Mock
+  removeEventListener: Mock
+  dispatchEvent: Mock
+} {
   return () => ({
     matches,
     media: '(prefers-color-scheme: dark)',
