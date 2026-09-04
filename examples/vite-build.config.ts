@@ -23,7 +23,7 @@ export default defineConfig({
     alias: {
       '@': resolve(__dirname, '../src'),
       '@echolab-auto/ui-frame': resolve(__dirname, '../src/index.ts'),
-      '@echolab-auto/ui-frame/doc': resolve(__dirname, '../src/doc/index.ts'),
+      '@echolab-auto/ui-frame/doc': resolve(__dirname, '../src/composites/doc/index.ts'),
       // mermaid 是可选 peer dependency，示例构建时未安装，使用 noop stub
       mermaid: resolve(__dirname, './_mermaid-stub.ts'),
       // dompurify 是可选 peer dependency，示例构建时未安装，使用恒等 sanitize stub

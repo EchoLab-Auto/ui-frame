@@ -8,7 +8,7 @@ import {
   DocViewer,
   DocEditor,
   type ProDocNode,
-} from '@/doc'
+} from '@/composites/doc'
 
 const themeContext = useTheme()
 const isDark = themeContext.isDark

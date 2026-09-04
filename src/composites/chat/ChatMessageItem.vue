@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 import { useLocale } from '@/composables/useLocale'
 import { useNeumorphismSetup } from '@/extensions/createComponent'
-import MarkdownRenderer from '@/doc/MarkdownRenderer.vue'
+import MarkdownRenderer from '@/composites/doc/MarkdownRenderer.vue'
 import ChatBubble from './ChatBubble.vue'
 import ChatReasoningBlock from './ChatReasoningBlock.vue'
 import ChatToolCallBlock from './ChatToolCallBlock.vue'

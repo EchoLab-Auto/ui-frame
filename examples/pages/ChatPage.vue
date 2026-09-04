@@ -6,7 +6,7 @@ import {
   ChatBubble,
   ChatFold,
   type ChatMessage,
-} from '../../src/chat'
+} from '../../src/composites/chat'
 import NeumorphismStatusDot from '../../src/components/NeumorphismStatusDot/NeumorphismStatusDot.vue'
 import NeumorphismTag from '../../src/components/NeumorphismTag/NeumorphismTag.vue'
 

@@ -4,8 +4,14 @@ import { useTheme } from '../../src/composables/useTheme'
 import { useSelect } from '../../src/composables/useSelect'
 import { usePagination } from '../../src/composables/usePagination'
 import { useToast } from '../../src/composables/useToast'
-import { ChatBubble, ChatTray, ChatFold, ChatComposer, ChatCopyButton } from '../../src/chat'
-import { DocCodeBlock, DocTocNav, type TocNode } from '../../src/doc'
+import {
+  ChatBubble,
+  ChatTray,
+  ChatFold,
+  ChatComposer,
+  ChatCopyButton,
+} from '../../src/composites/chat'
+import { DocCodeBlock, DocTocNav, type TocNode } from '../../src/composites/doc'
 import artImage from '../assets/images.jpeg'
 
 // ---- 注入全局主题（由 App.vue provide） ----

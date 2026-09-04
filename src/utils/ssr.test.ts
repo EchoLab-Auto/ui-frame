@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { safeMatchMedia, isBrowser } from './ssr'
-import { getNodeIcon, nodeToTreeData } from '@/doc/tree-utils'
-import type { ProDocNode } from '@/doc/types'
+import { getNodeIcon, nodeToTreeData } from '@/composites/doc/tree-utils'
+import type { ProDocNode } from '@/composites/doc/types'
 
 describe('ssr utils', () => {
   it('isBrowser 在测试环境为 true', () => {

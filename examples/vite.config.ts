@@ -24,7 +24,7 @@ export default defineConfig({
     alias: {
       '@': resolve(__dirname, '../src'),
       '@echolab-auto/ui-frame': resolve(__dirname, '../src/index.ts'),
-      '@echolab-auto/ui-frame/doc': resolve(__dirname, '../src/doc/index.ts'),
+      '@echolab-auto/ui-frame/doc': resolve(__dirname, '../src/composites/doc/index.ts'),
       // mermaid is an optional peer dependency — stub it in dev
       mermaid: resolve(__dirname, '_mermaid-stub.ts'),
       // dompurify is an optional peer dependency — stub it in dev
