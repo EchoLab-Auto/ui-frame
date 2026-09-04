@@ -47,12 +47,7 @@ export interface NeumorphismGlobalConfig {
   /** Default toast props */
   toast?: {
     position?:
-      | 'top-left'
-      | 'top-right'
-      | 'bottom-left'
-      | 'bottom-right'
-      | 'top-center'
-      | 'bottom-center'
+      'top-left' | 'top-right' | 'bottom-left' | 'bottom-right' | 'top-center' | 'bottom-center'
     maxCount?: number
   }
   /** Default tooltip props */

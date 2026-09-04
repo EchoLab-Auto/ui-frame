@@ -2,12 +2,7 @@ import { ref, onBeforeUnmount, type Ref } from 'vue'
 
 export type ToastType = 'info' | 'success' | 'warning' | 'error'
 export type ToastPosition =
-  | 'top-left'
-  | 'top-right'
-  | 'bottom-left'
-  | 'bottom-right'
-  | 'top-center'
-  | 'bottom-center'
+  'top-left' | 'top-right' | 'bottom-left' | 'bottom-right' | 'top-center' | 'bottom-center'
 
 export interface ToastItem {
   id: string

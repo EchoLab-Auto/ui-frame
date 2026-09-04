@@ -80,9 +80,7 @@ export function usePieChart(options: UsePieChartOptions) {
   const resolvedLabelPosition = computed(
     () =>
       chart.resolveProp(labelPosition, chart.config.value.chart?.pie?.labelPosition, 'outside') as
-        | 'inside'
-        | 'outside'
-        | 'none'
+        'inside' | 'outside' | 'none'
   )
 
   const resolvedRoundedCorners = computed(

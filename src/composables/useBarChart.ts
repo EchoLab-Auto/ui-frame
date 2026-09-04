@@ -57,8 +57,7 @@ export function useBarChart(options: UseBarChartOptions) {
   const resolvedOrientation = computed(
     () =>
       chart.resolveProp(orientation, chart.config.value.chart?.bar?.orientation, 'vertical') as
-        | 'vertical'
-        | 'horizontal'
+        'vertical' | 'horizontal'
   )
 
   const resolvedStacked = computed(

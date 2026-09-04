@@ -5,12 +5,7 @@ import { useNeumorphismSetup } from '@/extensions/createComponent'
 
 export type RowAlign = 'start' | 'center' | 'end' | 'stretch' | 'baseline'
 export type RowJustify =
-  | 'start'
-  | 'center'
-  | 'end'
-  | 'space-between'
-  | 'space-around'
-  | 'space-evenly'
+  'start' | 'center' | 'end' | 'space-between' | 'space-around' | 'space-evenly'
 
 export interface NeumorphismRowProps {
   gutter?: number | [number, number]

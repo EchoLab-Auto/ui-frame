@@ -72,9 +72,7 @@ export function useLineChart(options: UseLineChartOptions) {
   const resolvedCurve = computed(
     () =>
       chart.resolveProp(curve, chart.config.value.chart?.line?.curve, 'smooth') as
-        | 'linear'
-        | 'smooth'
-        | 'step'
+        'linear' | 'smooth' | 'step'
   )
 
   const resolvedShowPoints = computed(
