@@ -73,6 +73,8 @@ import { NeumorphismButton, NeumorphismCard, useTheme } from '@echolab-auto/ui-f
 
 ## Vue 组件
 
+本节为主库**基础组件**（`src/components/`，62 个）；组合组件见 [Doc 文档渲染](#doc-文档渲染) 与 [Chat 聊天面板](#chat-聊天面板)（`src/composites/`）。分类定义见 [组件总览](./components.md#组件分类基础组件与组合组件)。
+
 ### 基础输入
 
 #### NeumorphismButton
@@ -1492,7 +1494,7 @@ import type { ThemeProviderProps } from '@echolab-auto/ui-frame'
 
 ## Doc 文档渲染
 
-文档渲染模块提供 Markdown 渲染、文档查看器和编辑器组件，适用于构建文档站点或知识库。
+**组合组件**模块（`src/composites/doc/`），提供 Markdown 渲染、文档查看器和编辑器组件，适用于构建文档站点或知识库。详细用法见 [Doc 文档组件](./components/doc.md)。
 
 ### DocViewer
 
@@ -1541,14 +1543,15 @@ import type { MarkdownRendererProps } from '@echolab-auto/ui-frame/doc'
 
 Markdown 渲染组件，支持目录（TOC）、代码高亮、内部链接跳转。
 
-| Props           | Type                    | Default | Description                                      |
-| --------------- | ----------------------- | ------- | ------------------------------------------------ |
-| content         | `string`                | —       | Markdown 内容（必需）                            |
-| className       | `string`                | `''`    | 自定义样式类名                                   |
-| showToc         | `boolean`               | `true`  | 是否显示目录                                     |
-| scrollContainer | `HTMLElement \| string` | —       | 滚动容器（不传则自动查找 `.nm-layout__content`） |
+| Props           | Type                    | Default | Description                                               |
+| --------------- | ----------------------- | ------- | --------------------------------------------------------- |
+| content         | `string`                | —       | Markdown 内容（必需）                                     |
+| className       | `string`                | `''`    | 自定义样式类名                                            |
+| showToc         | `boolean`               | `true`  | 是否显示目录                                              |
+| scrollContainer | `HTMLElement \| string` | —       | 滚动容器（不传则自动查找 `.nm-layout__content`）          |
+| flowEditable    | `boolean`               | `false` | prodoc-flow 画布节点可拖拽编辑（松手触发 `flowNodeMove`） |
 
-**Events:** `docLink`
+**Events:** `docLink`、`flowNodeMove`（payload：`{ id, x, y, source, blockIndex }`，`source` 为该 prodoc-flow 块源码，供宿主定位写回）
 
 ---
 
@@ -1561,12 +1564,34 @@ import type { MarkdownEditorProps } from '@echolab-auto/ui-frame/doc'
 
 Markdown 编辑器组件，提供编辑/预览/分栏三种模式，支持分栏同步滚动。
 
-| Props     | Type     | Default | Description           |
-| --------- | -------- | ------- | --------------------- |
-| value     | `string` | —       | Markdown 内容（必需） |
-| className | `string` | `''`    | 自定义样式类名        |
+| Props            | Type      | Default | Description           |
+| ---------------- | --------- | ------- | --------------------- |
+| value            | `string`  | —       | Markdown 内容（必需） |
+| className        | `string`  | `''`    | 自定义样式类名        |
+| autoSave         | `boolean` | `false` | 启用自动保存          |
+| autoSaveInterval | `number`  | `30000` | 自动保存间隔（毫秒）  |
 
 **Events:** `change`, `docLink`
+
+---
+
+### DocFlowCanvas
+
+```ts
+import { DocFlowCanvas } from '@echolab-auto/ui-frame/doc'
+import type { DocFlowCanvasProps, ProDocFlowGraph } from '@echolab-auto/ui-frame/doc'
+```
+
+prodoc-flow 流程图画布：把解析后的流程图渲染为可缩放/平移的交互画布（内嵌 `NeumorphismCanvas`），节点可拖拽编辑。
+
+| Props    | Type              | Default   | Description                           |
+| -------- | ----------------- | --------- | ------------------------------------- |
+| graph    | `ProDocFlowGraph` | —         | 已解析的流程图（解析职责在调用方）    |
+| height   | `string`          | `'480px'` | 画布高度（CSS 值）                    |
+| showGrid | `boolean`         | `true`    | 是否显示点阵网格                      |
+| editable | `boolean`         | `false`   | 节点可拖拽编辑（松手触发 `nodeMove`） |
+
+**Events:** `navigate(path)`（点击带文档链接的节点）、`nodeMove({ id, x, y })`（拖拽松手后的新坐标，画布 px，由宿主持久化）
 
 ---
 
@@ -1627,18 +1652,18 @@ import {
 } from '@echolab-auto/ui-frame/doc'
 ```
 
-| 函数               | 签名                                            | 说明                         |
-| ------------------ | ----------------------------------------------- | ---------------------------- |
-| `parseFrontmatter` | `(content: string) => { meta, body }`           | 解析 Markdown 的 frontmatter |
-| `pathToId`         | `(path: string) => string`                      | 将路径转换为唯一 ID          |
-| `extractTitle`     | `(content: string) => string`                   | 从 Markdown 中提取标题       |
-| `createNode`       | `(path: string, content: string) => ProDocNode` | 创建单个文档节点             |
-| `buildDocTree`     | `(nodes: ProDocNode[]) => DocTree`              | 构建文档树                   |
-| `createDocTree`    | `(root: ProDocNode) => DocTree`                 | 从根节点创建文档树           |
-| `flattenDocTree`   | `(tree: DocTree) => ProDocNode[]`               | 扁平化文档树                 |
-| `getAncestors`     | `(tree: DocTree, path: string) => ProDocNode[]` | 获取指定路径的所有祖先节点   |
-| `getNodeIcon`      | `(node: ProDocNode) => string`                  | 根据路径推断节点图标         |
-| `nodeToTreeData`   | `(node: ProDocNode) => DocTreeNode`             | 将节点转换为树形数据         |
+| 函数               | 签名                                            | 说明                                        |
+| ------------------ | ----------------------------------------------- | ------------------------------------------- |
+| `parseFrontmatter` | `(content: string) => { meta, body }`           | 解析 Markdown 的 frontmatter                |
+| `pathToId`         | `(path: string) => string`                      | 将路径转换为唯一 ID                         |
+| `extractTitle`     | `(content: string) => string`                   | 从 Markdown 中提取标题                      |
+| `createNode`       | `(path: string, content: string) => ProDocNode` | 创建单个文档节点                            |
+| `buildDocTree`     | `(files: Record<string, string>) => ProDocNode` | 由 .md 路径层级构建文档树（返回虚拟根节点） |
+| `createDocTree`    | `(root: ProDocNode) => DocTree`                 | 从根节点创建文档树                          |
+| `flattenDocTree`   | `(tree: DocTree) => ProDocNode[]`               | 扁平化文档树                                |
+| `getAncestors`     | `(tree: DocTree, path: string) => ProDocNode[]` | 获取指定路径的所有祖先节点                  |
+| `getNodeIcon`      | `(node: ProDocNode) => string`                  | 根据路径推断节点图标                        |
+| `nodeToTreeData`   | `(node: ProDocNode) => DocTreeNode`             | 将节点转换为树形数据                        |
 
 ---
 
@@ -1728,12 +1753,13 @@ import { useDocLayout } from '@echolab-auto/ui-frame/doc'
 import type { UseDocLayoutOptions, UseDocLayoutReturn } from '@echolab-auto/ui-frame/doc'
 ```
 
-DocViewer / DocEditor 共享的布局逻辑 composable，管理树节点选择、主题切换、节点查找等。
+DocViewer / DocEditor 共享的布局逻辑 composable，管理树节点选择、主题切换、节点查找、全局搜索与 URL hash 同步等。选中与排版规则详见 [Doc 文档组件 · 侧边栏文档树](./components/doc.md#侧边栏文档树渲染规则与排版逻辑)。
 
 ```ts
 interface UseDocLayoutOptions {
   root: ProDocNode
   initialPath?: string
+  syncUrlHash?: boolean // 默认 true，SSR 下自动禁用
 }
 
 interface UseDocLayoutReturn {
@@ -1745,8 +1771,11 @@ interface UseDocLayoutReturn {
   displayNode: ComputedRef<ProDocNode | undefined>
   docTree: ComputedRef<DocTree>
   themeModel: WritableComputedRef<Theme>
+  searchQuery: Ref<string>
+  searchResults: ComputedRef<ProDocNode[]>
   handleTreeSelect: (key: string) => void
   handleDocLink: (emit: (e: 'docLink', path: string) => void, path: string) => void
+  handleSearchSelect: (node: ProDocNode) => void
 }
 ```
 
@@ -1754,7 +1783,7 @@ interface UseDocLayoutReturn {
 
 ## Chat 聊天面板
 
-聊天 / Agent 面板领域组件，纯渲染层。分两层：**元组件**是纯 UI 原语（零领域类型、slot 驱动，可自由组装任意聊天式 UI）；**组合组件**由元组件拼成，直接消费 `ChatMessage` 数据。组件不持有业务状态、不发起网络请求。
+聊天 / Agent 面板**组合组件**模块（`src/composites/chat/`），纯渲染层。模块内部分两层：**组合组件**直接消费 `ChatMessage` 数据、现成可用；**元组件**是拆出的纯 UI 原语（零领域类型、slot 驱动，性质上属于基础组件），可自由组装任意聊天式 UI。组件不持有业务状态、不发起网络请求。
 
 > **依赖**：Agent 正文的 Markdown 渲染复用 doc 模块的 MarkdownRenderer，使用本模块需安装可选 peer 依赖 `marked` + `dompurify`。
 

@@ -225,9 +225,11 @@ app.use(NeumorphismUI, {
 
 ### 新增组件时的应用
 
-- 在 `src/components/` 创建组件文件夹并导出。
+- 先定分类：**基础组件**（单一职责、无领域数据契约）进 `src/components/`；**组合组件**（消费领域数据契约、交付完整场景）进 `src/composites/` 下对应领域模块。分类定义见 [组件总览](../user/components.md#组件分类基础组件与组合组件)。
+- 基础组件：在 `src/components/` 创建组件文件夹并导出。
 - 在 `src/components/index.ts` 中注册导出。
 - 在 `src/index.ts` 的 `NAME_TO_COMPONENT` 映射中加入该组件。
+- 组合组件：在所属模块 barrel（如 `src/composites/doc/index.ts`）中以 `@category` JSDoc 标记导出，并更新该模块的 `componentCategories` 元数据。
 
 ---
 

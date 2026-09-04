@@ -1,8 +1,8 @@
 ---
 id: comp-ascii-art
 title: 'NeumorphismAsciiArt'
-x: 1029
-y: 1199
+x: 1709
+y: 1805
 group: 使用
 ---
 
