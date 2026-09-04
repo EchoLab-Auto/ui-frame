@@ -1,5 +1,11 @@
 # @echolab-auto/ui-frame
 
+## 1.3.2-dev.0
+
+### Patch Changes
+
+- 修复测试工具在 vitest 4.1.11 下的声明发射失败（TS2742）：观察器 mock 工厂函数显式标注可移植的 `Mock` 返回类型。无运行时与对外 API 变更。
+
 ## 1.3.2
 
 ### Patch Changes
