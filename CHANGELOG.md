@@ -1,5 +1,13 @@
 # @echolab-auto/ui-frame
 
+## 1.3.1
+
+### Patch Changes
+
+- 组件按「基础组件 / 组合组件」两类分层落地：doc、chat 模块迁入 `src/composites/`，`src/components/` 仅保留基础组件；各 barrel 导出增加 `@category` 标记，组合组件模块新增 `componentCategories` 分类元数据导出。对外 API（含 `@echolab-auto/ui-frame/doc`、`/chat` 子路径）无变化。
+
+  文档：新增 Doc 文档组件详解（含侧边栏文档树渲染规则与排版逻辑）；组件总览重构为基础/组合两段式分类并补充定义；API 参考补全 DocFlowCanvas、MarkdownRenderer `flowEditable`/`flowNodeMove`、MarkdownEditor `autoSave` 与 useDocLayout 搜索/hash 同步等缺漏。
+
 ## 1.3.0
 
 ### Minor Changes
