@@ -198,21 +198,23 @@ $elevation-shadows: (
 }
 
 // ---------- Padding ----------
+// 子选择器（>）：padding 只作用于本卡片自己的 header/body/footer，
+// 避免后代选择器在「卡片套卡片」时把外层卡片的 padding 泄漏给内层卡片
 .nm-card:not(.nm-card--no-padding) {
-  .nm-card__header {
+  > .nm-card__header {
     padding: var(--nm-spacing-md) var(--nm-spacing-lg);
   }
-  .nm-card__body {
+  > .nm-card__body {
     padding: var(--nm-spacing-lg);
   }
-  .nm-card__footer {
+  > .nm-card__footer {
     padding: var(--nm-spacing-md) var(--nm-spacing-lg);
   }
 }
 .nm-card--no-padding {
-  .nm-card__header,
-  .nm-card__body,
-  .nm-card__footer {
+  > .nm-card__header,
+  > .nm-card__body,
+  > .nm-card__footer {
     padding: 0;
   }
 }

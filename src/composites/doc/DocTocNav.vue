@@ -240,6 +240,13 @@ defineExpose({ scrollTocToActive })
   background-color: var(--nm-surface-raised);
 }
 
+/* TOC 框默认内边距：边框到内容 24px。
+   此前 example 页依赖「卡片套卡片」的级联泄漏获得该间距，
+   泄漏修复（NeumorphismCard padding 改子选择器）后由组件自身提供默认值。 */
+.neumorphism-toc .neumorphism-toc-card > .nm-card__body {
+  padding: var(--nm-spacing-lg);
+}
+
 .neumorphism-toc-header {
   display: flex;
   align-items: center;
