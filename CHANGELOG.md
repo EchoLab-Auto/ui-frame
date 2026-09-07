@@ -1,5 +1,11 @@
 # @echolab-auto/ui-frame
 
+## 1.3.2-dev.2
+
+### Patch Changes
+
+- 七处组件 bug 修复：InputNumber 独立 `inputNumber` 配置段（不再错读 input 段）；ThemeToggle 文字标签隐藏改走级联值；Divider `inset` 实现内缩样式；DatePicker `name` 经 hidden input 透传；Pagination `totalLabel` 支持 `{total}` 占位覆盖、跳页器文案提取为 locale 键 `paginationJumper`；Tabs 渲染 `TabItem.icon`；图表修复级联死代码（`chart.line/pie/bar` 与 K 线 `showVolume`/`showMA`/`maPeriods` 恢复生效，ChartBar 补齐 `orientation`/`stacked`/`barGap` props，`chart.colorPalette` 接入 Pie）。
+
 ## 1.3.2-dev.1
 
 ### Patch Changes
