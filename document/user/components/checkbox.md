@@ -1,6 +1,6 @@
 ---
 id: comp-checkbox
-title: 'NeumorphismCheckbox'
+title: 'NeumorphismCheckbox（复选框）'
 x: 1709
 y: 809
 group: 使用

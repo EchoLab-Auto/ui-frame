@@ -1,6 +1,6 @@
 ---
 id: comp-art
-title: 'NeumorphismArt'
+title: 'NeumorphismArt（动态效果画布）'
 x: 1709
 y: 1569
 group: 使用

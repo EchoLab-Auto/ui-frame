@@ -1,6 +1,6 @@
 ---
 id: comp-switch
-title: 'NeumorphismSwitch'
+title: 'NeumorphismSwitch（开关）'
 x: 1709
 y: 1076
 group: 使用

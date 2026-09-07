@@ -160,7 +160,13 @@ Markdown 正文的渲染核心，DocViewer / DocEditor / MarkdownEditor 的预�
 
 ## DocFlowCanvas 流程图画布
 
-把解析后的 prodoc-flow 图渲染为可缩放/平移的交互画布（内嵌 `NeumorphismCanvas`）。
+把解析后的 prodoc-flow 图渲染为可缩放/平移的交互画布。它是「基础组件当视口、headless 流水线当大脑」的典型组合：
+
+```
+NeumorphismCanvas（基础组件：缩放/平移/网格/适配/全屏视口）
+  └─ DocFlowCanvas（组合组件：SVG 节点 + 连线图层 + 拖拽编辑）
+       └─ flow-parser / flow-layout / flow-graph（headless：解析 → 布局 → 图模型）
+```
 
 | Props      | 类型              | 默认值    | 说明                                  |
 | ---------- | ----------------- | --------- | ------------------------------------- |
@@ -176,9 +182,83 @@ Markdown 正文的渲染核心，DocViewer / DocEditor / MarkdownEditor 的预�
 
 **亮点**：
 
-- 布局由 `layoutProDocFlow` 计算（分层布局），拖拽预览实时重排（O(V+E)，边自动跟随）
+- 布局由 `layoutProDocFlow` 计算（零依赖分层 DAG 布局），拖拽预览实时重排（O(V+E)，边自动跟随）
 - 箭头 marker id 实例级唯一，多画布共存互不干扰
 - 画布自身具备缩放（Ctrl/Cmd + 滚轮）、平移（空格 + 拖拽）、一键适配与全屏能力（继承自 NeumorphismCanvas）
+
+### prodoc-flow 语法速览
+
+在 Markdown 中用 ` ```prodoc-flow ` 代码块声明（MarkdownRenderer 内嵌渲染），或自行解析后传给 `graph`：
+
+```
+graph LR
+  A[开始] --> B{判断}            // [] 矩形 [/x/] 圆角 () 体育场 {} 菱形
+  B -->|是| C[处理|/a/b.md]      // 边标签 |文本|；"显示文本|路径.md" 即文档链接
+  A --> C                        // 裸 id 引用（自动登记为矩形节点）
+  D[独立节点] @ 100, 200         // 手动排版：固定左上角画布坐标
+```
+
+| 语法           | 含义                                                 |
+| -------------- | ---------------------------------------------------- |
+| `graph <方向>` | `LR` / `RL` / `TB` / `BT`，缺省 `LR`                 |
+| `A[文本]`      | 矩形节点；`[/x/]` 圆角、`(x)` 体育场、`{x}` 菱形     |
+| `A --> B`      | 有向边；`-->                                         | 标签                                                        | ` 带边标签 |
+| `A[文本        | 路径.md]`                                            | 节点关联文档，点击触发 `navigate`（路径统一存为无前导斜杠） |
+| `@ x, y`       | 行尾手动排版标注，绑定该行最后一个节点；缺省自动布局 |
+
+**容错**：非法行不阻断渲染，收集进 `graph.errors`（含 1-based 行号与原文），渲染器可提示。
+
+### 编辑与持久化
+
+`editable` 开启后节点可拖拽，松手发出 `nodeMove`——组件**不写回数据**，持久化是宿主的责任。标准链路：
+
+```ts
+import { writeFlowNodePosition } from '@echolab-auto/ui-frame/doc'
+
+// MarkdownRenderer 场景：flowNodeMove 事件的 payload 携带块源码 source 与 blockIndex，
+// 宿主据此把新坐标写回文档全文：
+function onFlowNodeMove({ id, x, y, source, blockIndex }) {
+  const next = writeFlowNodePosition(docBody, source, id, x, y, blockIndex) // 就地更新/追加 `@ x, y`
+  // 持久化 next（写回存储）
+}
+```
+
+`writeFlowNodePosition(body, blockSource, nodeId, x, y, blockIndex?)` 的写回策略：节点有独立声明行则就地替换/追加标注（保留行尾 `%%` 注释）；仅出现在边链中的节点，在块尾新增 `id @ x, y` 行；`blockIndex` 用于多个相同块时的按序定位；CRLF 归一化比较。
+
+### 画布交互详解
+
+画布上的交互分两层：**视口层**（整体移动/缩放，来自 NeumorphismCanvas）与**图节点层**（节点自身的点按行为，由 DocFlowCanvas 实现）。
+
+**视口层**（任何情况下可用，完整清单见 [API 参考 · NeumorphismCanvas](../api.md#neumorphismcanvas)）：
+
+| 操作     | 方式                                                                       |
+| -------- | -------------------------------------------------------------------------- |
+| 平移     | 鼠标拖拽 / 按住空格拖拽（`panOnDrag` 可关）；触屏走原生滚动                |
+| 缩放     | `Ctrl/⌘ + 滚轮` 缩放至光标位置（`wheelZoom` 可关）；控制条按钮锚定视口中心 |
+| 适应屏幕 | 控制条 fit 按钮，或调用 expose 的 `fit()`                                  |
+| 全屏     | 控制条全屏按钮 / `toggleFullscreen()`                                      |
+| 键盘     | 视口聚焦后方向键平移（Shift 加速）、`+`/`-` 缩放、`0` 重置                 |
+| 网格     | 点阵 / 线条两种 `gridVariant`，网格尺寸 `gridSize`                         |
+
+**图节点层**：
+
+| 操作     | 行为与规则                                                                |
+| -------- | ------------------------------------------------------------------------- |
+| 单击节点 | 节点带文档链接（`文本                                                     | 路径.md`语法）时触发`navigate(path)`；无链接则无动作 |
+| 拖拽节点 | 仅 `editable` 时可用；拖动中实时预览重排（边自动跟随），松手发 `nodeMove` |
+| 拖拽平移 | 在节点上按住拖动 = 移动节点；想平移视口请用空白处拖拽或按住空格           |
+
+> DocViewer 的「🗺 画布」视图就是这套交互的完整实例：流程图节点逐级钻取（点击 → 目标文档的画布继续钻取，无子内容则落回正文），画布内平移/缩放/fit 全部继承自 NeumorphismCanvas。
+
+### 能力边界
+
+DocFlowCanvas 的定位是**只读呈现 + 节点位置微调**，明确不包含：
+
+- 连线的新建 / 删除 / 改接（四边连接点、端点手柄）
+- 节点的创建 / 删除、分组围合
+- 撤销 / 重做栈、脏状态管理
+
+需要完整图编辑器时，建议以 `NeumorphismCanvas` 为视口、参考本组件的 SVG 图层与拖拽管线自建编辑层。本项目的姊妹项目 DocRenderer 即采用此路线：它对 `NeumorphismCanvas` **零修改**（仅用作缩放/平移视口），在插槽内自建了约 2000 行的图编辑器（连线编辑、节点增删、撤销重做、frontmatter 坐标写回）——证明这套组合方式足以承载完整的图编辑场景，同时说明这类编辑器逻辑属于应用层，不收进组件库。
 
 ---
 

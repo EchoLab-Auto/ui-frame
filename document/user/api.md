@@ -310,30 +310,37 @@ import type {
 
 **NeumorphismForm:**
 
-| Props     | Type                         | Default      | Description  |
-| --------- | ---------------------------- | ------------ | ------------ |
-| model     | `Record<string, unknown>`    | `{}`         | 表单数据     |
-| rules     | `Record<string, FormRule[]>` | `{}`         | 字段验证规则 |
-| direction | `'vertical' \| 'horizontal'` | `'vertical'` | 排列方向     |
+| Props      | Type                             | Default      | Description                  |
+| ---------- | -------------------------------- | ------------ | ---------------------------- |
+| model      | `Record<string, unknown>`        | `{}`         | 表单数据                     |
+| rules      | `Record<string, FormRule[]>`     | `{}`         | 字段验证规则                 |
+| labelWidth | `string`                         | —            | 标签宽度（级联 form 段）     |
+| size       | `'small' \| 'medium' \| 'large'` | —            | 表单控件尺寸（级联 form 段） |
+| direction  | `'vertical' \| 'horizontal'`     | `'vertical'` | 排列方向（级联 form 段）     |
 
 **NeumorphismFormItem:**
 
-| Props    | Type                | Default | Description  |
-| -------- | ------------------- | ------- | ------------ |
-| label    | `string`            | —       | 标签文字     |
-| name     | `string`            | —       | 字段名       |
-| required | `boolean`           | `false` | 是否必填     |
-| rules    | `FormRule[]`        | —       | 字段验证规则 |
-| error    | `string \| boolean` | —       | 错误信息     |
+| Props    | Type         | Default | Description  |
+| -------- | ------------ | ------- | ------------ |
+| label    | `string`     | —       | 标签文字     |
+| name     | `string`     | —       | 字段名       |
+| required | `boolean`    | `false` | 是否必填     |
+| rules    | `FormRule[]` | —       | 字段验证规则 |
+| error    | `string`     | —       | 错误信息     |
 
 ```ts
 interface FormRule {
   required?: boolean
   message?: string
+  min?: number
+  max?: number
   minLength?: number
   maxLength?: number
   pattern?: RegExp
-  validator?: (value: unknown) => boolean
+  /** 自定义校验，返回 true 通过，返回 string 作为错误信息 */
+  validator?: (value: unknown) => boolean | string
+  /** 内部保留字段，按规则的触发时机尚未实现 */
+  trigger?: 'change' | 'blur' | 'input'
 }
 ```
 
@@ -430,22 +437,22 @@ import { NeumorphismDatePicker } from '@echolab-auto/ui-frame'
 import type { NeumorphismDatePickerProps } from '@echolab-auto/ui-frame'
 ```
 
-| Props          | Type                             | Default        | Description        |
-| -------------- | -------------------------------- | -------------- | ------------------ |
-| modelValue     | `Date \| null`                   | `null`         | 绑定值             |
-| placeholder    | `string`                         | `''`           | 占位符             |
-| format         | `string`                         | `'yyyy-MM-dd'` | 显示格式           |
-| disabled       | `boolean`                        | `false`        | 是否禁用           |
-| clearable      | `boolean`                        | `true`         | 是否可清空         |
-| size           | `'small' \| 'medium' \| 'large'` | `'medium'`     | 尺寸               |
-| minDate        | `Date`                           | —              | 最小可选日期       |
-| maxDate        | `Date`                           | —              | 最大可选日期       |
-| firstDayOfWeek | `number`                         | `0`            | 每周起始日(0=周日) |
-| label          | `string`                         | —              | 标签文字           |
-| required       | `boolean`                        | `false`        | 是否必填           |
-| error          | `string \| boolean`              | —              | 错误信息或状态     |
-| name           | `string`                         | —              | 表单字段名         |
-| id             | `string`                         | —              | 自定义 ID          |
+| Props          | Type                             | Default        | Description                                          |
+| -------------- | -------------------------------- | -------------- | ---------------------------------------------------- |
+| modelValue     | `Date \| null`                   | `null`         | 绑定值                                               |
+| placeholder    | `string`                         | `''`           | 占位符                                               |
+| format         | `string`                         | `'yyyy-MM-dd'` | 显示格式                                             |
+| disabled       | `boolean`                        | `false`        | 是否禁用                                             |
+| clearable      | `boolean`                        | `true`         | 是否可清空                                           |
+| size           | `'small' \| 'medium' \| 'large'` | `'medium'`     | 尺寸                                                 |
+| minDate        | `Date`                           | —              | 最小可选日期                                         |
+| maxDate        | `Date`                           | —              | 最大可选日期                                         |
+| firstDayOfWeek | `number`                         | `0`            | 每周起始日(0=周日)                                   |
+| label          | `string`                         | —              | 标签文字                                             |
+| required       | `boolean`                        | `false`        | 是否必填                                             |
+| error          | `string \| boolean`              | —              | 错误信息或状态                                       |
+| name           | `string`                         | —              | 表单字段名（经 hidden input 透传，值为格式化日期串） |
+| id             | `string`                         | —              | 自定义 ID                                            |
 
 **Events:** `update:modelValue`, `change`, `focus`, `blur`
 
@@ -494,6 +501,8 @@ interface UploadFile {
 
 **Events:** `update:modelValue`, `change`, `preview`, `remove`, `exceed`
 
+**说明：** 组件未透传 `useUpload` 的 `onSizeExceed` / `onTypeError` / `uploadFn` 回调（仅 `exceed` 事件对外）；尺寸 / 类型校验失败的文件仍会入列，以 `status: 'error'`、`error: 'sizeExceed' \| 'typeError'` 标记。
+
 ---
 
 ### 数据展示
@@ -511,6 +520,7 @@ import type { NeumorphismCardProps, CardVariant, CardDepth } from '@echolab-auto
 | hoverable | `boolean \| 'bulge' \| 'sink'`           | `false`   | 悬停动效模式                       |
 | radius    | `'small' \| 'medium' \| 'large' \| 'xl'` | `'large'` | 圆角大小                           |
 | noPadding | `boolean`                                | `false`   | 是否移除内边距                     |
+| glass     | `boolean`                                | `false`   | 玻璃拟态（磨砂背景 + 背景模糊）    |
 
 **Slots:** `header`, default, `footer`
 
@@ -537,13 +547,16 @@ import { NeumorphismAvatar } from '@echolab-auto/ui-frame'
 import type { NeumorphismAvatarProps, AvatarSize } from '@echolab-auto/ui-frame'
 ```
 
-| Props    | Type                             | Default    | Description |
-| -------- | -------------------------------- | ---------- | ----------- |
-| src      | `string`                         | —          | 图片地址    |
-| alt      | `string`                         | —          | 替代文本    |
-| initials | `string`                         | —          | 首字母回退  |
-| size     | `'small' \| 'medium' \| 'large'` | `'medium'` | 尺寸        |
-| shape    | `'circle' \| 'rounded'`          | `'circle'` | 形状        |
+| Props    | Type                             | Default    | Description  |
+| -------- | -------------------------------- | ---------- | ------------ |
+| src      | `string`                         | —          | 图片地址     |
+| alt      | `string`                         | —          | 替代文本     |
+| initials | `string`                         | —          | 首字母回退   |
+| icon     | `string`                         | —          | 图标字符回退 |
+| size     | `'small' \| 'medium' \| 'large'` | `'medium'` | 尺寸         |
+| shape    | `'circle' \| 'rounded'`          | `'circle'` | 形状         |
+
+**Slots:** `fallback`（图片加载失败或无 src 时的回退内容，优先于 icon / initials）
 
 **Events:** `error`
 
@@ -556,12 +569,13 @@ import { NeumorphismBadge } from '@echolab-auto/ui-frame'
 import type { NeumorphismBadgeProps } from '@echolab-auto/ui-frame'
 ```
 
-| Props    | Type               | Default | Description         |
-| -------- | ------------------ | ------- | ------------------- |
-| value    | `string \| number` | —       | 徽标值              |
-| max      | `number`           | `99`    | 最大值（超出显示+） |
-| dot      | `boolean`          | `false` | 圆点模式            |
-| showZero | `boolean`          | `false` | 值为0时是否显示     |
+| Props    | Type               | Default | Description                    |
+| -------- | ------------------ | ------- | ------------------------------ |
+| value    | `string \| number` | —       | 徽标值                         |
+| max      | `number`           | `99`    | 最大值（超出显示+）            |
+| dot      | `boolean`          | `false` | 圆点模式                       |
+| color    | `string`           | —       | 自定义徽标背景色（CSS 颜色值） |
+| showZero | `boolean`          | `false` | 值为0时是否显示                |
 
 ---
 
@@ -572,13 +586,14 @@ import { NeumorphismTag } from '@echolab-auto/ui-frame'
 import type { NeumorphismTagProps, TagVariant } from '@echolab-auto/ui-frame'
 ```
 
-| Props    | Type                                                                    | Default     | Description |
-| -------- | ----------------------------------------------------------------------- | ----------- | ----------- |
-| variant  | `'default' \| 'primary' \| 'success' \| 'warning' \| 'error' \| 'info'` | `'default'` | 颜色变体    |
-| size     | `'small' \| 'medium' \| 'large'`                                        | `'medium'`  | 尺寸        |
-| closable | `boolean`                                                               | `false`     | 是否可关闭  |
-| disabled | `boolean`                                                               | `false`     | 是否禁用    |
-| rounded  | `boolean`                                                               | `false`     | 是否圆角    |
+| Props      | Type                                                                    | Default     | Description                                     |
+| ---------- | ----------------------------------------------------------------------- | ----------- | ----------------------------------------------- |
+| variant    | `'default' \| 'primary' \| 'success' \| 'warning' \| 'error' \| 'info'` | `'default'` | 颜色变体                                        |
+| size       | `'small' \| 'medium' \| 'large'`                                        | `'medium'`  | 尺寸                                            |
+| closable   | `boolean`                                                               | `false`     | 是否可关闭                                      |
+| disabled   | `boolean`                                                               | `false`     | 是否禁用                                        |
+| rounded    | `boolean`                                                               | `false`     | 是否圆角                                        |
+| closeLabel | `string`                                                                | `''`        | 关闭按钮 aria-label（缺省读 locale `tagClose`） |
 
 **Events:** `close`, `click`
 
@@ -628,27 +643,34 @@ import { NeumorphismTable } from '@echolab-auto/ui-frame'
 import type { NeumorphismTableProps } from '@echolab-auto/ui-frame'
 ```
 
-| Props        | Type                             | Default      | Description    |
-| ------------ | -------------------------------- | ------------ | -------------- |
-| data         | `Record<string, unknown>[]`      | `[]`         | 数据列表       |
-| columns      | `TableColumn[]`                  | `[]`         | 列定义         |
-| rowKey       | `string`                         | `'key'`      | 行唯一标识字段 |
-| selectable   | `boolean`                        | `false`      | 是否可选择行   |
-| selectedKeys | `string[]`                       | `[]`         | 选中行的 keys  |
-| loading      | `boolean`                        | `false`      | 加载状态       |
-| emptyText    | `string`                         | `'暂无数据'` | 空数据提示     |
-| size         | `'small' \| 'medium' \| 'large'` | `'medium'`   | 尺寸           |
-| striped      | `boolean`                        | `false`      | 斑马纹         |
-| hoverable    | `boolean`                        | `true`       | 悬停高亮       |
-| showHeader   | `boolean`                        | `true`       | 是否显示表头   |
+| Props        | Type                                | Default      | Description                                       |
+| ------------ | ----------------------------------- | ------------ | ------------------------------------------------- |
+| data         | `Record<string, unknown>[]`         | `[]`         | 数据列表                                          |
+| columns      | `TableColumn[]`                     | `[]`         | 列定义                                            |
+| rowKey       | `string`                            | `'key'`      | 行唯一标识字段                                    |
+| selectable   | `boolean \| 'single' \| 'multiple'` | `false`      | 行选择模式（`single` 为整行点击单选，无勾选框列） |
+| selectedKeys | `string[]`                          | `[]`         | 选中行的 keys                                     |
+| loading      | `boolean`                           | `false`      | 加载状态                                          |
+| emptyText    | `string`                            | `'暂无数据'` | 空数据提示                                        |
+| size         | `'small' \| 'medium' \| 'large'`    | `'medium'`   | 尺寸                                              |
+| striped      | `boolean`                           | `false`      | 斑马纹                                            |
+| hoverable    | `boolean`                           | `true`       | 悬停高亮                                          |
+| showHeader   | `boolean`                           | `true`       | 是否显示表头                                      |
 
 ```ts
 interface TableColumn {
   key: string
-  title: string
+  label: string
   width?: string | number
-  sortable?: boolean
+  minWidth?: string | number
   align?: 'left' | 'center' | 'right'
+  sortable?: boolean
+  /** 自定义排序函数，返回值 > 0 表示 a > b */
+  sorter?: (a: unknown, b: unknown) => number
+  filterable?: boolean
+  filters?: { text: string; value: unknown }[]
+  /** 自定义过滤函数，返回 true 保留该行 */
+  filter?: (rowValue: unknown, filterValue: unknown) => boolean
 }
 ```
 
@@ -667,12 +689,12 @@ import type {
 } from '@echolab-auto/ui-frame'
 ```
 
-| Props     | Type                            | Default        | Description |
-| --------- | ------------------------------- | -------------- | ----------- |
-| direction | `'horizontal' \| 'vertical'`    | `'horizontal'` | 方向        |
-| align     | `'left' \| 'center' \| 'right'` | `'center'`     | 文字对齐    |
-| dashed    | `boolean`                       | `false`        | 虚线        |
-| inset     | `boolean`                       | `false`        | 缩进模式    |
+| Props     | Type                            | Default        | Description                              |
+| --------- | ------------------------------- | -------------- | ---------------------------------------- |
+| direction | `'horizontal' \| 'vertical'`    | `'horizontal'` | 方向                                     |
+| align     | `'left' \| 'center' \| 'right'` | `'center'`     | 文字对齐                                 |
+| dashed    | `boolean`                       | `false`        | 虚线                                     |
+| inset     | `boolean`                       | `false`        | 缩进模式：水平时左右内缩、垂直时上下内缩 |
 
 **Slots:** default（分割线中间的文字）
 
@@ -731,18 +753,18 @@ import {
 } from '@echolab-auto/ui-frame'
 ```
 
-| 共同 Props  | Type      | Default | Description               |
-| ----------- | --------- | ------- | ------------------------- |
-| width       | `string`  | `100%`  | 图表宽度                  |
-| height      | `string`  | `300px` | 图表高度                  |
-| showTooltip | `boolean` | `true`  | 悬停提示（级联 chart 段） |
-| showLegend  | `boolean` | `true`  | 图例（Pie 无此项）        |
-| animate     | `boolean` | `true`  | 入场动画                  |
+| 共同 Props  | Type               | Default | Description                               |
+| ----------- | ------------------ | ------- | ----------------------------------------- |
+| width       | `string \| number` | `100%`  | 图表宽度                                  |
+| height      | `string \| number` | `300px` | 图表高度（ChartCandlestick 默认 `400px`） |
+| showTooltip | `boolean`          | `true`  | 悬停提示（级联 chart 段）                 |
+| showLegend  | `boolean`          | `true`  | 图例（Pie 也有此项，图例按数据点渲染）    |
+| animate     | `boolean`          | `true`  | 入场动画                                  |
 
-- **ChartBar**: `series: ChartSeries[]`、`orientation`、`stacked`、`barGap`
+- **ChartBar**: `series: ChartSeries[]`、`showGrid`、`showAxis`、`yMin`、`yMax`、`orientation`、`stacked`、`barGap`、`title`（后三个同时支持全局配置 `chart.bar` 段级联）
 - **ChartLine**: `series: ChartSeries[]`、`curve('linear'|'smooth'|'step')`、`area`、`showPoints`、`lineWidth`、`pointSize`
 - **ChartPie**: `data: ChartDataPoint[]`、`innerRadius`、`padAngle`、`startAngle`、`labelPosition`、`roundedCorners`、`colorPalette`
-- **ChartCandlestick**: `data: OhlcDataPoint[]`、`showVolume`、`showMA`、`maPeriods`、`upColor`、`downColor`
+- **ChartCandlestick**: `data: OhlcDataPoint[]`、`showVolume`、`showMA`、`maPeriods`、`upColor`、`downColor`、`showGrid`、`showAxis`
 
 **Events:** `bar-click` / `point-click` / `arc-click` / `candle-click`（对应图形点击）
 
@@ -757,13 +779,19 @@ import { NeumorphismLogo } from '@echolab-auto/ui-frame'
 import type { NeumorphismLogoProps, LogoMode } from '@echolab-auto/ui-frame'
 ```
 
-| Props    | Type                                         | Default    | Description                  |
-| -------- | -------------------------------------------- | ---------- | ---------------------------- |
-| mode     | `'pulse' \| 'liquid' \| 'wave' \| 'pointer'` | `'pulse'`  | 像素动效模式（级联 logo 段） |
-| size     | `'small' \| 'medium' \| 'large'`             | `'medium'` | 尺寸                         |
-| goo      | `boolean`                                    | `true`     | gooey 融合滤镜               |
-| autoplay | `boolean`                                    | `true`     | 自动播放                     |
-| floating | `boolean`                                    | `true`     | 浮动动画                     |
+| Props     | Type                                         | Default           | Description                              |
+| --------- | -------------------------------------------- | ----------------- | ---------------------------------------- |
+| mode      | `'pulse' \| 'liquid' \| 'wave' \| 'pointer'` | `'pulse'`         | 像素动效模式（级联 logo 段）             |
+| size      | `'small' \| 'medium' \| 'large'`             | `'medium'`        | 尺寸                                     |
+| width     | `string \| number`                           | —（按 size 定宽） | SVG 宽度（CSS 值或 px 数字）             |
+| goo       | `boolean`                                    | `true`            | gooey 融合滤镜                           |
+| autoplay  | `boolean`                                    | `true`            | 自动播放                                 |
+| floating  | `boolean`                                    | `true`            | 浮动动画                                 |
+| ariaLabel | `string`                                     | `'动态像素 Logo'` | 无障碍名称（`role="img"` 的 aria-label） |
+
+**Slots:** 默认插槽（动效旁的内容面板，scope: `{ mode, setMode, replay, isReducedMotion }`）
+
+**Events:** `update:mode`, `mode-change`
 
 ---
 
@@ -794,7 +822,7 @@ import { NeumorphismFieldLabel, NeumorphismFieldError } from '@echolab-auto/ui-f
 
 **NeumorphismFieldLabel:** `label?: string`、`required?: boolean`、`forId?: string` —— 表单字段标签（required 时显示 `*`）。
 
-**NeumorphismFieldError:** `id: string`、`message?: string` —— 错误提示（`role="alert"`，空消息不渲染）。
+**NeumorphismFieldError:** `id?: string`、`message?: string` —— 错误提示（`role="alert"`，空消息不渲染）。
 
 ---
 
@@ -825,7 +853,7 @@ import type {
 
 **Events:** `visible-change`
 
-**Exposed methods:** `show`, `hide`, `toggle`, `isOpen`
+**Exposed methods:** `show`, `hide`, `toggle`, `isOpen`, `contentId`
 
 ---
 
@@ -946,19 +974,20 @@ import { NeumorphismTabs } from '@echolab-auto/ui-frame'
 import type { NeumorphismTabsProps, TabItem } from '@echolab-auto/ui-frame'
 ```
 
-| Props      | Type                                     | Default    | Description    |
-| ---------- | ---------------------------------------- | ---------- | -------------- |
-| modelValue | `string`                                 | `''`       | 当前激活 key   |
-| tabs       | `TabItem[]`                              | `[]`       | 标签页数据     |
-| position   | `'top' \| 'left' \| 'bottom' \| 'right'` | `'top'`    | 标签位置       |
-| size       | `'small' \| 'medium' \| 'large'`         | `'medium'` | 尺寸           |
-| navLabel   | `string`                                 | —          | 导航 ARIA 标签 |
+| Props      | Type                             | Default    | Description    |
+| ---------- | -------------------------------- | ---------- | -------------- |
+| modelValue | `string`                         | `''`       | 当前激活 key   |
+| tabs       | `TabItem[]`                      | `[]`       | 标签页数据     |
+| position   | `'top' \| 'left' \| 'right'`     | `'top'`    | 标签位置       |
+| size       | `'small' \| 'medium' \| 'large'` | `'medium'` | 尺寸           |
+| navLabel   | `string`                         | —          | 导航 ARIA 标签 |
 
 ```ts
 interface TabItem {
   key: string
   label: string
   disabled?: boolean
+  icon?: string // 标签前的图标（emoji/文本），在 tab 按钮中渲染于 label 之前
 }
 ```
 
@@ -982,6 +1011,7 @@ import type { NeumorphismBreadcrumbProps, BreadcrumbItem } from '@echolab-auto/u
 ```ts
 interface BreadcrumbItem {
   label: string
+  /** 组件不内置跳转（一律渲染 span 并抛出 itemClick），需在 itemClick 中自行路由 */
   to?: string
   disabled?: boolean
 }
@@ -998,20 +1028,25 @@ import { NeumorphismPagination } from '@echolab-auto/ui-frame'
 import type { NeumorphismPaginationProps } from '@echolab-auto/ui-frame'
 ```
 
-| Props           | Type                             | Default    | Description    |
-| --------------- | -------------------------------- | ---------- | -------------- |
-| modelValue      | `number`                         | `1`        | 当前页码       |
-| total           | `number`                         | `0`        | 总记录数       |
-| pageSize        | `number`                         | `10`       | 每页条数       |
-| size            | `'small' \| 'medium' \| 'large'` | `'medium'` | 尺寸           |
-| showTotal       | `boolean`                        | `false`    | 是否显示总数   |
-| showJumper      | `boolean`                        | `false`    | 是否显示跳转   |
-| maxVisiblePages | `number`                         | `7`        | 最大可见页码数 |
-| disabled        | `boolean`                        | `false`    | 是否禁用       |
+| Props           | Type                             | Default    | Description                                                                |
+| --------------- | -------------------------------- | ---------- | -------------------------------------------------------------------------- |
+| modelValue      | `number`                         | `1`        | 当前页码                                                                   |
+| total           | `number`                         | `0`        | 总记录数                                                                   |
+| pageSize        | `number`                         | `10`       | 每页条数                                                                   |
+| size            | `'small' \| 'medium' \| 'large'` | `'medium'` | 尺寸                                                                       |
+| showTotal       | `boolean`                        | `false`    | 是否显示总数                                                               |
+| showJumper      | `boolean`                        | `false`    | 是否显示跳转                                                               |
+| maxVisiblePages | `number`                         | `7`        | 最大可见页码数                                                             |
+| disabled        | `boolean`                        | `false`    | 是否禁用                                                                   |
+| prevLabel       | `string`                         | `'上一页'` | 上一页按钮 aria-label                                                      |
+| nextLabel       | `string`                         | `'下一页'` | 下一页按钮 aria-label                                                      |
+| totalLabel      | `string`                         | —          | 总数文案覆盖模板（支持 `{total}` 占位符）；缺省走 locale `paginationTotal` |
 
 **Slots:** `page-item` (scope: `{ page, active }`)
 
 **Events:** `update:modelValue`, `change`
+
+**说明：** 跳页器文案走 locale 键 `paginationJumper`（zh-CN `跳至 {input} 页` / en-US `Go to {input}`，`{input}` 为页码输入框占位符）。
 
 ---
 
@@ -1045,6 +1080,8 @@ interface MenuItem {
 ```
 
 **Events:** `select`, `item-click`
+
+**说明：** 模板手写三层渲染（item → child → grandchild），最多渲染三级菜单，并非任意深度递归；更深层级的 `children` 不会展示。
 
 ---
 
@@ -1116,7 +1153,7 @@ interface StepItem {
 }
 ```
 
-**Slots:** `empty`
+**Slots:** `empty`（仅在 `steps` 为空时渲染）
 
 **Events:** `update:current`, `change`, `stepClick`
 
@@ -1131,23 +1168,23 @@ import { NeumorphismModal } from '@echolab-auto/ui-frame'
 import type { NeumorphismModalProps } from '@echolab-auto/ui-frame'
 ```
 
-| Props          | Type                             | Default    | Description    |
-| -------------- | -------------------------------- | ---------- | -------------- |
-| modelValue     | `boolean`                        | `false`    | 是否显示       |
-| title          | `string`                         | —          | 标题           |
-| size           | `'small' \| 'medium' \| 'large'` | `'medium'` | 尺寸           |
-| closable       | `boolean`                        | `true`     | 是否可关闭     |
-| maskClosable   | `boolean`                        | `true`     | 点击遮罩关闭   |
-| showClose      | `boolean`                        | `true`     | 显示关闭按钮   |
-| destroyOnClose | `boolean`                        | `false`    | 关闭时销毁内容 |
-| footer         | `boolean`                        | `true`     | 显示底部按钮   |
-| closeLabel     | `string`                         | —          | 关闭按钮文字   |
-| cancelLabel    | `string`                         | —          | 取消按钮文字   |
-| confirmLabel   | `string`                         | —          | 确认按钮文字   |
+| Props          | Type                             | Default    | Description                                    |
+| -------------- | -------------------------------- | ---------- | ---------------------------------------------- |
+| modelValue     | `boolean`                        | `false`    | 是否显示                                       |
+| title          | `string`                         | —          | 标题                                           |
+| size           | `'small' \| 'medium' \| 'large'` | `'medium'` | 尺寸                                           |
+| closable       | `boolean`                        | `true`     | 是否可关闭                                     |
+| maskClosable   | `boolean`                        | `true`     | 点击遮罩关闭                                   |
+| showClose      | `boolean`                        | `true`     | 显示关闭按钮                                   |
+| destroyOnClose | `boolean`                        | `false`    | 关闭时销毁内容                                 |
+| footer         | `boolean`                        | `true`     | 显示底部按钮                                   |
+| closeLabel     | `string`                         | —          | 关闭按钮 aria-label（按钮为 SVG 图标，无文字） |
+| cancelLabel    | `string`                         | —          | 取消按钮文字                                   |
+| confirmLabel   | `string`                         | —          | 确认按钮文字                                   |
 
 **Slots:** `header`, default, `footer`
 
-**Events:** `update:modelValue`, `open`, `close`, `confirm`, `cancel`
+**Events:** `update:modelValue`, `confirm`, `cancel`（`open` / `close` 已在 emits 中声明，但当前从未实际触发）
 
 ---
 
@@ -1179,21 +1216,27 @@ interface ToastOptions {
   message: string
   type?: ToastType
   duration?: number
+  closable?: boolean // 默认 true
 }
 
-interface ToastItem extends ToastOptions {
+interface ToastItem {
   id: string
-  leaving?: boolean
+  message: string
+  type: ToastType // 必填（addToast 时补默认值）
+  duration: number // 必填
+  closable: boolean // 必填
+  timestamp: number
+  leaving: boolean
 }
 ```
 
 **Methods (ref):**
 
-| Method      | Signature                      | Description  |
-| ----------- | ------------------------------ | ------------ |
-| addToast    | `(opts: ToastOptions) => void` | 添加一条消息 |
-| removeToast | `(id: string) => void`         | 移除指定消息 |
-| clearAll    | `() => void`                   | 清除所有消息 |
+| Method      | Signature                        | Description               |
+| ----------- | -------------------------------- | ------------------------- |
+| addToast    | `(opts: ToastOptions) => string` | 添加一条消息，返回消息 id |
+| removeToast | `(id: string) => void`           | 移除指定消息              |
+| clearAll    | `() => void`                     | 清除所有消息              |
 
 **Slots:** `toast-item` (scope: `{ toast, remove }`)
 
@@ -1298,16 +1341,16 @@ import type {
 
 **NeumorphismCol:**
 
-| Props  | Type     | Default | Description          |
-| ------ | -------- | ------- | -------------------- |
-| span   | `number` | `24`    | 栅格占位格数（1-24） |
-| offset | `number` | —       | 左侧偏移格数         |
-| xs     | `number` | —       | `<576px` 断点下占位  |
-| sm     | `number` | —       | `≥576px` 断点下占位  |
-| md     | `number` | —       | `≥768px` 断点下占位  |
-| lg     | `number` | —       | `≥992px` 断点下占位  |
-| xl     | `number` | —       | `≥1200px` 断点下占位 |
-| xxl    | `number` | —       | `≥1400px` 断点下占位 |
+| Props  | Type               | Default | Description          |
+| ------ | ------------------ | ------- | -------------------- |
+| span   | `number \| string` | `24`    | 栅格占位格数（1-24） |
+| offset | `number \| string` | —       | 左侧偏移格数         |
+| xs     | `number \| string` | —       | `<576px` 断点下占位  |
+| sm     | `number \| string` | —       | `≥576px` 断点下占位  |
+| md     | `number \| string` | —       | `≥768px` 断点下占位  |
+| lg     | `number \| string` | —       | `≥992px` 断点下占位  |
+| xl     | `number \| string` | —       | `≥1200px` 断点下占位 |
+| xxl    | `number \| string` | —       | `≥1400px` 断点下占位 |
 
 ---
 
@@ -1318,18 +1361,20 @@ import { NeumorphismLayout } from '@echolab-auto/ui-frame'
 import type { NeumorphismLayoutProps } from '@echolab-auto/ui-frame'
 ```
 
-| Props              | Type      | Default | Description              |
-| ------------------ | --------- | ------- | ------------------------ |
-| showHeader         | `boolean` | `true`  | 是否显示顶部导航         |
-| showSider          | `boolean` | `false` | 是否显示侧边栏           |
-| showFooter         | `boolean` | `false` | 是否显示底部             |
-| siderWidth         | `number`  | `240`   | 侧边栏宽度（px）         |
-| collapsible        | `boolean` | `false` | 侧边栏是否可折叠         |
-| defaultCollapsed   | `boolean` | `false` | 侧边栏默认是否折叠       |
-| collapsedWidth     | `number`  | `64`    | 折叠后的宽度（px）       |
-| mobileAutoCollapse | `boolean` | `true`  | 移动端是否自动折叠侧边栏 |
+| Props              | Type      | Default   | Description                                               |
+| ------------------ | --------- | --------- | --------------------------------------------------------- |
+| showHeader         | `boolean` | `true`    | 是否显示顶部导航                                          |
+| showSider          | `boolean` | `false`   | 是否显示侧边栏                                            |
+| siderWidth         | `number`  | `240`     | 侧边栏宽度（px）                                          |
+| collapsible        | `boolean` | `false`   | 侧边栏是否可折叠                                          |
+| defaultCollapsed   | `boolean` | `false`   | 侧边栏默认是否折叠                                        |
+| collapsedWidth     | `number`  | `64`      | 折叠后的宽度（px）                                        |
+| mobileAutoCollapse | `boolean` | `true`    | 移动端是否自动折叠侧边栏                                  |
+| height             | `string`  | `'100vh'` | 布局高度；页面级根容器默认 100vh，嵌套使用时设为 `'100%'` |
 
-**Slots:** `header-left`, `header-center`, `header-right`, `sider` (prop: `{ collapsed }`), default, `footer`
+**Slots:** `header-left`, `header-center`, `header-right`, `sider` (prop: `{ collapsed }`), default, `footer`（footer 是否显示由该插槽有无决定）
+
+**Events:** `collapse`（payload：折叠后的 `collapsed: boolean`）
 
 ---
 
@@ -1364,19 +1409,20 @@ import type {
 } from '@echolab-auto/ui-frame'
 ```
 
-| Props             | Type             | Default | Description    |
-| ----------------- | ---------------- | ------- | -------------- |
-| data              | `TreeNodeData[]` | `[]`    | 树形数据       |
-| selectedKeys      | `string[]`       | `[]`    | 选中节点 keys  |
-| expandedKeys      | `string[]`       | `[]`    | 展开节点 keys  |
-| showSearch        | `boolean`        | `false` | 是否显示搜索框 |
-| searchPlaceholder | `string`         | —       | 搜索占位符     |
-| multiple          | `boolean`        | `false` | 是否多选       |
+| Props             | Type             | Default  | Description    |
+| ----------------- | ---------------- | -------- | -------------- |
+| data              | `TreeNodeData[]` | **必填** | 树形数据       |
+| selectedKeys      | `string[]`       | `[]`     | 选中节点 keys  |
+| expandedKeys      | `string[]`       | `[]`     | 展开节点 keys  |
+| showSearch        | `boolean`        | `false`  | 是否显示搜索框 |
+| searchPlaceholder | `string`         | —        | 搜索占位符     |
+| multiple          | `boolean`        | `false`  | 是否多选       |
 
 ```ts
 interface TreeNodeData {
   key: string
   label: string
+  icon?: string // 节点图标（模板渲染；类型上经索引签名 [k: string]: unknown 透传）
   children?: TreeNodeData[]
   disabled?: boolean
 }
@@ -1587,6 +1633,33 @@ prodoc-flow 流程图画布：把解析后的流程图渲染为可缩放/平移�
 | editable | `boolean`         | `false`   | 节点可拖拽编辑（松手触发 `nodeMove`） |
 
 **Events:** `navigate(path)`（点击带文档链接的节点）、`nodeMove({ id, x, y })`（拖拽松手后的新坐标，画布 px，由宿主持久化）
+
+> 语法、编辑持久化链路与能力边界详见 [Doc 文档组件 · DocFlowCanvas](./components/doc.md#docflowcanvas-流程图画布)。
+
+---
+
+### prodoc-flow 流程图函数
+
+```ts
+import {
+  parseProDocFlow,
+  extractFlowBlocks,
+  writeFlowNodePosition,
+  layoutProDocFlow,
+  resolveCanvasGraph,
+  buildHierarchyGraph,
+} from '@echolab-auto/ui-frame/doc'
+import type { FlowLayoutNode, FlowLayoutEdge, FlowLayoutResult } from '@echolab-auto/ui-frame/doc'
+```
+
+| 函数                    | 签名                                                            | 说明                                                                        |
+| ----------------------- | --------------------------------------------------------------- | --------------------------------------------------------------------------- |
+| `parseProDocFlow`       | `(source: string) => ProDocFlowGraph`                           | 解析 prodoc-flow 代码块源码为图模型（容错：非法行进 `errors`）              |
+| `extractFlowBlocks`     | `(body: string) => string[]`                                    | 从 Markdown 中提取全部 prodoc-flow 块源码                                   |
+| `writeFlowNodePosition` | `(body, blockSource, nodeId, x, y, blockIndex?) => string`      | 把节点坐标写回 Markdown 源码（就地更新/追加 `@ x, y`，CRLF 归一化）         |
+| `layoutProDocFlow`      | `(graph: ProDocFlowGraph, sweeps?: number) => FlowLayoutResult` | 零依赖分层 DAG 布局，输出节点坐标与连线路径                                 |
+| `resolveCanvasGraph`    | `(node: ProDocNode) => ProDocFlowGraph \| null`                 | DocViewer 画布视图的图解析：显式 prodoc-flow 优先，无流程时回退子文档层级图 |
+| `buildHierarchyGraph`   | `(node: ProDocNode) => ProDocFlowGraph`                         | 由子文档树构建层级地图图模型                                                |
 
 ---
 
@@ -2206,8 +2279,8 @@ import type {
 ```
 
 ```ts
-type SortDirection = 'asc' | 'desc' | null
-type SelectionMode = 'single' | 'multiple' | 'none'
+type SortDirection = 'ascend' | 'descend' | null
+type SelectionMode = 'single' | 'multiple'
 
 interface SortState {
   key: string
@@ -2334,7 +2407,7 @@ interface UseToastOptions {
 
 interface UseToastReturn {
   toasts: Ref<ToastItem[]>
-  addToast: (opts: ToastOptions) => void
+  addToast: (opts: ToastOptions) => string
   removeToast: (id: string) => void
 }
 ```
@@ -3302,8 +3375,7 @@ interface NeumorphismGlobalConfig {
     variant?: 'default' | 'outlined'
   }
   textarea?: { size?: TextareaSize }
-  form?: { direction?: 'vertical' | 'horizontal' }
-  formItem?: { required?: boolean }
+  form?: { size?: FieldSize; labelWidth?: string; direction?: 'vertical' | 'horizontal' }
   modal?: { size?: ModalSize; maskClosable?: boolean }
   toast?: { position?: ToastPosition; maxCount?: number }
   tooltip?: { position?: TooltipPosition; trigger?: TooltipTrigger }
@@ -3311,17 +3383,23 @@ interface NeumorphismGlobalConfig {
   breadcrumb?: { size?: BreadcrumbSize }
   pagination?: { size?: PaginationSize; showTotal?: boolean }
   avatar?: { size?: AvatarSize; shape?: AvatarShape }
-  badge?: { max?: number }
-  tag?: { size?: TagSize; variant?: TagVariant }
+  badge?: { max?: number; dot?: boolean; showZero?: boolean }
+  tag?: { size?: TagSize; variant?: TagVariant; rounded?: boolean }
   progress?: {
     size?: ProgressSize
-    variant?: ProgressVariant
+    // 注意：全局配置不含组件 prop 的 'default' 变体
+    variant?: 'primary' | 'success' | 'warning' | 'error'
     showLabel?: boolean
     effect?: ProgressEffect
   }
-  skeleton?: { animation?: SkeletonAnimation }
+  skeleton?: { variant?: 'text' | 'circle' | 'rect'; animation?: SkeletonAnimation }
   table?: { size?: TableSize; striped?: boolean }
-  divider?: { direction?: DividerDirection }
+  divider?: {
+    direction?: DividerDirection
+    align?: DividerAlign
+    dashed?: boolean
+    inset?: boolean
+  }
   collapse?: { size?: CollapseSize; accordion?: boolean }
   container?: { mode?: 'fixed' | 'fluid' }
   row?: { gutter?: number | [number, number] }
@@ -3348,12 +3426,13 @@ interface NeumorphismGlobalConfig {
   empty?: { size?: EmptySize }
   autoComplete?: { size?: AutoCompleteSize; clearable?: boolean }
   slider?: { size?: SliderSize; showTooltip?: boolean; showStops?: boolean }
-  inputNumber?: { size?: NumberInputSize }
-  drawer?: { position?: DrawerPosition; maskClosable?: boolean; closable?: boolean }
+  inputNumber?: { size?: 'small' | 'medium' | 'large' }
+  statusDot?: { status?: StatusDotStatus; size?: StatusDotSize; pulse?: boolean }
+  spinner?: { size?: SpinnerSize | number }
+  // 注意：drawer / formItem / virtualList 等配置段在 useConfig 中未定义且组件未消费，设置无效
   menu?: { mode?: 'vertical' | 'horizontal'; size?: MenuSize; selectable?: boolean }
   navMenu?: { mode?: 'horizontal' | 'vertical'; size?: NavMenuSize; showIndicator?: boolean }
   steps?: { direction?: 'horizontal' | 'vertical'; size?: StepsSize; center?: boolean }
-  virtualList?: { itemHeight?: number; overscan?: number }
   datePicker?: { size?: DatePickerSize; format?: string; clearable?: boolean }
   upload?: {
     size?: UploadSize
@@ -3363,7 +3442,35 @@ interface NeumorphismGlobalConfig {
     autoUpload?: boolean
   }
   list?: { size?: ListSize; bordered?: boolean; split?: boolean; hoverable?: boolean }
-  autoComplete?: { size?: AutoCompleteSize; clearable?: boolean }
+  chart?: {
+    // 公共开关（按各组件支持情况）与全部子段均真实级联生效
+    showTooltip?: boolean
+    showLegend?: boolean
+    showGrid?: boolean
+    showAxis?: boolean
+    animate?: boolean
+    colorPalette?: string[] // 当前由 ChartPie 消费（显式 colorPalette prop > 此配置 > 主题 token）
+    bar?: { orientation?: 'vertical' | 'horizontal'; stacked?: boolean; barGap?: number }
+    line?: {
+      curve?: 'linear' | 'smooth' | 'step'
+      area?: boolean
+      showPoints?: boolean
+      lineWidth?: number
+    }
+    pie?: {
+      innerRadius?: number
+      labelPosition?: 'inside' | 'outside' | 'none'
+      roundedCorners?: boolean
+    }
+    candlestick?: {
+      upColor?: string
+      downColor?: string
+      showVolume?: boolean
+      showMA?: boolean
+      maPeriods?: number[]
+      bodyWidthRatio?: number
+    }
+  }
 }
 ```
 

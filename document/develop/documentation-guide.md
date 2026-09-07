@@ -27,17 +27,13 @@ document/
 │   ├── animation.md           # 动画效果（阴影模型、缓动、动效）
 │   ├── interaction.md         # 交互效果（键盘、焦点、弹出层、反馈）
 │   ├── agent-guide.md         # Agent 构建指南（组件目录 + 模式 + 决策指南）
-│   └── components/            # 组件详情文档（每组件一篇）
-│       ├── button.md            # NeumorphismButton 详解
-│       ├── switch.md            # NeumorphismSwitch 详解
-│       ├── checkbox.md          # NeumorphismCheckbox 详解
-│       ├── radio.md             # NeumorphismRadio 详解
-│       ├── input.md             # NeumorphismInput 详解
-│       ├── textarea.md          # NeumorphismTextarea 详解
-│       ├── select.md            # NeumorphismSelect 详解
-│       ├── art.md               # NeumorphismArt 详解
-│       ├── ascii-art.md         # NeumorphismAsciiArt 详解
-│       └── doc.md               # Doc 文档组件（组合组件）详解
+│   └── components/            # 组件详情文档（每组件一篇，共 58 篇）
+│       ├── button.md            # NeumorphismButton（按钮）详解
+│       ├── input.md             # NeumorphismInput（输入框）详解
+│       ├── card.md              # NeumorphismCard（卡片）详解
+│       ├── canvas.md            # NeumorphismCanvas（画布）详解
+│       ├── doc.md               # Doc 文档组件（组合组件）详解
+│       └── ……                   # 其余组件同名规律：<kebab-case 组件名>.md，frontmatter id 为 comp-<kebab>
 │
 └── develop/                 # 开发层 — "该怎么写"（面向开发者）
     ├── develop.md             # 开发入口索引与快速参考

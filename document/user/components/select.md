@@ -1,6 +1,6 @@
 ---
 id: comp-select
-title: 'NeumorphismSelect'
+title: 'NeumorphismSelect（下拉选择器）'
 x: 1709
 y: 1448
 group: 使用

@@ -1,6 +1,6 @@
 ---
 id: comp-ascii-art
-title: 'NeumorphismAsciiArt'
+title: 'NeumorphismAsciiArt（字符画）'
 x: 1709
 y: 1805
 group: 使用
