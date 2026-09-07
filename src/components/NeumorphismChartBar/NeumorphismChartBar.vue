@@ -10,6 +10,9 @@ export interface NeumorphismChartBarProps {
   series?: ChartSeries[]
   width?: string | number
   height?: string | number
+  orientation?: 'vertical' | 'horizontal'
+  stacked?: boolean
+  barGap?: number
   showTooltip?: boolean
   showLegend?: boolean
   showGrid?: boolean
@@ -25,6 +28,9 @@ const props = withDefaults(defineProps<NeumorphismChartBarProps>(), {
   width: '100%',
   height: '300px',
   // 级联 prop 保持 undefined,由全局配置 chart 段兜底
+  orientation: undefined,
+  stacked: undefined,
+  barGap: undefined,
   showTooltip: undefined,
   showLegend: undefined,
   showGrid: undefined,
@@ -68,6 +74,9 @@ const {
 } = useBarChart({
   containerRef,
   series: computed(() => props.series),
+  orientation: props.orientation,
+  stacked: props.stacked,
+  barGap: props.barGap,
   yMin: props.yMin,
   yMax: props.yMax,
 })

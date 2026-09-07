@@ -81,6 +81,19 @@ const classList = computed(() => [
     }
   }
 
+  // 内缩：水平时左右各让出 --nm-spacing-lg，垂直时上下各让出 --nm-spacing-lg
+  // 水平模式需改回 width: auto，否则 width:100% + 外边距会溢出容器
+  &--inset {
+    &.nm-divider--horizontal {
+      width: auto;
+      margin: var(--nm-spacing-md) var(--nm-spacing-lg);
+    }
+
+    &.nm-divider--vertical {
+      margin: var(--nm-spacing-lg) 12px;
+    }
+  }
+
   &--left,
   &--right,
   &--center {

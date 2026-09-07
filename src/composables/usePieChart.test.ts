@@ -2,6 +2,8 @@ import { describe, it, expect } from 'vitest'
 import { ref, defineComponent, h } from 'vue'
 import { mount } from '@vue/test-utils'
 import { usePieChart } from './usePieChart'
+import { ConfigKey } from './useConfig'
+import type { NeumorphismGlobalConfig } from './useConfig'
 import type { ChartDataPoint } from './usePieChart'
 import type { PieArc } from './usePieChart'
 
@@ -17,6 +19,23 @@ function mountArcs(data: ChartDataPoint[], opts: Record<string, unknown> = {}) {
   })
   mount(Comp)
   return () => result!.arcs.value
+}
+
+/** 捕获完整返回值(含 resolved 系列与 effectivePalette),可注入全局配置 */
+function mountPieApi(
+  data: ChartDataPoint[],
+  opts: Record<string, unknown> = {},
+  config?: NeumorphismGlobalConfig
+) {
+  let result: ReturnType<typeof usePieChart> | null = null
+  const Comp = defineComponent({
+    setup() {
+      result = usePieChart({ containerRef: ref(null), data: ref(data), ...opts })
+      return () => h('div')
+    },
+  })
+  mount(Comp, config ? { global: { provide: { [ConfigKey]: { value: config } } } } : undefined)
+  return () => result!
 }
 
 describe('usePieChart', () => {
@@ -84,5 +103,53 @@ describe('usePieChart', () => {
   it('总值为 0 / 空数据返回空数组', () => {
     expect(mountArcs([])()).toEqual([])
     expect(mountArcs([{ label: 'a', value: 0 }])()).toEqual([])
+  })
+
+  it('无 prop 且无全局配置时使用内置兜底', () => {
+    const api = mountPieApi([{ label: 'a', value: 50 }])()
+    expect(api.resolvedInnerRadius.value).toBe(0)
+    expect(api.resolvedLabelPosition.value).toBe('outside')
+  })
+
+  it('全局配置 chart.pie.* 与 chart.colorPalette 生效', () => {
+    const api = mountPieApi(
+      [
+        { label: 'a', value: 50 },
+        { label: 'b', value: 50 },
+      ],
+      {},
+      {
+        chart: {
+          pie: { innerRadius: 40, labelPosition: 'inside', roundedCorners: true },
+          colorPalette: ['#111111', '#222222'],
+        },
+      }
+    )()
+    expect(api.resolvedInnerRadius.value).toBe(40)
+    expect(api.resolvedLabelPosition.value).toBe('inside')
+    expect(api.effectivePalette.value).toEqual(['#111111', '#222222'])
+    // 数据点未自带 color 时按配置调色板取色
+    expect(api.arcs.value[0].color).toBe('#111111')
+    expect(api.arcs.value[1].color).toBe('#222222')
+  })
+
+  it('显式 options 优先于全局配置', () => {
+    const api = mountPieApi(
+      [
+        { label: 'a', value: 50 },
+        { label: 'b', value: 50 },
+      ],
+      { innerRadius: 10, labelPosition: 'none', colorPalette: ['#aaaaaa'] },
+      {
+        chart: {
+          pie: { innerRadius: 40, labelPosition: 'inside' },
+          colorPalette: ['#111111', '#222222'],
+        },
+      }
+    )()
+    expect(api.resolvedInnerRadius.value).toBe(10)
+    expect(api.resolvedLabelPosition.value).toBe('none')
+    expect(api.effectivePalette.value).toEqual(['#aaaaaa'])
+    expect(api.arcs.value[1].color).toBe('#aaaaaa')
   })
 })

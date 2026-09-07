@@ -49,16 +49,18 @@ export interface ChartPoint {
 // ==========================================
 
 export function useLineChart(options: UseLineChartOptions) {
+  // curve/area/showPoints/lineWidth 不在解构时给默认值——否则会截断
+  // 「显式 options > 全局配置 chart.line > 内置兜底」级联,由下方 resolved* 统一解析
   const {
     containerRef,
     series,
     margin,
-    curve = 'smooth',
-    area = false,
+    curve,
+    area,
     areaOpacity = 0.1,
-    showPoints = true,
+    showPoints,
     pointSize = 6,
-    lineWidth = 2.5,
+    lineWidth,
     yMin: yMinOpt,
     yMax: yMaxOpt,
   } = options

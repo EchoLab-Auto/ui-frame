@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
 import NeumorphismChartBar from './NeumorphismChartBar.vue'
+import { ConfigKey } from '@/composables/useConfig'
 
 const mockSeries = [
   {
@@ -75,5 +76,40 @@ describe('NeumorphismChartBar', () => {
     // SVG rects for bars should exist
     const rects = wrapper.findAll('.nm-chart__bar')
     expect(rects.length).toBeGreaterThan(0)
+  })
+
+  it('全局配置 chart.bar.stacked 级联生效(两系列同 x 堆叠)', () => {
+    const twoSeries = [
+      { name: 'A', data: [{ label: 'x', value: 10 }] },
+      { name: 'B', data: [{ label: 'x', value: 10 }] },
+    ]
+    const wrapper = mount(NeumorphismChartBar, {
+      props: { series: twoSeries },
+      global: {
+        provide: { [ConfigKey]: { value: { chart: { bar: { stacked: true } } } } },
+      },
+    })
+    const rects = wrapper.findAll('.nm-chart__bar')
+    expect(rects.length).toBe(2)
+    // 堆叠模式下两根柱 x 相同、y 累加
+    expect(rects[0].attributes('x')).toBe(rects[1].attributes('x'))
+    expect(Number(rects[1].attributes('y'))).toBeLessThan(Number(rects[0].attributes('y')))
+  })
+
+  it('显式 prop 优先于全局配置(stacked=false 分组并列)', () => {
+    const twoSeries = [
+      { name: 'A', data: [{ label: 'x', value: 10 }] },
+      { name: 'B', data: [{ label: 'x', value: 10 }] },
+    ]
+    const wrapper = mount(NeumorphismChartBar, {
+      props: { series: twoSeries, stacked: false },
+      global: {
+        provide: { [ConfigKey]: { value: { chart: { bar: { stacked: true } } } } },
+      },
+    })
+    const rects = wrapper.findAll('.nm-chart__bar')
+    expect(rects.length).toBe(2)
+    // 分组模式下两根柱 x 不同
+    expect(rects[0].attributes('x')).not.toBe(rects[1].attributes('x'))
   })
 })

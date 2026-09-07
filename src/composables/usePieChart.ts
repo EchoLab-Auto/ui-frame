@@ -46,16 +46,18 @@ const PIE_MARGIN: ChartMargin = { top: 24, right: 24, bottom: 24, left: 24 }
 // ==========================================
 
 export function usePieChart(options: UsePieChartOptions) {
+  // innerRadius/labelPosition/roundedCorners 不在解构时给默认值——否则会截断
+  // 「显式 options > 全局配置 chart.pie > 内置兜底」级联,由下方 resolved* 统一解析
   const {
     containerRef,
     data,
     margin,
-    innerRadius = 0,
+    innerRadius,
     outerRadius: outerRadiusOpt,
     padAngle = 0.02,
     startAngle = -90,
-    labelPosition = 'outside',
-    roundedCorners = false,
+    labelPosition,
+    roundedCorners,
     colorPalette,
   } = options
 
@@ -95,9 +97,13 @@ export function usePieChart(options: UsePieChartOptions) {
   const resolvedStartAngle = computed(() => startAngle * (Math.PI / 180)) // convert degrees to radians
 
   // ---- Custom palette support ----
-  const effectivePalette = computed(() =>
-    colorPalette && colorPalette.length > 0 ? colorPalette : chart.palette.value
-  )
+  // 级联:显式 colorPalette > 全局配置 chart.colorPalette > 主题 token 调色板
+  const effectivePalette = computed(() => {
+    if (colorPalette && colorPalette.length > 0) return colorPalette
+    const configPalette = chart.config.value.chart?.colorPalette
+    if (configPalette && configPalette.length > 0) return configPalette
+    return chart.palette.value
+  })
 
   // ---- Total ----
   const total = computed(() =>

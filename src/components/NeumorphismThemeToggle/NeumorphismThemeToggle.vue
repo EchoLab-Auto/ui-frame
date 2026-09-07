@@ -142,7 +142,7 @@ function selectTheme(value: Theme) {
         <path fill="currentColor" d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
       </svg>
 
-      <span v-if="size !== 'small'" class="nm-theme-toggle__label">{{ opt.label }}</span>
+      <span v-if="resolvedSize !== 'small'" class="nm-theme-toggle__label">{{ opt.label }}</span>
     </button>
   </div>
 </template>

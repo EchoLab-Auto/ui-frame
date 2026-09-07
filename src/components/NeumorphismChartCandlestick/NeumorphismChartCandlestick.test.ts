@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
 import NeumorphismChartCandlestick from './NeumorphismChartCandlestick.vue'
+import { ConfigKey } from '@/composables/useConfig'
 
 const mockData = [
   { date: '2024-01-02', open: 100, high: 105, low: 98, close: 103, volume: 50000 },
@@ -91,5 +92,36 @@ describe('NeumorphismChartCandlestick', () => {
       props: { data: mockData, title: 'Stock Price' },
     })
     expect(wrapper.find('.nm-chart__title').text()).toBe('Stock Price')
+  })
+
+  it('全局配置 chart.candlestick.* 级联生效(maPeriods 不被组件默认值截断)', () => {
+    const wrapper = mount(NeumorphismChartCandlestick, {
+      props: { data: mockData },
+      global: {
+        provide: {
+          [ConfigKey]: {
+            value: { chart: { candlestick: { showVolume: false, showMA: true, maPeriods: [2] } } },
+          },
+        },
+      },
+    })
+    expect(wrapper.findAll('.nm-chart__volume-bar').length).toBe(0)
+    expect(wrapper.findAll('.nm-chart__ma-line').length).toBe(1)
+    expect(wrapper.find('.nm-chart__legend-label').text()).toBe('MA2')
+  })
+
+  it('显式 prop 优先于全局配置', () => {
+    const wrapper = mount(NeumorphismChartCandlestick, {
+      props: { data: mockData, showVolume: true, maPeriods: [3] },
+      global: {
+        provide: {
+          [ConfigKey]: {
+            value: { chart: { candlestick: { showVolume: false, maPeriods: [2] } } },
+          },
+        },
+      },
+    })
+    expect(wrapper.findAll('.nm-chart__volume-bar').length).toBe(5)
+    expect(wrapper.find('.nm-chart__legend-label').text()).toBe('MA3')
   })
 })

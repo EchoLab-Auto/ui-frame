@@ -26,7 +26,8 @@ const props = withDefaults(defineProps<NeumorphismPaginationProps>(), {
   disabled: false,
   prevLabel: '上一页',
   nextLabel: '下一页',
-  totalLabel: '共',
+  // totalLabel 缺省保持 undefined：未显式传入时走 locale `paginationTotal`，保持向后兼容
+  totalLabel: undefined,
 })
 
 const { config, resolveProp } = useNeumorphismSetup()
@@ -81,12 +82,24 @@ function onJumperChange(event: Event) {
 }
 
 const { t } = useLocale()
+
+// 显式传入 totalLabel 时覆盖总数文案模板（支持 {total} 占位符），否则走 locale
+const resolvedTotalText = computed(() => {
+  if (props.totalLabel) return props.totalLabel.replace(/\{total\}/g, String(props.total))
+  return t('paginationTotal', { total: props.total })
+})
+
+// 跳页器文案：locale 模板含 {input} 占位符，拆为输入框前后两段（英文后置段为空）
+const jumperParts = computed(() => {
+  const [pre = '', post = ''] = t('paginationJumper').split('{input}')
+  return { pre: pre.trim(), post: post.trim() }
+})
 </script>
 
 <template>
   <nav :class="classList" role="navigation" :aria-label="t('paginationLabel')">
     <span v-if="resolvedShowTotal" class="nm-pagination__total">
-      {{ t('paginationTotal', { total }) }}
+      {{ resolvedTotalText }}
     </span>
 
     <ul class="nm-pagination__list">
@@ -160,7 +173,7 @@ const { t } = useLocale()
     </ul>
 
     <div v-if="resolvedShowJumper" class="nm-pagination__jumper">
-      跳至
+      {{ jumperParts.pre }}
       <input
         class="nm-pagination__jumper-input"
         type="number"
@@ -170,7 +183,7 @@ const { t } = useLocale()
         :disabled="disabled"
         @change="onJumperChange"
       />
-      页
+      {{ jumperParts.post }}
     </div>
   </nav>
 </template>

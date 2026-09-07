@@ -16,6 +16,10 @@ export interface NeumorphismGlobalConfig {
   input?: {
     size?: 'small' | 'medium' | 'large'
   }
+  /** Default input number props applied to all NeumorphismInputNumber instances */
+  inputNumber?: {
+    size?: 'small' | 'medium' | 'large'
+  }
   /** Default date picker props */
   datePicker?: {
     size?: 'small' | 'medium' | 'large'

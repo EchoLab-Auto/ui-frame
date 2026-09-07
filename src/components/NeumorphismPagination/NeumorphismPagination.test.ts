@@ -1,6 +1,9 @@
 import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
+import { computed } from 'vue'
 import NeumorphismPagination from './NeumorphismPagination.vue'
+import { LocaleKey } from '@/composables/useLocale'
+import { enUS } from '@/locales/en-US'
 
 describe('NeumorphismPagination', () => {
   it('should render with default props', () => {
@@ -61,6 +64,43 @@ describe('NeumorphismPagination', () => {
       props: { total: 100, showTotal: true },
     })
     expect(wrapper.find('.nm-pagination__total').exists()).toBe(true)
+  })
+
+  it('should render locale total text by default (zh-CN)', () => {
+    const wrapper = mount(NeumorphismPagination, {
+      props: { total: 100, showTotal: true },
+    })
+    expect(wrapper.find('.nm-pagination__total').text()).toBe('共 100 条')
+  })
+
+  it('totalLabel overrides the total text template with {total} placeholder', () => {
+    const wrapper = mount(NeumorphismPagination, {
+      props: { total: 100, showTotal: true, totalLabel: '共 {total} 条记录' },
+    })
+    expect(wrapper.find('.nm-pagination__total').text()).toBe('共 100 条记录')
+  })
+
+  it('should render jumper labels from locale (zh-CN)', () => {
+    const wrapper = mount(NeumorphismPagination, {
+      props: { total: 100, showJumper: true },
+    })
+    const jumper = wrapper.find('.nm-pagination__jumper')
+    expect(jumper.text()).toContain('跳至')
+    expect(jumper.text()).toContain('页')
+  })
+
+  it('should render jumper labels from provided en-US locale', () => {
+    const wrapper = mount(NeumorphismPagination, {
+      props: { total: 100, showJumper: true },
+      global: {
+        provide: {
+          [LocaleKey as symbol]: computed(() => enUS),
+        },
+      },
+    })
+    const jumper = wrapper.find('.nm-pagination__jumper')
+    expect(jumper.text()).toContain('Go to')
+    expect(jumper.text()).not.toContain('跳至')
   })
 
   it('should show jumper when showJumper is true', () => {

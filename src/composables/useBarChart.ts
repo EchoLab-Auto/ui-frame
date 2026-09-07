@@ -37,13 +37,15 @@ export interface BarRect {
 // ==========================================
 
 export function useBarChart(options: UseBarChartOptions) {
+  // orientation/barGap/stacked 不在解构时给默认值——否则会截断
+  // 「显式 options > 全局配置 chart.bar > 内置兜底」级联,由下方 resolved* 统一解析
   const {
     containerRef,
     series,
     margin,
-    orientation = 'vertical',
-    barGap = 0.2,
-    stacked = false,
+    orientation,
+    barGap,
+    stacked,
     yMin: yMinOpt,
     yMax: yMaxOpt,
   } = options

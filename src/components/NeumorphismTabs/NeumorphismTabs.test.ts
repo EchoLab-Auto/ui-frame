@@ -96,4 +96,22 @@ describe('NeumorphismTabs', () => {
     )
     expect(wrapper.findAll('.custom-tab')).toHaveLength(3)
   })
+
+  it('should render tab icon before label when provided', () => {
+    const wrapper = mountTabs({
+      tabs: [
+        { key: 'a', label: 'Tab A', icon: '🔥' },
+        { key: 'b', label: 'Tab B' },
+      ],
+    })
+    const tabButtons = wrapper.findAll('.nm-tabs__tab')
+    const icon = tabButtons[0].find('.nm-tabs__tab-icon')
+    expect(icon.exists()).toBe(true)
+    expect(icon.text()).toBe('🔥')
+    expect(icon.attributes('aria-hidden')).toBe('true')
+    // 图标位于 label 之前
+    expect(tabButtons[0].text()).toBe('🔥Tab A')
+    // 未提供 icon 的 tab 不渲染图标节点
+    expect(tabButtons[1].find('.nm-tabs__tab-icon').exists()).toBe(false)
+  })
 })

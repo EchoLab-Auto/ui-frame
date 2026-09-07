@@ -64,16 +64,9 @@ export interface MALine {
 // ==========================================
 
 export function useCandlestickChart(options: UseCandlestickChartOptions) {
-  const {
-    containerRef,
-    data,
-    margin,
-    showVolume = true,
-    showMA = true,
-    maPeriods,
-    upColor,
-    downColor,
-  } = options
+  // showVolume/showMA 不在解构时给默认值——否则会截断
+  // 「显式 options > 全局配置 chart.candlestick > 内置兜底」级联,由下方 resolved* 统一解析
+  const { containerRef, data, margin, showVolume, showMA, maPeriods, upColor, downColor } = options
 
   // Wrap OHLC data into a ChartSeries-compatible structure for useChart
   const wrappedSeries = computed(() => [
@@ -105,8 +98,17 @@ export function useCandlestickChart(options: UseCandlestickChartOptions) {
       'var(--nm-chart-down-color)'
   )
 
-  const resolvedShowVolume = computed(() => showVolume)
-  const resolvedShowMA = computed(() => showMA)
+  const resolvedShowVolume = computed(
+    () =>
+      chart.resolveProp(
+        showVolume,
+        chart.config.value.chart?.candlestick?.showVolume,
+        true
+      ) as boolean
+  )
+  const resolvedShowMA = computed(
+    () => chart.resolveProp(showMA, chart.config.value.chart?.candlestick?.showMA, true) as boolean
+  )
   const resolvedMaPeriods = computed(
     () => maPeriods ?? chart.config.value.chart?.candlestick?.maPeriods ?? [5, 10, 20]
   )

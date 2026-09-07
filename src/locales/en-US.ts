@@ -65,6 +65,7 @@ export const enUS: LocaleMessages = {
   paginationTotal: 'Total {total}',
   paginationLabel: 'Pagination',
   paginationPageLabel: 'Page {page}',
+  paginationJumper: 'Go to {input}',
 
   // Toast
   toastClose: 'Close notification',

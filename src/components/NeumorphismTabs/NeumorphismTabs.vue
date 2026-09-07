@@ -115,6 +115,7 @@ const classList = computed(() => [
           @click="activate(tab.key)"
           @keydown="handleKeydown($event, tab.key)"
         >
+          <span v-if="tab.icon" class="nm-tabs__tab-icon" aria-hidden="true">{{ tab.icon }}</span>
           <span class="nm-tabs__tab-label">{{ tab.label }}</span>
         </button>
       </slot>
@@ -236,6 +237,13 @@ const classList = computed(() => [
     opacity: 0.4;
     cursor: not-allowed;
   }
+}
+
+.nm-tabs__tab-icon {
+  display: inline-flex;
+  align-items: center;
+  margin-right: var(--nm-spacing-xs);
+  line-height: 1;
 }
 
 .nm-tabs__tab-label {

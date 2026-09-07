@@ -26,10 +26,10 @@ const props = withDefaults(defineProps<NeumorphismChartCandlestickProps>(), {
   data: () => [],
   width: '100%',
   height: '400px',
-  maPeriods: () => [5, 10, 20],
   // 级联 prop 保持 undefined,由全局配置 chart 段兜底
   showVolume: undefined,
   showMA: undefined,
+  maPeriods: undefined,
   showTooltip: undefined,
   showGrid: undefined,
   showAxis: undefined,

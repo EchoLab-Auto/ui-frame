@@ -69,6 +69,8 @@ export interface LocaleMessages {
   paginationTotal?: string
   paginationLabel?: string
   paginationPageLabel?: string
+  /** 跳页器文案，须含 {input} 占位符（组件按占位符拆为输入框前后两段） */
+  paginationJumper?: string
 
   /** Toast */
   toastClose?: string

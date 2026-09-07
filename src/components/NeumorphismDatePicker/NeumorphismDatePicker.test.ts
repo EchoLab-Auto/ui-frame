@@ -3,6 +3,33 @@ import { mount } from '@vue/test-utils'
 import { nextTick } from 'vue'
 import NeumorphismDatePicker from './NeumorphismDatePicker.vue'
 
+describe('NeumorphismDatePicker name prop', () => {
+  it('renders a hidden input carrying name and formatted value for form submission', () => {
+    const wrapper = mount(NeumorphismDatePicker, {
+      props: { name: 'birthday', modelValue: new Date(2026, 0, 15) },
+    })
+    const input = wrapper.find('input[type="hidden"]')
+    expect(input.exists()).toBe(true)
+    expect(input.attributes('name')).toBe('birthday')
+    expect((input.element as HTMLInputElement).value).toBe('2026-01-15')
+    wrapper.unmount()
+  })
+
+  it('hidden input submits empty string when no date selected', () => {
+    const wrapper = mount(NeumorphismDatePicker, { props: { name: 'birthday' } })
+    const input = wrapper.find('input[type="hidden"]')
+    expect(input.exists()).toBe(true)
+    expect((input.element as HTMLInputElement).value).toBe('')
+    wrapper.unmount()
+  })
+
+  it('does not render hidden input without name', () => {
+    const wrapper = mount(NeumorphismDatePicker)
+    expect(wrapper.find('input[type="hidden"]').exists()).toBe(false)
+    wrapper.unmount()
+  })
+})
+
 describe('NeumorphismDatePicker a11y', () => {
   it('trigger is keyboard-focusable and has combobox semantics', () => {
     const wrapper = mount(NeumorphismDatePicker, { attachTo: document.body })

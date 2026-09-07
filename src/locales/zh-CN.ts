@@ -65,6 +65,7 @@ export const zhCN: LocaleMessages = {
   paginationTotal: '共 {total} 条',
   paginationLabel: '分页导航',
   paginationPageLabel: '第 {page} 页',
+  paginationJumper: '跳至 {input} 页',
 
   // Toast
   toastClose: '关闭通知',

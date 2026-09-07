@@ -2,7 +2,9 @@ import { describe, it, expect } from 'vitest'
 import { ref, defineComponent, h } from 'vue'
 import { mount } from '@vue/test-utils'
 import { useCandlestickChart } from './useCandlestickChart'
-import type { OhlcDataPoint, CandleRect, VolumeBar, MALine } from './useCandlestickChart'
+import { ConfigKey } from './useConfig'
+import type { NeumorphismGlobalConfig } from './useConfig'
+import type { OhlcDataPoint } from './useCandlestickChart'
 
 // plot = 328 × 236;showVolume 时 priceArea = 236×0.72 ≈ 169.92
 
@@ -11,19 +13,19 @@ const DATA: OhlcDataPoint[] = [
   { date: 'd2', open: 12, high: 16, low: 11, close: 14, volume: 200 },
 ]
 
-function mountCandles(data: OhlcDataPoint[], opts: Record<string, unknown> = {}) {
-  let result: {
-    candles: { value: CandleRect[] }
-    volumeBars: { value: VolumeBar[] }
-    maLines: { value: MALine[] }
-  } | null = null
+function mountCandles(
+  data: OhlcDataPoint[],
+  opts: Record<string, unknown> = {},
+  config?: NeumorphismGlobalConfig
+) {
+  let result: ReturnType<typeof useCandlestickChart> | null = null
   const Comp = defineComponent({
     setup() {
       result = useCandlestickChart({ containerRef: ref(null), data: ref(data), ...opts })
       return () => h('div')
     },
   })
-  mount(Comp)
+  mount(Comp, config ? { global: { provide: { [ConfigKey]: { value: config } } } } : undefined)
   return () => result!
 }
 
@@ -83,5 +85,38 @@ describe('useCandlestickChart', () => {
     expect(api.candles.value).toEqual([])
     expect(api.volumeBars.value).toEqual([])
     expect(api.maLines.value).toEqual([])
+  })
+
+  it('无 prop 且无全局配置时使用内置兜底（量区 + MA[5,10,20]）', () => {
+    const api = mountCandles(DATA)()
+    expect(api.resolvedShowVolume.value).toBe(true)
+    expect(api.resolvedShowMA.value).toBe(true)
+    expect(api.resolvedMaPeriods.value).toEqual([5, 10, 20])
+  })
+
+  it('全局配置 chart.candlestick.* 生效', () => {
+    const api = mountCandles(
+      [...DATA, { date: 'd3', open: 14, high: 18, low: 13, close: 16, volume: 150 }],
+      {},
+      { chart: { candlestick: { showVolume: false, showMA: true, maPeriods: [2] } } }
+    )()
+    expect(api.resolvedShowVolume.value).toBe(false)
+    expect(api.volumeBars.value).toEqual([])
+    expect(api.resolvedMaPeriods.value).toEqual([2])
+    expect(api.maLines.value).toHaveLength(1)
+    expect(api.maLines.value[0].period).toBe(2)
+  })
+
+  it('显式 options 优先于全局配置', () => {
+    const api = mountCandles(
+      DATA,
+      { showVolume: true, showMA: false, maPeriods: [3] },
+      { chart: { candlestick: { showVolume: false, showMA: true, maPeriods: [2] } } }
+    )()
+    expect(api.resolvedShowVolume.value).toBe(true)
+    expect(api.volumeBars.value).toHaveLength(2)
+    expect(api.resolvedShowMA.value).toBe(false)
+    expect(api.maLines.value).toEqual([])
+    expect(api.resolvedMaPeriods.value).toEqual([3])
   })
 })

@@ -2,22 +2,25 @@ import { describe, it, expect } from 'vitest'
 import { ref, defineComponent, h } from 'vue'
 import { mount } from '@vue/test-utils'
 import { useLineChart } from './useLineChart'
-import type { ChartSeries, ChartPoint } from './useLineChart'
+import { ConfigKey } from './useConfig'
+import type { NeumorphismGlobalConfig } from './useConfig'
+import type { ChartSeries } from './useLineChart'
 
 // plot = 328 × 236
 
-function mountChart(series: ChartSeries[], opts: Record<string, unknown> = {}) {
-  let result: {
-    points: { value: ChartPoint[] }
-    lines: { value: { path: string }[] }
-  } | null = null
+function mountChart(
+  series: ChartSeries[],
+  opts: Record<string, unknown> = {},
+  config?: NeumorphismGlobalConfig
+) {
+  let result: ReturnType<typeof useLineChart> | null = null
   const Comp = defineComponent({
     setup() {
       result = useLineChart({ containerRef: ref(null), series: ref(series), ...opts })
       return () => h('div')
     },
   })
-  mount(Comp)
+  mount(Comp, config ? { global: { provide: { [ConfigKey]: { value: config } } } } : undefined)
   return () => result!
 }
 
@@ -91,5 +94,36 @@ describe('useLineChart', () => {
     const api = mountChart([])()
     expect(api.points.value).toEqual([])
     expect(api.lines.value).toEqual([])
+  })
+
+  it('无 prop 且无全局配置时使用内置兜底', () => {
+    const api = mountChart([{ name: 'A', color: '#f00', data: [{ label: 'a', value: 5 }] }])()
+    expect(api.resolvedCurve.value).toBe('smooth')
+    expect(api.resolvedArea.value).toBe(false)
+    expect(api.resolvedShowPoints.value).toBe(true)
+    expect(api.resolvedLineWidth.value).toBe(2.5)
+  })
+
+  it('全局配置 chart.line.* 生效', () => {
+    const api = mountChart(
+      [{ name: 'A', color: '#f00', data: [{ label: 'a', value: 5 }] }],
+      {},
+      { chart: { line: { curve: 'step', area: true, showPoints: false, lineWidth: 4 } } }
+    )()
+    expect(api.resolvedCurve.value).toBe('step')
+    expect(api.resolvedArea.value).toBe(true)
+    expect(api.resolvedShowPoints.value).toBe(false)
+    expect(api.resolvedLineWidth.value).toBe(4)
+  })
+
+  it('显式 options 优先于全局配置', () => {
+    const api = mountChart(
+      [{ name: 'A', color: '#f00', data: [{ label: 'a', value: 5 }] }],
+      { curve: 'linear', lineWidth: 1, showPoints: true },
+      { chart: { line: { curve: 'step', lineWidth: 4, showPoints: false } } }
+    )()
+    expect(api.resolvedCurve.value).toBe('linear')
+    expect(api.resolvedLineWidth.value).toBe(1)
+    expect(api.resolvedShowPoints.value).toBe(true)
   })
 })

@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, afterEach } from 'vitest'
 import { mount } from '@vue/test-utils'
 import NeumorphismInputNumber from './NeumorphismInputNumber.vue'
+import { ConfigKey } from '@/composables/useConfig'
 
 describe('NeumorphismInputNumber', () => {
   afterEach(() => {
@@ -70,5 +71,42 @@ describe('NeumorphismInputNumber', () => {
     await inc.trigger('pointerleave')
     vi.advanceTimersByTime(500)
     expect(wrapper.emitted('update:modelValue')!.length).toBe(count)
+  })
+
+  // 级联配置回归：size 读独立的 inputNumber 配置段（此前误读 input 段）
+  it('should apply size from global config inputNumber section', () => {
+    const wrapper = mount(NeumorphismInputNumber, {
+      props: { modelValue: 1 },
+      global: {
+        provide: {
+          [ConfigKey]: { value: { inputNumber: { size: 'large' } } },
+        },
+      },
+    })
+    expect(wrapper.classes()).toContain('nm-input-number--large')
+  })
+
+  it('should ignore global config input section for size', () => {
+    const wrapper = mount(NeumorphismInputNumber, {
+      props: { modelValue: 1 },
+      global: {
+        provide: {
+          [ConfigKey]: { value: { input: { size: 'large' } } },
+        },
+      },
+    })
+    expect(wrapper.classes()).toContain('nm-input-number--medium')
+  })
+
+  it('should let explicit size prop override global config', () => {
+    const wrapper = mount(NeumorphismInputNumber, {
+      props: { modelValue: 1, size: 'small' },
+      global: {
+        provide: {
+          [ConfigKey]: { value: { inputNumber: { size: 'large' } } },
+        },
+      },
+    })
+    expect(wrapper.classes()).toContain('nm-input-number--small')
   })
 })

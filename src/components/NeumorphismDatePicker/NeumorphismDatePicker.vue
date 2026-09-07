@@ -271,6 +271,9 @@ function handleCalendarKeydown(event: KeyboardEvent) {
   <div class="nm-datepicker__wrapper">
     <NeumorphismFieldLabel :label="label" :required="required" :for-id="fieldId" />
 
+    <!-- 表单提交载体：组件无原生 input，按 name 补 hidden input，值为格式化日期串（无值为空串） -->
+    <input v-if="name" type="hidden" :name="name" :value="displayText" />
+
     <NeumorphismPopover
       ref="popoverRef"
       :disabled="disabled"

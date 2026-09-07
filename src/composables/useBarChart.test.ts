@@ -2,6 +2,8 @@ import { describe, it, expect } from 'vitest'
 import { ref, defineComponent, h } from 'vue'
 import { mount } from '@vue/test-utils'
 import { useBarChart } from './useBarChart'
+import { ConfigKey } from './useConfig'
+import type { NeumorphismGlobalConfig } from './useConfig'
 import type { ChartSeries, BarRect } from './useBarChart'
 
 // 共享事实：containerSize 默认 400×300,DEFAULT_MARGIN {24,24,40,48}
@@ -17,6 +19,23 @@ function mountBars(series: ChartSeries[], opts: Record<string, unknown> = {}) {
   })
   mount(Comp)
   return () => result!.bars.value
+}
+
+/** 捕获完整返回值(含 resolved*),可注入全局配置 */
+function mountBarApi(
+  series: ChartSeries[],
+  opts: Record<string, unknown> = {},
+  config?: NeumorphismGlobalConfig
+) {
+  let result: ReturnType<typeof useBarChart> | null = null
+  const Comp = defineComponent({
+    setup() {
+      result = useBarChart({ containerRef: ref(null), series: ref(series), ...opts })
+      return () => h('div')
+    },
+  })
+  mount(Comp, config ? { global: { provide: { [ConfigKey]: { value: config } } } } : undefined)
+  return () => result!
 }
 
 describe('useBarChart', () => {
@@ -95,5 +114,38 @@ describe('useBarChart', () => {
       yMax: 100,
     })()
     expect(bars[0].height).toBeCloseTo(118, 5)
+  })
+
+  it('无 prop 且无全局配置时使用内置兜底', () => {
+    const api = mountBarApi([{ name: 'A', color: '#f00', data: [{ label: 'x', value: 10 }] }])()
+    expect(api.resolvedOrientation.value).toBe('vertical')
+    expect(api.resolvedStacked.value).toBe(false)
+  })
+
+  it('全局配置 chart.bar.* 生效', () => {
+    const api = mountBarApi(
+      [
+        { name: 'A', color: '#f00', data: [{ label: 'x', value: 10 }] },
+        { name: 'B', color: '#0f0', data: [{ label: 'x', value: 10 }] },
+      ],
+      {},
+      { chart: { bar: { orientation: 'horizontal', stacked: true, barGap: 0.5 } } }
+    )()
+    expect(api.resolvedOrientation.value).toBe('horizontal')
+    expect(api.resolvedStacked.value).toBe(true)
+    // stacked + horizontal:两系列同组堆叠,x 起点相同且宽度沿 x 累加
+    const bars = api.bars.value
+    expect(bars[0].y).toBeCloseTo(bars[1].y, 5)
+    expect(bars[1].x).toBeGreaterThan(bars[0].x)
+  })
+
+  it('显式 options 优先于全局配置', () => {
+    const api = mountBarApi(
+      [{ name: 'A', color: '#f00', data: [{ label: 'x', value: 10 }] }],
+      { orientation: 'vertical', stacked: false },
+      { chart: { bar: { orientation: 'horizontal', stacked: true } } }
+    )()
+    expect(api.resolvedOrientation.value).toBe('vertical')
+    expect(api.resolvedStacked.value).toBe(false)
   })
 })

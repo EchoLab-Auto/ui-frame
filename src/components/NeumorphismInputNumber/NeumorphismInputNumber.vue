@@ -54,7 +54,7 @@ const { config, resolveProp } = useNeumorphismSetup()
 
 // Resolve size via cascade: explicit prop > global config > hardcoded default
 const resolvedSize = computed<NumberInputSize>(() =>
-  resolveProp(props.size, config.value.input?.size as NumberInputSize | undefined, 'medium')
+  resolveProp(props.size, config.value.inputNumber?.size, 'medium')
 )
 
 // Resolve disabled
