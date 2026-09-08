@@ -3,6 +3,13 @@ import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useLocale } from '@/composables/useLocale'
 import { useNeumorphismSetup } from '@/extensions/createComponent'
 
+export interface NeumorphismCanvasBounds {
+  x: number
+  y: number
+  w: number
+  h: number
+}
+
 export interface NeumorphismCanvasProps {
   /** Current zoom level (1 = 100%) */
   modelValue?: number
@@ -28,6 +35,17 @@ export interface NeumorphismCanvasProps {
   panOnDrag?: boolean
   /** Zoom to cursor with Ctrl/Cmd + wheel */
   wheelZoom?: boolean
+  /**
+   * Infinite canvas mode: pan/zoom are unbounded virtual state applied via
+   * transform, instead of native overflow scrolling. Content may live at any
+   * (including negative) canvas coordinates.
+   */
+  infinite?: boolean
+  /**
+   * Content bounding box in canvas coordinates (infinite mode). Used by
+   * fit()/resetView(); falls back to measuring slotted children when omitted.
+   */
+  contentBounds?: NeumorphismCanvasBounds
   /** Canvas width (CSS value, e.g. '100%', '800px') */
   width?: string
   /** Canvas height (CSS value) */
@@ -38,6 +56,7 @@ const props = withDefaults(defineProps<NeumorphismCanvasProps>(), {
   showControls: undefined,
   showGrid: undefined,
   gridVariant: undefined,
+  infinite: undefined,
   modelValue: 1,
   minZoom: 0.1,
   maxZoom: 5,
@@ -63,6 +82,9 @@ const resolvedGridVariant = computed(() =>
 )
 const resolvedShowControls = computed(() =>
   resolveProp(props.showControls, config.value.canvas?.showControls, true)
+)
+const resolvedInfinite = computed(() =>
+  resolveProp(props.infinite, config.value.canvas?.infinite, false)
 )
 
 const emit = defineEmits<{
@@ -105,15 +127,27 @@ let pendingAnchor: ViewportAnchor | null = null
 /** Whether transform transitions are enabled (button zooms animate, wheel is instant) */
 const smoothZoom = ref(true)
 
+// ---- Infinite mode: unbounded virtual pan state (viewport px, post-zoom) ----
+const panX = ref(0)
+const panY = ref(0)
+
 /**
  * Change zoom, keeping the given viewport-relative point stationary.
  * Without an explicit anchor the viewport center is used.
+ * Infinite mode adjusts the pan offsets directly; scroll mode restores the
+ * anchored scroll position after the sizer resizes (nextTick).
  */
 function setZoom(next: number, anchor?: { x: number; y: number }, smooth = true) {
   const z = clampZoom(next)
   if (z === innerZoom.value) return
   const vp = viewportRef.value
-  if (vp) {
+  if (vp && resolvedInfinite.value) {
+    const ax = anchor?.x ?? vp.clientWidth / 2
+    const ay = anchor?.y ?? vp.clientHeight / 2
+    const k = z / innerZoom.value
+    panX.value = ax - (ax - panX.value) * k
+    panY.value = ay - (ay - panY.value) * k
+  } else if (vp) {
     const ax = anchor?.x ?? vp.clientWidth / 2
     const ay = anchor?.y ?? vp.clientHeight / 2
     pendingAnchor = {
@@ -127,7 +161,7 @@ function setZoom(next: number, anchor?: { x: number; y: number }, smooth = true)
   innerZoom.value = z
   emit('update:modelValue', z)
   emit('zoom-change', z)
-  void nextTick(applyAnchor)
+  if (!resolvedInfinite.value) void nextTick(applyAnchor)
 }
 
 function applyAnchor() {
@@ -151,11 +185,51 @@ function resetZoom() {
   setZoom(1)
 }
 
+/**
+ * Measure the union bounding box of slotted children in canvas coordinates
+ * (infinite-mode fallback when no contentBounds prop is provided).
+ */
+function measureContentBounds(): NeumorphismCanvasBounds | null {
+  const content = contentRef.value
+  const vp = viewportRef.value
+  if (!content || !vp || content.children.length === 0) return null
+  const vpRect = vp.getBoundingClientRect()
+  const z = innerZoom.value
+  let minX = Infinity
+  let minY = Infinity
+  let maxX = -Infinity
+  let maxY = -Infinity
+  for (const child of Array.from(content.children)) {
+    const r = (child as HTMLElement).getBoundingClientRect()
+    minX = Math.min(minX, (r.left - vpRect.left - panX.value) / z)
+    minY = Math.min(minY, (r.top - vpRect.top - panY.value) / z)
+    maxX = Math.max(maxX, (r.right - vpRect.left - panX.value) / z)
+    maxY = Math.max(maxY, (r.bottom - vpRect.top - panY.value) / z)
+  }
+  if (!Number.isFinite(minX)) return null
+  return { x: minX, y: minY, w: maxX - minX, h: maxY - minY }
+}
+
 /** Scale content to fit the viewport (with padding) and center it. */
 function fit() {
   const vp = viewportRef.value
-  if (!vp || !naturalWidth.value || !naturalHeight.value) return
+  if (!vp) return
   const pad = 32
+  if (resolvedInfinite.value) {
+    const b = props.contentBounds ?? measureContentBounds()
+    if (!b || !b.w || !b.h) return
+    const z = clampZoom(Math.min((vp.clientWidth - pad) / b.w, (vp.clientHeight - pad) / b.h))
+    smoothZoom.value = true
+    if (z !== innerZoom.value) {
+      innerZoom.value = z
+      emit('update:modelValue', z)
+      emit('zoom-change', z)
+    }
+    panX.value = (vp.clientWidth - b.w * z) / 2 - b.x * z
+    panY.value = (vp.clientHeight - b.h * z) / 2 - b.y * z
+    return
+  }
+  if (!naturalWidth.value || !naturalHeight.value) return
   const z = Math.min(
     (vp.clientWidth - pad) / naturalWidth.value,
     (vp.clientHeight - pad) / naturalHeight.value
@@ -167,6 +241,15 @@ function fit() {
     v.scrollLeft = Math.max(0, (naturalWidth.value * innerZoom.value - v.clientWidth) / 2)
     v.scrollTop = Math.max(0, (naturalHeight.value * innerZoom.value - v.clientHeight) / 2)
   })
+}
+
+/**
+ * Reset the view: animate pan and zoom back to the fit-to-content view.
+ * In infinite mode this is the "return to content" action behind the reset
+ * button and the `0` key; identical to fit() but named for intent.
+ */
+function resetView() {
+  fit()
 }
 
 // ---- Panning (mouse drag / space + drag; touch uses native scroll) ----
@@ -188,7 +271,9 @@ let panMoved = false
 function onPointerDown(e: PointerEvent) {
   const vp = viewportRef.value
   if (!vp || e.button !== 0 || !canPan.value) return
-  if (e.pointerType === 'touch') return // native overflow scroll handles touch
+  // Scroll mode leaves touch to native overflow scroll; infinite mode pans
+  // via pointer events uniformly (viewport has touch-action: none)
+  if (e.pointerType === 'touch' && !resolvedInfinite.value) return
   const target = e.target as HTMLElement | null
   if (
     target?.closest('.nm-canvas__controls, button, a, input, textarea, select, [data-nm-no-pan]')
@@ -199,8 +284,8 @@ function onPointerDown(e: PointerEvent) {
     pointerId: e.pointerId,
     x: e.clientX,
     y: e.clientY,
-    left: vp.scrollLeft,
-    top: vp.scrollTop,
+    left: resolvedInfinite.value ? panX.value : vp.scrollLeft,
+    top: resolvedInfinite.value ? panY.value : vp.scrollTop,
   }
   panMoved = false
   // Block text-selection start for mouse; clicks still fire when there's no movement
@@ -218,8 +303,15 @@ function onPointerMove(e: PointerEvent) {
   if (!panMoved && Math.hypot(dx, dy) < 4) return
   panMoved = true
   isPanning.value = true
-  vp.scrollLeft = panStart.left - dx
-  vp.scrollTop = panStart.top - dy
+  if (resolvedInfinite.value) {
+    // Content follows the pointer; pan state is unbounded (no clamping)
+    smoothZoom.value = false
+    panX.value = panStart.left + dx
+    panY.value = panStart.top + dy
+  } else {
+    vp.scrollLeft = panStart.left - dx
+    vp.scrollTop = panStart.top - dy
+  }
 }
 
 function onPointerUp() {
@@ -249,16 +341,25 @@ function onWindowKeyUp(e: KeyboardEvent) {
   if (e.code === 'Space') spaceDown.value = false
 }
 
-// ---- Wheel zoom (Ctrl/Cmd + wheel → zoom to cursor) ----
+// ---- Wheel: Ctrl/Cmd + wheel → zoom to cursor; infinite mode also pans on plain wheel ----
 function onWheel(e: WheelEvent) {
-  if (!props.wheelZoom || !(e.ctrlKey || e.metaKey)) return
   const vp = viewportRef.value
   if (!vp) return
-  e.preventDefault()
-  const delta = e.deltaMode === 1 ? e.deltaY * 16 : e.deltaY
-  const factor = Math.exp(-delta * 0.002)
-  const rect = vp.getBoundingClientRect()
-  setZoom(innerZoom.value * factor, { x: e.clientX - rect.left, y: e.clientY - rect.top }, false)
+  const unit = e.deltaMode === 1 ? 16 : 1
+  if (props.wheelZoom && (e.ctrlKey || e.metaKey)) {
+    e.preventDefault()
+    const factor = Math.exp(-e.deltaY * unit * 0.002)
+    const rect = vp.getBoundingClientRect()
+    setZoom(innerZoom.value * factor, { x: e.clientX - rect.left, y: e.clientY - rect.top }, false)
+    return
+  }
+  if (resolvedInfinite.value) {
+    // Plain wheel / trackpad two-finger scroll pans the unbounded canvas
+    e.preventDefault()
+    smoothZoom.value = false
+    panX.value -= e.deltaX * unit
+    panY.value -= e.deltaY * unit
+  }
 }
 
 // ---- Keyboard navigation on the viewport ----
@@ -266,18 +367,28 @@ function onViewportKeydown(e: KeyboardEvent) {
   const vp = viewportRef.value
   if (!vp) return
   const step = e.shiftKey ? 200 : 60
+  const infinite = resolvedInfinite.value
+  const panByKeys = (dx: number, dy: number) => {
+    smoothZoom.value = false
+    panX.value += dx
+    panY.value += dy
+  }
   switch (e.key) {
     case 'ArrowUp':
-      vp.scrollTop -= step
+      if (infinite) panByKeys(0, step)
+      else vp.scrollTop -= step
       break
     case 'ArrowDown':
-      vp.scrollTop += step
+      if (infinite) panByKeys(0, -step)
+      else vp.scrollTop += step
       break
     case 'ArrowLeft':
-      vp.scrollLeft -= step
+      if (infinite) panByKeys(step, 0)
+      else vp.scrollLeft -= step
       break
     case 'ArrowRight':
-      vp.scrollLeft += step
+      if (infinite) panByKeys(-step, 0)
+      else vp.scrollLeft += step
       break
     case '+':
     case '=':
@@ -288,7 +399,8 @@ function onViewportKeydown(e: KeyboardEvent) {
       zoomOut()
       break
     case '0':
-      resetZoom()
+      if (infinite) resetView()
+      else resetZoom()
       break
     default:
       return
@@ -345,6 +457,47 @@ onBeforeUnmount(() => {
   onPointerUp()
 })
 
+/** Imperative pan by viewport-px deltas (infinite mode; no-op in scroll mode) */
+function panBy(dx: number, dy: number) {
+  if (!resolvedInfinite.value) return
+  smoothZoom.value = false
+  panX.value += dx
+  panY.value += dy
+}
+
+/** Current view state (pan is viewport-px translation, post-zoom) */
+function getView() {
+  return { panX: panX.value, panY: panY.value, zoom: innerZoom.value }
+}
+
+/**
+ * Convert client (screen) coordinates to canvas coordinates.
+ * Infinite mode uses the virtual pan state; scroll mode uses scroll offsets.
+ */
+function toCanvasCoords(clientX: number, clientY: number) {
+  const vp = viewportRef.value
+  if (!vp) return { x: 0, y: 0, zoom: innerZoom.value }
+  const rect = vp.getBoundingClientRect()
+  const z = innerZoom.value
+  if (resolvedInfinite.value) {
+    return {
+      x: (clientX - rect.left - panX.value) / z,
+      y: (clientY - rect.top - panY.value) / z,
+      zoom: z,
+    }
+  }
+  return {
+    x: (clientX - rect.left + vp.scrollLeft) / z,
+    y: (clientY - rect.top + vp.scrollTop) / z,
+    zoom: z,
+  }
+}
+
+/** Viewport bounding rect (for edge auto-pan hit tests etc.) */
+function getViewportRect() {
+  return viewportRef.value?.getBoundingClientRect() ?? null
+}
+
 // ---- Styles ----
 const sizerStyle = computed(() => ({
   width: `${Math.ceil(naturalWidth.value * innerZoom.value)}px`,
@@ -359,15 +512,25 @@ const gridStyle = computed(() => {
       ? `linear-gradient(to right, var(--nm-border-subtle) 1px, transparent 1px),
          linear-gradient(to bottom, var(--nm-border-subtle) 1px, transparent 1px)`
       : `radial-gradient(circle, var(--nm-canvas-grid-color) 1px, transparent 1.2px)`
-  return {
+  const style: Record<string, string> = {
     backgroundImage: image,
     backgroundSize: `${size}px ${size}px`,
     backgroundPosition: '0 0',
   }
+  if (resolvedInfinite.value) {
+    // Grid rides on the viewport and follows the unbounded pan (mod grid size)
+    style.backgroundPosition = `${panX.value % size}px ${panY.value % size}px`
+  }
+  return style
 })
 
+/** Infinite mode paints the grid on the viewport itself (scroll mode: sizer) */
+const viewportStyle = computed(() => (resolvedInfinite.value ? gridStyle.value : {}))
+
 const contentStyle = computed(() => ({
-  transform: `scale(${innerZoom.value})`,
+  transform: resolvedInfinite.value
+    ? `translate(${panX.value}px, ${panY.value}px) scale(${innerZoom.value})`
+    : `scale(${innerZoom.value})`,
 }))
 
 const wrapperStyle = computed(() => ({
@@ -378,11 +541,23 @@ const wrapperStyle = computed(() => ({
 const viewportClass = computed(() => ({
   'nm-canvas__viewport--pannable': canPan.value,
   'nm-canvas__viewport--panning': isPanning.value,
+  'nm-canvas__viewport--infinite': resolvedInfinite.value,
 }))
 
 const classList = computed(() => ['nm-canvas', { 'nm-canvas--fullscreen': isFullscreen.value }])
 
-defineExpose({ zoomIn, zoomOut, resetZoom, fit, toggleFullscreen })
+defineExpose({
+  zoomIn,
+  zoomOut,
+  resetZoom,
+  fit,
+  resetView,
+  toggleFullscreen,
+  panBy,
+  getView,
+  toCanvasCoords,
+  getViewportRect,
+})
 </script>
 
 <template>
@@ -397,6 +572,7 @@ defineExpose({ zoomIn, zoomOut, resetZoom, fit, toggleFullscreen })
       ref="viewportRef"
       class="nm-canvas__viewport"
       :class="viewportClass"
+      :style="viewportStyle"
       tabindex="0"
       role="application"
       :aria-label="t('canvasLabel')"
@@ -405,7 +581,17 @@ defineExpose({ zoomIn, zoomOut, resetZoom, fit, toggleFullscreen })
       @pointerleave="hovering = false"
       @keydown="onViewportKeydown"
     >
-      <div class="nm-canvas__sizer" :style="[sizerStyle, gridStyle]">
+      <!-- 无限画布：无 sizer，内容直接由 transform（translate + scale）定位，平移无边界 -->
+      <div
+        v-if="resolvedInfinite"
+        ref="contentRef"
+        class="nm-canvas__content"
+        :class="{ 'nm-canvas__content--smooth': smoothZoom }"
+        :style="contentStyle"
+      >
+        <slot />
+      </div>
+      <div v-else class="nm-canvas__sizer" :style="[sizerStyle, gridStyle]">
         <div
           ref="contentRef"
           class="nm-canvas__content"
@@ -462,8 +648,8 @@ defineExpose({ zoomIn, zoomOut, resetZoom, fit, toggleFullscreen })
       <button
         type="button"
         class="nm-canvas__btn nm-canvas__btn--reset"
-        :aria-label="t('canvasZoomReset')"
-        @click="resetZoom"
+        :aria-label="resolvedInfinite ? t('canvasResetView') : t('canvasZoomReset')"
+        @click="resolvedInfinite ? resetView() : resetZoom()"
       >
         <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path
@@ -586,6 +772,14 @@ defineExpose({ zoomIn, zoomOut, resetZoom, fit, toggleFullscreen })
     cursor: grabbing;
     user-select: none;
   }
+
+  // 无限画布：隐藏溢出（无滚动条），触屏平移交由 pointer events
+  &--infinite {
+    overflow: hidden;
+    touch-action: none;
+    background-color: var(--nm-bg-color);
+    transition: background-size 0.3s $nm-ease-ambient;
+  }
 }
 
 .nm-canvas__sizer {
@@ -698,6 +892,7 @@ defineExpose({ zoomIn, zoomOut, resetZoom, fit, toggleFullscreen })
 @media (prefers-reduced-motion: reduce) {
   .nm-canvas__content,
   .nm-canvas__sizer,
+  .nm-canvas__viewport--infinite,
   .nm-canvas__btn,
   .nm-canvas__btn svg {
     transition: none;

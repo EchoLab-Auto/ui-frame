@@ -8,7 +8,7 @@ group: 使用
 
 # NeumorphismCanvas
 
-> 可缩放 / 平移 / 全屏的内容画布——凹陷槽视口内嵌 `transform: scale()` 内容层与原生滚动：拖拽平移、Ctrl/⌘ + 滚轮光标缩放、点阵 / 线条网格底纹，右下浮动控制胶囊一应俱全；缩放经锚点换算保持视口不动点。源码：`src/components/NeumorphismCanvas/`。
+> 可缩放 / 平移 / 全屏的内容画布——凹陷槽视口内嵌 `transform: scale()` 内容层与原生滚动：拖拽平移、Ctrl/⌘ + 滚轮光标缩放、点阵 / 线条网格底纹，右下浮动控制胶囊一应俱全；缩放经锚点换算保持视口不动点。另有 `infinite` 无限画布模式：平移 / 缩放为无界虚拟状态（transform translate + scale），内容可位于任意（含负）画布坐标，滚轮直接平移，一键复位视图回到全部内容。源码：`src/components/NeumorphismCanvas/`。
 
 ```vue
 <NeumorphismCanvas v-model="zoom" height="600px">
@@ -22,22 +22,24 @@ group: 使用
 
 ### Props
 
-| 名称             | 类型                | 默认值    | 说明                                                      |
-| ---------------- | ------------------- | --------- | --------------------------------------------------------- |
-| `modelValue`     | `number`            | `1`       | 当前缩放（v-model；1 = 100%），不传也可内部自治           |
-| `minZoom`        | `number`            | `0.1`     | 最小缩放                                                  |
-| `maxZoom`        | `number`            | `5`       | 最大缩放                                                  |
-| `zoomStep`       | `number`            | `0.1`     | 控制按钮 +/- 的步长                                       |
-| `showGrid`       | `boolean`           | `true`    | 是否显示网格底纹，支持全局配置 `canvas.showGrid` 级联     |
-| `gridSize`       | `number`            | `20`      | 网格单元尺寸（px，缩放前），支持 `canvas.gridSize` 级联   |
-| `gridVariant`    | `'dots' \| 'lines'` | `'dots'`  | 网格样式：点阵 / 线条，支持 `canvas.gridVariant` 级联     |
-| `showControls`   | `boolean`           | `true`    | 是否显示底部浮动控制胶囊，支持 `canvas.showControls` 级联 |
-| `showFit`        | `boolean`           | `true`    | 控制胶囊是否含「适应屏幕」按钮                            |
-| `showFullscreen` | `boolean`           | `true`    | 控制胶囊是否含全屏切换按钮                                |
-| `panOnDrag`      | `boolean`           | `true`    | 鼠标拖拽平移（按住空格 + 拖拽始终可用）                   |
-| `wheelZoom`      | `boolean`           | `true`    | Ctrl/⌘ + 滚轮以光标为锚点缩放                             |
-| `width`          | `string`            | `'100%'`  | 画布宽度（CSS 值）                                        |
-| `height`         | `string`            | `'500px'` | 画布高度（CSS 值）                                        |
+| 名称             | 类型                | 默认值    | 说明                                                                                                   |
+| ---------------- | ------------------- | --------- | ------------------------------------------------------------------------------------------------------ |
+| `modelValue`     | `number`            | `1`       | 当前缩放（v-model；1 = 100%），不传也可内部自治                                                        |
+| `minZoom`        | `number`            | `0.1`     | 最小缩放                                                                                               |
+| `maxZoom`        | `number`            | `5`       | 最大缩放                                                                                               |
+| `zoomStep`       | `number`            | `0.1`     | 控制按钮 +/- 的步长                                                                                    |
+| `showGrid`       | `boolean`           | `true`    | 是否显示网格底纹，支持全局配置 `canvas.showGrid` 级联                                                  |
+| `gridSize`       | `number`            | `20`      | 网格单元尺寸（px，缩放前），支持 `canvas.gridSize` 级联                                                |
+| `gridVariant`    | `'dots' \| 'lines'` | `'dots'`  | 网格样式：点阵 / 线条，支持 `canvas.gridVariant` 级联                                                  |
+| `showControls`   | `boolean`           | `true`    | 是否显示底部浮动控制胶囊，支持 `canvas.showControls` 级联                                              |
+| `showFit`        | `boolean`           | `true`    | 控制胶囊是否含「适应屏幕」按钮                                                                         |
+| `showFullscreen` | `boolean`           | `true`    | 控制胶囊是否含全屏切换按钮                                                                             |
+| `panOnDrag`      | `boolean`           | `true`    | 鼠标拖拽平移（按住空格 + 拖拽始终可用）                                                                |
+| `wheelZoom`      | `boolean`           | `true`    | Ctrl/⌘ + 滚轮以光标为锚点缩放                                                                          |
+| `infinite`       | `boolean`           | `false`   | 无限画布模式：无界虚拟平移 + transform，替代原生滚动，支持 `canvas.infinite` 级联                      |
+| `contentBounds`  | `{ x, y, w, h }`    | —         | 内容包围盒（画布坐标，可含负值）；infinite 模式下 `fit()`/`resetView()` 的依据，缺省时测量 slot 子元素 |
+| `width`          | `string`            | `'100%'`  | 画布宽度（CSS 值）                                                                                     |
+| `height`         | `string`            | `'500px'` | 画布高度（CSS 值）                                                                                     |
 
 ### Events / Slots
 
@@ -50,13 +52,18 @@ group: 使用
 
 ### Exposes
 
-| 方法                 | 说明                                     |
-| -------------------- | ---------------------------------------- |
-| `zoomIn()`           | 按 `zoomStep` 放大                       |
-| `zoomOut()`          | 按 `zoomStep` 缩小                       |
-| `resetZoom()`        | 回到 100%                                |
-| `fit()`              | 内容缩放至适配视口（留 32px 边距）并居中 |
-| `toggleFullscreen()` | 进入 / 退出全屏                          |
+| 方法                     | 说明                                                                          |
+| ------------------------ | ----------------------------------------------------------------------------- |
+| `zoomIn()`               | 按 `zoomStep` 放大                                                            |
+| `zoomOut()`              | 按 `zoomStep` 缩小                                                            |
+| `resetZoom()`            | 回到 100%                                                                     |
+| `fit()`                  | 内容缩放至适配视口（留 32px 边距）并居中                                      |
+| `resetView()`            | 一键复位视图：动画回到 `fit()` 结果（infinite 模式下复位按钮与 `0` 键的行为） |
+| `panBy(dx, dy)`          | 按视口像素增量平移（infinite 模式；供拖拽边缘自动平移等场景调用）             |
+| `getView()`              | 返回 `{ panX, panY, zoom }` 当前视图状态                                      |
+| `toCanvasCoords(cx, cy)` | 屏幕坐标 → 画布坐标（返回 `{ x, y, zoom }`）                                  |
+| `getViewportRect()`      | 视口的 `getBoundingClientRect()`（边缘自动平移等命中检测用）                  |
+| `toggleFullscreen()`     | 进入 / 退出全屏                                                               |
 
 ---
 
@@ -95,17 +102,26 @@ app.use(NeumorphismUI, { canvas: { showGrid: true, gridSize: 24, gridVariant: 'l
 ### 平移
 
 - 鼠标主键拖拽（`panOnDrag`）或按住空格拖拽（始终可用）；4px 位移阈值后才进入平移态，未移动时保留原点击行为
-- 指针落在控制按钮、表单控件或带 `data-nm-no-pan` 的元素上不触发平移；触屏交给原生 overflow 滚动
+- 指针落在控制按钮、表单控件或带 `data-nm-no-pan` 的元素上不触发平移；触屏在滚动模式下交给原生 overflow 滚动，infinite 模式下统一走 pointer events
 - 空格键仅在指针悬停画布或焦点位于画布内时接管（且焦点不在输入框 / contentEditable 时），阻止页面滚动
+
+### 无限画布模式（infinite）
+
+- 平移 / 缩放是无界虚拟状态 `(panX, panY, zoom)`，经 `transform: translate() scale()` 应用——没有滚动条，也就没有边界；内容可位于任意（含负）画布坐标
+- 网格底纹挂在视口上，`background-position` 取 pan 对网格尺寸的模，视觉上无限延伸
+- 普通滚轮 / 触控板双指直接平移；Ctrl/⌘ + 滚轮仍以光标为锚点缩放
+- 触屏单指拖拽平移（视口 `touch-action: none`，不再依赖原生滚动）
+- 复位按钮与 `0` 键变为「复位视图」：动画过渡回全部内容适配居中的视图（拖丢后一键找回内容）；`fit()`/`resetView()` 依据 `contentBounds`（缺省时测量 slot 子元素包围盒）
+- 拖拽 / 滚轮平移即时响应；按钮缩放、`fit()`、`resetView()` 走 0.3s 平滑过渡
 
 ### 键盘交互（视口聚焦后）
 
-| 按键            | 行为                           |
-| --------------- | ------------------------------ |
-| `←` `→` `↑` `↓` | 平移 60px（加 Shift 为 200px） |
-| `+` / `=`       | 放大                           |
-| `-` / `_`       | 缩小                           |
-| `0`             | 重置为 100%                    |
+| 按键            | 行为                                             |
+| --------------- | ------------------------------------------------ |
+| `←` `→` `↑` `↓` | 平移 60px（加 Shift 为 200px）                   |
+| `+` / `=`       | 放大                                             |
+| `-` / `_`       | 缩小                                             |
+| `0`             | 重置（滚动模式回到 100%；infinite 模式复位视图） |
 
 视口 `tabindex="0"`、`role="application"`，`focus-visible` 内嵌主色描边。
 

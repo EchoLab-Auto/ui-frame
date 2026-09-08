@@ -187,6 +187,8 @@ export interface NeumorphismGlobalConfig {
     gridSize?: number
     gridVariant?: 'dots' | 'lines'
     showControls?: boolean
+    /** 无限画布模式（虚拟平移 + transform，替代原生滚动） */
+    infinite?: boolean
   }
   /** Default skeleton props */
   skeleton?: {
