@@ -1,5 +1,11 @@
 # @echolab-auto/ui-frame
 
+## 1.3.2-dev.3
+
+### Minor Changes
+
+- NeumorphismCanvas 新增 `infinite` 无限画布模式（支持 `canvas.infinite` 全局级联）：平移 / 缩放改为无界虚拟状态 `(panX, panY, zoom)`，经 `transform: translate() scale()` 应用，替代原生 overflow 滚动——画布四向无边界，内容可位于任意（含负）画布坐标。配套：`contentBounds` prop（`fit()`/`resetView()` 的包围盒依据，缺省测量 slot 子元素）；普通滚轮 / 触控板双指平移、触屏单指拖拽平移（pointer events）；网格挂视口随平移无限延伸；复位按钮与 `0` 键在 infinite 模式下为「复位视图」（动画回到全部内容适配居中，新增 locale 键 `canvasResetView`）。新增 expose：`resetView()`、`panBy(dx, dy)`、`getView()`、`toCanvasCoords(cx, cy)`。默认滚动模式行为与对外 API 完全不变。
+
 ## 1.3.2-dev.2
 
 ### Patch Changes
