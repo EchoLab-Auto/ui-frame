@@ -1,5 +1,31 @@
 # @echolab-auto/ui-frame
 
+## 1.4.0
+
+### Minor Changes
+
+- 4ab0399: 新增 `NeumorphismArt` 试验性动态效果组件：内嵌 canvas 渲染程序化效果，首批内置 `pixel-field`（像素脉冲场）、`particles`（粒子连线星座）、`waves`（流动波浪）、`goo`（融合色团）、`ascii`（字符画，经 `src` 传入图片采样亮度映射字符栅格）五种效果；支持 `reactive` 指针交互、`speed`/`density`/`palette`/`seed` 参数化，颜色默认跟随主题 token；触屏与 `prefers-reduced-motion` 自动降级为静态帧。配套公开 headless `useArtRenderer` 渲染循环与全局配置 `art.*` 段。
+
+  新增 `NeumorphismAsciiArt` 字符画正式组件（Art 试验场 `ascii` 效果的正式化）：经 `src` 传入图片渲染为 ASCII 字符画，保持原图宽高比适配（contain）、亮度直方图拉伸保证对比度，支持 `density` / `reactive` / `speed` 与覆盖层插槽；容器 `width` / `height` 可显式拉伸，`height` 留空时按图片宽高比自适应；`radius` 圆角档位（none/small/medium/large/xl）。
+
+- 39d1a9d: NeumorphismCanvas 新增 `infinite` 无限画布模式：平移 / 缩放为无界虚拟状态（`transform: translate() scale()`），替代原生 overflow 滚动，内容可位于任意（含负）画布坐标。新增 `contentBounds` prop、`canvas.infinite` 全局级联、locale 键 `canvasResetView`，以及 expose 方法 `resetView()` / `panBy()` / `getView()` / `toCanvasCoords()`；infinite 模式下普通滚轮平移、触屏单指拖拽平移，复位按钮与 `0` 键动画回到全部内容视图。默认滚动模式行为不变。
+
+### Patch Changes
+
+- d418648: 修复 NeumorphismCard 内边距级联泄漏：padding 规则由后代选择器改为子选择器，外层普通卡片不再向内层卡片（含 `no-padding` 卡片）泄漏 24px 内边距。DocTocNav 目录框新增默认内边距 24px（`--nm-spacing-lg`），原先 example 页恰好由该泄漏提供，现由组件自身保证，视觉不变。
+- b4b69eb: 修复图表组件全局配置级联失效：`useLineChart` / `usePieChart` / `useBarChart` 在解构 options 时直接给默认值（如 `curve = 'smooth'`），导致 `chart.line.*` / `chart.pie.*` / `chart.bar.*` 配置段永远轮不到；现改为「显式 prop/options > 全局配置 > 内置兜底」三级解析。`useCandlestickChart` 的 `showVolume` / `showMA` 接入 `chart.candlestick.*` 级联，`maPeriods` 不再被组件 `withDefaults` 的 `[5, 10, 20]` 截断。`chart.colorPalette` 接入 Pie 调色板级联（显式 `colorPalette` > 全局配置 > 主题 token）。NeumorphismChartBar 新增 `orientation` / `stacked` / `barGap` props 以打通显式层。未传 prop 且无全局配置时渲染结果与之前完全一致。
+- b4b69eb: 修复三项组件缺陷：
+
+  1. **NeumorphismInputNumber size 级联读错配置段**：全局配置类型新增独立 `inputNumber?: { size }` 段，组件由误读 `config.input?.size` 改为读 `config.inputNumber?.size`，级联优先级保持「显式 prop > 全局配置 > 内置兜底」，与 Input 的 `input` 段互不影响。
+  2. **NeumorphismThemeToggle 标签隐藏未走级联值**：文字标签显隐由原始 prop `size !== 'small'` 改为级联后的 `resolvedSize !== 'small'`，全局配置 `themeToggle.size: 'small'` 现在同样只显示图标。
+  3. **NeumorphismDivider 的 inset 死 prop**：组件内置 `.nm-divider--inset` 样式——水平分割线左右各让出 `--nm-spacing-lg`（宽度改回 auto 避免溢出），垂直分割线上下各让出 `--nm-spacing-lg`。
+
+- b4b69eb: 修复三处表单/导航组件的声明与渲染脱节：
+
+  - **NeumorphismDatePicker**：`name` prop 此前声明后未使用，现渲染 hidden input 携带格式化日期串参与原生表单提交（无值提交空串）。
+  - **NeumorphismPagination**：`totalLabel` 此前声明后未使用，现作为总数文案模板的覆盖项生效（支持 `{total}` 占位符），未传入时仍走 locale `paginationTotal`，行为向后兼容；跳页器硬编码的「跳至 / 页」提取为 locale 键 `paginationJumper`（zh-CN `跳至 {input} 页` / en-US `Go to {input}`），组件按 `{input}` 占位符拆分为输入框前后两段。
+  - **NeumorphismTabs**：`TabItem.icon` 此前仅保留在类型上，现在 tab 按钮 label 前渲染（emoji/文本字符，`nm-tabs__tab-icon`，`aria-hidden`）。
+
 ## 1.3.2-dev.3
 
 ### Minor Changes
