@@ -30,20 +30,49 @@ export function useClipboard(options: UseClipboardOptions = {}): UseClipboardRet
   const copied = ref(false)
   let timer: ReturnType<typeof setTimeout> | undefined
 
-  async function copy(text: string): Promise<boolean> {
+  /** execCommand 兜底：非安全上下文（局域网 http）无 navigator.clipboard。 */
+  function execCommandCopy(text: string): boolean {
+    if (typeof document === 'undefined') return false
+    const textarea = document.createElement('textarea')
+    textarea.value = text
+    textarea.style.position = 'fixed'
+    textarea.style.opacity = '0'
+    document.body.appendChild(textarea)
+    textarea.select()
     try {
-      if (typeof navigator === 'undefined' || !navigator.clipboard) return false
-      await navigator.clipboard.writeText(text)
-      copied.value = true
-      if (timer) clearTimeout(timer)
-      timer = setTimeout(() => {
-        copied.value = false
-      }, resetDelay)
-      return true
+      return document.execCommand('copy')
     } catch {
-      // 剪贴板不可用（权限拒绝 / 非安全上下文）——静默失败
       return false
+    } finally {
+      textarea.remove()
     }
+  }
+
+  function markCopied() {
+    copied.value = true
+    if (timer) clearTimeout(timer)
+    timer = setTimeout(() => {
+      copied.value = false
+    }, resetDelay)
+  }
+
+  async function copy(text: string): Promise<boolean> {
+    // 优先 Clipboard API；不可用或抛错（权限拒绝/非安全上下文）时回退
+    // textarea + execCommand —— 否则局域网 http 访问下复制按钮静默失效。
+    try {
+      if (typeof navigator !== 'undefined' && navigator.clipboard) {
+        await navigator.clipboard.writeText(text)
+        markCopied()
+        return true
+      }
+    } catch {
+      // fall through to execCommand fallback
+    }
+    if (execCommandCopy(text)) {
+      markCopied()
+      return true
+    }
+    return false
   }
 
   return { copied, copy }

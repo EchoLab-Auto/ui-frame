@@ -204,3 +204,9 @@ export NPM_TOKEN=npm_xxxxxxxx
 npm config set //registry.npmjs.org/:_authToken=${NPM_TOKEN}
 npm publish
 ```
+
+- 发布测试版本
+
+```bash
+npm publish --tag dev
+```
