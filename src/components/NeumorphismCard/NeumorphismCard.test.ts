@@ -1,6 +1,4 @@
 import { describe, it, expect } from 'vitest'
-import { readFileSync } from 'node:fs'
-import { resolve } from 'node:path'
 import { mount } from '@vue/test-utils'
 import NeumorphismCard from './NeumorphismCard.vue'
 
@@ -98,17 +96,24 @@ describe('NeumorphismCard', () => {
     expect(wrapper.classes()).toContain('nm-card--glass')
   })
 
-  it('flexible: vertical flex layout with scrollable body', () => {
+  it('布局支持（非实现）：class/style/attrs 透传到根节点，父级可施加任意布局', () => {
+    // 契约：消费方经 class/style 注入布局（如卡片栈的 flex 高度分配），
+    // 卡片自身不内置布局模式（防臃肿）。
     const wrapper = mount(NeumorphismCard, {
-      props: { flexible: true },
-      slots: { header: 'H', default: 'Body' },
+      attrs: {
+        class: 'rail-card',
+        style: 'flex-grow: 2',
+        'data-layout': 'stack',
+      },
+      slots: { default: 'Body' },
     })
-    expect(wrapper.classes()).toContain('nm-card--flexible')
-    // 布局契约：flexible 卡片是纵向 flex，body 吸收剩余空间并可滚动
-    const raw = readFileSync(resolve(__dirname, 'NeumorphismCard.vue'), 'utf-8')
-    const styleBlock = raw.match(/<style[^>]*>([\s\S]*?)<\/style>/)?.[1] ?? ''
-    expect(styleBlock).toMatch(/nm-card--flexible\s*\{[^}]*display:\s*flex/s)
-    expect(styleBlock).toMatch(/nm-card--flexible\s*\{[^}]*min-height:\s*0/s)
-    expect(styleBlock).toMatch(/nm-card__body[^}]*overflow-y:\s*auto/s)
+    expect(wrapper.classes()).toContain('nm-card')
+    expect(wrapper.classes()).toContain('rail-card')
+    expect(wrapper.attributes('style')).toContain('flex-grow: 2')
+    expect(wrapper.attributes('data-layout')).toBe('stack')
+    // 内部结构保持稳定锚点供消费方选择器使用（> .nm-card__body 等）
+    expect(wrapper.find('.nm-card__body').exists()).toBe(true)
+    // 不得引入内置布局类（回归守卫）
+    expect(wrapper.classes().some(c => c.includes('flexible'))).toBe(false)
   })
 })

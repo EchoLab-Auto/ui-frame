@@ -45,14 +45,18 @@ export interface NeumorphismCardProps {
   hoverable?: boolean | 'bulge' | 'sink'
   /** Enable glass morphism: frosted glass with backdrop blur */
   glass?: boolean
-  /**
-   * Layout: vertical flex container with a flexible body.
-   * true = card fills the parent's flex space and the body scrolls internally
-   * (`min-height: 0` chains). Use inside rail/stack containers that
-   * distribute height between cards (e.g. Panel 右侧边栏卡片栈).
-   */
-  flexible?: boolean
 }
+
+/**
+ * 布局契约（支持而非实现）：卡片的 class/style/attrs 透传到根节点，
+ * 父级容器可以经自定义类为卡片施加任意布局（flex 高度分配、网格等）。
+ * 卡片自身不内置任何布局模式——布局策略属于消费方（高内聚、可插拔）。
+ *
+ * 例（Panel 右侧边栏卡片栈）：
+ *   <NeumorphismCard glass class="rail-card" :style="{ flexGrow }" />
+ *   .rail-card { display: flex; flex-direction: column; min-height: 0; }
+ *   .rail-card > .nm-card__body { flex: 1; min-height: 0; overflow-y: auto; }
+ */
 
 // Map old variant+depth to unified elevation
 const DEPTH_TO_MAGNITUDE: Record<CardDepth, number> = {
@@ -66,7 +70,6 @@ const props = withDefaults(defineProps<NeumorphismCardProps>(), {
   hoverable: undefined,
   noPadding: false,
   glass: false,
-  flexible: false,
 })
 
 const { config, resolveProp } = useNeumorphismSetup()
@@ -89,7 +92,6 @@ const classList = computed(() => [
   `nm-card--radius-${resolvedRadius.value}`,
   {
     'nm-card--glass': props.glass,
-    'nm-card--flexible': props.flexible,
     'nm-card--no-padding': props.noPadding,
     'nm-card--hoverable': !!resolvedHoverable.value,
     'nm-card--hover-bulge': resolvedHoverable.value === true || resolvedHoverable.value === 'bulge',
@@ -370,26 +372,6 @@ $elevation-shadows: (
 // ============================================================
 //  Hover transitions & transforms
 // ============================================================
-// ---- Flexible layout variant ----
-// 纵向 flex：卡片填满父级 flex 分配的高度，body 吸收剩余空间并内部滚动。
-// 供卡片栈/边栏容器按 flex-grow 分配高度使用（如 Panel 右侧边栏）。
-.nm-card--flexible {
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-  height: 100%;
-
-  > .nm-card__header,
-  > .nm-card__footer {
-    flex: 0 0 auto;
-  }
-  > .nm-card__body {
-    flex: 1;
-    min-height: 0;
-    overflow-y: auto;
-  }
-}
-
 // ---- Glass morphism variant ----
 .nm-card--glass {
   background: var(--nm-glass-bg);
