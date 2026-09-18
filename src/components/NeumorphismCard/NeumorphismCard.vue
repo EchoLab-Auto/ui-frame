@@ -45,6 +45,13 @@ export interface NeumorphismCardProps {
   hoverable?: boolean | 'bulge' | 'sink'
   /** Enable glass morphism: frosted glass with backdrop blur */
   glass?: boolean
+  /**
+   * Layout: vertical flex container with a flexible body.
+   * true = card fills the parent's flex space and the body scrolls internally
+   * (`min-height: 0` chains). Use inside rail/stack containers that
+   * distribute height between cards (e.g. Panel 右侧边栏卡片栈).
+   */
+  flexible?: boolean
 }
 
 // Map old variant+depth to unified elevation
@@ -59,6 +66,7 @@ const props = withDefaults(defineProps<NeumorphismCardProps>(), {
   hoverable: undefined,
   noPadding: false,
   glass: false,
+  flexible: false,
 })
 
 const { config, resolveProp } = useNeumorphismSetup()
@@ -81,6 +89,7 @@ const classList = computed(() => [
   `nm-card--radius-${resolvedRadius.value}`,
   {
     'nm-card--glass': props.glass,
+    'nm-card--flexible': props.flexible,
     'nm-card--no-padding': props.noPadding,
     'nm-card--hoverable': !!resolvedHoverable.value,
     'nm-card--hover-bulge': resolvedHoverable.value === true || resolvedHoverable.value === 'bulge',
@@ -361,6 +370,26 @@ $elevation-shadows: (
 // ============================================================
 //  Hover transitions & transforms
 // ============================================================
+// ---- Flexible layout variant ----
+// 纵向 flex：卡片填满父级 flex 分配的高度，body 吸收剩余空间并内部滚动。
+// 供卡片栈/边栏容器按 flex-grow 分配高度使用（如 Panel 右侧边栏）。
+.nm-card--flexible {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  height: 100%;
+
+  > .nm-card__header,
+  > .nm-card__footer {
+    flex: 0 0 auto;
+  }
+  > .nm-card__body {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+  }
+}
+
 // ---- Glass morphism variant ----
 .nm-card--glass {
   background: var(--nm-glass-bg);

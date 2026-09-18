@@ -1,4 +1,6 @@
 import { describe, it, expect } from 'vitest'
+import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
 import { mount } from '@vue/test-utils'
 import NeumorphismCard from './NeumorphismCard.vue'
 
@@ -89,5 +91,24 @@ describe('NeumorphismCard', () => {
       props: { elevation: 1, variant: 'pressed', depth: 'deep' },
     })
     expect(wrapper.classes()).toContain('nm-card--elevation-1')
+  })
+
+  it('glass: applies frosted glass class', () => {
+    const wrapper = mount(NeumorphismCard, { props: { glass: true } })
+    expect(wrapper.classes()).toContain('nm-card--glass')
+  })
+
+  it('flexible: vertical flex layout with scrollable body', () => {
+    const wrapper = mount(NeumorphismCard, {
+      props: { flexible: true },
+      slots: { header: 'H', default: 'Body' },
+    })
+    expect(wrapper.classes()).toContain('nm-card--flexible')
+    // 布局契约：flexible 卡片是纵向 flex，body 吸收剩余空间并可滚动
+    const raw = readFileSync(resolve(__dirname, 'NeumorphismCard.vue'), 'utf-8')
+    const styleBlock = raw.match(/<style[^>]*>([\s\S]*?)<\/style>/)?.[1] ?? ''
+    expect(styleBlock).toMatch(/nm-card--flexible\s*\{[^}]*display:\s*flex/s)
+    expect(styleBlock).toMatch(/nm-card--flexible\s*\{[^}]*min-height:\s*0/s)
+    expect(styleBlock).toMatch(/nm-card__body[^}]*overflow-y:\s*auto/s)
   })
 })
