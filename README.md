@@ -69,19 +69,19 @@ import { NeumorphismButton } from '@echolab-auto/ui-frame'
 
 ### 基础输入
 
-| 组件                                         | 说明                   | 关键属性                                           |
-| -------------------------------------------- | ---------------------- | -------------------------------------------------- |
-| `NeumorphismButton`                          | 凸起/扁平/凹陷按钮     | `variant`, `size`, `shape`, `disabled`, `loading`  |
-| `NeumorphismSwitch`                          | 开关切换               | `v-model`, `size`, `activeText`                    |
-| `NeumorphismCheckbox`                        | 复选框                 | `v-model`, `label`, `size`, `indeterminate`        |
-| `NeumorphismRadio` / `NeumorphismRadioGroup` | 单选按钮               | `v-model`, `value`, `direction`                    |
-| `NeumorphismInput`                           | 文本输入框（凹陷效果） | `v-model`, `label`, `placeholder`, `size`, `error` |
-| `NeumorphismTextarea`                        | 多行文本               | `v-model`, `rows`, `autoResize`, `showCount`       |
-| `NeumorphismSelect`                          | 下拉选择               | `v-model`, `options`, `clearable`                  |
-| `NeumorphismInputNumber`                     | 数字输入（±步进器）    | `v-model`, `min`, `max`, `step`                    |
-| `NeumorphismAutoComplete`                    | 输入联想               | `v-model`, `options`, `loading`                    |
-| `NeumorphismSlider`                          | 滑块                   | `v-model`, `min`, `max`, `step`, `vertical`        |
-| `NeumorphismSegmented`                       | 分段选择（单选）       | `v-model`, `options`, `size`                       |
+| 组件                                         | 说明                               | 关键属性                                           |
+| -------------------------------------------- | ---------------------------------- | -------------------------------------------------- |
+| `NeumorphismButton`                          | 凸起/按压/主色/发光/玻璃等变体按钮 | `variant`, `size`, `shape`, `disabled`, `loading`  |
+| `NeumorphismSwitch`                          | 开关切换                           | `v-model`, `size`, `activeText`                    |
+| `NeumorphismCheckbox`                        | 复选框                             | `v-model`, `label`, `size`, `indeterminate`        |
+| `NeumorphismRadio` / `NeumorphismRadioGroup` | 单选按钮                           | `v-model`, `value`, `direction`                    |
+| `NeumorphismInput`                           | 文本输入框（凹陷效果）             | `v-model`, `label`, `placeholder`, `size`, `error` |
+| `NeumorphismTextarea`                        | 多行文本                           | `v-model`, `rows`, `autoResize`, `showCount`       |
+| `NeumorphismSelect`                          | 下拉选择                           | `v-model`, `options`, `clearable`                  |
+| `NeumorphismInputNumber`                     | 数字输入（±步进器）                | `v-model`, `min`, `max`, `step`                    |
+| `NeumorphismAutoComplete`                    | 输入联想                           | `v-model`, `options`, `loading`                    |
+| `NeumorphismSlider`                          | 滑块                               | `v-model`, `min`, `max`, `step`, `vertical`        |
+| `NeumorphismSegmented`                       | 分段选择（单选）                   | `v-model`, `options`, `size`                       |
 
 ### 表单
 

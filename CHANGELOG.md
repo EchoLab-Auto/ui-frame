@@ -1,5 +1,11 @@
 # @echolab-auto/ui-frame
 
+## 1.3.2-dev.4
+
+### Patch Changes
+
+- NeumorphismCard 布局透传契约补充与固化：`class`/`style`/`attrs` 透传根节点、内部结构（`.nm-card__body` 等）为稳定锚点——父级容器可经自定义类为卡片施加 flex 高度分配、网格等任意布局；卡片自身不内置布局模式（防回流守卫）。运行时行为相对 dev.3 无变化，补契约测试。
+
 ## 1.3.2-dev.3
 
 ### Minor Changes
