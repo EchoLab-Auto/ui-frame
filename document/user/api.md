@@ -65,7 +65,7 @@ import { NeumorphismButton, NeumorphismCard, useTheme } from '@echolab-auto/ui-f
 | `@echolab-auto/ui-frame/extensions`    | 扩展系统                | `import { ComponentRegistry } from '@echolab-auto/ui-frame/extensions'`    |
 | `@echolab-auto/ui-frame/utils`         | 工具函数                | `import { debounce } from '@echolab-auto/ui-frame/utils'`                  |
 | `@echolab-auto/ui-frame/doc`           | 文档渲染模块            | `import { DocViewer } from '@echolab-auto/ui-frame/doc'`                   |
-| `@echolab-auto/ui-frame/chat`          | 聊天面板模块            | `import { ChatMessageList } from '@echolab-auto/ui-frame/chat'`            |
+| `@echolab-auto/ui-frame/chat`          | 聊天面板模块            | `import { ChatTray } from '@echolab-auto/ui-frame/chat'`                   |
 
 > 使用子路径导出时样式同样自动注入；仅无打包器场景需手动引入 `import '@echolab-auto/ui-frame/dist/style.css'`
 
@@ -73,7 +73,7 @@ import { NeumorphismButton, NeumorphismCard, useTheme } from '@echolab-auto/ui-f
 
 ## Vue 组件
 
-本节为主库**基础组件**（`src/components/`，62 个）；组合组件见 [Doc 文档渲染](#doc-文档渲染) 与 [Chat 聊天面板](#chat-聊天面板)（`src/composites/`）。分类定义见 [组件总览](./components.md#组件分类基础组件与组合组件)。
+本节为主库**基础组件**（`src/components/`，62 个）；组合组件见 [Doc 文档渲染](#doc-文档渲染)；[Chat 聊天面板](#chat-聊天面板) 为纯元组件模块（`src/composites/`）。分类定义见 [组件总览](./components.md#组件分类基础组件与组合组件)。
 
 ### 基础输入
 
@@ -1851,17 +1851,21 @@ interface UseDocLayoutReturn {
 
 ## Chat 聊天面板
 
-聊天 / Agent 面板**组合组件**模块（`src/composites/chat/`），纯渲染层。模块内部分两层：**组合组件**直接消费 `ChatMessage` 数据、现成可用；**元组件**是拆出的纯 UI 原语（零领域类型、slot 驱动，性质上属于基础组件），可自由组装任意聊天式 UI。组件不持有业务状态、不发起网络请求。
+聊天 / Agent 面板**纯元组件模块**（`src/composites/chat/`），纯渲染层。2026-09-30 起只保留机制原语——**元组件**（气泡 / 托盘 / 折叠 / 输入 / 复制）零领域类型、slot 驱动，性质上属于基础组件，可自由组装任意聊天式 UI；聊天场景的组合（消息行、工具/推理/分支块）属产品语义，由宿主自行组装（参考 EchoAgentPanel）。组件不持有业务状态、不发起网络请求。
 
-> **依赖**：Agent 正文的 Markdown 渲染复用 doc 模块的 MarkdownRenderer，使用本模块需安装可选 peer 依赖 `marked` + `dompurify`。
+> **依赖**：本模块自身不依赖可选 peer；如需在气泡内渲染 Markdown，可组合 doc 模块的 MarkdownRenderer（届时需安装 `marked` + `dompurify`）。
 
 ```ts
-// 组合组件（现成可用）
-import { ChatMessageList, ChatComposer } from '@echolab-auto/ui-frame/chat'
+import {
+  ChatBubble,
+  ChatTray,
+  ChatFold,
+  ChatComposer,
+  ChatCopyButton,
+} from '@echolab-auto/ui-frame/chat'
 import type { ChatMessage } from '@echolab-auto/ui-frame/chat'
 
-// 元组件（自由组装）
-import { ChatBubble, ChatTray, ChatFold } from '@echolab-auto/ui-frame/chat'
+// 宿主自组消息行：ChatTray 托盘内 v-for 渲染 ChatBubble（role → align/tone 映射）
 ```
 
 ### 元组件
@@ -1937,64 +1941,6 @@ import { ChatBubble, ChatTray, ChatFold } from '@echolab-auto/ui-frame/chat'
 | Props | Type     | Default | Description |
 | ----- | -------- | ------- | ----------- |
 | text  | `string` | —       | 待复制文本  |
-
-### 组合组件
-
-#### ChatMessageList
-
-`ChatTray` + `ChatMessageItem` 的组合：消息流渲染与吸底滚动。
-
-| Props           | Type                       | Default      | Description                                         |
-| --------------- | -------------------------- | ------------ | --------------------------------------------------- |
-| messages        | `ChatMessage[]`            | —            | 消息列表（按时间升序）                              |
-| markdown        | `boolean`                  | `true`       | Agent 正文 Markdown 渲染（用户/系统消息始终纯文本） |
-| autoScroll      | `boolean`                  | `true`       | 新内容到达时自动吸底                                |
-| scrollThreshold | `number`                   | `120`        | 距底部多少 px 内视为贴底                            |
-| emptyText       | `string`                   | locale 文案  | 空消息提示                                          |
-| formatTime      | `(time: number) => string` | 本地化时分秒 | 自定义时间格式化（入参为秒级时间戳）                |
-
-**Slots:** `message`（scope: `{ message }`，自定义单条渲染）、`empty`（空状态）
-
-#### ChatMessageItem
-
-单条消息：按 `role` 分发——`tool` → 工具调用块、`branch` → 分支合并块、`system` → 居中平铺，`user`/`agent` 渲染气泡（agent 居左中性、user 居右主色）。
-
-| Props      | Type                       | Default      | Description              |
-| ---------- | -------------------------- | ------------ | ------------------------ |
-| message    | `ChatMessage`              | —            | 消息数据                 |
-| markdown   | `boolean`                  | `true`       | Agent 正文 Markdown 渲染 |
-| formatTime | `(time: number) => string` | 本地化时分秒 | 自定义时间格式化         |
-
-#### ChatToolCallBlock
-
-工具调用块（`ChatFold` 凹陷）：工具名 + 状态（running 带 spinner）+ 参数/输出折叠（默认收起，显示字符数）+ 输出复制。
-
-| Props  | Type             | Default     | Description              |
-| ------ | ---------------- | ----------- | ------------------------ |
-| name   | `string`         | —           | 工具名                   |
-| input  | `string`         | `''`        | 摘要化参数文本           |
-| output | `string \| null` | `null`      | 工具输出                 |
-| status | `ChatToolStatus` | `undefined` | running/succeeded/failed |
-| time   | `string`         | `''`        | 已格式化时间             |
-
-#### ChatReasoningBlock
-
-推理折叠块（`ChatFold` 凹陷，默认展开）。
-
-| Props       | Type       | Default | Description  |
-| ----------- | ---------- | ------- | ------------ |
-| parts       | `string[]` | —       | 推理分段     |
-| time        | `string`   | `''`    | 已格式化时间 |
-| defaultOpen | `boolean`  | `true`  | 初始是否展开 |
-
-#### ChatBranchMergeBlock
-
-分支合并块（`ChatFold` 凸起）：摘要（subhead 常显）+ "N 工具 · M 推理"统计，展开后嵌套展示分支内的工具调用 / 推理 / 内容记录。
-
-| Props  | Type                | Default | Description    |
-| ------ | ------------------- | ------- | -------------- |
-| branch | `ChatBranchSummary` | —       | 分支合并块数据 |
-| time   | `string`            | `''`    | 已格式化时间   |
 
 ### Chat 类型定义
 

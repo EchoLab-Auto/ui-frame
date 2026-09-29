@@ -1,11 +1,15 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import {
-  ChatMessageList,
-  ChatComposer,
   ChatBubble,
+  ChatTray,
+  ChatComposer,
   ChatFold,
+  type ChatBubbleAlign,
+  type ChatBubbleTone,
   type ChatMessage,
+  type ChatRole,
+  type ChatToolStatus,
 } from '../../src/composites/chat'
 import NeumorphismStatusDot from '../../src/components/NeumorphismStatusDot/NeumorphismStatusDot.vue'
 import NeumorphismTag from '../../src/components/NeumorphismTag/NeumorphismTag.vue'
@@ -14,6 +18,36 @@ let seq = 0
 const nextId = () => `demo-${++seq}`
 
 const now = () => Math.floor(Date.now() / 1000)
+
+// —— 宿主自组行模型：role → 气泡对齐/色调 + 角色名 ——
+const roleMap: Record<ChatRole, { label: string; align: ChatBubbleAlign; tone: ChatBubbleTone }> = {
+  user: { label: '用户', align: 'end', tone: 'primary' },
+  agent: { label: 'Echo', align: 'start', tone: 'default' },
+  system: { label: '系统', align: 'center', tone: 'plain' },
+  tool: { label: '工具', align: 'start', tone: 'default' },
+  branch: { label: '分支', align: 'start', tone: 'default' },
+}
+
+const toolStatusText: Record<ChatToolStatus, string> = {
+  running: '运行中',
+  succeeded: '已完成',
+  failed: '失败',
+}
+
+const formatTime = (time?: number) =>
+  time
+    ? new Date(time * 1000).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })
+    : ''
+
+// 正文纯文本：工具 / 分支消息由宿主归纳为一行摘要
+function messageText(message: ChatMessage): string {
+  if (message.tool) {
+    const status = message.tool.status ? toolStatusText[message.tool.status] : ''
+    return `工具调用 ${message.tool.name}${status ? `（${status}）` : ''}`
+  }
+  if (message.branch) return `分支合并：${message.branch.summary}`
+  return message.content
+}
 
 const messages = ref<ChatMessage[]>([
   {
@@ -45,8 +79,7 @@ const messages = ref<ChatMessage[]>([
     id: nextId(),
     role: 'agent',
     content:
-      '最近主要有两类改动：\n\n1. doc 模块 —— 新增画布文档与流程图\n2. 组件修复 —— input-number / select 的逐帧检查修复\n\n**画布文档**已支持 prodoc-flow 流程图：\n\n```ts\nconst log = await git.log()\n```',
-    reasoning: ['先取最近提交列表', '按模块归类整理成摘要'],
+      '最近主要有两类改动：\n\n1. doc 模块 —— 新增画布文档与流程图\n2. 组件修复 —— input-number / select 的逐帧检查修复',
     time: now() - 3580,
   },
   {
@@ -80,6 +113,9 @@ const messages = ref<ChatMessage[]>([
   },
 ])
 
+// ChatTray 吸底侦听源：消息条数变化时重新评估
+const watchSource = () => messages.value.length
+
 const input = ref('')
 
 function handleSend(content: string) {
@@ -89,7 +125,7 @@ function handleSend(content: string) {
     messages.value.push({
       id: nextId(),
       role: 'agent',
-      content: `收到：「${content}」。这是一条演示回复，正文支持 **Markdown** 渲染。`,
+      content: `收到：「${content}」。这是一条演示回复（宿主自组消息行）。`,
       time: now(),
     })
   }, 600)
@@ -118,7 +154,20 @@ function handleCancel() {
         <NeumorphismTag size="small" rounded>deepseek-v4-flash</NeumorphismTag>
       </header>
 
-      <ChatMessageList :messages="messages" class="chat-window__list" />
+      <ChatTray class="chat-window__list" :watch-source="watchSource">
+        <ChatBubble
+          v-for="message in messages"
+          :key="message.id"
+          :align="roleMap[message.role].align"
+          :tone="roleMap[message.role].tone"
+        >
+          <template v-if="message.role !== 'system'" #head>
+            <span class="chat-row__role">{{ roleMap[message.role].label }}</span>
+            <span v-if="message.time" class="chat-row__time">{{ formatTime(message.time) }}</span>
+          </template>
+          {{ messageText(message) }}
+        </ChatBubble>
+      </ChatTray>
 
       <ChatComposer v-model="input" cancelable @send="handleSend" @cancel="handleCancel" />
     </section>
@@ -152,8 +201,8 @@ function handleCancel() {
     </section>
 
     <p class="chat-page__hint">
-      ChatMessageList + ChatComposer · 五种消息形态 · 吸底滚动 · Enter 发送（IME 安全） · Agent 正文
-      Markdown 渲染
+      宿主自组消息行：ChatTray + v-for ChatBubble（role → 对齐/色调映射） · 吸底滚动 · Enter
+      发送（IME 安全） · 正文纯文本
     </p>
   </div>
 </template>
@@ -228,6 +277,20 @@ function handleCancel() {
 .chat-window__list {
   flex: 1;
   min-height: 0;
+}
+
+// 宿主自组行头：角色 / 时间，压低存在感
+.chat-row__role {
+  font-size: var(--nm-font-xs);
+  font-weight: 600;
+  color: var(--nm-text-secondary);
+  letter-spacing: 0.02em;
+}
+
+.chat-row__time {
+  font-size: var(--nm-font-xs);
+  color: var(--nm-text-disabled);
+  font-variant-numeric: tabular-nums;
 }
 
 .custom-demo {

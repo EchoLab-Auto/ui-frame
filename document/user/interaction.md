@@ -137,7 +137,7 @@ Modal / Drawer 打开时锁定 body 滚动：多层嵌套用计数器，归零�
 
 ## 八、Chat 与 Doc 的特殊交互
 
-- **ChatTray / ChatMessageList**：距底 120px 内视为贴底，贴底时新消息与流式内容自动跟随（瞬时定位，不播滚动动画）；向上翻阅时不打断；离开底部显示「回到底部」浮动按钮
+- **ChatTray**：距底 120px 内视为贴底，贴底时新消息与流式内容自动跟随（瞬时定位，不播滚动动画）；向上翻阅时不打断；离开底部显示「回到底部」浮动按钮
 - **ChatComposer**：Enter 发送 / Shift+Enter 换行 / IME 组合中 Enter 不发送；trim 后非空才可提交，提交后清空
 - **MarkdownRenderer**：标题自动注入锚点链接，点击平滑滚动而非改变 hash；目录 scroll-spy 用 IntersectionObserver 跟踪激活标题，点击目录跳转时屏蔽 scroll-spy 800ms 防中途高亮闪烁；reduced-motion 用户滚动自动降为瞬时
 - **DocCodeBlock**：复制按钮成功态变主色 1500ms 后复位

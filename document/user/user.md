@@ -1116,18 +1116,25 @@ onMounted(async () => {
 
 ## Chat 聊天面板
 
-聊天 / Agent 面板场景：`ChatMessageList` 负责消息流渲染与吸底滚动，`ChatComposer` 负责 IME 安全的输入提交。宿主只需维护一个 `ChatMessage[]` 数组（WS / reducer / 任意来源），组件不持有业务状态。
-
-> 使用前请安装可选 peer 依赖：`npm install marked dompurify`（Agent 正文的 Markdown 渲染需要）。
+聊天 / Agent 面板场景：库提供一组纯 UI 元组件（`ChatTray` / `ChatBubble` / `ChatFold` / `ChatComposer` / `ChatCopyButton`）；消息行等组合形态属产品语义，由宿主用元组件自行组装。宿主只需维护一个 `ChatMessage[]` 数组（WS / reducer / 任意来源），组件不持有业务状态。
 
 ```vue
 <script setup lang="ts">
 import { ref } from 'vue'
-import { ChatMessageList, ChatComposer, type ChatMessage } from '@echolab-auto/ui-frame/chat'
+import { ChatBubble, ChatTray, ChatComposer, type ChatMessage } from '@echolab-auto/ui-frame/chat'
 
 const messages = ref<ChatMessage[]>([])
 const input = ref('')
 let seq = 0
+
+// role → 对齐/色调映射：user 居右主色、agent 居左中性、system 居中平铺
+const roleMap = {
+  user: { label: '用户', align: 'end', tone: 'primary' },
+  agent: { label: 'Agent', align: 'start', tone: 'default' },
+  system: { label: '系统', align: 'center', tone: 'plain' },
+  tool: { label: '工具', align: 'start', tone: 'default' },
+  branch: { label: '分支', align: 'start', tone: 'default' },
+} as const
 
 // 宿主负责数据来源：这里模拟一次问答
 function handleSend(content: string) {
@@ -1136,8 +1143,7 @@ function handleSend(content: string) {
     messages.value.push({
       id: ++seq,
       role: 'agent',
-      content: `收到：「${content}」—— 正文支持 **Markdown** 渲染`,
-      reasoning: ['先解析用户意图', '再组织回答结构'],
+      content: `收到：「${content}」`,
       time: Date.now() / 1000,
     })
   }, 500)
@@ -1146,7 +1152,19 @@ function handleSend(content: string) {
 
 <template>
   <div style="display: flex; flex-direction: column; height: 480px">
-    <ChatMessageList :messages="messages" style="flex: 1; min-height: 0" />
+    <ChatTray :watch-source="() => messages.length" style="flex: 1; min-height: 0">
+      <ChatBubble
+        v-for="message in messages"
+        :key="message.id"
+        :align="roleMap[message.role].align"
+        :tone="roleMap[message.role].tone"
+      >
+        <template #head
+          ><span>{{ roleMap[message.role].label }}</span></template
+        >
+        {{ message.content }}
+      </ChatBubble>
+    </ChatTray>
     <ChatComposer v-model="input" cancelable @send="handleSend" @cancel="/* 取消任务 */">
       <template #meta>
         <span>会话：local:user</span>
@@ -1158,11 +1176,12 @@ function handleSend(content: string) {
 
 **要点：**
 
-- `role` 决定渲染形态：`user` 居右主色气泡、`agent` 居左中性气泡（正文走 Markdown）、`system` 居中平铺、`tool` 工具调用块、`branch` 分支合并块
-- 吸底滚动仅当用户本就在底部时跟随，向上翻阅历史不被打断；离开后显示"回到底部"按钮
+- 行模型由宿主定义：本示例把 `role` 映射到气泡对齐/色调（`user` 居右主色、`agent` 居左中性、`system` 居中平铺）；工具 / 推理 / 分支块等形态可用 `ChatFold` / `ChatBubble` 自行组装
+- `ChatTray` 吸底滚动仅当用户本就在底部时跟随，向上翻阅历史不被打断；离开后显示"回到底部"按钮
 - `ChatComposer` 的 Enter 提交已排除 IME 组合态（中文输入法回车选字不会误发送）
+- 如需在气泡内渲染 Markdown（如 Agent 正文），可组合 doc 模块的 `MarkdownRenderer`（需安装可选 peer 依赖 `marked` + `dompurify`）
 
-**自定义组装：** 组合组件之外是一套纯 UI 元组件——`ChatBubble`（对齐/色调/复制）、`ChatTray`（凹陷托盘 + 吸底）、`ChatFold`（折叠块）、`ChatComposer`（输入器）、`ChatCopyButton`。不依赖 `ChatMessage` 数据契约，可拼出任意聊天式 UI：
+**自由组装：** 元组件不依赖 `ChatMessage` 数据契约，可用 `ChatBubble`（对齐/色调/复制）、`ChatTray`（凹陷托盘 + 吸底）、`ChatFold`（折叠块）等拼出任意聊天式 UI：
 
 ```vue
 <ChatBubble align="end" tone="primary" copy-text="可复制内容">
@@ -1209,7 +1228,7 @@ import { MarkdownRenderer } from '@echolab-auto/ui-frame/doc'
 ### 按需引入聊天面板
 
 ```ts
-import { ChatMessageList, ChatComposer } from '@echolab-auto/ui-frame/chat'
+import { ChatTray, ChatComposer } from '@echolab-auto/ui-frame/chat'
 ```
 
 > 使用子路径导出时样式同样自动注入；仅无打包器场景需手动引入：
