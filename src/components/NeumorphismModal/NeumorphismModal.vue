@@ -58,6 +58,19 @@ const modelRef = computed({
   set: val => emit('update:modelValue', val),
 })
 
+// open/close 事件契约：随 v-model 变更联动（此前声明了 emit 却从未触发）。
+watch(
+  () => props.modelValue,
+  (val, old) => {
+    if (val === old) return
+    if (val) {
+      emit('open')
+    } else {
+      emit('close')
+    }
+  }
+)
+
 // Use headless modal composable for all behavioral logic
 const {
   visible,

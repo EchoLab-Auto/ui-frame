@@ -110,6 +110,9 @@ export function useModal(opts: UseModalOptions): UseModalReturn {
         rendered.value = true
         const ae = document.activeElement
         focusStack.push(ae instanceof HTMLElement ? ae : null)
+        // 打开分支重置：上次关闭留下的 true 会让第二次关闭跳过
+        // unlockBodyScroll（body overflow:hidden 永久残留 → 整页锁死）。
+        hasUnlocked = false
         lockBodyScroll()
         // Register this modal in the global z-index overlay stack so that
         // floating components (Select dropdowns, Tooltips, etc.) rendered

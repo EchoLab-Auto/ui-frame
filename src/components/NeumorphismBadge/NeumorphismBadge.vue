@@ -35,8 +35,12 @@ const displayValue = computed(() => {
 
 const isHidden = computed(() => {
   if (resolvedDot.value) return props.value == null || props.value === ''
+  // 文本徽标（如 "new"）非空即显示——displayValue 支持字符串，
+  // 不能因 Number(value)=NaN 而隐藏。
+  if (props.value == null || props.value === '') return true
   const num = Number(props.value)
-  return (isNaN(num) || num <= 0) && !resolvedShowZero.value
+  if (isNaN(num)) return false // 非空字符串 → 显示
+  return num <= 0 && !resolvedShowZero.value
 })
 
 const { t } = useLocale()

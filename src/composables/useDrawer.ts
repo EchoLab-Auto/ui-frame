@@ -127,6 +127,9 @@ export function useDrawer(opts: UseDrawerOptions): UseDrawerReturn {
         rendered.value = true
         const ae = document.activeElement
         focusStack.push(ae instanceof HTMLElement ? ae : null)
+        // 打开分支重置：上次关闭留下的 true 会让第二次关闭跳过
+        // unlockBodyScroll（body overflow:hidden 永久残留 → 整页锁死）。
+        hasUnlocked = false
         lockBodyScroll()
         // Register this drawer in the global z-index overlay stack
         if (!unregisterOverlay) {
