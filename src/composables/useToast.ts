@@ -1,4 +1,4 @@
-import { ref, onBeforeUnmount, type Ref } from 'vue'
+import { ref, inject, hasInjectionContext, type Ref, type InjectionKey } from 'vue'
 
 export type ToastType = 'info' | 'success' | 'warning' | 'error'
 export type ToastPosition =
@@ -37,22 +37,20 @@ export interface UseToastReturn {
   clearAll: () => void
 }
 
+/**
+ * Injection key shared by `NeumorphismToastProvider` (provide) and
+ * `useToast()` (inject). Descendants of a mounted provider reuse the
+ * provider's queue so their notifications are actually rendered.
+ */
+export const ToastInjectionKey: InjectionKey<UseToastReturn> = Symbol('echo-toast')
+
 /** 生成 SSR 安全的唯一 Toast ID */
 function generateToastId(): string {
   return `nm-toast-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`
 }
 
-/**
- * Headless toast — encapsulates toast queue management, auto-dismiss
- * timers, and remove animations. Use with your own UI rendering.
- *
- * @example
- * ```ts
- * const { toasts, addToast, removeToast } = useToast({ maxCount: 5 })
- * addToast({ message: 'Saved!', type: 'success', duration: 3000 })
- * ```
- */
-export function useToast(opts: UseToastOptions = {}): UseToastReturn {
+/** 创建一个独立的 toast 队列实例（内部使用）。 */
+function createToast(opts: UseToastOptions = {}): UseToastReturn {
   const { maxCount = 5 } = opts
 
   const toasts = ref<ToastItem[]>([])
@@ -138,10 +136,45 @@ export function useToast(opts: UseToastOptions = {}): UseToastReturn {
     )
   }
 
-  onBeforeUnmount(() => {
-    timers.forEach(t => clearTimeout(t))
-    timers.clear()
-  })
-
   return { toasts, addToast, removeToast, clearAll }
+}
+
+/**
+ * 模块级共享单例：Provider 未 provide（或在 setup 之外/模块级调用）时，
+ * 所有调用方共享同一条通知队列。Provider 自身也通过 useToast() 复用该单例，
+ * 因此无论调用方能否 inject 到 Provider，通知都能被已挂载的 Provider 渲染。
+ */
+let sharedToast: UseToastReturn | null = null
+
+/**
+ * Headless toast — encapsulates toast queue management, auto-dismiss
+ * timers, and remove animations.
+ *
+ * 解析顺序：
+ * 1. 组件 setup 内且存在 `NeumorphismToastProvider` provide 的实例 → 复用它；
+ * 2. 否则回退到模块级共享单例（首次调用时的 `opts` 生效，后续忽略）。
+ *
+ * @example
+ * ```ts
+ * const { toasts, addToast, removeToast } = useToast({ maxCount: 5 })
+ * addToast({ message: 'Saved!', type: 'success', duration: 3000 })
+ * ```
+ */
+/** 测试专用：重置模块级共享单例（下一调用按新 opts 重建）。
+ * 生产代码不应调用。 */
+export function __resetSharedToastForTest(): void {
+  sharedToast?.clearAll()
+  sharedToast = null
+}
+
+export function useToast(opts: UseToastOptions = {}): UseToastReturn {
+  // 组件内调用时优先复用 NeumorphismToastProvider 提供的实例
+  if (hasInjectionContext()) {
+    const provided = inject(ToastInjectionKey, null)
+    if (provided) return provided
+  }
+  if (!sharedToast) {
+    sharedToast = createToast(opts)
+  }
+  return sharedToast
 }

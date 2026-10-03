@@ -1,8 +1,11 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { useToast } from './useToast'
+import { useToast, __resetSharedToastForTest } from './useToast'
 
 describe('useToast', () => {
   beforeEach(() => {
+    // useToast 改为模块级共享单例（Provider inject 兜底）后，
+    // 各用例重建单例保持隔离（含自定义 maxCount 用例）。
+    __resetSharedToastForTest()
     vi.useFakeTimers()
   })
 

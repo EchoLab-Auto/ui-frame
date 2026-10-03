@@ -2,9 +2,12 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { nextTick } from 'vue'
 import NeumorphismToastProvider from './NeumorphismToastProvider.vue'
+import { __resetSharedToastForTest } from '../../composables/useToast'
 
 describe('NeumorphismToastProvider', () => {
   beforeEach(() => {
+    // Toast 单例共享后需重建以保持用例隔离。
+    __resetSharedToastForTest()
     vi.useFakeTimers()
   })
 

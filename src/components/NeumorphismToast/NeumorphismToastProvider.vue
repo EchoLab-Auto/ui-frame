@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { computed, onMounted, onBeforeUnmount } from 'vue'
-import { useToast } from '@/composables/useToast'
+import { computed, onMounted, onBeforeUnmount, provide } from 'vue'
+import { useToast, ToastInjectionKey } from '@/composables/useToast'
 import { useLocale } from '@/composables/useLocale'
 import { useNeumorphismSetup } from '@/extensions/createComponent'
 import { useZIndex } from '@/composables/useZIndex'
@@ -30,12 +30,16 @@ const resolvedMaxCount = computed(() =>
 const { t } = useLocale()
 const resolvedCloseLabel = computed(() => props.closeLabel || t('toastClose'))
 
-// Use headless toast composable for all behavioral logic
+// Use headless toast composable for all behavioral logic.
+// Expose the instance via provide so descendant useToast() callers share
+// this queue and their notifications are actually rendered here.
 const { getZIndex } = useZIndex()
 const toastZIndex = computed(() => getZIndex('toast'))
-const { toasts, addToast, removeToast, clearAll } = useToast({
+const toastApi = useToast({
   maxCount: resolvedMaxCount.value,
 })
+provide(ToastInjectionKey, toastApi)
+const { toasts, addToast, removeToast, clearAll } = toastApi
 
 defineExpose({ addToast, removeToast, clearAll, toasts })
 
@@ -54,6 +58,12 @@ onBeforeUnmount(() => {
   document.removeEventListener('keydown', handleEscape)
 })
 
+/** 最新一条 toast 的可访问性播报文本（新增时更新，leaving 不打扰）。 */
+const latestAnnounce = computed(() => {
+  const active = toasts.value.filter(t => !t.leaving)
+  return active.length > 0 ? active[active.length - 1].message : ''
+})
+
 const classList = computed(() => [
   'nm-toast-container',
   `nm-toast-container--${resolvedPosition.value}`,
@@ -62,8 +72,8 @@ const classList = computed(() => [
 
 <template>
   <teleport to="body">
-    <!-- Dedicated announce-only live region for screen readers -->
-    <div aria-live="assertive" aria-atomic="true" class="nm-sr-only" />
+    <!-- 屏幕阅读器播报区：最新一条 toast 的文本（此前为空占位死代码）。 -->
+    <div aria-live="assertive" aria-atomic="true" class="nm-sr-only">{{ latestAnnounce }}</div>
     <div :class="classList" :style="{ zIndex: toastZIndex }">
       <transition-group name="nm-toast-list">
         <!-- @slot Custom toast item rendering. Bind: toast -->

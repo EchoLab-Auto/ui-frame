@@ -32,7 +32,7 @@ const resolvedRounded = computed(() => resolveProp(props.rounded, config.value.t
 
 const emit = defineEmits<{
   (e: 'close', event: MouseEvent): void
-  (e: 'click', event: MouseEvent): void
+  (e: 'click', event: MouseEvent | KeyboardEvent): void
 }>()
 
 const { t } = useLocale()
@@ -42,6 +42,11 @@ function handleClose(event: MouseEvent) {
   if (props.disabled) return
   event.stopPropagation()
   emit('close', event)
+}
+
+function handleClick(event: MouseEvent | KeyboardEvent) {
+  if (props.disabled) return
+  emit('click', event)
 }
 
 const classList = computed(() => [
@@ -71,8 +76,12 @@ const variantColors: Record<TagVariant, string> = {
     :style="
       resolvedVariant !== 'default' ? { '--tag-color': variantColors[resolvedVariant] } : undefined
     "
-    role="status"
-    @click="emit('click', $event)"
+    :role="disabled ? 'status' : 'button'"
+    :tabindex="disabled ? undefined : 0"
+    :aria-disabled="disabled || undefined"
+    @click="handleClick"
+    @keydown.enter.prevent="handleClick"
+    @keydown.space.prevent="handleClick"
   >
     <span class="nm-tag__text">
       <slot />

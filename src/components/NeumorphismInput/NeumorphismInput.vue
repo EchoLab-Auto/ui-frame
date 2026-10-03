@@ -2,6 +2,7 @@
 import { computed, useSlots, useAttrs } from 'vue'
 import { useFormField } from '@/composables/useFormField'
 import { useConfig } from '@/composables/useConfig'
+import { isImeComposing } from '@/composables/useChatInput'
 import NeumorphismFieldLabel from '@/components/NeumorphismField/NeumorphismFieldLabel.vue'
 import NeumorphismFieldError from '@/components/NeumorphismField/NeumorphismFieldError.vue'
 
@@ -102,6 +103,8 @@ function handleChange(event: Event): void {
 function handleKeydown(event: KeyboardEvent): void {
   emit('keydown', event)
   if (event.key === 'Enter') {
+    // IME 组合输入中（如中文输入法回车选字）不触发 enter
+    if (isImeComposing(event)) return
     emit('enter', props.modelValue)
   }
 }
