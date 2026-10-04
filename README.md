@@ -110,6 +110,9 @@ import { NeumorphismButton } from '@echolab-auto/ui-frame'
 | `NeumorphismChartPie`         | 饼图/环图                | `data`, `innerRadius`, `roundedCorners`   |
 | `NeumorphismChartCandlestick` | K 线图                   | `data`, `showMA`, `showVolume`            |
 | `NeumorphismStatusDot`        | 状态点（呼吸脉冲）       | `status`(online/offline/busy/connecting)  |
+| `NeumorphismLogo`             | 动态像素 Logo            | `mode`, `size`, `autoplay`, `goo`         |
+| `NeumorphismArt`              | 生成艺术画布（5 种效果） | `effect`, `reactive`, `density`, `seed`   |
+| `NeumorphismAsciiArt`         | 图片转 ASCII 字符画      | `src`, `density`, `reactive`, `radius`    |
 
 ### 反馈
 
@@ -150,11 +153,13 @@ import { NeumorphismButton } from '@echolab-auto/ui-frame'
 
 ### 其他
 
-| 组件                     | 说明              | 关键属性                                      |
-| ------------------------ | ----------------- | --------------------------------------------- |
-| `NeumorphismUpload`      | 文件上传（拖拽）  | `v-model:files`, `accept`, `drag`, `listType` |
-| `ThemeProvider`          | 亮色/暗色主题管理 | `defaultTheme`(light/dark/auto)               |
-| `NeumorphismThemeToggle` | 主题切换按钮      | `v-model`, `size`                             |
+| 组件                                              | 说明              | 关键属性                                      |
+| ------------------------------------------------- | ----------------- | --------------------------------------------- |
+| `NeumorphismUpload`                               | 文件上传（拖拽）  | `v-model:files`, `accept`, `drag`, `listType` |
+| `ThemeProvider`                                   | 亮色/暗色主题管理 | `defaultTheme`(light/dark/auto)               |
+| `NeumorphismThemeToggle`                          | 主题切换按钮      | `v-model`, `size`                             |
+| `NeumorphismScrollbar`                            | 自定义点阵滚动条  | `target`, `variant`(standard/dots/glow)       |
+| `NeumorphismFieldLabel` / `NeumorphismFieldError` | 表单标签/错误提示 | `label`, `required` / `id`, `message`         |
 
 ### 领域模块（子路径按需引入）
 
