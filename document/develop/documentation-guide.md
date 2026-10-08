@@ -38,6 +38,7 @@ document/
 └── develop/                 # 开发层 — "该怎么写"（面向开发者）
     ├── develop.md             # 开发入口索引与快速参考
     ├── design-philosophy.md   # 设计理念
+    ├── design-specification.md # 设计规范（视觉层次、对齐、间距、图标、触控）
     ├── design-patterns.md     # 设计模式
     ├── develop-pipeline.md    # 开发验证流程
     ├── documentation-guide.md # 本文档
@@ -98,6 +99,7 @@ document/
 
 - `develop.md` — 开发入口索引与各规范快速参考
 - `design-philosophy.md` — 六条核心设计原则，所有组件实现的判断依据
+- `design-specification.md` — 视觉与排布设计规范（层次、对齐、间距、图标、触控）
 - `design-patterns.md` — 源码中使用的具体设计模式
 - `develop-pipeline.md` — 从编码到提交到 CI 的完整验证流程
 - `documentation-guide.md` — 文档本身的组织结构与撰写规范

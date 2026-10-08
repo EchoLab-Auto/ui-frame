@@ -71,4 +71,4 @@ group: 开发
 
 ---
 
-> 检查清单与快速参考见 [develop.md](./develop.md)。
+> 检查清单与快速参考见 [develop.md](./develop.md)；视觉与排布的落地规则见 [设计规范](./design-specification.md)。
