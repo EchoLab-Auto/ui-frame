@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch, nextTick, onBeforeUnmount } from 'vue'
 import { useTooltip } from '@/composables/useTooltip'
 import { useFloatingPosition } from '@/composables/useFloatingPosition'
 import { useNeumorphismSetup } from '@/extensions/createComponent'
@@ -48,18 +48,21 @@ const {
   trigger: resolvedTrigger,
 })
 
-const offsetPx = computed(() => `${resolvedOffset.value}px`)
-
 // ARIA 关联：tooltip 内容 id（触发器经 slot props 取并以 aria-describedby 关联）
 const contentId = generateId('nm-tooltip')
 
 const triggerRef = ref<HTMLElement>()
 const contentRef = ref<HTMLElement>()
 
-// 共享浮层定位引擎 —— 翻转决策的逐帧追踪（旧 scroll 监听无 capture，
-// 嵌套滚动容器内翻转状态与视口脱节）；内容本体为内联绝对定位，
-// 天然随触发器原子移动，引擎只负责方向
-const { actualPlacement: actualPosition } = useFloatingPosition({
+// 共享浮层定位引擎（rAF 逐帧追踪 + 边界翻转滞后）——
+// 内容 teleport 到 body 后不在 wrapper 内联文档流中，由引擎的触发器 rect
+// 驱动 fixed 视口坐标（与 Popover 同一模式），不受祖先 overflow 裁剪
+const {
+  actualPlacement: actualPosition,
+  rect,
+  refresh,
+  stop,
+} = useFloatingPosition({
   trigger: triggerRef,
   open: isVisible,
   placement: computed(() => resolvedPosition.value),
@@ -67,6 +70,50 @@ const { actualPlacement: actualPosition } = useFloatingPosition({
   floating: contentRef,
   estimateSize: { width: 120, height: 40 },
 })
+
+const computedStyle = computed(() => {
+  const style: Record<string, string> = {
+    position: 'fixed',
+    zIndex: String(tooltipZIndex.value),
+  }
+
+  const r = rect.value
+  if (!r) return style
+
+  const offset = resolvedOffset.value
+
+  switch (actualPosition.value) {
+    case 'top':
+      style.top = `${r.top - offset}px`
+      style.left = `${r.left + r.width / 2}px`
+      style.transform = 'translate(-50%, -100%)'
+      break
+    case 'bottom':
+      style.top = `${r.bottom + offset}px`
+      style.left = `${r.left + r.width / 2}px`
+      style.transform = 'translate(-50%, 0)'
+      break
+    case 'left':
+      style.top = `${r.top + r.height / 2}px`
+      style.left = `${r.left - offset}px`
+      style.transform = 'translate(-100%, -50%)'
+      break
+    case 'right':
+      style.top = `${r.top + r.height / 2}px`
+      style.left = `${r.right + offset}px`
+      style.transform = 'translate(0, -50%)'
+      break
+  }
+
+  return style
+})
+
+// 显示后内容尺寸可测，重估一次翻转决策（与 Popover 一致）
+watch(isVisible, visible => {
+  if (visible) nextTick(refresh)
+})
+
+onBeforeUnmount(stop)
 
 const classList = computed(() => [
   'nm-tooltip',
@@ -90,25 +137,27 @@ const classList = computed(() => [
     <!-- @slot 触发器。作用域参数：contentId 供 aria-describedby 关联 -->
     <slot :content-id="contentId" />
 
-    <transition name="nm-tooltip-fade">
-      <div
-        v-if="isVisible && (content || $slots.content)"
-        :id="contentId"
-        ref="contentRef"
-        :class="classList"
-        :style="{ zIndex: tooltipZIndex }"
-        role="tooltip"
-        :aria-hidden="!isVisible"
-        @mouseenter="resolvedTrigger === 'hover' ? show() : undefined"
-        @mouseleave="resolvedTrigger === 'hover' ? hide() : undefined"
-      >
-        <span class="nm-tooltip__arrow" />
-        <span class="nm-tooltip__content">
-          <!-- @slot Custom tooltip content -->
-          <slot name="content">{{ content }}</slot>
-        </span>
-      </div>
-    </transition>
+    <teleport to="body">
+      <transition name="nm-tooltip-fade">
+        <div
+          v-if="isVisible && (content || $slots.content)"
+          :id="contentId"
+          ref="contentRef"
+          :class="classList"
+          :style="computedStyle"
+          role="tooltip"
+          :aria-hidden="!isVisible"
+          @mouseenter="resolvedTrigger === 'hover' ? show() : undefined"
+          @mouseleave="resolvedTrigger === 'hover' ? hide() : undefined"
+        >
+          <span class="nm-tooltip__arrow" />
+          <span class="nm-tooltip__content">
+            <!-- @slot Custom tooltip content -->
+            <slot name="content">{{ content }}</slot>
+          </span>
+        </div>
+      </transition>
+    </teleport>
   </div>
 </template>
 
@@ -121,7 +170,7 @@ const classList = computed(() => [
 }
 
 .nm-tooltip {
-  position: absolute;
+  position: fixed;
   z-index: var(--nm-z-tooltip);
   cursor: default;
 
@@ -146,11 +195,8 @@ const classList = computed(() => [
     box-shadow: 1px 1px 3px var(--nm-shadow-dark);
   }
 
+  // 方位类仅驱动箭头位置（坐标由 teleport 后的 fixed 内联样式写入）
   &--top {
-    bottom: calc(100% + v-bind(offsetPx));
-    left: 50%;
-    transform: translateX(-50%);
-
     .nm-tooltip__arrow {
       bottom: -4px;
       left: 50%;
@@ -159,10 +205,6 @@ const classList = computed(() => [
   }
 
   &--bottom {
-    top: calc(100% + v-bind(offsetPx));
-    left: 50%;
-    transform: translateX(-50%);
-
     .nm-tooltip__arrow {
       top: -4px;
       left: 50%;
@@ -171,10 +213,6 @@ const classList = computed(() => [
   }
 
   &--left {
-    right: calc(100% + v-bind(offsetPx));
-    top: 50%;
-    transform: translateY(-50%);
-
     .nm-tooltip__arrow {
       right: -4px;
       top: 50%;
@@ -183,10 +221,6 @@ const classList = computed(() => [
   }
 
   &--right {
-    left: calc(100% + v-bind(offsetPx));
-    top: 50%;
-    transform: translateY(-50%);
-
     .nm-tooltip__arrow {
       left: -4px;
       top: 50%;

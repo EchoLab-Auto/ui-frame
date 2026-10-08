@@ -1,5 +1,15 @@
 # @echolab-auto/ui-frame
 
+## Unreleased
+
+### Patch Changes
+
+- 浮层统一 teleport 到 body：NeumorphismTooltip 内容改为 teleport + `position: fixed`（沿用 `useFloatingPosition` rAF 追踪、方位类与 `aria-describedby` 关联不变），不再被祖先 `overflow: hidden` 裁剪；NeumorphismMenu 水平模式一级子菜单同样 teleport 到 body 并固定定位跟随触发项（rAF 逐帧追踪，二级子菜单留在浮层内维持原模型，hover/键盘交互不变）。
+- NeumorphismDropdown 的下拉经 NeumorphismPopover 的 teleport 浮层（fixed + 边界翻转 + 点击外部关闭）渲染，补回归测试；NeumorphismNavMenu 水平下拉同样经 Popover teleport（补测试锁定），垂直子菜单维持内联。
+- 暗色主题补语义色：`--nm-color-success / error / warning / info` 在 `[data-theme='dark']` / `.nm-theme-dark` 下改为提亮值 `#3fb950 / #f85149 / #d29922 / #58a6ff`（暗底对比度 ≥ 5:1），修正暗色下语义色不换的问题。
+- NeumorphismTextarea 移除 hover / focused 的 1px `translateY` 抬升，仅保留凹陷阴影与外环过渡——容器 `transform` 会让大段文本拖选每帧走「变换文本层」慢路径（下游实测卡顿）。
+- 文档：interaction.md 浮层章节更新为「全部浮层 teleport 到 body」并新增宿主 z-index `0–99` 保留约定；tooltip.md 同步 teleport/定位策略描述。
+
 ## 1.3.2-dev.4
 
 ### Patch Changes

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch, onBeforeUnmount, type ComponentPublicInstance } from 'vue'
 import { useMenu } from '@/composables/useMenu'
 import { useNeumorphismSetup } from '@/extensions/createComponent'
 
@@ -99,6 +99,78 @@ function onSubmenuMouseLeave(item: MenuItem) {
   }
 }
 
+// ---- 水平模式子菜单 teleport 到 body 的固定定位 ----
+// 子菜单脱离文档流后由 rAF 逐帧追踪触发项 rect 写 fixed 坐标
+//（与 useFloatingPosition 同一策略：嵌套滚动容器也不脱节）
+const itemRefs = new Map<string, HTMLElement>()
+const itemRects = ref<Record<string, { top: number; bottom: number; left: number }>>({})
+
+function setItemRef(key: string, el: Element | ComponentPublicInstance | null) {
+  if (el instanceof HTMLElement) {
+    itemRefs.set(key, el)
+  } else {
+    itemRefs.delete(key)
+  }
+}
+
+const hasOpenHorizontalSubmenu = computed(
+  () =>
+    resolvedMode.value === 'horizontal' &&
+    !props.collapsed &&
+    props.items.some(item => item.children?.length && isExpanded(item.key))
+)
+
+let rafId: number | null = null
+
+function measureItemRects() {
+  rafId = null
+  let changed = Object.keys(itemRects.value).length !== itemRefs.size
+  const next: Record<string, { top: number; bottom: number; left: number }> = {}
+  for (const [key, el] of itemRefs) {
+    const rect = el.getBoundingClientRect()
+    next[key] = { top: rect.top, bottom: rect.bottom, left: rect.left }
+    const prev = itemRects.value[key]
+    if (
+      !prev ||
+      prev.top !== next[key].top ||
+      prev.bottom !== next[key].bottom ||
+      prev.left !== next[key].left
+    ) {
+      changed = true
+    }
+  }
+  if (changed) itemRects.value = next
+  if (hasOpenHorizontalSubmenu.value && typeof window !== 'undefined') {
+    rafId = window.requestAnimationFrame(measureItemRects)
+  }
+}
+
+function stopMeasuring() {
+  if (rafId !== null && typeof window !== 'undefined') {
+    window.cancelAnimationFrame(rafId)
+    rafId = null
+  }
+}
+
+watch(hasOpenHorizontalSubmenu, open => {
+  if (open) {
+    if (rafId === null) measureItemRects()
+  } else {
+    stopMeasuring()
+  }
+})
+
+onBeforeUnmount(stopMeasuring)
+
+function submenuStyle(key: string): Record<string, string> {
+  const rect = itemRects.value[key]
+  return {
+    position: 'fixed',
+    top: rect ? `${rect.bottom + 4}px` : '0px',
+    left: rect ? `${rect.left}px` : '0px',
+  }
+}
+
 const classList = computed(() => [
   'nm-menu',
   `nm-menu--${resolvedMode.value}`,
@@ -148,6 +220,7 @@ const expandIconClass = computed(() => [
         <li v-if="item.divided" class="nm-menu__divider" role="separator" :aria-hidden="true" />
 
         <li
+          :ref="(el: Element | ComponentPublicInstance | null) => setItemRef(item.key, el)"
           :class="getItemClass(item)"
           role="menuitem"
           :aria-disabled="item.disabled ?? false"
@@ -196,104 +269,120 @@ const expandIconClass = computed(() => [
             </span>
           </div>
 
-          <!-- Submenu (recursive, only if not collapsed) -->
-          <ul
-            v-if="item.children?.length && isExpanded(item.key) && !collapsed"
-            class="nm-menu__submenu"
-            role="menu"
-            :aria-label="item.label"
-          >
-            <template v-for="child in item.children" :key="child.key">
-              <li v-if="child.divided" class="nm-menu__divider" role="separator" />
-              <li
-                :class="[
-                  'nm-menu__item',
-                  'nm-menu__item--sub',
-                  {
-                    'nm-menu__item--active': isActive(child.key),
-                    'nm-menu__item--disabled': child.disabled,
-                    'nm-menu__item--has-children': child.children && child.children.length > 0,
-                    'nm-menu__item--expanded': isExpanded(child.key),
-                  },
-                ]"
-                role="menuitem"
-                :aria-disabled="child.disabled ?? false"
-                :aria-expanded="child.children?.length ? isExpanded(child.key) : undefined"
-                :aria-haspopup="child.children?.length ? 'menu' : undefined"
-                :tabindex="child.disabled ? -1 : 0"
-                @click.stop="onItemClick(child)"
-                @mouseenter="onSubmenuMouseEnter(child)"
-                @mouseleave="onSubmenuMouseLeave(child)"
-                @keydown="onItemKeydown($event, child)"
-              >
-                <div class="nm-menu__item-content">
-                  <span v-if="child.icon" class="nm-menu__item-icon" aria-hidden="true">
-                    {{ child.icon }}
-                  </span>
-                  <span class="nm-menu__item-label">{{ child.label }}</span>
-                  <span
-                    v-if="child.children?.length"
-                    :class="[
-                      ...expandIconClass,
-                      { 'nm-menu__expand-icon--expanded': isExpanded(child.key) },
-                    ]"
-                    aria-hidden="true"
-                  >
-                    <svg
-                      width="12"
-                      height="12"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    >
-                      <path v-if="resolvedMode === 'vertical'" d="M9 18l6-6-6-6" />
-                      <path v-else d="M6 9l6 6 6-6" />
-                    </svg>
-                  </span>
-                </div>
-
-                <!-- Nested submenu (depth 2) -->
-                <ul
-                  v-if="child.children?.length && isExpanded(child.key)"
-                  class="nm-menu__submenu"
-                  role="menu"
-                  :aria-label="child.label"
+          <!-- Submenu（horizontal 模式 teleport 到 body —— 不被祖先 overflow 裁剪；
+               仅一级浮出，二级子菜单留在浮层内沿用相对所在项的定位模型） -->
+          <teleport to="body" :disabled="resolvedMode !== 'horizontal'">
+            <ul
+              v-if="item.children?.length && isExpanded(item.key) && !collapsed"
+              class="nm-menu__submenu"
+              :class="
+                resolvedMode === 'horizontal'
+                  ? [`nm-menu--${resolvedSize}`, 'nm-menu__submenu--floating']
+                  : undefined
+              "
+              :style="resolvedMode === 'horizontal' ? submenuStyle(item.key) : undefined"
+              role="menu"
+              :aria-label="item.label"
+              @mouseenter="resolvedMode === 'horizontal' ? onSubmenuMouseEnter(item) : undefined"
+              @mouseleave="resolvedMode === 'horizontal' ? onSubmenuMouseLeave(item) : undefined"
+              @keydown="resolvedMode === 'horizontal' ? handleKeydown($event) : undefined"
+            >
+              <template v-for="child in item.children" :key="child.key">
+                <li v-if="child.divided" class="nm-menu__divider" role="separator" />
+                <li
+                  :class="[
+                    'nm-menu__item',
+                    'nm-menu__item--sub',
+                    {
+                      'nm-menu__item--active': isActive(child.key),
+                      'nm-menu__item--disabled': child.disabled,
+                      'nm-menu__item--has-children': child.children && child.children.length > 0,
+                      'nm-menu__item--expanded': isExpanded(child.key),
+                    },
+                  ]"
+                  role="menuitem"
+                  :aria-disabled="child.disabled ?? false"
+                  :aria-expanded="child.children?.length ? isExpanded(child.key) : undefined"
+                  :aria-haspopup="child.children?.length ? 'menu' : undefined"
+                  :tabindex="child.disabled ? -1 : 0"
+                  @click.stop="onItemClick(child)"
+                  @mouseenter="onSubmenuMouseEnter(child)"
+                  @mouseleave="onSubmenuMouseLeave(child)"
+                  @keydown="onItemKeydown($event, child)"
                 >
-                  <template v-for="grandchild in child.children" :key="grandchild.key">
-                    <li v-if="grandchild.divided" class="nm-menu__divider" role="separator" />
-                    <li
+                  <div class="nm-menu__item-content">
+                    <span v-if="child.icon" class="nm-menu__item-icon" aria-hidden="true">
+                      {{ child.icon }}
+                    </span>
+                    <span class="nm-menu__item-label">{{ child.label }}</span>
+                    <span
+                      v-if="child.children?.length"
                       :class="[
-                        'nm-menu__item',
-                        'nm-menu__item--sub',
-                        'nm-menu__item--sub-deep',
-                        {
-                          'nm-menu__item--active': isActive(grandchild.key),
-                          'nm-menu__item--disabled': grandchild.disabled,
-                        },
+                        ...expandIconClass,
+                        { 'nm-menu__expand-icon--expanded': isExpanded(child.key) },
                       ]"
-                      role="menuitem"
-                      :aria-disabled="grandchild.disabled ?? false"
-                      :tabindex="grandchild.disabled ? -1 : 0"
-                      @click.stop="onItemClick(grandchild)"
-                      @mouseenter="onSubmenuMouseEnter(grandchild)"
-                      @mouseleave="onSubmenuMouseLeave(grandchild)"
-                      @keydown="onItemKeydown($event, grandchild)"
+                      aria-hidden="true"
                     >
-                      <div class="nm-menu__item-content">
-                        <span v-if="grandchild.icon" class="nm-menu__item-icon" aria-hidden="true">
-                          {{ grandchild.icon }}
-                        </span>
-                        <span class="nm-menu__item-label">{{ grandchild.label }}</span>
-                      </div>
-                    </li>
-                  </template>
-                </ul>
-              </li>
-            </template>
-          </ul>
+                      <svg
+                        width="12"
+                        height="12"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <path v-if="resolvedMode === 'vertical'" d="M9 18l6-6-6-6" />
+                        <path v-else d="M6 9l6 6 6-6" />
+                      </svg>
+                    </span>
+                  </div>
+
+                  <!-- Nested submenu (depth 2) -->
+                  <ul
+                    v-if="child.children?.length && isExpanded(child.key)"
+                    class="nm-menu__submenu"
+                    role="menu"
+                    :aria-label="child.label"
+                  >
+                    <template v-for="grandchild in child.children" :key="grandchild.key">
+                      <li v-if="grandchild.divided" class="nm-menu__divider" role="separator" />
+                      <li
+                        :class="[
+                          'nm-menu__item',
+                          'nm-menu__item--sub',
+                          'nm-menu__item--sub-deep',
+                          {
+                            'nm-menu__item--active': isActive(grandchild.key),
+                            'nm-menu__item--disabled': grandchild.disabled,
+                          },
+                        ]"
+                        role="menuitem"
+                        :aria-disabled="grandchild.disabled ?? false"
+                        :tabindex="grandchild.disabled ? -1 : 0"
+                        @click.stop="onItemClick(grandchild)"
+                        @mouseenter="onSubmenuMouseEnter(grandchild)"
+                        @mouseleave="onSubmenuMouseLeave(grandchild)"
+                        @keydown="onItemKeydown($event, grandchild)"
+                      >
+                        <div class="nm-menu__item-content">
+                          <span
+                            v-if="grandchild.icon"
+                            class="nm-menu__item-icon"
+                            aria-hidden="true"
+                          >
+                            {{ grandchild.icon }}
+                          </span>
+                          <span class="nm-menu__item-label">{{ grandchild.label }}</span>
+                        </div>
+                      </li>
+                    </template>
+                  </ul>
+                </li>
+              </template>
+            </ul>
+          </teleport>
 
           <!-- Collapsed mode: tooltip for items with icon only -->
           <NeumorphismTooltip
@@ -392,6 +481,26 @@ const expandIconClass = computed(() => [
     align-items: center;
     gap: 0;
   }
+
+  .nm-menu__item {
+    position: relative;
+  }
+}
+
+/* 水平模式子菜单为 teleport 到 body 的浮层 —— 脱离祖先 overflow / 层叠上下文，
+   固定定位（坐标由触发项 rect 逐帧写入）；二级子菜单留在浮层内沿用相对定位模型 */
+.nm-menu__submenu--floating {
+  position: fixed;
+  display: block;
+  min-width: 180px;
+  margin: 0;
+  padding: var(--nm-spacing-xs);
+  list-style: none;
+  user-select: none;
+  background-color: var(--nm-surface-color);
+  border-radius: var(--nm-border-radius-md);
+  @include nm-raised(4px, 12px);
+  z-index: var(--nm-z-dropdown);
 
   .nm-menu__item {
     position: relative;

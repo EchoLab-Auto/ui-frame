@@ -174,15 +174,14 @@ watch(
   border-radius: var(--nm-border-radius-md);
   @include nm-inset(4px, 8px);
   @include nm-theme-transition;
-  transition:
-    box-shadow 0.35s $nm-ease-spring,
-    transform 0.3s $nm-ease-spring;
+  // 仅过渡阴影 —— 去掉 hover/focused 的 1px 抬升：容器 transform 会建立变换层，
+  // 大段文本拖选时每帧走「变换文本层」慢路径（下游实测卡顿）
+  transition: box-shadow 0.35s $nm-ease-spring;
 
   &:not(.nm-textarea--disabled):not(.nm-textarea--focused):hover {
     box-shadow:
       inset 5px 5px 10px var(--nm-shadow-dark),
       inset -5px -5px 10px var(--nm-shadow-light);
-    transform: translateY(-1px);
   }
 
   &--focused {
@@ -190,7 +189,6 @@ watch(
       inset 5px 5px 10px var(--nm-shadow-dark),
       inset -5px -5px 10px var(--nm-shadow-light),
       0 0 0 3px var(--nm-primary-color);
-    transform: translateY(-1px);
   }
 
   &--error {

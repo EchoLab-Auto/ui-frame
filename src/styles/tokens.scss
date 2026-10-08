@@ -555,10 +555,11 @@
   --nm-z-toast: 500;
   --nm-z-stride: 1000;
 
-  --nm-color-success: #2ecc71;
-  --nm-color-error: #e74c3c;
-  --nm-color-warning: #f39c12;
-  --nm-color-info: #3498db;
+  // 语义色提亮版（暗底 #1c1c1c 上对比度 ≥ 5:1；与 dark 图表色提亮策略一致）
+  --nm-color-success: #3fb950;
+  --nm-color-error: #f85149;
+  --nm-color-warning: #d29922;
+  --nm-color-info: #58a6ff;
 
   // -- Progress (dark — the pulse beam is a light source, so it stays bright) --
   --nm-progress-pulse-core: rgba(255, 255, 255, 0.9);

@@ -8,7 +8,7 @@ group: 使用
 
 # NeumorphismTooltip
 
-> 文字提示——包裹触发器的轻量气泡：内容本体在 wrapper 内联绝对定位（天然随触发器移动，不被 teleport 割裂），共享 `useFloatingPosition` 引擎只做方向决策（边界翻转）。显示/隐藏状态机在 headless `useTooltip` 中。源码：`src/components/NeumorphismTooltip/`。
+> 文字提示——包裹触发器的轻量气泡：内容本体 **teleport 到 body** 并以 `position: fixed` 跟随触发器（`useFloatingPosition` rAF 逐帧追踪 + 边界翻转，不受祖先 `overflow` 裁剪）。显示/隐藏状态机在 headless `useTooltip` 中。源码：`src/components/NeumorphismTooltip/`。
 
 ```vue
 <NeumorphismTooltip content="复制到剪贴板">
@@ -65,11 +65,11 @@ app.use(NeumorphismUI, { tooltip: { position: 'top', delay: 200 } })
 
 ## 交互动画详解
 
-### 定位策略（与 Popover 的关键差异）
+### 定位策略（与 Popover 同一引擎）
 
-- 提示本体**不 teleport**：作为 wrapper 的绝对定位子节点随触发器在文档流里原子移动，滚动（含嵌套滚动容器）天然同步
-- 共享 `useFloatingPosition` 引擎只返回 `actualPlacement`——rAF 逐帧检测边界，当前侧空间不足（< 120px）且对侧宽裕 48px 以上才翻转方向，CSS 类 `nm-tooltip--{top|bottom|left|right}` 随之切换
-- 因为不 teleport，浮层可能被祖先 `overflow: hidden` 裁剪；需要穿越裁剪的富交互面板请用 Popover
+- 提示本体 **teleport 到 body、`position: fixed`**：坐标由 `useFloatingPosition` 的触发器 rect 逐帧写入（与 Popover 同一模式），不受祖先 `overflow: hidden` / 层叠上下文裁剪；移入气泡经 `mouseenter` 续显，指针在触发器与气泡间穿过间隙也不会闪断
+- 共享 `useFloatingPosition` 引擎返回 `actualPlacement` 与触发器 `rect`——rAF 逐帧检测边界，当前侧空间不足（< 120px）且对侧宽裕 48px 以上才翻转方向，CSS 类 `nm-tooltip--{top|bottom|left|right}` 随之切换（箭头仍由方位类在气泡内定位）
+- 与 Popover 其余差异仅在内容形态：单行文本气泡（`white-space: nowrap`）无最小宽度约束，不需要点击外部关闭
 
 ### 触发与隐藏
 
@@ -79,7 +79,7 @@ app.use(NeumorphismUI, { tooltip: { position: 'top', delay: 200 } })
 
 ### 进出场
 
-0.2s 淡入 + 朝触发器方向 4px 回弹位移（top 从下方 4px 浮入，bottom 反之，左右同理），0.15s 淡出。Reduced-motion 下全部过渡与动画移除。
+0.2s 淡入、0.15s 淡出（teleport + fixed 化后与 Popover 一致：坐标与 transform 由 computedStyle 内联写入，入场动效为透明度过渡）。Reduced-motion 下全部过渡与动画移除。
 
 ### 层级与无障碍
 

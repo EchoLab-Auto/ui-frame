@@ -59,8 +59,9 @@ group: 使用
 
 ### 定位引擎（`useFloatingPosition`）
 
-Tooltip / Popover / Select / AutoComplete 共享同一浮层定位：
+Tooltip / Popover / Dropdown / Select / AutoComplete / DatePicker，以及 Menu 水平子菜单与 NavMenu 水平下拉共享同一套浮层定位与渲染规则：
 
+- **全部浮层 teleport 到 body + `position: fixed`**——浮层内容不再留在触发器 DOM 内，不受祖先 `overflow: hidden` / 层叠上下文裁剪，坐标由触发器视口 rect 写入（唯一例外：Select `outlined` 连体变体按设计内联渲染）
 - **rAF 逐帧追踪**触发器位置（不用 scroll 事件——嵌套滚动容器与平滑滚动下事件会漏发滞后），位置更新与绘制同帧
 - `position: 'auto'` 按候选序（bottom→top→right→left）选首个能容纳内容的方向
 - **翻转滞后**：当前侧空间不足 120px 且对侧宽裕超过 48px 才翻转，防止边界来回抖动
@@ -69,6 +70,8 @@ Tooltip / Popover / Select / AutoComplete 共享同一浮层定位：
 ### 层级管理（`useZIndex`）
 
 静态分层 `dropdown:100 < tooltip:200 < popover:300 < overlay:400 < toast:500`，层内步距 1000：浮层 teleport 到 body 会断 provide/inject 链，因此用模块级 overlay 栈计算 z-index——**Modal 里的 Select 下拉、Tooltip 永远在遮罩之上**，嵌套 Modal / Drawer 也能正确叠放。
+
+**宿主集成约定**：`0–99` 保留给宿主自绘层——宿主做全屏遮罩、拖影等自绘浮层时，请从 0–99 域取值（或直接改用库浮层 Modal / Drawer / Popover / Toast）；新页面不要再自造 100 及以上的 z-index 数值，否则会与库层（`100+`）冲突、遮挡顺序错乱。
 
 ### 滚动锁定
 
@@ -98,6 +101,8 @@ Modal / Drawer 打开时锁定 body 滚动：多层嵌套用计数器，归零�
 | readonly | 独立修饰类，不降透明度，仅语义区分                          |
 
 错误文案带 `role="alert"`，输入框经 `aria-invalid` + `aria-errormessage` 关联到错误元素。`floatingLabel` 模式下 label 从 placeholder 位上浮（有值或聚焦时）。
+
+> NeumorphismTextarea 例外：hover / focused 不做 1px 抬升（仅保留阴影与外环过渡）。容器 `transform` 会建立变换层，大段文本拖选时每帧走「变换文本层」慢路径；Input / Select / DatePicker 不受此约束。
 
 ---
 
