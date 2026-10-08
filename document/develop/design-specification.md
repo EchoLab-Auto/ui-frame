@@ -1,20 +1,20 @@
 ---
 id: design-specification
-title: '设计规范（元规范）'
+title: '元 UI 设计规范'
 x: 660
 y: 1109
 group: 开发
 ---
 
-# 设计规范（元规范）
+# 元 UI 设计规范
 
-> **定位**：本规范是**元规范（meta-norm）**——面向所有 UI 系统（组件库、应用界面、渲染器……），只定义「什么是好界面」的**判断标准与要求**，不绑定任何具体实现：不指定组件、代码、设计 Token 取值或设计风格。**规范与实现分离**：各 UI 系统按本规范做设计决策，并在自身的实现层文档中声明落地映射（消费示例：本仓库的 ui-frame，映射见 [设计理念](./design-philosophy.md)）。读者：做界面设计、实现与评审的开发者（含 AI Agent）。
+> **定位**：ui-frame 项目的**元 UI 设计规范（meta-norm）**——把 Apple 官方设计材料（Human Interface Guidelines 与 WWDC 设计课程，清单见文末「参考」）中的设计要点，整理为「什么是好界面」的**判断标准与要求**，覆盖设计原则、视觉层次、对齐、间距与分组、渐进披露、一致性、排版、图标、触控反馈与主题适配。它是**元级**规范：只定义要求、**不绑定任何具体实现**——不指定组件、代码、设计 Token 取值或设计风格，对 ui-frame 与其它 UI 系统同样适用；**规范与实现分离**，各系统按本规范做设计决策，并在自身的实现层文档中声明落地映射（ui-frame 的映射见 [设计理念](./design-philosophy.md)）。读者：做界面设计、实现与评审的开发者（含 AI Agent）。
 
 ---
 
 ## 一、八条设计原则
 
-视觉决策遇到分歧时，回到这八条上裁决（前四条是底线，不可让步）：
+视觉决策遇到分歧时，回到这八条上裁决（前四条是底线，不可让步）；原则体系整理自 Apple Design principles / WWDC《Principles of great design》：
 
 | 原则       | 一句话                 | 判断标准                                                  |
 | ---------- | ---------------------- | --------------------------------------------------------- |
@@ -270,10 +270,25 @@ group: 开发
 2. **设计与评审以此为据**——新增组件、页面、图标时，以第十一节检查清单逐项过堂
 3. **例外必须显式**——确需偏离某条要求时，记录理由与范围，而不是默默违反
 
-> 消费示例：本仓库的 ui-frame 是本规范的消费者——实现层映射见 [设计理念](./design-philosophy.md)，Token 与组件细节见各组件的用户文档。
+> 本仓库的 ui-frame 是本规范的首要落地实现：实现层映射见 [设计理念](./design-philosophy.md)；Token 与组件细节见各组件的用户文档。
 
 ---
 
 ## 参考
 
-- 原则骨架参考 [Apple Human Interface Guidelines](https://developer.apple.com/design/human-interface-guidelines/) 与 WWDC 设计讲座（The Qualities of Great Design、Essential Design Principles、Principles of Great Design、Design foundations from idea to interface），提炼为不绑实现的元规范
+本文档整理自以下 Apple 官方设计材料（原文为权威来源，本文档为要点整理与工程化改写）：
+
+**Human Interface Guidelines**（Apple 官方设计规范）
+
+- [Design principles](https://developer.apple.com/design/human-interface-guidelines/design-principles)——八条设计原则（Purpose / Agency / Responsibility / Familiarity / Flexibility / Simplicity / Craft / Delight）
+- [Layout](https://developer.apple.com/design/human-interface-guidelines/layout)——视觉层次、对齐与缩进、分组、渐进披露、适配
+- [Typography](https://developer.apple.com/design/human-interface-guidelines/typography)——字号底线、字重、文本层次
+- [Icons](https://developer.apple.com/design/human-interface-guidelines/icons) / [App icons](https://developer.apple.com/design/human-interface-guidelines/app-icons) / [SF Symbols](https://developer.apple.com/design/human-interface-guidelines/sf-symbols)——图标一致性、光学对齐、重量匹配
+- [Accessibility](https://developer.apple.com/design/human-interface-guidelines/accessibility)——触控目标尺寸与间距
+
+**WWDC 设计课程**
+
+- The Qualities of Great Design（WWDC18）——好设计出自时间、用心与打磨
+- Essential Design Principles（WWDC17）——反馈、可见性、一致性、接近性、渐进披露
+- Design foundations from idea to interface（WWDC25）——视觉层次、分组、视觉锚点与设计全流程
+- Principles of great design（WWDC26）——八条原则总纲
