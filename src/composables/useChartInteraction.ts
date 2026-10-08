@@ -9,6 +9,8 @@ export interface ChartInteractionSeries {
 export interface ChartTooltipRow {
   name: string
   value: number
+  /** 格式化后的展示文本（未配置 valueFormatter 时为原始数字字符串） */
+  display: string
   color: string
 }
 
@@ -42,6 +44,8 @@ export interface UseChartInteractionOptions {
   tooltip: Ref<ChartTooltipState>
   /** 隐藏 tooltip（来自 useChart） */
   hideTooltip: () => void
+  /** tooltip 数值格式化（value, seriesName）=> 展示文本 */
+  valueFormatter?: (value: number, seriesName: string) => string
 }
 
 export interface UseChartInteractionReturn {
@@ -79,6 +83,7 @@ export function useChartInteraction(opts: UseChartInteractionOptions): UseChartI
     palette,
     tooltip,
     hideTooltip,
+    valueFormatter,
   } = opts
 
   const containerRect = ref({ left: 0, top: 0 })
@@ -147,6 +152,7 @@ export function useChartInteraction(opts: UseChartInteractionOptions): UseChartI
         rows.push({
           name: s.name,
           value: d.value,
+          display: valueFormatter ? valueFormatter(d.value, s.name) : String(d.value),
           color: s.color ?? palette.value[si % palette.value.length],
         })
       }

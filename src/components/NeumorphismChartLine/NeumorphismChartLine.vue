@@ -25,6 +25,8 @@ export interface NeumorphismChartLineProps {
   yMin?: number
   yMax?: number
   title?: string
+  /** tooltip 数值格式化：接收 (value, seriesName)，返回展示文本 */
+  valueFormatter?: (value: number, seriesName: string) => string
 }
 
 const props = withDefaults(defineProps<NeumorphismChartLineProps>(), {
@@ -142,6 +144,7 @@ const {
   palette,
   tooltip,
   hideTooltip,
+  valueFormatter: props.valueFormatter,
 })
 
 /** Y values at the nearest index for each series */
@@ -402,7 +405,7 @@ function onPointClick(pt: { dataIndex: number; seriesIndex: number; value: numbe
           <div v-for="(row, ri) in tooltipData.rows" :key="ri" class="nm-chart__tooltip-row">
             <span class="nm-chart__tooltip-dot" :style="{ background: row.color }" />
             <span
-              >{{ row.name }}: <strong>{{ row.value }}</strong></span
+              >{{ row.name }}: <strong>{{ row.display }}</strong></span
             >
           </div>
         </div>
