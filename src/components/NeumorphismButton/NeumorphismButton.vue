@@ -87,7 +87,7 @@ function handleClick(event: MouseEvent): void {
           cy="12"
           r="10"
           stroke="currentColor"
-          stroke-width="3"
+          stroke-width="2.5"
           stroke-linecap="round"
           stroke-dasharray="31.42"
           stroke-dashoffset="10"

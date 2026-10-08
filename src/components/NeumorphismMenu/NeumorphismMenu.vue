@@ -259,7 +259,7 @@ const expandIconClass = computed(() => [
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
-                stroke-width="2"
+                stroke-width="2.5"
                 stroke-linecap="round"
                 stroke-linejoin="round"
               >
@@ -329,7 +329,7 @@ const expandIconClass = computed(() => [
                         viewBox="0 0 24 24"
                         fill="none"
                         stroke="currentColor"
-                        stroke-width="2"
+                        stroke-width="2.5"
                         stroke-linecap="round"
                         stroke-linejoin="round"
                       >
@@ -418,21 +418,21 @@ const expandIconClass = computed(() => [
     --nm-menu-padding-x: var(--nm-spacing-sm);
     --nm-menu-padding-y: 5px;
     --nm-menu-gap: 2px;
-    --nm-menu-icon-size: 14px;
+    --nm-menu-icon-size: var(--nm-icon-size-sm);
   }
   &--medium {
     --nm-menu-font: var(--nm-font-base);
     --nm-menu-padding-x: var(--nm-spacing-md);
     --nm-menu-padding-y: 7px;
     --nm-menu-gap: var(--nm-spacing-xs);
-    --nm-menu-icon-size: 18px;
+    --nm-menu-icon-size: var(--nm-icon-size-lg);
   }
   &--large {
     --nm-menu-font: var(--nm-font-lg);
     --nm-menu-padding-x: var(--nm-spacing-lg);
     --nm-menu-padding-y: 9px;
     --nm-menu-gap: var(--nm-spacing-sm);
-    --nm-menu-icon-size: 20px;
+    --nm-menu-icon-size: var(--nm-icon-size-xl);
   }
 }
 
@@ -653,8 +653,8 @@ const expandIconClass = computed(() => [
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 16px;
-  height: 16px;
+  width: var(--nm-icon-size-md);
+  height: var(--nm-icon-size-md);
   flex-shrink: 0;
   color: var(--nm-text-placeholder);
   transition: transform 0.25s $nm-ease-spring;

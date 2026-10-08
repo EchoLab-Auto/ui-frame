@@ -64,6 +64,10 @@ const SPACING_PROP_RE =
   /^\s*(padding|margin|gap|row-gap|column-gap|padding-[\w-]+|margin-[\w-]+)\s*:\s*([^;{}]+)/
 const FONT_SIZE_RE = /font-size\s*:\s*(\d+(?:\.\d+)?)px/
 const SVG_FONT_SIZE_RE = /font-size="(\d+(?:\.\d+)?)"/
+
+// ── 规则 3/4：图标尺寸与线宽档位（--nm-icon-size-* 值域；线宽语义）──
+const ICON_SIZE_ALLOWED = new Set(['12', '14', '16', '18', '20', '24', '32'])
+const STROKE_ALLOWED = new Set(['0.5', '1', '1.5', '2', '2.5', '3'])
 const PX_RE = /(?<![\w.-])(-?\d+(?:\.\d+)?)px/g
 
 function* walk(dir) {
@@ -83,6 +87,7 @@ for (const file of walk(srcDir)) {
   const isVue = file.endsWith('.vue')
   let inStyle = !isVue
   let inTemplate = false
+  let svgTagOpen = false
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i]
@@ -149,6 +154,38 @@ for (const file of walk(srcDir)) {
           decl: sm[0].trim(),
           value: `${sm[1]}px`,
           suggestion: 'SVG 属性不支持 var()——改用 class/style 走 --nm-font-*',
+        })
+      }
+
+      // 规则 3：SVG 图标尺寸档（--nm-icon-size-* 的值域）——仅限 <svg> 开标签内
+      // 状态机：多行开标签「<svg 行（未闭合）→ 属性行 → '>' 行」；单行完整标签不进入状态
+      const svgStart = stripped.trim()
+      if (/^<svg(\s|>|$)/.test(svgStart)) {
+        svgTagOpen = !svgStart.endsWith('>') // 单行完整标签（以 > 结尾）不进入
+      } else if (svgTagOpen && /(^\s*>|\/>)\s*$/.test(stripped)) {
+        svgTagOpen = false
+      }
+      const im = svgTagOpen ? stripped.match(/^\s*(width|height)="(\d+)"\s*$/) : null
+      if (im && !ICON_SIZE_ALLOWED.has(im[2])) {
+        findings.push({
+          file: relative(root, file),
+          line: i + 1,
+          kind: 'icon-size',
+          decl: im[0].trim(),
+          value: `${im[2]}px`,
+          suggestion: `图标尺寸须 ∈ {${[...ICON_SIZE_ALLOWED].join(', ')}}（--nm-icon-size-* 值域）`,
+        })
+      }
+      // 规则 4：SVG 线宽档
+      const stm = stripped.match(/^\s*stroke-width="([\d.]+)"\s*$/)
+      if (stm && !STROKE_ALLOWED.has(stm[1])) {
+        findings.push({
+          file: relative(root, file),
+          line: i + 1,
+          kind: 'icon-stroke',
+          decl: stm[0].trim(),
+          value: stm[1],
+          suggestion: `线宽须 ∈ {${[...STROKE_ALLOWED].join(', ')}}（0.5/1 图表 · 1.5 大图标 · 2 标准 · 2.5 微图标/转圈 · 3 勾选）`,
         })
       }
     }

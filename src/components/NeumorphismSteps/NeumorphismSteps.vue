@@ -341,16 +341,16 @@ function showError(index: number): boolean {
 
 .nm-steps__icon {
   .nm-steps--small & {
-    width: 14px;
-    height: 14px;
+    width: var(--nm-icon-size-sm);
+    height: var(--nm-icon-size-sm);
   }
   .nm-steps--medium & {
-    width: 18px;
-    height: 18px;
+    width: var(--nm-icon-size-lg);
+    height: var(--nm-icon-size-lg);
   }
   .nm-steps--large & {
-    width: 22px;
-    height: 22px;
+    width: var(--nm-icon-size-xl);
+    height: var(--nm-icon-size-xl);
   }
 
   &--check {

@@ -258,7 +258,7 @@ function onCandleMouseLeave(): void {
                 volumeAreaHeight
             "
             stroke="var(--nm-chart-grid-color)"
-            stroke-width="0.3"
+            stroke-width="0.5"
             stroke-dasharray="3,3"
             vector-effect="non-scaling-stroke"
           />

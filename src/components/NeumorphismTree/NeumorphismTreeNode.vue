@@ -269,8 +269,8 @@ function handleSelect() {
 }
 
 .nm-tree-node__chevron {
-  width: 14px;
-  height: 14px;
+  width: var(--nm-icon-size-sm);
+  height: var(--nm-icon-size-sm);
   transition: transform 0.3s $nm-ease-spring;
   transform: rotate(0deg);
 }

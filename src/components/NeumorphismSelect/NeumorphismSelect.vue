@@ -656,12 +656,12 @@ function onContainerBlur(e: FocusEvent) {
                     >
                       <svg
                         v-if="isSelected(option)"
-                        width="10"
-                        height="10"
+                        width="12"
+                        height="12"
                         viewBox="0 0 24 24"
                         fill="none"
                         stroke="currentColor"
-                        stroke-width="3.5"
+                        stroke-width="3"
                       >
                         <path d="M20 6L9 17l-5-5" />
                       </svg>
@@ -705,12 +705,12 @@ function onContainerBlur(e: FocusEvent) {
                   >
                     <svg
                       v-if="isSelected(option)"
-                      width="10"
-                      height="10"
+                      width="12"
+                      height="12"
                       viewBox="0 0 24 24"
                       fill="none"
                       stroke="currentColor"
-                      stroke-width="3.5"
+                      stroke-width="3"
                     >
                       <path d="M20 6L9 17l-5-5" />
                     </svg>
@@ -1181,8 +1181,8 @@ function onContainerBlur(e: FocusEvent) {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 14px;
-  height: 14px;
+  width: var(--nm-icon-size-sm);
+  height: var(--nm-icon-size-sm);
   flex-shrink: 0;
   border-radius: var(--nm-border-radius-xs);
   color: var(--nm-text-on-primary);
@@ -1248,8 +1248,8 @@ function onContainerBlur(e: FocusEvent) {
     font-size: var(--nm-field-font-sm);
   }
   .nm-select__arrow {
-    width: 14px;
-    height: 14px;
+    width: var(--nm-icon-size-sm);
+    height: var(--nm-icon-size-sm);
   }
 }
 
@@ -1266,8 +1266,8 @@ function onContainerBlur(e: FocusEvent) {
     font-size: var(--nm-field-font-lg);
   }
   .nm-select__arrow {
-    width: 18px;
-    height: 18px;
+    width: var(--nm-icon-size-lg);
+    height: var(--nm-icon-size-lg);
   }
 }
 

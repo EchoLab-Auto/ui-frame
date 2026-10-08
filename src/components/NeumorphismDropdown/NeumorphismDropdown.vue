@@ -226,7 +226,7 @@ const classList = computed(() => ['nm-dropdown'])
 .nm-dropdown__item-icon {
   display: inline-flex;
   align-items: center;
-  width: 18px;
+  width: var(--nm-icon-size-lg);
   justify-content: center;
   flex-shrink: 0;
 }

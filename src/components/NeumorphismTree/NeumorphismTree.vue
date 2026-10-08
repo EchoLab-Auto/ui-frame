@@ -206,8 +206,8 @@ const classList = computed(() => ['nm-tree'])
   left: 10px;
   top: 50%;
   transform: translateY(-50%);
-  width: var(--nm-spacing-md);
-  height: var(--nm-spacing-md);
+  width: var(--nm-icon-size-md);
+  height: var(--nm-icon-size-md);
   color: var(--nm-text-placeholder);
   pointer-events: none;
 }
@@ -252,8 +252,8 @@ const classList = computed(() => ['nm-tree'])
   padding: 0;
 
   svg {
-    width: 14px;
-    height: 14px;
+    width: var(--nm-icon-size-sm);
+    height: var(--nm-icon-size-sm);
   }
 
   // 触屏热区：20px → 44×44（在原有绝对定位之上扩展，视觉不变）

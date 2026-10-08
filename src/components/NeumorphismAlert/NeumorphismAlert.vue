@@ -165,7 +165,7 @@ const defaultIcons: Record<AlertType, { viewBox: string; paths: string[] }> = {
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
-          stroke-width="2.5"
+          stroke-width="2"
         >
           <path d="M18 6L6 18M6 6l12 12" />
         </svg>

@@ -264,8 +264,8 @@ function formatFileSize(bytes: number): string {
           <svg
             v-else
             class="nm-upload__trigger-icon"
-            width="28"
-            height="28"
+            width="32"
+            height="32"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
@@ -747,8 +747,8 @@ function formatFileSize(bytes: number): string {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 24px;
-  height: 24px;
+  width: var(--nm-icon-size-2xl);
+  height: var(--nm-icon-size-2xl);
   color: var(--nm-text-secondary);
 }
 

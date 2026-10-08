@@ -165,12 +165,12 @@ const showSelectionColumn = computed(
                 <!-- Sort indicator -->
                 <span v-if="column.sortable" class="nm-table__sort-icon" aria-hidden="true">
                   <svg
-                    width="10"
-                    height="10"
+                    width="12"
+                    height="12"
                     viewBox="0 0 24 24"
                     fill="none"
                     stroke="currentColor"
-                    stroke-width="3"
+                    stroke-width="2.5"
                     stroke-linecap="round"
                     stroke-linejoin="round"
                   >

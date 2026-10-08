@@ -126,6 +126,15 @@
   --nm-spacing-neg-xs: -4px;
   --nm-spacing-neg-sm: -8px;
 
+  // Icon sizes（SVG 显示尺寸阶梯——线宽规则见 design-philosophy「图标体系」）
+  --nm-icon-size-xs: 12px;
+  --nm-icon-size-sm: 14px;
+  --nm-icon-size-md: 16px;
+  --nm-icon-size-lg: 18px;
+  --nm-icon-size-xl: 20px;
+  --nm-icon-size-2xl: 24px;
+  --nm-icon-size-3xl: 32px;
+
   --nm-color-success: #27ae60;
   --nm-color-error: #e74c3c;
   --nm-color-warning: #f39c12;

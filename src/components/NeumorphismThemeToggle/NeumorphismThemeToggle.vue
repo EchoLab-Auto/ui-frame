@@ -234,8 +234,8 @@ function selectTheme(value: Theme) {
 }
 
 .nm-theme-toggle__icon {
-  width: var(--nm-spacing-md);
-  height: var(--nm-spacing-md);
+  width: var(--nm-icon-size-md);
+  height: var(--nm-icon-size-md);
   flex-shrink: 0;
   transition: transform 0.35s $nm-ease-spring;
 }
@@ -259,8 +259,8 @@ function selectTheme(value: Theme) {
   }
 
   .nm-theme-toggle__icon {
-    width: 14px;
-    height: 14px;
+    width: var(--nm-icon-size-sm);
+    height: var(--nm-icon-size-sm);
   }
 }
 
@@ -281,8 +281,8 @@ function selectTheme(value: Theme) {
   }
 
   .nm-theme-toggle__icon {
-    width: 18px;
-    height: 18px;
+    width: var(--nm-icon-size-lg);
+    height: var(--nm-icon-size-lg);
   }
 
   .nm-theme-toggle__label {

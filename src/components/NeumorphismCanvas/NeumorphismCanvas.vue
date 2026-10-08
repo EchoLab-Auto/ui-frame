@@ -846,8 +846,8 @@ defineExpose({
   @include nm-touch-target;
 
   svg {
-    width: var(--nm-spacing-md);
-    height: var(--nm-spacing-md);
+    width: var(--nm-icon-size-md);
+    height: var(--nm-icon-size-md);
     transition: transform 0.3s $nm-ease-spring;
   }
 

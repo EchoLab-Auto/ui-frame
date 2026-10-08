@@ -189,12 +189,12 @@ function getItemClass(item: MenuItem) {
               <span class="nm-nav-menu__item-label">{{ item.label }}</span>
               <span class="nm-nav-menu__dropdown-arrow" aria-hidden="true">
                 <svg
-                  width="10"
-                  height="10"
+                  width="12"
+                  height="12"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
-                  stroke-width="2"
+                  stroke-width="2.5"
                   stroke-linecap="round"
                   stroke-linejoin="round"
                 >
@@ -282,7 +282,7 @@ function getItemClass(item: MenuItem) {
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
-                stroke-width="2"
+                stroke-width="2.5"
                 stroke-linecap="round"
                 stroke-linejoin="round"
               >
@@ -353,7 +353,7 @@ function getItemClass(item: MenuItem) {
     --nm-nav-padding-x: var(--nm-spacing-sm);
     --nm-nav-padding-y: 6px;
     --nm-nav-gap: 2px;
-    --nm-nav-icon-size: 14px;
+    --nm-nav-icon-size: var(--nm-icon-size-sm);
     --nm-nav-indicator-height: 2px;
   }
   &--medium {
@@ -361,7 +361,7 @@ function getItemClass(item: MenuItem) {
     --nm-nav-padding-x: var(--nm-spacing-md);
     --nm-nav-padding-y: 8px;
     --nm-nav-gap: var(--nm-spacing-xs);
-    --nm-nav-icon-size: 18px;
+    --nm-nav-icon-size: var(--nm-icon-size-lg);
     --nm-nav-indicator-height: 2px;
   }
   &--large {
@@ -369,7 +369,7 @@ function getItemClass(item: MenuItem) {
     --nm-nav-padding-x: var(--nm-spacing-lg);
     --nm-nav-padding-y: 10px;
     --nm-nav-gap: var(--nm-spacing-sm);
-    --nm-nav-icon-size: 20px;
+    --nm-nav-icon-size: var(--nm-icon-size-xl);
     --nm-nav-indicator-height: 3px;
   }
 }
@@ -550,8 +550,8 @@ function getItemClass(item: MenuItem) {
   color: var(--nm-text-placeholder);
   transition: transform 0.25s $nm-ease-spring;
   margin-left: var(--nm-spacing-2xs);
-  width: 12px;
-  height: 12px;
+  width: var(--nm-icon-size-xs);
+  height: var(--nm-icon-size-xs);
 }
 
 .nm-nav-menu__item--expanded .nm-nav-menu__dropdown-arrow {
@@ -565,8 +565,8 @@ function getItemClass(item: MenuItem) {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 16px;
-  height: 16px;
+  width: var(--nm-icon-size-md);
+  height: var(--nm-icon-size-md);
   flex-shrink: 0;
   color: var(--nm-text-placeholder);
   transition: transform 0.25s $nm-ease-spring;
@@ -638,8 +638,8 @@ function getItemClass(item: MenuItem) {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 18px;
-  height: 18px;
+  width: var(--nm-icon-size-lg);
+  height: var(--nm-icon-size-lg);
   flex-shrink: 0;
   font-size: var(--nm-font-2xl);
 }
