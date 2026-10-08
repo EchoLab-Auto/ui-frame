@@ -217,7 +217,7 @@ function handleKeyDown(e: KeyboardEvent) {
 /* Header */
 .neumorphism-editor-brand {
   font-weight: 700;
-  font-size: 17px;
+  font-size: var(--nm-font-2xl);
 }
 
 .neumorphism-editor-actions {
@@ -237,7 +237,7 @@ function handleKeyDown(e: KeyboardEvent) {
   justify-content: center;
   height: 100%;
   padding-top: var(--nm-spacing-md);
-  font-size: 20px;
+  font-size: var(--nm-font-2xl);
 }
 
 /* Main Container */
@@ -268,7 +268,7 @@ function handleKeyDown(e: KeyboardEvent) {
 
 .neumorphism-editor-title {
   margin: 0 0 var(--nm-spacing-10);
-  font-size: 22px;
+  font-size: var(--nm-heading-h3-size);
   font-weight: 700;
   color: var(--nm-text-primary);
 }
@@ -310,7 +310,7 @@ function handleKeyDown(e: KeyboardEvent) {
 }
 
 .neumorphism-editor-empty-emoji {
-  font-size: 40px;
+  font-size: var(--nm-heading-h1-size);
 }
 
 /* Responsive */
@@ -324,7 +324,7 @@ function handleKeyDown(e: KeyboardEvent) {
   }
 
   .neumorphism-editor-title {
-    font-size: 20px;
+    font-size: var(--nm-heading-h4-size);
   }
 }
 </style>

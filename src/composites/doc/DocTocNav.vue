@@ -254,7 +254,7 @@ defineExpose({ scrollTocToActive })
   align-items: center;
   justify-content: space-between;
   padding: 0 var(--nm-spacing-md) var(--nm-spacing-10) var(--nm-spacing-md);
-  font-size: 10px;
+  font-size: var(--nm-font-xs);
   font-weight: 700;
   color: var(--nm-text-placeholder);
   text-transform: uppercase;
@@ -290,7 +290,7 @@ defineExpose({ scrollTocToActive })
   align-items: center;
   gap: var(--nm-spacing-xs);
   padding: 5px var(--nm-spacing-12) 5px var(--nm-spacing-xs);
-  font-size: 13px;
+  font-size: var(--nm-font-md);
   color: var(--nm-text-secondary);
   text-decoration: none;
   border-right: 2px solid transparent;
@@ -322,7 +322,7 @@ defineExpose({ scrollTocToActive })
   border-radius: var(--nm-border-radius-sm);
   background: transparent;
   color: var(--nm-text-placeholder);
-  font-size: 10px;
+  font-size: var(--nm-font-xs);
   line-height: 16px;
   text-align: center;
   cursor: pointer;

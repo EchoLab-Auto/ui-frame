@@ -215,7 +215,6 @@ function getColor(index: number, pointColor?: unknown): string {
                 :text-anchor="arc.labelAnchor"
                 dominant-baseline="middle"
                 fill="var(--nm-chart-label-color)"
-                font-size="11"
                 class="nm-chart__tick-label"
               >
                 {{ arc.label || `${arc.percentage}%` }}
@@ -232,7 +231,6 @@ function getColor(index: number, pointColor?: unknown): string {
               text-anchor="middle"
               dominant-baseline="middle"
               fill="var(--nm-text-on-primary)"
-              font-size="11"
               font-weight="600"
               class="nm-chart__tick-label"
             >
@@ -248,7 +246,7 @@ function getColor(index: number, pointColor?: unknown): string {
             text-anchor="middle"
             dominant-baseline="middle"
             fill="var(--nm-text-placeholder)"
-            font-size="13"
+            class="nm-chart__empty-text"
           >
             {{ t('chartNoData') }}
           </text>
@@ -343,6 +341,11 @@ function getColor(index: number, pointColor?: unknown): string {
   &__tick-label {
     user-select: none;
     pointer-events: none;
+    font-size: var(--nm-font-xs);
+  }
+
+  &__empty-text {
+    font-size: var(--nm-font-md);
   }
 
   &__center-slot {

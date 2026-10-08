@@ -536,7 +536,7 @@ onBeforeUnmount(() => {
 
 .neumorphism-markdown-error-msg {
   font-family: var(--nm-font-mono);
-  font-size: 13px;
+  font-size: var(--nm-font-md);
   color: var(--nm-text-secondary);
   white-space: pre-wrap;
   word-break: break-word;
@@ -550,7 +550,7 @@ onBeforeUnmount(() => {
 .neumorphism-markdown-content {
   line-height: 1.75;
   color: var(--nm-text-primary);
-  font-size: 15px;
+  font-size: var(--nm-font-lg);
 }
 
 .neumorphism-markdown-content h1,
@@ -568,23 +568,24 @@ onBeforeUnmount(() => {
   position: relative;
 }
 
+/* 标题梯度：映射到全局 heading 阶梯（文档语境降一档，h5 由 font 阶梯承接） */
 .neumorphism-markdown-content h1 {
-  font-size: 26px;
+  font-size: var(--nm-heading-h2-size);
 }
 .neumorphism-markdown-content h2 {
-  font-size: 22px;
+  font-size: var(--nm-heading-h3-size);
 }
 .neumorphism-markdown-content h3 {
-  font-size: 18px;
+  font-size: var(--nm-heading-h4-size);
 }
 .neumorphism-markdown-content h4 {
-  font-size: 16px;
+  font-size: var(--nm-heading-h5-size);
 }
 .neumorphism-markdown-content h5 {
-  font-size: 15px;
+  font-size: var(--nm-font-lg);
 }
 .neumorphism-markdown-content h6 {
-  font-size: 14px;
+  font-size: var(--nm-font-base);
   color: var(--nm-text-secondary);
 }
 
@@ -595,7 +596,7 @@ onBeforeUnmount(() => {
   transform: translateY(-50%);
   color: var(--nm-text-placeholder);
   text-decoration: none;
-  font-size: 16px;
+  font-size: var(--nm-font-xl);
   font-weight: 400;
   opacity: 0;
   transition:
@@ -762,14 +763,14 @@ onBeforeUnmount(() => {
   background-color: var(--nm-bg-color);
   font-weight: 600;
   color: var(--nm-text-primary);
-  font-size: 12px;
+  font-size: var(--nm-font-sm);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
 .neumorphism-markdown-content td {
   color: var(--nm-text-primary);
-  font-size: 14px;
+  font-size: var(--nm-font-base);
 }
 
 .neumorphism-markdown-content tr:last-child td {
@@ -832,7 +833,7 @@ onBeforeUnmount(() => {
   height: 48px;
   border-radius: 50%;
   border: none;
-  font-size: 20px;
+  font-size: var(--nm-font-2xl);
   cursor: pointer;
   background-color: var(--nm-surface-color);
   box-shadow:
@@ -881,7 +882,7 @@ onBeforeUnmount(() => {
 }
 
 .neumorphism-toc-mobile-title {
-  font-size: 12px;
+  font-size: var(--nm-font-sm);
   font-weight: 700;
   color: var(--nm-text-placeholder);
   text-transform: uppercase;
@@ -896,7 +897,7 @@ onBeforeUnmount(() => {
   background-color: var(--nm-surface-color);
   color: var(--nm-text-secondary);
   cursor: pointer;
-  font-size: 14px;
+  font-size: var(--nm-font-base);
   line-height: 1;
   display: flex;
   align-items: center;
@@ -975,7 +976,7 @@ onBeforeUnmount(() => {
   }
 
   .neumorphism-markdown-content {
-    font-size: 13px;
+    font-size: var(--nm-font-md);
     line-height: 1.6;
     color: #000;
   }

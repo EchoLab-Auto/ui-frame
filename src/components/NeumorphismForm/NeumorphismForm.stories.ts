@@ -53,7 +53,7 @@ const renderForm = (args: Record<string, unknown>) => ({
         </NeumorphismFormItem>
         <NeumorphismButton type="submit">提交</NeumorphismButton>
       </NeumorphismForm>
-      <p v-if="submitted" style="margin-top: 8px; font-size: 12px; color: var(--nm-text-secondary)">
+      <p v-if="submitted" style="margin-top: var(--nm-spacing-sm); font-size: var(--nm-font-sm); color: var(--nm-text-secondary)">
         {{ submitted }}
       </p>
     </div>

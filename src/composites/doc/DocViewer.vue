@@ -240,7 +240,7 @@ function onCanvasNavigate(path: string) {
 /* Header */
 .neumorphism-header-brand {
   font-weight: 700;
-  font-size: 17px;
+  font-size: var(--nm-font-2xl);
 }
 
 /* 视图切换分段控件 */
@@ -298,13 +298,13 @@ function onCanvasNavigate(path: string) {
 }
 
 .neumorphism-search-title {
-  font-size: 14px;
+  font-size: var(--nm-font-base);
   font-weight: 500;
   color: var(--nm-text-primary);
 }
 
 .neumorphism-search-path {
-  font-size: 11px;
+  font-size: var(--nm-font-xs);
   color: var(--nm-text-placeholder);
   font-family: var(--nm-font-mono);
 }
@@ -320,7 +320,7 @@ function onCanvasNavigate(path: string) {
   justify-content: center;
   height: 100%;
   padding-top: var(--nm-spacing-md);
-  font-size: 20px;
+  font-size: var(--nm-font-2xl);
 }
 
 /* Main Content */
@@ -340,7 +340,7 @@ function onCanvasNavigate(path: string) {
 
 .neumorphism-doc-title {
   margin: 0 0 var(--nm-spacing-12);
-  font-size: 28px;
+  font-size: var(--nm-heading-h2-size);
   font-weight: 700;
   color: var(--nm-text-primary);
 }
@@ -378,7 +378,7 @@ function onCanvasNavigate(path: string) {
 }
 
 .neumorphism-empty-emoji {
-  font-size: 40px;
+  font-size: var(--nm-heading-h1-size);
 }
 
 /* Document switch transition */
@@ -410,7 +410,7 @@ function onCanvasNavigate(path: string) {
   }
 
   .neumorphism-doc-title {
-    font-size: 22px;
+    font-size: var(--nm-heading-h3-size);
   }
 
   .neumorphism-doc-body {

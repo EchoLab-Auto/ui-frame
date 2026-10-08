@@ -71,7 +71,7 @@ const copyLabel = computed(() => (copied.value ? t('markdownCodeCopied') : t('ma
 }
 
 .code-lang {
-  font-size: 11px;
+  font-size: var(--nm-font-xs);
   font-weight: 700;
   color: var(--nm-primary-color);
   text-transform: uppercase;
@@ -80,7 +80,7 @@ const copyLabel = computed(() => (copied.value ? t('markdownCodeCopied') : t('ma
 }
 
 .code-lines {
-  font-size: 11px;
+  font-size: var(--nm-font-xs);
   color: var(--nm-text-placeholder);
   font-family: var(--nm-font-mono);
   margin-left: auto;
@@ -91,7 +91,7 @@ const copyLabel = computed(() => (copied.value ? t('markdownCodeCopied') : t('ma
   padding: var(--nm-spacing-xs) var(--nm-spacing-10);
   border: none;
   border-radius: var(--nm-border-radius-sm);
-  font-size: 11px;
+  font-size: var(--nm-font-xs);
   font-weight: 500;
   color: var(--nm-text-secondary);
   background-color: var(--nm-surface-color);
@@ -133,7 +133,7 @@ const copyLabel = computed(() => (copied.value ? t('markdownCodeCopied') : t('ma
 }
 
 .line-num {
-  font-size: 12px;
+  font-size: var(--nm-font-sm);
   line-height: 1.65;
   color: var(--nm-text-placeholder);
   font-family: var(--nm-font-mono);
@@ -153,7 +153,7 @@ const copyLabel = computed(() => (copied.value ? t('markdownCodeCopied') : t('ma
 
 .code-block-body pre code {
   display: block;
-  font-size: 13px;
+  font-size: var(--nm-font-md);
   line-height: 1.65;
   font-family: var(--nm-font-mono);
   background: transparent;

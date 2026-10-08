@@ -384,7 +384,6 @@ function onCandleMouseLeave(): void {
             text-anchor="end"
             dominant-baseline="middle"
             fill="var(--nm-chart-label-color)"
-            font-size="11"
             class="nm-chart__tick-label"
           >
             {{ label }}
@@ -408,7 +407,6 @@ function onCandleMouseLeave(): void {
             text-anchor="start"
             dominant-baseline="middle"
             fill="var(--nm-chart-label-color)"
-            font-size="10"
             class="nm-chart__tick-label"
           >
             {{ label }}
@@ -433,7 +431,6 @@ function onCandleMouseLeave(): void {
             :y="resolvedMargin.top + plotSize.height + 16"
             text-anchor="middle"
             fill="var(--nm-chart-label-color)"
-            font-size="10"
             class="nm-chart__tick-label"
           >
             {{ item.label }}
@@ -515,6 +512,7 @@ function onCandleMouseLeave(): void {
   &__tick-label {
     user-select: none;
     pointer-events: none;
+    font-size: var(--nm-font-xs);
   }
 }
 

@@ -269,7 +269,6 @@ function onPointClick(pt: { dataIndex: number; seriesIndex: number; value: numbe
             text-anchor="end"
             dominant-baseline="middle"
             fill="var(--nm-chart-label-color)"
-            font-size="11"
             class="nm-chart__tick-label"
           >
             {{ label }}
@@ -299,7 +298,6 @@ function onPointClick(pt: { dataIndex: number; seriesIndex: number; value: numbe
             :y="resolvedMargin.top + plotSize.height + 20"
             text-anchor="middle"
             fill="var(--nm-chart-label-color)"
-            font-size="11"
             class="nm-chart__tick-label"
           >
             {{ label }}
@@ -486,6 +484,7 @@ function onPointClick(pt: { dataIndex: number; seriesIndex: number; value: numbe
   &__tick-label {
     user-select: none;
     pointer-events: none;
+    font-size: var(--nm-font-xs);
   }
 }
 
@@ -580,7 +579,7 @@ function onPointClick(pt: { dataIndex: number; seriesIndex: number; value: numbe
     padding-bottom: var(--nm-spacing-xs);
     border-bottom: 1px solid var(--nm-chart-grid-color);
     color: var(--nm-text-primary);
-    font-size: 13px;
+    font-size: var(--nm-font-md);
   }
 
   :deep(.nm-chart__tooltip-row) {

@@ -383,7 +383,7 @@ function handleKeydown(event: KeyboardEvent): void {
 .nm-input--small .nm-input__floating-label {
   left: var(--nm-field-padding-x-sm);
   &--active {
-    font-size: 10px;
+    font-size: var(--nm-font-xs);
     top: 2px;
   }
 }

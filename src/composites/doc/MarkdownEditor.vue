@@ -341,7 +341,7 @@ function syncEditScroll() {
 }
 
 .editor-stat {
-  font-size: 12px;
+  font-size: var(--nm-font-sm);
   color: var(--nm-text-placeholder);
   font-family: var(--nm-font-mono);
 }
@@ -400,7 +400,7 @@ function syncEditScroll() {
 /* Override NeumorphismTextarea to behave like a code editor */
 .neumorphism-editor-textarea :deep(.nm-textarea__field) {
   font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
-  font-size: 14px;
+  font-size: var(--nm-font-base);
   line-height: 1.65;
   resize: none;
   height: 100%;

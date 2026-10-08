@@ -83,7 +83,7 @@ group: 开发
 - **单一事实源**：组件级 token（如 `--nm-button-padding-y-md`）一律引用全局刻度取值，形成「刻度 → 组件 token → 样式声明」的引用链
 - **负向偏移**：`--nm-spacing-neg-xs`（-4）/ `--nm-spacing-neg-sm`（-8）
 - **豁免**：发丝级 1px、光学对位负值（如浮层箭头偏移）等物理特例可保留字面量，须注释说明
-- **防回归**：`npm run check:spacing` 扫描组件层字面量，CI 中与 `check:registry` 同级执行
+- **防回归**：`npm run check:styles` 扫描间距与字号字面量（含 SVG 属性），CI 中与 `check:registry` 同级执行
 
 > 对应元规范 §4.1（一切间距来自可枚举刻度）：本库刻度表即 `tokens.scss` 中的两层 `--nm-spacing-*`；两层之外的值一律视为缺陷。
 

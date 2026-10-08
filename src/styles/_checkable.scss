@@ -49,7 +49,7 @@
 
 @mixin checkable-label($name) {
   .nm-#{$name}__label {
-    font-size: 14px;
+    font-size: var(--nm-font-base);
     color: var(--nm-text-primary);
     transition: color var(--nm-transition-slow);
   }

@@ -235,7 +235,6 @@ const zeroY = computed(() => {
             text-anchor="end"
             dominant-baseline="middle"
             fill="var(--nm-chart-label-color)"
-            font-size="11"
             class="nm-chart__tick-label"
           >
             {{ label }}
@@ -260,7 +259,6 @@ const zeroY = computed(() => {
             :y="resolvedMargin.top + plotSize.height + 20"
             text-anchor="middle"
             fill="var(--nm-chart-label-color)"
-            font-size="11"
             class="nm-chart__tick-label"
           >
             {{ label }}
@@ -380,6 +378,7 @@ const zeroY = computed(() => {
   &__tick-label {
     user-select: none;
     pointer-events: none;
+    font-size: var(--nm-font-xs);
   }
 }
 

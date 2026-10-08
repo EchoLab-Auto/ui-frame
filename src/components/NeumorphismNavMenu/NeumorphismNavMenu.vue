@@ -641,7 +641,7 @@ function getItemClass(item: MenuItem) {
   width: 18px;
   height: 18px;
   flex-shrink: 0;
-  font-size: 18px;
+  font-size: var(--nm-font-2xl);
 }
 
 .nm-nav-menu__dropdown-item-label {

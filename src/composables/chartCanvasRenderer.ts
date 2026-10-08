@@ -18,6 +18,8 @@ export interface ChartRendererOptions {
   useWorker?: boolean
   /** DPR scaling factor (default: devicePixelRatio) */
   devicePixelRatio?: number
+  /** 图表标签字体（默认与设计体系 --nm-font-xs 对齐；Worker 环境无法读 CSS 变量，可由调用方注入） */
+  labelFont?: string
 }
 
 export interface BarSeries {
@@ -74,7 +76,7 @@ function createCanvasRenderer(
 
     // Draw labels
     ctx.fillStyle = '#888'
-    ctx.font = '11px sans-serif'
+    ctx.font = options.labelFont ?? '11px sans-serif'
     ctx.textAlign = 'center'
     for (let i = 0; i < labels.length; i++) {
       const x = padding.left + i * groupWidth + groupWidth / 2
@@ -141,6 +143,7 @@ export function createChartRenderer(
     devicePixelRatio:
       options.devicePixelRatio ??
       (typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1),
+    labelFont: options.labelFont ?? '11px sans-serif',
   }
 
   // OffscreenCanvas + Worker path is available in modern browsers but
