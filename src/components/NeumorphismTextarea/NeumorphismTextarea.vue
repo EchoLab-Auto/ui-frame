@@ -83,8 +83,17 @@ const classList = computed(() => [
 
 function adjustHeight() {
   if (!props.autoResize || !textareaRef.value) return
-  textareaRef.value.style.height = 'auto'
-  textareaRef.value.style.height = textareaRef.value.scrollHeight + 'px'
+  const textarea = textareaRef.value
+  // Chromium 行为：**折行的 placeholder 会计入 scrollHeight**——窄容器 +
+  // 长占位文本时（如移动端聊天输入框），空输入框的 scrollHeight 会虚报
+  // 为多行高度，把框撑高（首屏空态 2 行高、输入一字后又缩回 1 行的抖动）。
+  // 测量前临时清空 placeholder、测完立即恢复——同一同步任务内完成，
+  // 不产生可见闪烁；测量口径始终只反映**实际内容**的高度。
+  const placeholder = textarea.placeholder
+  if (placeholder) textarea.placeholder = ''
+  textarea.style.height = 'auto'
+  textarea.style.height = textarea.scrollHeight + 'px'
+  if (placeholder) textarea.placeholder = placeholder
 }
 
 function handleInput(event: Event): void {
