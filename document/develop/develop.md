@@ -7,7 +7,7 @@ group: 开发
 link:
   [
     'design-philosophy | 设计理念',
-    'design-specification | 元 UI 设计规范',
+    'meta-design-specification | 元 UI 设计规范',
     'design-patterns | 设计模式',
     'develop-pipeline | 开发流程',
     'documentation-guide | 文档规范',
@@ -24,16 +24,16 @@ link:
 
 ## 文件索引
 
-| 文件                                                 | 职责                               | 必读时机           |
-| ---------------------------------------------------- | ---------------------------------- | ------------------ |
-| [design-philosophy.md](./design-philosophy.md)       | 六条核心设计原则                   | **任何修改前**     |
-| [design-specification.md](./design-specification.md) | 元 UI 设计规范：不绑实现的判断标准 | 设计与评审前       |
-| [design-patterns.md](./design-patterns.md)           | 源码中使用的具体设计模式           | 新增组件/功能前    |
-| [develop-pipeline.md](./develop-pipeline.md)         | 从编码到提交的完整验证流程         | 理解规范后开始编码 |
-| [documentation-guide.md](./documentation-guide.md)   | 文档分层结构与撰写规范             | 需要写/改文档时    |
-| [ci-pipeline.md](./ci-pipeline.md)                   | CI 流程设计与验证链路              | 提交前/开 PR 前    |
-| [readme-specification.md](./readme-specification.md) | 项目 README 的内容结构与标准       | 修改 README 时     |
-| [ci-design.md](./ci-design.md)                       | CI/CD 架构设计说明                 | 需要改 CI 时       |
+| 文件                                                           | 职责                               | 必读时机           |
+| -------------------------------------------------------------- | ---------------------------------- | ------------------ |
+| [design-philosophy.md](./design-philosophy.md)                 | 六条核心设计原则                   | **任何修改前**     |
+| [meta-design-specification.md](./meta-design-specification.md) | 元 UI 设计规范：不绑实现的判断标准 | 设计与评审前       |
+| [design-patterns.md](./design-patterns.md)                     | 源码中使用的具体设计模式           | 新增组件/功能前    |
+| [develop-pipeline.md](./develop-pipeline.md)                   | 从编码到提交的完整验证流程         | 理解规范后开始编码 |
+| [documentation-guide.md](./documentation-guide.md)             | 文档分层结构与撰写规范             | 需要写/改文档时    |
+| [ci-pipeline.md](./ci-pipeline.md)                             | CI 流程设计与验证链路              | 提交前/开 PR 前    |
+| [readme-specification.md](./readme-specification.md)           | 项目 README 的内容结构与标准       | 修改 README 时     |
+| [ci-design.md](./ci-design.md)                                 | CI/CD 架构设计说明                 | 需要改 CI 时       |
 
 ---
 
@@ -114,7 +114,7 @@ document/
 └── develop/           # 开发层 — "该怎么写"（面向开发者）
     ├── develop.md     # 本文件：开发入口索引
     ├── design-philosophy.md
-    ├── design-specification.md  # 元 UI 设计规范
+    ├── meta-design-specification.md  # 元 UI 设计规范
     ├── design-patterns.md
     ├── develop-pipeline.md
     ├── documentation-guide.md

@@ -17,7 +17,7 @@ group: 开发
 ```
 1. 读取 document/develop/design-philosophy.md
    → 确认理解六条核心设计原则
-   （涉及视觉、布局或图标时同时读取 design-specification.md——元 UI 设计规范，不绑实现）
+   （涉及视觉、布局或图标时同时读取 meta-design-specification.md——元 UI 设计规范，不绑实现）
 
 2. 确认修改范围类型
    → feat/fix/refactor/docs/style/test/build/ci/chore

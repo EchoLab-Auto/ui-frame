@@ -71,4 +71,4 @@ group: 开发
 
 ---
 
-> 检查清单与快速参考见 [develop.md](./develop.md)；视觉与排布遵循的元规范见 [元 UI 设计规范](./design-specification.md)——本库为其落地实现之一。
+> 检查清单与快速参考见 [develop.md](./develop.md)；视觉与排布遵循的元规范见 [元 UI 设计规范](./meta-design-specification.md)——本库为其落地实现之一。

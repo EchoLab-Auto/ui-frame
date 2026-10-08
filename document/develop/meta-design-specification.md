@@ -1,5 +1,5 @@
 ---
-id: design-specification
+id: meta-design-specification
 title: '元 UI 设计规范'
 x: 660
 y: 1109
