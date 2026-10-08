@@ -236,7 +236,7 @@ $switch-ambient: cubic-bezier(0.4, 0, 0.2, 1);
     width 0.25s $switch-compress,
     height 0.25s $switch-compress;
   box-shadow:
-    1px 2px 4px color-mix(in srgb, black 12%, transparent),
+    1px 2px 4px var(--nm-shadow-ambient-2xl),
     2px 2px 6px var(--nm-shadow-dark),
     -1px -1px 4px var(--nm-shadow-light);
 }

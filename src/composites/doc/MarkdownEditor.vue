@@ -536,7 +536,7 @@ function syncEditScroll() {
   max-width: 100%;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 767px) {
   .neumorphism-editor-panels.neumorphism-mode-split {
     flex-direction: column;
   }

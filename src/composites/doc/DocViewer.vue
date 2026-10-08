@@ -521,7 +521,7 @@ function onCanvasNavigate(path: string) {
 }
 
 /* Responsive */
-@media (max-width: 768px) {
+@media (max-width: 767px) {
   .neumorphism-main-container {
     padding: var(--nm-spacing-md) var(--nm-spacing-12);
   }

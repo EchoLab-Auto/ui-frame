@@ -765,7 +765,7 @@ onBeforeUnmount(() => {
   content: '';
   width: 5px;
   height: 9px;
-  border: solid #fff;
+  border: solid var(--nm-text-on-primary);
   border-width: 0 2px 2px 0;
   transform: rotate(45deg) translate(-1px, -1px);
   opacity: 0;
@@ -898,7 +898,8 @@ onBeforeUnmount(() => {
   position: fixed;
   right: 20px;
   bottom: 20px;
-  z-index: 100;
+  /* 归位全局 z 体系：内容浮层档（dropdown=100），按钮浮于遮罩之上 */
+  z-index: calc(var(--nm-z-dropdown) + 1);
   width: 48px;
   height: 48px;
   border-radius: 50%;
@@ -929,8 +930,8 @@ onBeforeUnmount(() => {
   display: none;
   position: fixed;
   inset: 0;
-  z-index: 99;
-  background-color: rgba(0, 0, 0, 0.3);
+  z-index: var(--nm-z-dropdown);
+  background-color: var(--nm-mask-bg);
   backdrop-filter: blur(2px);
 }
 
@@ -1015,7 +1016,8 @@ onBeforeUnmount(() => {
 /* ==========================================
    Responsive
    ========================================== */
-@media (max-width: 1100px) {
+/* 断点取系统集 xl=1200（与 DocTocNav 的侧 TOC 收起配对） */
+@media (max-width: 1200px) {
   .neumorphism-toc-mobile-btn {
     display: flex;
   }

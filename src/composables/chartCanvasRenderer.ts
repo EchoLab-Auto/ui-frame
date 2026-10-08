@@ -20,6 +20,8 @@ export interface ChartRendererOptions {
   devicePixelRatio?: number
   /** 图表标签字体（默认与设计体系 --nm-font-xs 对齐；Worker 环境无法读 CSS 变量，可由调用方注入） */
   labelFont?: string
+  /** 图表标签颜色（默认与 --nm-chart-label-color 对齐；同上可由调用方注入 resolved 色值） */
+  labelColor?: string
 }
 
 export interface BarSeries {
@@ -75,7 +77,7 @@ function createCanvasRenderer(
     }
 
     // Draw labels
-    ctx.fillStyle = '#888'
+    ctx.fillStyle = options.labelColor ?? '#888'
     ctx.font = options.labelFont ?? '11px sans-serif'
     ctx.textAlign = 'center'
     for (let i = 0; i < labels.length; i++) {
@@ -144,6 +146,7 @@ export function createChartRenderer(
       options.devicePixelRatio ??
       (typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1),
     labelFont: options.labelFont ?? '11px sans-serif',
+    labelColor: options.labelColor ?? '#888',
   }
 
   // OffscreenCanvas + Worker path is available in modern browsers but

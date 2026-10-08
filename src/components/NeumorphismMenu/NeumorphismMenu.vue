@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watch, onBeforeUnmount, type ComponentPublicInstance } from 'vue'
+import { computed, ref, watch, onMounted, onBeforeUnmount, type ComponentPublicInstance } from 'vue'
 import { useMenu } from '@/composables/useMenu'
 import { useNeumorphismSetup } from '@/extensions/createComponent'
 
@@ -162,6 +162,29 @@ watch(hasOpenHorizontalSubmenu, open => {
 
 onBeforeUnmount(stopMeasuring)
 
+// ---- 外点关闭：点击组件外部收起全部展开的子菜单 ----
+// document 捕获阶段 pointerdown（与 Select 同一范式，不受选项 @click.stop 影响）；
+// horizontal 模式子菜单 teleport 到 body，按浮层类名排除。
+const rootRef = ref<HTMLElement>()
+
+function onDocumentPointerDown(event: PointerEvent) {
+  const target = event.target as Node
+  if (rootRef.value?.contains(target)) return
+  if ((target as HTMLElement).closest?.('.nm-menu__submenu--floating')) return
+  if (expandedKeysRef.value.length) expandedKeysRef.value.splice(0)
+}
+
+onMounted(() => {
+  if (typeof document !== 'undefined') {
+    document.addEventListener('pointerdown', onDocumentPointerDown, true)
+  }
+})
+onBeforeUnmount(() => {
+  if (typeof document !== 'undefined') {
+    document.removeEventListener('pointerdown', onDocumentPointerDown, true)
+  }
+})
+
 function submenuStyle(key: string): Record<string, string> {
   const rect = itemRects.value[key]
   return {
@@ -213,7 +236,13 @@ const expandIconClass = computed(() => [
 </script>
 
 <template>
-  <nav :class="classList" :role="ariaRole" :aria-label="'Menu'" @keydown="handleKeydown">
+  <nav
+    ref="rootRef"
+    :class="classList"
+    :role="ariaRole"
+    :aria-label="'Menu'"
+    @keydown="handleKeydown"
+  >
     <ul class="nm-menu__list" role="group">
       <template v-for="item in items" :key="item.key">
         <!-- Divider before item -->

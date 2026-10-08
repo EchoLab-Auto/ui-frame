@@ -84,7 +84,8 @@ function toggleCollapse(id: string) {
 /** 将 TOC 侧边栏滚动到指定节点，确保展开后的子项可见 */
 function scrollTocToNode(id: string) {
   if (!tocNavRef.value) return
-  if (window.innerWidth <= 1100) return
+  // 与 CSS 断点配对（xl=1200 以下侧 TOC 隐藏）
+  if (window.innerWidth <= 1200) return
 
   const container = tocNavRef.value
   const nodeEl = container.querySelector(`[data-toc-id="${CSS.escape(id)}"]`) as HTMLElement | null
@@ -116,8 +117,8 @@ function scrollTocToNode(id: string) {
 /** 将 TOC 侧边栏滚动到当前激活项（滞回区间：视口中间 50% 不滚动，减少抖动） */
 function scrollTocToActive() {
   if (!tocNavRef.value) return
-  // 桌面端 TOC 隐藏时（移动端），跳过滚动
-  if (window.innerWidth <= 1100) return
+  // 桌面端 TOC 隐藏时（移动端），跳过滚动；断点与 CSS 配对（xl=1200）
+  if (window.innerWidth <= 1200) return
 
   const container = tocNavRef.value
   const activeEl = container.querySelector('.neumorphism-toc-item.active') as HTMLElement | null
@@ -233,7 +234,8 @@ defineExpose({ scrollTocToActive })
   align-self: flex-start;
   max-height: calc(100vh - 100px);
   overflow-y: auto;
-  z-index: 10;
+  /* 组件内部层级（非全局浮层，从 1 起） */
+  z-index: 1;
   /* 防止 TOC 触顶/触底时滚轮事件链接到页面滚动 */
   overscroll-behavior-y: contain;
   /* Scrollbar styling for the TOC itself */
@@ -388,7 +390,8 @@ defineExpose({ scrollTocToActive })
   border-radius: var(--nm-border-radius-sm);
 }
 
-@media (max-width: 1100px) {
+/* 断点取系统集 xl=1200（与 MarkdownRenderer 的移动端 TOC 配对） */
+@media (max-width: 1200px) {
   .neumorphism-toc {
     display: none;
   }

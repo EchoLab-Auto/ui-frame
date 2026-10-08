@@ -43,6 +43,7 @@
   --nm-shadow-ambient-lg: rgba(0, 0, 0, 0.07);
   --nm-shadow-ambient-xl: rgba(0, 0, 0, 0.1);
   --nm-shadow-ambient-2xl: rgba(0, 0, 0, 0.14);
+  --nm-shadow-ambient-3xl: rgba(0, 0, 0, 0.25);
 
   // Light ambient highlights (subtle edge glows)
   --nm-shadow-light-ambient-sm: rgba(255, 255, 255, 0.1);
@@ -53,6 +54,10 @@
   // Overlay / mask
   --nm-mask-bg: rgba(0, 0, 0, 0.4);
   --nm-overlay-bg: rgba(0, 0, 0, 0.35);
+  // On-mask：浮于遮罩/用户内容（照片）之上的操作件表面。
+  // 不随主题变化 —— 背景是用户内容而非主题表面，浅底深字在各主题下均保持对比。
+  --nm-on-mask-surface: rgba(255, 255, 255, 0.9);
+  --nm-on-mask-text: #fff;
 
   // ---- Z-Index Layers ----
   // Static base values; actual rendered z-index = base + (overlayDepth × stride).
@@ -553,6 +558,7 @@
   --nm-shadow-ambient-lg: rgba(0, 0, 0, 0.5);
   --nm-shadow-ambient-xl: rgba(0, 0, 0, 0.6);
   --nm-shadow-ambient-2xl: rgba(0, 0, 0, 0.7);
+  --nm-shadow-ambient-3xl: rgba(0, 0, 0, 0.8);
 
   --nm-shadow-light-ambient-sm: rgba(255, 255, 255, 0.06);
   --nm-shadow-light-ambient-md: rgba(255, 255, 255, 0.08);

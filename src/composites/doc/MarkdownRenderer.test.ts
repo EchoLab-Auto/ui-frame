@@ -208,7 +208,7 @@ describe('MarkdownRenderer', () => {
       }
       return { top: 0, bottom: 0, left: 0, right: 0, width: 0, height: 0, x: 0, y: 0 } as DOMRect
     }
-    Object.defineProperty(window, 'innerWidth', { value: 1200, configurable: true })
+    Object.defineProperty(window, 'innerWidth', { value: 1440, configurable: true })
 
     const wrapper = mountRenderer('# Parent\n\n## Child\n\n## Child 2\n\n### Grandchild')
     const toggle = wrapper.find('.toc-toggle')
@@ -297,7 +297,7 @@ describe('MarkdownRenderer', () => {
       }
       return { top: 0, bottom: 0, left: 0, right: 0, width: 0, height: 0, x: 0, y: 0 } as DOMRect
     }
-    Object.defineProperty(window, 'innerWidth', { value: 1200, configurable: true })
+    Object.defineProperty(window, 'innerWidth', { value: 1440, configurable: true })
 
     const wrapper = mountRenderer('# Parent\n\n## Child')
     const toggle = wrapper.find('.toc-toggle')

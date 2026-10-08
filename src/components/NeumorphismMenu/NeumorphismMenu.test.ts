@@ -49,6 +49,34 @@ describe('NeumorphismMenu', () => {
     expect(submenu!.getAttribute('role')).toBe('menu')
   })
 
+  it('点击组件外部收起全部展开的子菜单（外点关闭）', async () => {
+    const wrapper = mountMenu({ mode: 'vertical' })
+
+    await wrapper.findAll('.nm-menu__item')[0].trigger('click')
+    await nextTick()
+    expect(wrapper.find('.nm-menu__submenu').exists()).toBe(true)
+
+    // 外部点击（捕获阶段 pointerdown）→ 子菜单收起
+    const outside = document.createElement('div')
+    document.body.appendChild(outside)
+    outside.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }))
+    await nextTick()
+    expect(wrapper.find('.nm-menu__submenu').exists()).toBe(false)
+  })
+
+  it('组件内部点击不触发收起（外点排除自身）', async () => {
+    const wrapper = mountMenu({ mode: 'vertical' })
+
+    await wrapper.findAll('.nm-menu__item')[0].trigger('click')
+    await nextTick()
+    expect(wrapper.find('.nm-menu__submenu').exists()).toBe(true)
+
+    // 内部点击（点击第二项）→ 不触发外点关闭
+    await wrapper.findAll('.nm-menu__item')[1].trigger('click')
+    await nextTick()
+    expect(wrapper.find('.nm-menu__submenu').exists()).toBe(true)
+  })
+
   it('keeps the vertical submenu inline (accordion model unchanged, no teleport)', async () => {
     const wrapper = mountMenu({ mode: 'vertical' })
 

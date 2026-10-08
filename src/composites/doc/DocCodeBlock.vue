@@ -109,7 +109,7 @@ const copyLabel = computed(() => (copied.value ? t('markdownCodeCopied') : t('ma
 
 .code-copy-btn.copied {
   background-color: var(--nm-primary-color);
-  color: #fff;
+  color: var(--nm-text-on-primary);
 }
 
 .code-copy-btn:focus-visible {

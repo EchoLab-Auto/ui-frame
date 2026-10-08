@@ -127,6 +127,7 @@ const classList = computed(() => [
               <feColorMatrix in="b" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 24 -9.5" />
             </filter>
           </defs>
+          <!-- 品牌图形底板：深色画布（与暗色主题融合为设计意图，非主题色） -->
           <rect x="0" y="0" width="512" height="512" rx="96" fill="#000" />
           <g :filter="gooFilterAttr">
             <g ref="linksGroupRef" />

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, type ComponentPublicInstance } from 'vue'
+import { computed, ref, onMounted, onBeforeUnmount, type ComponentPublicInstance } from 'vue'
 import { useMenu } from '@/composables/useMenu'
 import { useNeumorphismSetup } from '@/extensions/createComponent'
 import { useTheme } from '@/composables/useTheme'
@@ -76,6 +76,29 @@ const {
   },
 })
 
+// ---- 外点关闭：点击组件外部收起全部展开的子菜单 ----
+// document 捕获阶段 pointerdown（与 Select 同一范式）；horizontal 模式
+// 下拉浮层由 NeumorphismPopover 自身处理外点，此处只需排除浮层不误伤。
+const rootRef = ref<HTMLElement>()
+
+function onDocumentPointerDown(event: PointerEvent) {
+  const target = event.target as Node
+  if (rootRef.value?.contains(target)) return
+  if ((target as HTMLElement).closest?.('.nm-popover')) return
+  if (expandedKeysRef.value.length) expandedKeysRef.value.splice(0)
+}
+
+onMounted(() => {
+  if (typeof document !== 'undefined') {
+    document.addEventListener('pointerdown', onDocumentPointerDown, true)
+  }
+})
+onBeforeUnmount(() => {
+  if (typeof document !== 'undefined') {
+    document.removeEventListener('pointerdown', onDocumentPointerDown, true)
+  }
+})
+
 // ---- Hover open/close timers for horizontal dropdown submenus ----
 let closeTimer: ReturnType<typeof setTimeout> | null = null
 
@@ -148,7 +171,13 @@ function getItemClass(item: MenuItem) {
 </script>
 
 <template>
-  <nav :class="classList" role="navigation" aria-label="Navigation menu" @keydown="handleKeydown">
+  <nav
+    ref="rootRef"
+    :class="classList"
+    role="navigation"
+    aria-label="Navigation menu"
+    @keydown="handleKeydown"
+  >
     <ul class="nm-nav-menu__list" role="menubar" :aria-orientation="resolvedMode">
       <template v-for="item in items" :key="item.key">
         <!-- Divider (in vertical mode) -->

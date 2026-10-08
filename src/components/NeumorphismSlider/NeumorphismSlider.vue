@@ -492,7 +492,7 @@ $slider-thumb-spring: cubic-bezier(0.34, 1.1, 0.64, 1);
     transform 0.25s $slider-compress,
     background 0.3s $slider-ambient;
   box-shadow:
-    1px 2px 4px color-mix(in srgb, black 10%, transparent),
+    1px 2px 4px var(--nm-shadow-ambient-xl),
     3px 3px 8px var(--nm-shadow-dark),
     -2px -2px 6px var(--nm-shadow-light),
     0 0 0 1px color-mix(in srgb, var(--nm-primary-color) 10%, transparent);
@@ -500,7 +500,7 @@ $slider-thumb-spring: cubic-bezier(0.34, 1.1, 0.64, 1);
   @media (hover: hover) {
     &:hover:not(:disabled) {
       box-shadow:
-        2px 3px 6px color-mix(in srgb, black 12%, transparent),
+        2px 3px 6px var(--nm-shadow-ambient-2xl),
         4px 4px 12px var(--nm-shadow-dark),
         -3px -3px 8px var(--nm-shadow-light),
         0 0 0 1px color-mix(in srgb, var(--nm-primary-color) 18%, transparent),
@@ -514,7 +514,7 @@ $slider-thumb-spring: cubic-bezier(0.34, 1.1, 0.64, 1);
     cursor: grabbing;
     transform: scale(1.12);
     box-shadow:
-      3px 4px 8px color-mix(in srgb, black 15%, transparent),
+      3px 4px 8px var(--nm-shadow-ambient-2xl),
       6px 6px 14px var(--nm-shadow-dark),
       -4px -4px 10px var(--nm-shadow-light),
       0 0 0 2px color-mix(in srgb, var(--nm-primary-color) 25%, transparent),

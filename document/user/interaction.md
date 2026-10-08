@@ -55,7 +55,9 @@ group: 使用
 | Popover  | click / hover / focus / manual | 仅 hover 走 150ms 延迟，click 立即开                             |
 | Dropdown | click / hover / focus / manual | 同上                                                             |
 
-点击外部关闭：各浮层在 document capture 阶段监听点击，落在触发器与浮层内部则忽略；Select 另有焦点外移关闭。Modal / Drawer 的遮罩点击关闭受 `maskClosable && closable` 双重门控；`destroyOnClose` 关闭后延迟 200ms 卸载 DOM（等离场动画播完）。
+点击外部关闭：Modal / Drawer / Dropdown / Select / Popover / AutoComplete / DatePicker / Menu / NavMenu 在 document capture 阶段监听点击，落在触发器与浮层内部则忽略；Tooltip 在 click 触发模式下同样支持外点关闭（hover / focus 模式随触发方式自动关闭）。Select 另有焦点外移关闭。Modal / Drawer 的遮罩点击关闭受 `maskClosable && closable` 双重门控；`destroyOnClose` 关闭后延迟 200ms 卸载 DOM（等离场动画播完）。
+
+Escape 关闭：各浮层 Esc 关闭自身（Menu 系在有焦点时收起展开项）；Toast 的 Esc 为逐次关闭最新一条（不批量清空）。
 
 ### 定位引擎（`useFloatingPosition`）
 

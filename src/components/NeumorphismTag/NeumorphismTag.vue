@@ -183,7 +183,7 @@ const variantColors: Record<TagVariant, string> = {
     @media (hover: hover) {
       &:hover:not(.nm-tag--disabled) {
         box-shadow:
-          3px 3px 8px color-mix(in srgb, black 25%, transparent),
+          3px 3px 8px var(--nm-shadow-ambient-3xl),
           -2px -2px 6px var(--nm-shadow-light-ambient-md);
         filter: brightness(1.05);
       }

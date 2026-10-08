@@ -423,7 +423,7 @@ function handleKeyDown(e: KeyboardEvent) {
 }
 
 /* Responsive */
-@media (max-width: 768px) {
+@media (max-width: 767px) {
   .neumorphism-editor-container {
     padding: var(--nm-spacing-12);
   }

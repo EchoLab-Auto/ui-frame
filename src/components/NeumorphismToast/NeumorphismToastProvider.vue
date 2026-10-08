@@ -43,11 +43,13 @@ const { toasts, addToast, removeToast, clearAll } = toastApi
 
 defineExpose({ addToast, removeToast, clearAll, toasts })
 
-// Escape key dismisses all toasts
+// Escape 关闭最新一条 toast（逐次、由新到旧）。
+// 不再「清空全部」：一是与「浮层 Esc 关闭自身」的语义对齐（不殃及其他浮层场景），
+// 二是避免与 Modal 等同时按下 Esc 时把全部 toast 一并抹掉。
 function handleEscape(event: KeyboardEvent) {
-  if (event.key === 'Escape') {
-    clearAll()
-  }
+  if (event.key !== 'Escape') return
+  const last = toasts.value[toasts.value.length - 1]
+  if (last) removeToast(last.id)
 }
 
 onMounted(() => {

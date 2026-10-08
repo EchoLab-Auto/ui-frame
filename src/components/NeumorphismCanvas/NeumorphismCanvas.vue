@@ -807,7 +807,8 @@ defineExpose({
   left: 50%;
   bottom: var(--nm-spacing-md);
   transform: translateX(-50%);
-  z-index: 10;
+  /* 组件内部层级（非全局浮层，从 1 起） */
+  z-index: 1;
   display: flex;
   align-items: center;
   gap: var(--nm-spacing-2xs);

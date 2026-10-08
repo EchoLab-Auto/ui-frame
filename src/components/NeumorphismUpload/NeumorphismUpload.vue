@@ -869,7 +869,7 @@ function formatFileSize(bytes: number): string {
     align-items: center;
     justify-content: center;
     background-color: var(--nm-mask-bg);
-    color: #fff;
+    color: var(--nm-on-mask-text);
     transition: opacity var(--nm-transition-fast);
   }
 
@@ -973,7 +973,7 @@ function formatFileSize(bytes: number): string {
   height: 32px;
   border: none;
   border-radius: var(--nm-border-radius-full);
-  background: rgba(255, 255, 255, 0.9);
+  background: var(--nm-on-mask-surface);
   color: var(--nm-text-primary);
   cursor: pointer;
   transition: color var(--nm-transition-fast);

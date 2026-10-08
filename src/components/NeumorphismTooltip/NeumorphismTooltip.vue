@@ -109,11 +109,28 @@ const computedStyle = computed(() => {
 })
 
 // 显示后内容尺寸可测，重估一次翻转决策（与 Popover 一致）
+// 同时：click 模式的外点关闭（点击触发器与内容之外 → 收起；hover/focus 模式自有关闭路径）
+function onDocumentPointerDown(event: PointerEvent) {
+  const target = event.target as Node
+  if (triggerRef.value?.contains(target)) return
+  if (contentRef.value?.contains(target)) return
+  hide()
+}
+
 watch(isVisible, visible => {
   if (visible) nextTick(refresh)
+  if (typeof document === 'undefined') return
+  const shouldListen = visible && resolvedTrigger.value === 'click'
+  if (shouldListen) document.addEventListener('pointerdown', onDocumentPointerDown, true)
+  else document.removeEventListener('pointerdown', onDocumentPointerDown, true)
 })
 
-onBeforeUnmount(stop)
+onBeforeUnmount(() => {
+  stop()
+  if (typeof document !== 'undefined') {
+    document.removeEventListener('pointerdown', onDocumentPointerDown, true)
+  }
+})
 
 const classList = computed(() => [
   'nm-tooltip',

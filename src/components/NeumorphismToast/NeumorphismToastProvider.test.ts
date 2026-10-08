@@ -67,6 +67,37 @@ describe('NeumorphismToastProvider', () => {
     expect(vm.toasts.length).toBe(0)
   })
 
+  it('Escape 逐次关闭最新一条 toast（不清空全部）', async () => {
+    const wrapper = mount(NeumorphismToastProvider, {
+      global: { stubs: { teleport: false, transitionGroup: false } },
+      attachTo: document.body,
+    })
+    const vm = wrapper.vm as unknown as {
+      addToast: (opts: Record<string, unknown>) => string
+      toasts: Array<{ id: string; message: string }>
+    }
+    vm.addToast({ message: 'first', duration: 0 })
+    vm.addToast({ message: 'second', duration: 0 })
+    await nextTick()
+    // expose 的 ref 在组件实例上自动解包
+    expect(vm.toasts).toHaveLength(2)
+
+    // 第一次 Esc：最新一条进入 leaving，250ms 后真正移除
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }))
+    await nextTick()
+    vi.advanceTimersByTime(250)
+    await nextTick()
+    expect(vm.toasts).toHaveLength(1)
+    expect(vm.toasts[0].message).toBe('first')
+
+    // 第二次 Esc：剩余一条也关闭
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }))
+    await nextTick()
+    vi.advanceTimersByTime(250)
+    await nextTick()
+    expect(vm.toasts).toHaveLength(0)
+  })
+
   it('should apply position classes', () => {
     const positions = [
       'top-left',

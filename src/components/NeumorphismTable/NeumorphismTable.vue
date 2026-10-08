@@ -419,7 +419,8 @@ const showSelectionColumn = computed(
   gap: var(--nm-table-loading-gap);
   background-color: color-mix(in srgb, var(--nm-bg-color) 60%, transparent);
   backdrop-filter: blur(2px);
-  z-index: 10;
+  /* 组件内部层级（非全局浮层，从 1 起） */
+  z-index: 1;
 }
 
 .nm-table__loading-spinner {

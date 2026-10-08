@@ -61,4 +61,22 @@ describe('NeumorphismNavMenu', () => {
     expect(wrapper.find('.nm-nav-menu__submenu').exists()).toBe(true)
     expect(document.body.querySelector('.nm-nav-menu__dropdown')).toBeNull()
   })
+
+  it('点击组件外部收起展开的子菜单（外点关闭）', async () => {
+    const wrapper = mount(NeumorphismNavMenu, {
+      props: { items, mode: 'vertical' },
+      attachTo: document.body,
+    })
+    mountedWrappers.push(wrapper)
+
+    await wrapper.findAll('.nm-nav-menu__item')[0].trigger('click')
+    await nextTick()
+    expect(wrapper.find('.nm-nav-menu__submenu').exists()).toBe(true)
+
+    const outside = document.createElement('div')
+    document.body.appendChild(outside)
+    outside.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }))
+    await nextTick()
+    expect(wrapper.find('.nm-nav-menu__submenu').exists()).toBe(false)
+  })
 })
