@@ -441,7 +441,26 @@ onBeforeUnmount(() => {
     <!-- Markdown 内容 -->
     <div class="neumorphism-markdown-body">
       <div v-if="renderError" class="neumorphism-markdown-error" role="alert">
-        <p class="neumorphism-markdown-error-title">⚠️ 渲染错误</p>
+        <p class="neumorphism-markdown-error-title">
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path
+              d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"
+            />
+            <path d="M12 9v4" />
+            <path d="M12 17h.01" />
+          </svg>
+          渲染错误
+        </p>
         <pre class="neumorphism-markdown-error-msg">{{ renderError }}</pre>
       </div>
       <div
@@ -470,7 +489,22 @@ onBeforeUnmount(() => {
       :aria-label="t('markdownTocToggle')"
       @click="showMobileToc = !showMobileToc"
     >
-      📑
+      <svg
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.5"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <path d="M8 6h13M8 12h13M8 18h13" />
+        <circle cx="4" cy="6" r="1" />
+        <circle cx="4" cy="12" r="1" />
+        <circle cx="4" cy="18" r="1" />
+      </svg>
     </button>
 
     <!-- 移动端 TOC 面板 -->
@@ -482,13 +516,43 @@ onBeforeUnmount(() => {
       >
         <NeumorphismCard :elevation="0" class="neumorphism-toc-mobile-panel">
           <div class="neumorphism-toc-mobile-header">
-            <span class="neumorphism-toc-mobile-title">📑 {{ t('markdownTocLabel') }}</span>
+            <span class="neumorphism-toc-mobile-title"
+              ><svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M8 6h13M8 12h13M8 18h13" />
+                <circle cx="4" cy="6" r="1" />
+                <circle cx="4" cy="12" r="1" />
+                <circle cx="4" cy="18" r="1" />
+              </svg>
+              {{ t('markdownTocLabel') }}</span
+            >
             <button
               class="neumorphism-toc-mobile-close"
               :aria-label="t('markdownTocClose')"
               @click="showMobileToc = false"
             >
-              ✕
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M18 6L6 18M6 6l12 12" />
+              </svg>
             </button>
           </div>
           <DocTocNav
@@ -529,6 +593,9 @@ onBeforeUnmount(() => {
 }
 
 .neumorphism-markdown-error-title {
+  display: flex;
+  align-items: center;
+  gap: var(--nm-spacing-xs);
   font-weight: 600;
   color: var(--nm-color-error);
   margin: 0 0 var(--nm-spacing-12);
@@ -825,6 +892,9 @@ onBeforeUnmount(() => {
    ========================================== */
 .neumorphism-toc-mobile-btn {
   display: none;
+  align-items: center;
+  justify-content: center;
+  color: var(--nm-text-secondary);
   position: fixed;
   right: 20px;
   bottom: 20px;
@@ -852,6 +922,7 @@ onBeforeUnmount(() => {
 
 .neumorphism-toc-mobile-btn.active {
   background-color: var(--nm-primary-color);
+  color: var(--nm-surface-color);
 }
 
 .neumorphism-toc-mobile-overlay {
@@ -882,6 +953,9 @@ onBeforeUnmount(() => {
 }
 
 .neumorphism-toc-mobile-title {
+  display: flex;
+  align-items: center;
+  gap: var(--nm-spacing-xs);
   font-size: var(--nm-font-sm);
   font-weight: 700;
   color: var(--nm-text-placeholder);
@@ -897,8 +971,6 @@ onBeforeUnmount(() => {
   background-color: var(--nm-surface-color);
   color: var(--nm-text-secondary);
   cursor: pointer;
-  font-size: var(--nm-font-base);
-  line-height: 1;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -944,7 +1016,10 @@ onBeforeUnmount(() => {
    Responsive
    ========================================== */
 @media (max-width: 1100px) {
-  .neumorphism-toc-mobile-btn,
+  .neumorphism-toc-mobile-btn {
+    display: flex;
+  }
+
   .neumorphism-toc-mobile-overlay {
     display: block;
   }

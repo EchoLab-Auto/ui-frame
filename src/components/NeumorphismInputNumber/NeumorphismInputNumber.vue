@@ -169,7 +169,20 @@ function onFocus(event: FocusEvent): void {
         @pointerleave="stopRepeat"
         @dblclick.prevent
       >
-        <span class="nm-input-number__btn-icon">−</span>
+        <span class="nm-input-number__btn-icon" aria-hidden="true">
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M5 12h14" />
+          </svg>
+        </span>
       </button>
 
       <!-- Input field -->
@@ -203,7 +216,20 @@ function onFocus(event: FocusEvent): void {
         @pointerleave="stopRepeat"
         @dblclick.prevent
       >
-        <span class="nm-input-number__btn-icon">+</span>
+        <span class="nm-input-number__btn-icon" aria-hidden="true">
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M12 5v14M5 12h14" />
+          </svg>
+        </span>
       </button>
     </div>
   </div>
@@ -352,8 +378,9 @@ $number-ambient: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .nm-input-number__btn-icon {
-  font-size: var(--nm-font-lg);
-  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   line-height: 1;
   user-select: none;
   pointer-events: none;
@@ -392,8 +419,9 @@ $number-ambient: cubic-bezier(0.4, 0, 0.2, 1);
     width: var(--nm-field-min-height-sm);
   }
 
-  .nm-input-number__btn-icon {
-    font-size: var(--nm-font-sm);
+  .nm-input-number__btn-icon svg {
+    width: var(--nm-icon-size-sm);
+    height: var(--nm-icon-size-sm);
   }
 }
 
@@ -411,8 +439,9 @@ $number-ambient: cubic-bezier(0.4, 0, 0.2, 1);
     width: var(--nm-field-min-height-md);
   }
 
-  .nm-input-number__btn-icon {
-    font-size: var(--nm-font-lg);
+  .nm-input-number__btn-icon svg {
+    width: var(--nm-icon-size-md);
+    height: var(--nm-icon-size-md);
   }
 }
 
@@ -430,8 +459,9 @@ $number-ambient: cubic-bezier(0.4, 0, 0.2, 1);
     width: var(--nm-field-min-height-lg);
   }
 
-  .nm-input-number__btn-icon {
-    font-size: var(--nm-font-xl);
+  .nm-input-number__btn-icon svg {
+    width: var(--nm-icon-size-lg);
+    height: var(--nm-icon-size-lg);
   }
 }
 

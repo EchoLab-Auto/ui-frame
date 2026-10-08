@@ -56,6 +56,7 @@ interface TreeNodeData {
 | `node-select(key)`            | 节点被选中                                                                 |
 | `node-click(node)`            | 节点被点击（携带完整节点数据）                                             |
 | `node-label`（TreeNode 插槽） | 自定义节点标签，绑定 `{ node, selected, expanded, level, select, toggle }` |
+| `icon`（含递归透传）          | 自定义节点图标渲染，绑定 `{ node }`（如传入 SVG 组件替代文本图标）         |
 
 ### NeumorphismTreeNode Props（递归内部组件）
 

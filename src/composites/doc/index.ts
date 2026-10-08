@@ -24,7 +24,7 @@
  */
 export const componentCategories = {
   composite: ['DocViewer', 'DocEditor', 'MarkdownRenderer', 'MarkdownEditor', 'DocFlowCanvas'],
-  meta: ['DocCodeBlock', 'DocTocNav', 'TocNodeItem'],
+  meta: ['DocCodeBlock', 'DocTocNav', 'TocNodeItem', 'DocTreeIcon'],
 } as const
 
 // === 组合组件（数据契约驱动，现成可用） ===
@@ -61,6 +61,8 @@ export type { DocTocNavProps } from './DocTocNav.vue'
 
 /** @category 元组件 */
 export { default as TocNodeItem } from './TocNodeItem.vue'
+export { default as DocTreeIcon } from './DocTreeIcon.vue'
+export type { DocTreeIconProps } from './DocTreeIcon.vue'
 
 // === Headless 元逻辑 ===
 export { useMarkdownToc } from './useMarkdownToc'

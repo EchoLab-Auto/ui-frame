@@ -14,6 +14,7 @@ import NeumorphismContainer from '@/components/NeumorphismContainer/NeumorphismC
 import NeumorphismInput from '@/components/NeumorphismInput/NeumorphismInput.vue'
 import MarkdownRenderer from './MarkdownRenderer.vue'
 import DocFlowCanvas from './DocFlowCanvas.vue'
+import DocTreeIcon from './DocTreeIcon.vue'
 
 export interface DocViewerProps {
   /** 文档树根节点 */
@@ -92,7 +93,22 @@ function onCanvasNavigate(path: string) {
     <NeumorphismLayout show-header show-sider :sider-width="280" collapsible>
       <!-- Header -->
       <template #header-left>
-        <span class="neumorphism-header-brand">📚 Doc Viewer</span>
+        <span class="neumorphism-header-brand"
+          ><svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20" />
+          </svg>
+          Doc Viewer</span
+        >
       </template>
 
       <template #header-right>
@@ -105,7 +121,21 @@ function onCanvasNavigate(path: string) {
             :aria-selected="viewMode === 'doc'"
             @click="viewMode = 'doc'"
           >
-            📄 文档
+            <svg
+              class="neumorphism-doc-icon"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+              <path d="M14 2v6h6" />
+              <path d="M16 13H8M16 17H8M10 9H8" />
+            </svg>
+            文档
           </NeumorphismButton>
           <NeumorphismButton
             size="small"
@@ -116,7 +146,20 @@ function onCanvasNavigate(path: string) {
             :title="canvasGraph ? '流程画布' : '当前文档无流程图与子文档'"
             @click="viewMode = 'canvas'"
           >
-            🗺 画布
+            <svg
+              class="neumorphism-doc-icon"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M1 6v16l7-4 8 4 7-4V2l-7 4-8-4-7 4z" />
+              <path d="M8 2v16M16 6v16" />
+            </svg>
+            画布
           </NeumorphismButton>
         </div>
         <div class="neumorphism-header-search">
@@ -154,9 +197,26 @@ function onCanvasNavigate(path: string) {
             show-search
             search-placeholder="搜索文档..."
             @node-select="handleTreeSelect"
-          />
+          >
+            <template #icon="{ node }">
+              <DocTreeIcon :name="String(node.icon ?? 'file')" />
+            </template>
+          </NeumorphismTree>
         </div>
-        <div v-else class="neumorphism-sider-collapsed">📚</div>
+        <div v-else class="neumorphism-sider-collapsed">
+          <svg
+            class="neumorphism-doc-icon-lg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20" />
+          </svg>
+        </div>
       </template>
 
       <!-- Main Content -->
@@ -177,7 +237,21 @@ function onCanvasNavigate(path: string) {
                     size="small"
                     rounded
                   >
-                    📁 {{ displayNode.children.length }} 个子项
+                    <svg
+                      class="neumorphism-doc-icon-inline"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      aria-hidden="true"
+                    >
+                      <path
+                        d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"
+                      />
+                    </svg>
+                    { displayNode.children.length } 个子项
                   </NeumorphismTag>
                 </div>
               </div>
@@ -207,7 +281,22 @@ function onCanvasNavigate(path: string) {
             <template v-else>
               <div class="neumorphism-empty-state">
                 <NeumorphismCard :elevation="2" hoverable="bulge" class="neumorphism-empty-icon">
-                  <span class="neumorphism-empty-emoji">📂</span>
+                  <span class="neumorphism-doc-empty-icon">
+                    <svg
+                      class="neumorphism-doc-icon-3xl"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      aria-hidden="true"
+                    >
+                      <path
+                        d="M6 14l1.45-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.55 6a2 2 0 0 1-1.94 1.5H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.93a2 2 0 0 1 1.66.9l.82 1.2a2 2 0 0 0 1.66.9H18a2 2 0 0 1 2 2v2"
+                      />
+                    </svg>
+                  </span>
                 </NeumorphismCard>
                 <p>请从左侧选择一篇文档</p>
                 <NeumorphismButton
@@ -238,7 +327,16 @@ function onCanvasNavigate(path: string) {
 }
 
 /* Header */
+.neumorphism-doc-icon {
+  width: var(--nm-icon-size-sm);
+  height: var(--nm-icon-size-sm);
+  flex-shrink: 0;
+}
+
 .neumorphism-header-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--nm-spacing-xs);
   font-weight: 700;
   font-size: var(--nm-font-2xl);
 }
@@ -320,7 +418,7 @@ function onCanvasNavigate(path: string) {
   justify-content: center;
   height: 100%;
   padding-top: var(--nm-spacing-md);
-  font-size: var(--nm-font-2xl);
+  /* 尺寸由 .neumorphism-doc-icon-lg 承担 */
 }
 
 /* Main Content */
@@ -377,8 +475,31 @@ function onCanvasNavigate(path: string) {
   justify-content: center;
 }
 
-.neumorphism-empty-emoji {
-  font-size: var(--nm-heading-h1-size);
+.neumorphism-doc-empty-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 图标尺寸档（emoji 替换为 SVG 后由类承担） */
+.neumorphism-doc-icon-lg {
+  width: var(--nm-icon-size-lg);
+  height: var(--nm-icon-size-lg);
+  flex-shrink: 0;
+}
+
+.neumorphism-doc-icon-3xl {
+  width: var(--nm-icon-size-3xl);
+  height: var(--nm-icon-size-3xl);
+  flex-shrink: 0;
+}
+
+.neumorphism-doc-icon-inline {
+  width: var(--nm-icon-size-sm);
+  height: var(--nm-icon-size-sm);
+  flex-shrink: 0;
+  vertical-align: -2px;
+  margin-right: var(--nm-spacing-2xs);
 }
 
 /* Document switch transition */

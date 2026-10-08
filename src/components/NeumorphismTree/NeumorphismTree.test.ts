@@ -73,4 +73,29 @@ describe('NeumorphismTree', () => {
     await tree.trigger('keydown', { key: 'ArrowDown' })
     expect(wrapper.exists()).toBe(true)
   })
+
+  it('icon slot renders custom content for nodes (incl. nested)', () => {
+    const withIcon: TreeNodeData[] = [
+      {
+        key: 'a',
+        label: 'A',
+        icon: 'folder',
+        children: [{ key: 'a-1', label: 'A1', icon: 'file' }],
+      },
+    ]
+    const wrapper = mount(NeumorphismTree, {
+      props: { data: withIcon, expandedKeys: ['a'] },
+      slots: {
+        icon: '<span class="custom-icon" />',
+      },
+    })
+    // 嵌套节点也经过 slot（经 TreeNode 递归透传）
+    expect(wrapper.findAll('.custom-icon').length).toBeGreaterThanOrEqual(2)
+  })
+
+  it('falls back to text icon when no icon slot provided', () => {
+    const withIcon: TreeNodeData[] = [{ key: 'a', label: 'A', icon: 'folder' }]
+    const wrapper = mount(NeumorphismTree, { props: { data: withIcon } })
+    expect(wrapper.find('.nm-tree-node__icon').text()).toBe('folder')
+  })
 })

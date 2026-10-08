@@ -53,7 +53,20 @@ function toggle(): void {
         :aria-expanded="isOpen"
         @click="toggle"
       >
-        <span class="nm-chat-fold__caret" aria-hidden="true">{{ isOpen ? '▾' : '▸' }}</span>
+        <span class="nm-chat-fold__caret" aria-hidden="true">
+          <svg
+            width="12"
+            height="12"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path :d="isOpen ? 'M6 9l6 6 6-6' : 'M9 6l6 6-6 6'" />
+          </svg>
+        </span>
         <slot name="head" :open="isOpen" />
       </button>
       <div v-else class="nm-chat-fold__head-static">
@@ -121,7 +134,8 @@ function toggle(): void {
 }
 
 .nm-chat-fold__caret {
-  font-size: var(--nm-font-xs);
+  display: inline-flex;
+  align-items: center;
   color: var(--nm-text-placeholder);
 }
 

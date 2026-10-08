@@ -17,11 +17,11 @@ describe('ssr utils', () => {
 
 describe('doc/tree-utils', () => {
   it('getNodeIcon 按路径特征返回图标', () => {
-    expect(getNodeIcon({ path: 'api/select' } as ProDocNode)).toBe('🔌')
-    expect(getNodeIcon({ path: 'guide/start' } as ProDocNode)).toBe('📖')
-    expect(getNodeIcon({ path: 'config/theme' } as ProDocNode)).toBe('⚙️')
-    expect(getNodeIcon({ path: 'changelog/v1' } as ProDocNode)).toBe('📝')
-    expect(getNodeIcon({ path: 'other/page' } as ProDocNode)).toBe('📄')
+    expect(getNodeIcon({ path: 'api/select' } as ProDocNode)).toBe('api')
+    expect(getNodeIcon({ path: 'guide/start' } as ProDocNode)).toBe('guide')
+    expect(getNodeIcon({ path: 'config/theme' } as ProDocNode)).toBe('config')
+    expect(getNodeIcon({ path: 'changelog/v1' } as ProDocNode)).toBe('changelog')
+    expect(getNodeIcon({ path: 'other/page' } as ProDocNode)).toBe('file')
   })
 
   it('nodeToTreeData 递归转换并继承图标', () => {
@@ -49,7 +49,7 @@ describe('doc/tree-utils', () => {
     const tree = nodeToTreeData(node)
     expect(tree.label).toBe('Root')
     expect(tree.children).toHaveLength(1)
-    expect(tree.children[0].icon).toBe('🔌')
+    expect(tree.children[0].icon).toBe('api')
     expect(tree.children[0].label).toBe('Child')
   })
 })

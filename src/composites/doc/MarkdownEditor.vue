@@ -34,10 +34,26 @@ function handleDocLink(path: string) {
   emit('docLink', path)
 }
 
+/** 视图切换 tab 的键盘导航（对齐 NeumorphismTabs 默认按钮行为：左右方向键循环切换） */
+function handleModeTabKeydown(e: KeyboardEvent, key: string) {
+  if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return
+  e.preventDefault()
+  const index = tabs.findIndex(t => t.key === key)
+  const delta = e.key === 'ArrowRight' ? 1 : -1
+  const next = tabs[(index + delta + tabs.length) % tabs.length]
+  mode.value = next.key as typeof mode.value
+  nextTick(() => {
+    ;(e.target as HTMLElement)
+      .closest('.nm-tabs__nav')
+      ?.querySelectorAll<HTMLElement>('.nm-tabs__tab')
+      [tabs.indexOf(next)]?.focus()
+  })
+}
+
 const tabs = [
-  { key: 'edit', label: '✏️ 编辑' },
-  { key: 'split', label: '⬌ 分栏' },
-  { key: 'preview', label: '👁 预览' },
+  { key: 'edit', label: '编辑' },
+  { key: 'split', label: '分栏' },
+  { key: 'preview', label: '预览' },
 ]
 
 /** 内容字数统计 */
@@ -233,18 +249,82 @@ function syncEditScroll() {
           <em>I</em>
         </NeumorphismButton>
         <NeumorphismButton size="small" title="标题" @click="insertHeading"> H </NeumorphismButton>
-        <NeumorphismButton size="small" title="链接" @click="insertLink"> 🔗 </NeumorphismButton>
-        <NeumorphismButton size="small" title="图片" @click="insertImage"> 🖼 </NeumorphismButton>
+        <NeumorphismButton size="small" title="链接" @click="insertLink"
+          ><svg
+            class="neumorphism-editor-icon"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" /></svg
+        ></NeumorphismButton>
+        <NeumorphismButton size="small" title="图片" @click="insertImage"
+          ><svg
+            class="neumorphism-editor-icon"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <rect x="3" y="3" width="18" height="18" rx="2" />
+            <circle cx="9" cy="9" r="2" />
+            <path d="M21 15l-3.086-3.086a2 2 0 0 0-2.828 0L6 21" /></svg
+        ></NeumorphismButton>
         <NeumorphismButton size="small" title="行内代码" @click="insertCode">
           &lt;/&gt;
         </NeumorphismButton>
-        <NeumorphismButton size="small" title="代码块" @click="insertCodeBlock">
-          📋
-        </NeumorphismButton>
-        <NeumorphismButton size="small" title="无序列表" @click="insertList">
-          •≡
-        </NeumorphismButton>
-        <NeumorphismButton size="small" title="表格" @click="insertTable"> ⏏ </NeumorphismButton>
+        <NeumorphismButton size="small" title="代码块" @click="insertCodeBlock"
+          ><svg
+            class="neumorphism-editor-icon"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <rect x="8" y="2" width="8" height="4" rx="1" />
+            <path
+              d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"
+            /></svg
+        ></NeumorphismButton>
+        <NeumorphismButton size="small" title="无序列表" @click="insertList"
+          ><svg
+            class="neumorphism-editor-icon"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M8 6h13M8 12h13M8 18h13" />
+            <path d="M3 6h.01M3 12h.01M3 18h.01" /></svg
+        ></NeumorphismButton>
+        <NeumorphismButton size="small" title="表格" @click="insertTable"
+          ><svg
+            class="neumorphism-editor-icon"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <rect x="3" y="3" width="18" height="18" rx="2" />
+            <path d="M3 9h18M3 15h18M9 3v18" /></svg
+        ></NeumorphismButton>
       </div>
       <div class="neumorphism-editor-toolbar-right">
         <NeumorphismTabs
@@ -252,7 +332,45 @@ function syncEditScroll() {
           :tabs="tabs"
           size="small"
           class="neumorphism-editor-mode-tabs"
-        />
+        >
+          <template #tab="{ tab, active, activate }">
+            <button
+              type="button"
+              class="nm-tabs__tab"
+              :class="{ 'nm-tabs__tab--active': active }"
+              role="tab"
+              :aria-selected="active"
+              :tabindex="active ? 0 : -1"
+              @click="activate(tab.key)"
+              @keydown="handleModeTabKeydown($event, tab.key)"
+            >
+              <svg
+                class="neumorphism-editor-icon"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <template v-if="tab.key === 'edit'">
+                  <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
+                  <path d="M15 5l4 4" />
+                </template>
+                <template v-else-if="tab.key === 'split'">
+                  <rect x="3" y="3" width="18" height="18" rx="2" />
+                  <path d="M12 3v18" />
+                </template>
+                <template v-else>
+                  <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+                  <circle cx="12" cy="12" r="3" />
+                </template>
+              </svg>
+              <span class="nm-tabs__tab-label">{{ tab.label }}</span>
+            </button>
+          </template>
+        </NeumorphismTabs>
         <span class="editor-stat">{{ lineCount }} 行 · {{ charCount }} 字</span>
       </div>
     </div>
@@ -338,6 +456,12 @@ function syncEditScroll() {
 
 .neumorphism-editor-mode-tabs {
   max-width: 280px;
+}
+
+.neumorphism-editor-icon {
+  width: var(--nm-icon-size-sm);
+  height: var(--nm-icon-size-sm);
+  flex-shrink: 0;
 }
 
 .editor-stat {

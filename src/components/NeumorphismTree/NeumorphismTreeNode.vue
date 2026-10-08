@@ -23,6 +23,19 @@ const emit = defineEmits<{
   (e: 'select', key: string): void
 }>()
 
+/** 显式 slot 类型（递归组件需要，避免类型自引用推断失败） */
+defineSlots<{
+  icon?(props: { node: TreeNodeData }): unknown
+  'node-label'?(props: {
+    node: TreeNodeData
+    selected: boolean
+    expanded: boolean
+    level: number
+    select: () => void
+    toggle: () => void
+  }): unknown
+}>()
+
 const isExpanded = computed(() => props.expandedKeys.includes(props.node.key))
 const isSelected = computed(() => props.selectedKeys.includes(props.node.key))
 const isFocused = computed(() => props.focusedKey === props.node.key)
@@ -122,8 +135,11 @@ function handleSelect() {
       <!-- Placeholder when no children (keeps alignment) -->
       <span v-else class="nm-tree-node__toggle-placeholder" />
 
-      <!-- Icon -->
-      <span v-if="node.icon" class="nm-tree-node__icon">{{ node.icon }}</span>
+      <!-- Icon（可用 slot="icon" 自定义渲染，如 SVG） -->
+      <span v-if="node.icon || $slots.icon" class="nm-tree-node__icon">
+        <!-- @slot Custom node icon rendering. Bind: node -->
+        <slot name="icon" :node="node">{{ node.icon }}</slot>
+      </span>
 
       <!-- @slot Custom node label rendering. Bind: node, selected, expanded, level, select, toggle -->
       <slot
@@ -168,7 +184,11 @@ function handleSelect() {
           :level="level + 1"
           @toggle-expand="k => emit('toggle-expand', k)"
           @select="k => emit('select', k)"
-        />
+        >
+          <template v-if="$slots.icon" #icon="{ node: n }">
+            <slot name="icon" :node="n" />
+          </template>
+        </NeumorphismTreeNode>
       </div>
     </ul>
   </li>

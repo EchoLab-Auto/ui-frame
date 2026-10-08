@@ -43,6 +43,11 @@ const emit = defineEmits<{
   (e: 'node-select', key: string): void
 }>()
 
+/** 显式 slot 类型（转发给 TreeNode，递归组件需要显式声明） */
+defineSlots<{
+  icon?(props: { node: TreeNodeData }): unknown
+}>()
+
 // Use headless tree composable for all behavioral logic
 const selectedKeysRef = computed({
   get: () => props.selectedKeys,
@@ -179,7 +184,11 @@ const classList = computed(() => ['nm-tree'])
         :level="0"
         @toggle-expand="handleToggleExpand"
         @select="handleSelect"
-      />
+      >
+        <template v-if="$slots.icon" #icon="{ node: n }">
+          <slot name="icon" :node="n" />
+        </template>
+      </NeumorphismTreeNode>
     </ul>
 
     <!-- Empty state -->

@@ -7,23 +7,23 @@
 import type { ProDocNode } from './types.js'
 
 /**
- * 根据节点路径特征推断对应的图标
+ * 根据节点路径特征推断对应的语义图标名
  * @param node - ProDoc 文档节点
- * @returns 对应的 emoji 图标
+ * @returns 语义图标名（由 DocTreeIcon 渲染为线框 SVG）
  */
 export function getNodeIcon(node: ProDocNode): string {
   const path = node.path?.toLowerCase() || ''
-  if (path.includes('api')) return '🔌'
-  if (path.includes('guide')) return '📖'
-  if (path.includes('config')) return '⚙️'
-  if (path.includes('example')) return '💡'
-  if (path.includes('install')) return '📦'
-  if (path.includes('changelog')) return '📝'
-  if (path.includes('faq')) return '❓'
-  return '📄'
+  if (path.includes('api')) return 'api'
+  if (path.includes('guide')) return 'guide'
+  if (path.includes('config')) return 'config'
+  if (path.includes('example')) return 'example'
+  if (path.includes('install')) return 'install'
+  if (path.includes('changelog')) return 'changelog'
+  if (path.includes('faq')) return 'faq'
+  return 'file'
 }
 
-/** 树节点数据结构（与 NeumorphismTree 的 TreeNodeData 兼容） */
+/** 树节点数据结构（与 NeumorphismTree 的 TreeNodeData 兼容）；icon 为语义图标名，由「icon」slot 经 DocTreeIcon 渲染 */
 export interface DocTreeNode {
   key: string
   label: string
@@ -38,7 +38,7 @@ export interface DocTreeNode {
  * @returns 树形节点数据
  */
 export function nodeToTreeData(node: ProDocNode): DocTreeNode {
-  const icon = node.children.length > 0 ? '📁' : getNodeIcon(node)
+  const icon = node.children.length > 0 ? 'folder' : getNodeIcon(node)
   return {
     key: node.path,
     label: node.title,

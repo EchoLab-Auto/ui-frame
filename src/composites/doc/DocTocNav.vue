@@ -175,7 +175,25 @@ defineExpose({ scrollTocToActive })
   <nav v-if="framed" ref="tocNavRef" class="neumorphism-toc" :aria-label="resolvedTitle">
     <NeumorphismCard :elevation="-2" no-padding class="neumorphism-toc-card">
       <div class="neumorphism-toc-header">
-        <span>📑 {{ resolvedTitle }}</span>
+        <span class="neumorphism-toc-title"
+          ><svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M8 6h13M8 12h13M8 18h13" />
+            <circle cx="4" cy="6" r="1" />
+            <circle cx="4" cy="12" r="1" />
+            <circle cx="4" cy="18" r="1" />
+          </svg>
+          {{ resolvedTitle }}</span
+        >
       </div>
       <ul class="neumorphism-toc-list" role="list">
         <TocNodeItem
@@ -247,6 +265,12 @@ defineExpose({ scrollTocToActive })
    泄漏修复（NeumorphismCard padding 改子选择器）后由组件自身提供默认值。 */
 .neumorphism-toc .neumorphism-toc-card > .nm-card__body {
   padding: var(--nm-spacing-lg);
+}
+
+.neumorphism-toc-title {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--nm-spacing-xs);
 }
 
 .neumorphism-toc-header {

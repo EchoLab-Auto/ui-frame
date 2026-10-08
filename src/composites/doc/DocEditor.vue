@@ -11,6 +11,7 @@ import NeumorphismDivider from '@/components/NeumorphismDivider/NeumorphismDivid
 import NeumorphismTag from '@/components/NeumorphismTag/NeumorphismTag.vue'
 import NeumorphismContainer from '@/components/NeumorphismContainer/NeumorphismContainer.vue'
 import MarkdownEditor from './MarkdownEditor.vue'
+import DocTreeIcon from './DocTreeIcon.vue'
 
 export interface DocEditorProps {
   /** 文档树根节点 */
@@ -105,7 +106,23 @@ function handleKeyDown(e: KeyboardEvent) {
     <NeumorphismLayout show-header show-sider :sider-width="280" collapsible>
       <!-- Header -->
       <template #header-left>
-        <span class="neumorphism-editor-brand">📝 Doc Editor</span>
+        <span class="neumorphism-editor-brand"
+          ><svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
+            <path d="M15 5l4 4" />
+          </svg>
+          Doc Editor</span
+        >
       </template>
 
       <template #header-center>
@@ -121,7 +138,21 @@ function handleKeyDown(e: KeyboardEvent) {
             :disabled="!hasChanges"
             @click="handleSave"
           >
-            💾 保存
+            <svg
+              class="neumorphism-doc-icon"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+              <path d="M17 21v-8H7v8" />
+              <path d="M7 3v5h8" />
+            </svg>
+            保存
           </NeumorphismButton>
         </div>
       </template>
@@ -136,9 +167,26 @@ function handleKeyDown(e: KeyboardEvent) {
             show-search
             search-placeholder="搜索文档..."
             @node-select="handleTreeSelect"
-          />
+          >
+            <template #icon="{ node }">
+              <DocTreeIcon :name="String(node.icon ?? 'file')" />
+            </template>
+          </NeumorphismTree>
         </div>
-        <div v-else class="neumorphism-editor-sider-collapsed">📝</div>
+        <div v-else class="neumorphism-editor-sider-collapsed">
+          <svg
+            class="neumorphism-doc-icon-lg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
+          </svg>
+        </div>
       </template>
 
       <!-- Main editing area -->
@@ -164,7 +212,21 @@ function handleKeyDown(e: KeyboardEvent) {
                   :disabled="!hasChanges"
                   @click="handleSave"
                 >
-                  💾 保存
+                  <svg
+                    class="neumorphism-doc-icon"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    aria-hidden="true"
+                  >
+                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+                    <path d="M17 21v-8H7v8" />
+                    <path d="M7 3v5h8" />
+                  </svg>
+                  保存
                 </NeumorphismButton>
               </header>
 
@@ -185,7 +247,22 @@ function handleKeyDown(e: KeyboardEvent) {
                 hoverable="bulge"
                 class="neumorphism-editor-empty-icon"
               >
-                <span class="neumorphism-editor-empty-emoji">📂</span>
+                <span class="neumorphism-doc-empty-icon">
+                  <svg
+                    class="neumorphism-doc-icon-3xl"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    aria-hidden="true"
+                  >
+                    <path
+                      d="M6 14l1.45-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.55 6a2 2 0 0 1-1.94 1.5H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.93a2 2 0 0 1 1.66.9l.82 1.2a2 2 0 0 0 1.66.9H18a2 2 0 0 1 2 2v2"
+                    />
+                  </svg>
+                </span>
               </NeumorphismCard>
               <p>请从左侧选择一篇文档进行编辑</p>
               <NeumorphismButton
@@ -216,8 +293,17 @@ function handleKeyDown(e: KeyboardEvent) {
 
 /* Header */
 .neumorphism-editor-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--nm-spacing-xs);
   font-weight: 700;
   font-size: var(--nm-font-2xl);
+}
+
+.neumorphism-doc-icon {
+  width: var(--nm-icon-size-sm);
+  height: var(--nm-icon-size-sm);
+  flex-shrink: 0;
 }
 
 .neumorphism-editor-actions {
@@ -237,7 +323,7 @@ function handleKeyDown(e: KeyboardEvent) {
   justify-content: center;
   height: 100%;
   padding-top: var(--nm-spacing-md);
-  font-size: var(--nm-font-2xl);
+  /* 尺寸由 .neumorphism-doc-icon-lg 承担 */
 }
 
 /* Main Container */
@@ -309,8 +395,31 @@ function handleKeyDown(e: KeyboardEvent) {
   justify-content: center;
 }
 
-.neumorphism-editor-empty-emoji {
-  font-size: var(--nm-heading-h1-size);
+.neumorphism-doc-empty-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 图标尺寸档（emoji 替换为 SVG 后由类承担） */
+.neumorphism-doc-icon-lg {
+  width: var(--nm-icon-size-lg);
+  height: var(--nm-icon-size-lg);
+  flex-shrink: 0;
+}
+
+.neumorphism-doc-icon-3xl {
+  width: var(--nm-icon-size-3xl);
+  height: var(--nm-icon-size-3xl);
+  flex-shrink: 0;
+}
+
+.neumorphism-doc-icon-inline {
+  width: var(--nm-icon-size-sm);
+  height: var(--nm-icon-size-sm);
+  flex-shrink: 0;
+  vertical-align: -2px;
+  margin-right: var(--nm-spacing-2xs);
 }
 
 /* Responsive */

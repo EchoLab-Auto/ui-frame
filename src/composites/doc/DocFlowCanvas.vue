@@ -280,7 +280,19 @@ function onNodeKeydown(event: KeyboardEvent, docPath?: string): void {
         >
           <div class="nm-flow__node-inner">
             <span class="nm-flow__node-text">{{ n.label }}</span>
-            <span v-if="n.docPath" class="nm-flow__node-link-icon" aria-hidden="true">↗</span>
+            <span v-if="n.docPath" class="nm-flow__node-link-icon" aria-hidden="true"
+              ><svg
+                width="12"
+                height="12"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M7 17L17 7M8 7h9v9" /></svg
+            ></span>
           </div>
         </div>
       </div>
@@ -460,7 +472,8 @@ function onNodeKeydown(event: KeyboardEvent, docPath?: string): void {
 
 .nm-flow__node-link-icon {
   flex-shrink: 0;
-  font-size: var(--nm-font-xs);
+  display: inline-flex;
+  align-items: center;
   color: var(--nm-primary-color);
 }
 
