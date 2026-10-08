@@ -261,6 +261,9 @@ const sizeStyle = computed(() => {
   @include nm-raised(2px, 4px);
   transition: all var(--nm-transition-fast);
 
+  // 触屏：32×32 → 44×44 命中热区（视觉不变）
+  @include nm-touch-target;
+
   @media (hover: hover) {
     &:hover {
       @include nm-inset(2px, 4px);

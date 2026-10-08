@@ -162,15 +162,18 @@ const classList = computed(() => [
   padding: var(--nm-spacing-2xs) var(--nm-spacing-sm);
   font-size: var(--nm-font-sm);
   min-height: 26px;
+  @include nm-touch-min;
 }
 .nm-segmented--medium .nm-segmented__item {
   padding: var(--nm-spacing-xs) var(--nm-spacing-md);
   min-height: 32px;
+  @include nm-touch-min;
 }
 .nm-segmented--large .nm-segmented__item {
   padding: var(--nm-spacing-sm) var(--nm-spacing-lg);
   font-size: var(--nm-font-lg);
   min-height: 38px;
+  @include nm-touch-min;
 }
 
 @media (prefers-reduced-motion: reduce) {

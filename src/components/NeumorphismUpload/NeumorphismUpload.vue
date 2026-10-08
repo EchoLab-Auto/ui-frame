@@ -828,6 +828,9 @@ function formatFileSize(bytes: number): string {
   cursor: pointer;
   transition: color var(--nm-transition-fast);
 
+  // 触屏：28×28 → 44×44 命中热区（视觉不变）
+  @include nm-touch-target;
+
   @media (hover: hover) {
     &:hover {
       color: var(--nm-color-error);
@@ -974,6 +977,9 @@ function formatFileSize(bytes: number): string {
   color: var(--nm-text-primary);
   cursor: pointer;
   transition: color var(--nm-transition-fast);
+
+  // 触屏：32×32 → 44×44 命中热区（视觉不变）
+  @include nm-touch-target;
 
   @media (hover: hover) {
     &:hover {

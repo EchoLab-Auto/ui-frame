@@ -233,6 +233,9 @@ const jumperParts = computed(() => {
   @include nm-raised(2px, 4px);
   transition: all var(--nm-transition-fast);
 
+  // 触屏：命中面积放宽至 ≥44×44（鼠标保持紧凑 38px）
+  @include nm-touch-min;
+
   @media (hover: hover) {
     &:hover:not(:disabled) {
       transform: translateY(-1px);
@@ -322,6 +325,7 @@ const jumperParts = computed(() => {
     min-width: 30px;
     height: 30px;
     font-size: var(--nm-font-sm);
+    @include nm-touch-min;
   }
 }
 .nm-pagination--large {

@@ -250,6 +250,9 @@ function showError(index: number): boolean {
     background-color 0.3s $nm-ease-ambient;
   user-select: none;
 
+  // 触屏：28/36px → 44×44 命中热区（视觉不变）
+  @include nm-touch-target;
+
   // ---- status: wait ----
   &--wait {
     @include nm-raised(2px, 4px);

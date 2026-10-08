@@ -142,6 +142,8 @@ function handleClick(event: MouseEvent): void {
   padding: var(--nm-button-padding-y-sm) var(--nm-button-padding-x-sm);
   font-size: var(--nm-button-font-sm);
   min-height: var(--nm-button-min-height-sm);
+  // 触屏：紧凑档升为 ≥44×44
+  @include nm-touch-min;
 }
 
 .nm-button--medium {
@@ -170,6 +172,8 @@ function handleClick(event: MouseEvent): void {
   padding: 0;
   width: var(--nm-button-min-height);
   height: var(--nm-button-min-height);
+  // 触屏：圆形钮最小 44×44
+  @include nm-touch-min;
 }
 
 // ---------- Style variants ----------

@@ -256,6 +256,19 @@ const classList = computed(() => ['nm-tree'])
     height: 14px;
   }
 
+  // 触屏热区：20px → 44×44（在原有绝对定位之上扩展，视觉不变）
+  @media (pointer: coarse) {
+    &::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 44px;
+      height: 44px;
+      transform: translate(-50%, -50%);
+    }
+  }
+
   @media (hover: hover) {
     &:hover {
       color: var(--nm-text-secondary);
@@ -280,6 +293,9 @@ const classList = computed(() => ['nm-tree'])
   padding: 2px 6px;
   border-radius: var(--nm-border-radius-xs);
   transition: color var(--nm-transition-fast);
+
+  // 触屏：行高不足 → 44×44 命中热区（视觉不变）
+  @include nm-touch-target;
 
   @media (hover: hover) {
     &:hover {

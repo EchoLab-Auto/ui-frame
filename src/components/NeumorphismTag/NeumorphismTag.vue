@@ -124,6 +124,9 @@ const variantColors: Record<TagVariant, string> = {
   user-select: none;
   white-space: nowrap;
 
+  // 触屏：标签命中高度 ≥44px（视觉保持档位尺寸）
+  @include nm-touch-min(null, 44px);
+
   &--rounded {
     border-radius: var(--nm-border-radius-full);
   }
@@ -204,6 +207,9 @@ const variantColors: Record<TagVariant, string> = {
     color 0.2s ease,
     transform 0.25s $nm-ease-spring;
   border-radius: var(--nm-border-radius-full);
+
+  // 触屏：~16px → 44×44 命中热区（视觉不变）
+  @include nm-touch-target;
 
   @media (hover: hover) {
     &:hover {

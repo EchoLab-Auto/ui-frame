@@ -191,6 +191,8 @@ const classList = computed(() => [
   color: var(--nm-text-secondary);
   background: transparent;
   white-space: nowrap;
+  // 触屏：标签高度 ≥44px
+  @include nm-touch-min(null, 44px);
   transition:
     box-shadow 0.35s $nm-ease-spring,
     transform 0.3s $nm-ease-spring,

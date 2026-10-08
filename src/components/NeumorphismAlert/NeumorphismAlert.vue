@@ -304,6 +304,9 @@ const defaultIcons: Record<AlertType, { viewBox: string; paths: string[] }> = {
     transform 0.25s $nm-ease-spring,
     background-color 0.2s ease;
 
+  // 触屏：~18px → 44×44 命中热区（视觉不变）
+  @include nm-touch-target;
+
   @media (hover: hover) {
     &:hover {
       color: var(--nm-text-primary);

@@ -110,6 +110,9 @@ function handleClick(item: BreadcrumbItem, index: number) {
   padding: var(--nm-spacing-xs) var(--nm-spacing-sm);
   border-radius: var(--nm-border-radius-sm);
   cursor: default;
+
+  // 触屏：面包屑链接命中高度 ≥44px
+  @include nm-touch-min(null, 44px);
   transition:
     color 0.25s $nm-ease-ambient,
     background-color 0.25s $nm-ease-ambient,

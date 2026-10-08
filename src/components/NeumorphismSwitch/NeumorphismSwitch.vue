@@ -120,6 +120,8 @@ $switch-ambient: cubic-bezier(0.4, 0, 0.2, 1);
   gap: 12px;
   cursor: pointer;
   user-select: none;
+  // 触屏：整行命中高度 ≥44px（轨道视觉不变）
+  @include nm-touch-min(null, 44px);
 
   &--disabled {
     cursor: not-allowed;

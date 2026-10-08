@@ -244,6 +244,9 @@ function handleSelect() {
     transform 0.2s $nm-ease-spring,
     background-color 0.25s $nm-ease-ambient;
 
+  // 触屏：20×20 → 44×44 命中热区（视觉不变）
+  @include nm-touch-target;
+
   @media (hover: hover) {
     &:hover {
       color: var(--nm-text-primary);

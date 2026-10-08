@@ -156,6 +156,42 @@ $nm-ease-pull: cubic-bezier(0.22, 1, 0.36, 1);
   }
 }
 
+// ==========================================
+// Touch Target Mixins (触屏命中面积)
+// ==========================================
+
+/// 触屏热区扩展：把可点区域扩到 ≥44×44，视觉尺寸不变（透明伪元素承载命中）。
+/// 适用于图标型小目标（关闭/清空/删除钮等）。注意：目标元素需在文档流内，
+/// 且未把 ::after 用于视觉装饰（如已占用请用 ::before 手写等价规则）。
+@mixin nm-touch-target($size: 44px) {
+  @media (pointer: coarse) {
+    position: relative;
+
+    &::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: $size;
+      height: $size;
+      transform: translate(-50%, -50%);
+    }
+  }
+}
+
+/// 触屏最小尺寸：行 / 网格类目标（菜单项、列表行、日期格等）在触屏下
+/// 放宽到最小尺寸（鼠标保持紧凑档）。
+@mixin nm-touch-min($width: 44px, $height: 44px) {
+  @media (pointer: coarse) {
+    @if $width {
+      min-width: $width;
+    }
+    @if $height {
+      min-height: $height;
+    }
+  }
+}
+
 /// Scale-in animation for appearing elements
 @mixin nm-scale-in($duration: 0.3s) {
   animation: nm-scale-in $duration $nm-ease-spring forwards;

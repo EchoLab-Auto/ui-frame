@@ -10,6 +10,8 @@
     cursor: pointer;
     user-select: none;
     color: var(--nm-text-primary);
+    // 触屏：整行命中 ≥44×44（指示器视觉不变）
+    @include nm-touch-min;
 
     &--disabled {
       cursor: not-allowed;

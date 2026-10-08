@@ -164,18 +164,6 @@
     scroll-behavior: smooth;
   }
 
-  :where(&) button,
-  :where(&) a,
-  :where(&) input,
-  :where(&) select,
-  :where(&) textarea,
-  :where(&) [role='button'],
-  :where(&) [role='tab'] {
-    @media (pointer: coarse) {
-      min-height: 44px;
-    }
-  }
-
   :where(&) a,
   :where(&) button,
   :where(&) [role='button'] {
@@ -194,6 +182,34 @@
   :where(&) video {
     max-width: 100%;
     height: auto;
+  }
+}
+
+// ---- Touch target floor (coarse pointer) ----
+// 触屏下可点元素的最小命中高度 ≥44px。除 .nm-root 子树外，还需覆盖
+// teleport 到 body 的浮层根（整棵逃出 .nm-root，否则浮层内目标全部逃逸）。
+.nm-root,
+.nm-theme-default,
+.nm-modal__mask,
+.nm-drawer__mask,
+.nm-toast-container,
+.nm-tooltip,
+.nm-popover,
+.nm-select__dropdown,
+.nm-autocomplete__dropdown,
+.nm-menu__submenu--floating {
+  :where(&) button,
+  :where(&) a,
+  :where(&) input,
+  :where(&) select,
+  :where(&) textarea,
+  :where(&) [role='button'],
+  :where(&) [role='tab'],
+  :where(&) [role='option'],
+  :where(&) [role='menuitem'] {
+    @media (pointer: coarse) {
+      min-height: 44px;
+    }
   }
 }
 

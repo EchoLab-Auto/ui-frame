@@ -579,6 +579,9 @@ function handleCalendarKeydown(event: KeyboardEvent) {
   border-radius: var(--nm-border-radius-full);
   transition: color var(--nm-transition-fast);
 
+  // 触屏：~18px → 44×44 命中热区（视觉不变）
+  @include nm-touch-target;
+
   @media (hover: hover) {
     &:hover {
       color: var(--nm-text-primary);
@@ -598,6 +601,11 @@ function handleCalendarKeydown(event: KeyboardEvent) {
 .nm-datepicker__calendar {
   width: 280px;
   padding: var(--nm-spacing-sm);
+
+  // 触屏：面板加宽，令 7 列日期格宽 ≥44px
+  @media (pointer: coarse) {
+    min-width: 330px;
+  }
   user-select: none;
 }
 
@@ -623,6 +631,9 @@ function handleCalendarKeydown(event: KeyboardEvent) {
   color: var(--nm-text-secondary);
   border-radius: var(--nm-border-radius-sm);
   transition: all var(--nm-transition-fast);
+
+  // 触屏：28×28 → 44×44 命中热区（视觉不变）
+  @include nm-touch-target;
 
   @media (hover: hover) {
     &:hover {
@@ -691,6 +702,9 @@ function handleCalendarKeydown(event: KeyboardEvent) {
     box-shadow 0.25s $nm-ease-ambient,
     color 0.25s $nm-ease-ambient;
   position: relative;
+
+  // 触屏：日期格高度 ≥44px（宽度由面板在触屏加宽保证）
+  @include nm-touch-min(null, 44px);
 
   @media (hover: hover) {
     &:hover:not(&--disabled):not(&--selected) {

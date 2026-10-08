@@ -210,6 +210,8 @@ function getItemKey(item: T, index: number): string | number {
 
   &--clickable {
     cursor: pointer;
+    // 触屏：可点行高 ≥44px
+    @include nm-touch-min(null, 44px);
   }
 
   // Split dividers between items

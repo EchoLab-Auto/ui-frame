@@ -842,6 +842,9 @@ defineExpose({
     box-shadow 0.25s $nm-ease-spring,
     color 0.25s $nm-ease-ambient;
 
+  // 触屏：28×28 → 44×44 命中热区（视觉不变）
+  @include nm-touch-target;
+
   svg {
     width: var(--nm-spacing-md);
     height: var(--nm-spacing-md);
