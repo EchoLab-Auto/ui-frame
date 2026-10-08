@@ -461,7 +461,7 @@ function showMsg() {
 - [动画效果](./animation.md) — 台阶高度模型、缓动曲线与全局动效
 - [交互效果](./interaction.md) — 键盘、焦点、弹出层与反馈交互
 - [设计理念](../develop/design-philosophy.md) — 物理隐喻、Headless 分离等原则
-- [设计规范](../develop/design-specification.md) — 视觉层次、对齐、间距、图标与触控规则
+- [设计规范（元规范）](../develop/design-specification.md) — 不绑实现的设计判断标准（层次、对齐、间距、图标、触控）
 - [设计模式](../develop/design-patterns.md) — 级联配置、Token 系统等的代码体现
 
 ---
