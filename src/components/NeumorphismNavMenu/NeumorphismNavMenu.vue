@@ -435,6 +435,9 @@ function getItemClass(item: MenuItem) {
   position: relative;
   list-style: none;
 
+  // 键盘焦点内环（菜单项紧凑排列）
+  @include nm-focus-ring(-2px);
+
   &--disabled {
     opacity: 0.4;
     cursor: not-allowed;

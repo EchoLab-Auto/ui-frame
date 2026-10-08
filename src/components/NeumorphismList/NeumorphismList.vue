@@ -102,7 +102,10 @@ function getItemKey(item: T, index: number): string | number {
           'nm-list__item--clickable': !!slots.default,
         }"
         role="listitem"
+        :tabindex="slots.default ? 0 : undefined"
         @click="handleItemClick(item, index)"
+        @keydown.enter="handleItemClick(item, index)"
+        @keydown.space.prevent="handleItemClick(item, index)"
       >
         <slot name="default" :item="item" :index="index">
           {{ item }}
@@ -212,6 +215,16 @@ function getItemKey(item: T, index: number): string | number {
     cursor: pointer;
     // 触屏：可点行高 ≥44px
     @include nm-touch-min(null, 44px);
+
+    // 键盘焦点内环（列表行紧凑排列）
+    @include nm-focus-ring(-2px);
+
+    // 按下：即时压入感
+    &:active {
+      background-color: var(--nm-surface-raised);
+      transform: translateY(1px);
+      transition: transform 0.1s $nm-ease-compress;
+    }
   }
 
   // Split dividers between items

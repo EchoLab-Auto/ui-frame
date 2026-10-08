@@ -156,6 +156,9 @@ const variantColors: Record<TagVariant, string> = {
       box-shadow 0.1s $nm-ease-compress;
   }
 
+  // 焦点内环（相邻标签紧凑排列，外环会视觉打架）
+  @include nm-focus-ring(-2px);
+
   // Colored variants
   &--primary,
   &--success,
@@ -221,6 +224,8 @@ const variantColors: Record<TagVariant, string> = {
   &:active {
     transform: rotate(90deg) scale(0.85);
   }
+
+  @include nm-focus-ring(-2px);
 }
 
 @media (prefers-reduced-motion: reduce) {

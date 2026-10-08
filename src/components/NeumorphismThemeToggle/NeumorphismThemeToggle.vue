@@ -203,6 +203,8 @@ function selectTheme(value: Theme) {
     transition: transform 0.1s $nm-ease-compress;
   }
 
+  @include nm-focus-ring;
+
   &--active {
     color: var(--nm-primary-color);
     @include nm-raised-strong(2px, 4px);

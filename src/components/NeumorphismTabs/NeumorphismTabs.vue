@@ -209,6 +209,9 @@ const classList = computed(() => [
     }
   }
 
+  // 键盘焦点内环（标签紧凑排列）
+  @include nm-focus-ring(-2px);
+
   &:active:not(&--disabled):not(&--active) {
     transform: translateY(0) scale(0.97);
     transition:

@@ -274,6 +274,12 @@ const classList = computed(() => ['nm-tree'])
       color: var(--nm-text-secondary);
     }
   }
+
+  &:active {
+    color: var(--nm-text-primary);
+  }
+
+  @include nm-focus-ring(-2px);
 }
 
 // Actions
@@ -302,6 +308,12 @@ const classList = computed(() => ['nm-tree'])
       color: var(--nm-primary-color);
     }
   }
+
+  &:active {
+    color: var(--nm-primary-color);
+  }
+
+  @include nm-focus-ring(-2px);
 }
 
 // List

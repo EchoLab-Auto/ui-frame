@@ -200,6 +200,14 @@ function handleKeydown(event: KeyboardEvent): void {
     }
   }
 
+  // 按下：凹陷即时加深并落回基准（触屏也有按压反馈）
+  &:active:not(.nm-input--disabled):not(.nm-input--focused) {
+    box-shadow:
+      inset 6px 6px 12px var(--nm-shadow-dark),
+      inset -6px -6px 12px var(--nm-shadow-light);
+    transform: translateY(0);
+  }
+
   &--focused {
     box-shadow:
       inset 5px 5px 10px var(--nm-shadow-dark),

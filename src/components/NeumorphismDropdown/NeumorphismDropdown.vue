@@ -206,6 +206,9 @@ const classList = computed(() => ['nm-dropdown'])
     transition: transform 0.08s $nm-ease-compress;
   }
 
+  // 键盘导航焦点内环（roving tabindex）
+  @include nm-focus-ring(-2px);
+
   &--active:not(&--disabled) {
     background-color: var(--nm-surface-raised);
   }

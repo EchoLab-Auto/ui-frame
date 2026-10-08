@@ -270,6 +270,14 @@ const sizeStyle = computed(() => {
       color: var(--nm-text-primary);
     }
   }
+
+  &:active {
+    @include nm-inset(3px, 6px);
+    color: var(--nm-text-primary);
+  }
+
+  // 内环：Drawer 根 overflow:hidden，外环会被裁剪
+  @include nm-focus-ring(-2px);
 }
 
 // ---- body ----

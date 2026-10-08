@@ -519,6 +519,14 @@ const isLoadingState = computed(() => loadingRef.value)
     }
   }
 
+  // 按下：凹陷即时加深
+  &:active:not(&--disabled) {
+    background-color: var(--nm-surface-raised);
+    box-shadow:
+      inset 2px 2px 4px var(--nm-shadow-dark),
+      inset -2px -2px 4px var(--nm-shadow-light);
+  }
+
   &--disabled {
     opacity: 0.4;
     cursor: not-allowed;

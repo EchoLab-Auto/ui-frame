@@ -95,6 +95,8 @@ app.use(NeumorphismUI, { list: { size: 'medium', bordered: true, split: true, ho
 
 容器 `role="list"`、项 `role="listitem"`，aria-label 取语言包 `listLabel`；`prefers-reduced-motion` 时移除项过渡与旋转动画。
 
+使用默认 slot 自定义行内容时，行可键盘操作：`tabindex=0` 可聚焦，Enter / Space 触发 `item-click`，聚焦显示键盘焦点内环。纯展示列表（未使用 slot）不进入 Tab 序列。
+
 ---
 
 ## 深入

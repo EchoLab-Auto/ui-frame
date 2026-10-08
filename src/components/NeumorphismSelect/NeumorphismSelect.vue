@@ -984,6 +984,14 @@ function onContainerBlur(e: FocusEvent) {
     }
   }
 
+  // 按下：凹陷即时加深
+  &:active:not(&--disabled):not(&--empty) {
+    background-color: var(--nm-select-option-hover-bg);
+    box-shadow:
+      inset 2px 2px 4px var(--nm-shadow-dark),
+      inset -2px -2px 4px var(--nm-shadow-light);
+  }
+
   // 多选键盘高亮项 —— 视觉与 hover 等价
   &--active:not(&--disabled) {
     background-color: var(--nm-select-option-hover-bg);

@@ -152,6 +152,14 @@ const classList = computed(() => [
     cursor: not-allowed;
   }
 
+  // 按下：非选中项即时压入感
+  &:active:not(&--disabled):not(&--active) {
+    background-color: var(--nm-surface-color);
+    box-shadow:
+      inset 2px 2px 4px var(--nm-shadow-dark),
+      inset -2px -2px 4px var(--nm-shadow-light);
+  }
+
   &:focus-visible {
     outline: 2px solid var(--nm-primary-color);
     outline-offset: 1px;

@@ -122,6 +122,8 @@ app.use(NeumorphismUI, { table: { size: 'small', striped: true, hoverable: true 
 
 可排序列表头带 chevron 图标：常态半透明且朝下（rotate 180°），该列激活时主色 + 转正（朝上），点击在 ascend → descend → null 间循环。
 
+排序表头支持键盘操作：`tabindex=0` 可聚焦（Enter / Space 切换排序），并通过 `aria-sort` 向读屏器播报当前方向；按下时表头底色即时加深反馈。
+
 ### 行状态
 
 | 状态     | 表现                                                          |

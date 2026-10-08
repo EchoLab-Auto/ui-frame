@@ -192,6 +192,15 @@ $nm-ease-pull: cubic-bezier(0.22, 1, 0.36, 1);
   }
 }
 
+/// 键盘焦点环：outline 实现——不与新拟态 box-shadow 表达冲突，
+/// 无需重复声明阴影栈。用于所有可聚焦交互元素（按钮/链接/标签/菜单项等）。
+@mixin nm-focus-ring($offset: 2px) {
+  &:focus-visible {
+    outline: 2px solid var(--nm-primary-color);
+    outline-offset: $offset;
+  }
+}
+
 /// Scale-in animation for appearing elements
 @mixin nm-scale-in($duration: 0.3s) {
   animation: nm-scale-in $duration $nm-ease-spring forwards;

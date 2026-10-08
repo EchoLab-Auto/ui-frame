@@ -280,6 +280,8 @@ const classList = computed(() => [
   &:active {
     transform: rotate(90deg) scale(0.85);
   }
+
+  @include nm-focus-ring;
 }
 
 // Toast list transitions — position-aware elastic entrance

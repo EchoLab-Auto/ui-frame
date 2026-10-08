@@ -144,7 +144,19 @@ const showSelectionColumn = computed(
                 'nm-table__th--active': sortState.key === column.key,
               }"
               :style="[columnWidthStyle(column), { textAlign: column.align }]"
+              :tabindex="column.sortable ? 0 : undefined"
+              :aria-sort="
+                column.sortable
+                  ? sortState.key === column.key
+                    ? sortState.direction === 'ascend'
+                      ? 'ascending'
+                      : 'descending'
+                    : 'none'
+                  : undefined
+              "
               @click="column.sortable ? handleToggleSort(column.key) : undefined"
+              @keydown.enter="column.sortable ? handleToggleSort(column.key) : undefined"
+              @keydown.space.prevent="column.sortable ? handleToggleSort(column.key) : undefined"
             >
               <span class="nm-table__th-content">
                 <slot name="header" :column="column">
@@ -178,6 +190,7 @@ const showSelectionColumn = computed(
             class="nm-table__tr"
             :class="{
               'nm-table__tr--selected': isSelected(String(row[rowKey] ?? '')),
+              'nm-table__tr--clickable': selectable === 'single',
             }"
             @click="selectable === 'single' ? handleToggleSelect(row) : undefined"
           >
@@ -271,6 +284,15 @@ const showSelectionColumn = computed(
           color: var(--nm-text-primary);
         }
       }
+
+      // 键盘焦点内环（表头单元格紧凑排列）
+      @include nm-focus-ring(-2px);
+
+      // 按下：即时加深文字对比
+      &:active {
+        color: var(--nm-text-primary);
+        background-color: var(--nm-surface-raised);
+      }
     }
 
     &--active {
@@ -318,6 +340,18 @@ const showSelectionColumn = computed(
 
     &:not(:last-child) .nm-table__td {
       border-bottom: 1px solid color-mix(in srgb, var(--nm-border-subtle) 60%, transparent);
+    }
+
+    // 可点行（selectable=single）：指针反馈 + 按下即时反馈
+    &--clickable {
+      cursor: pointer;
+
+      &:active {
+        background-color: var(--nm-surface-raised);
+        box-shadow:
+          inset 1px 1px 2px var(--nm-shadow-dark),
+          inset -1px -1px 2px var(--nm-shadow-light);
+      }
     }
   }
 }

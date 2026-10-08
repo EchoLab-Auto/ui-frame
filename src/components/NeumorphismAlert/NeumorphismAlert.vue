@@ -318,6 +318,9 @@ const defaultIcons: Record<AlertType, { viewBox: string; paths: string[] }> = {
   &:active {
     transform: rotate(90deg) scale(0.85);
   }
+
+  // 内环：Alert 根 overflow:hidden，外环会被裁剪
+  @include nm-focus-ring(-2px);
 }
 
 // ==========================================

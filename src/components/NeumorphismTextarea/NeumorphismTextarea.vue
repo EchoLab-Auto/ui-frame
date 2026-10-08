@@ -195,6 +195,13 @@ watch(
     }
   }
 
+  // 按下：凹陷即时加深（不加 transform——避免建立变换层拖慢文本拖选）
+  &:active:not(.nm-textarea--disabled):not(.nm-textarea--focused) {
+    box-shadow:
+      inset 6px 6px 12px var(--nm-shadow-dark),
+      inset -6px -6px 12px var(--nm-shadow-light);
+  }
+
   &--focused {
     box-shadow:
       inset 5px 5px 10px var(--nm-shadow-dark),

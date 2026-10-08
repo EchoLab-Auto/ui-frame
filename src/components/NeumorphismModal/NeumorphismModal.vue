@@ -281,6 +281,13 @@ const classList = computed(() => ['nm-modal', `nm-modal--${resolvedSize.value}`]
       color: var(--nm-text-primary);
     }
   }
+
+  &:active {
+    @include nm-inset(3px, 6px);
+    color: var(--nm-text-primary);
+  }
+
+  @include nm-focus-ring;
 }
 
 .nm-modal__body {
@@ -328,6 +335,13 @@ const classList = computed(() => ['nm-modal', `nm-modal--${resolvedSize.value}`]
     transition:
       box-shadow 0.1s $nm-ease-compress,
       transform 0.1s $nm-ease-compress;
+  }
+
+  @include nm-focus-ring;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
   }
 
   &--cancel {
