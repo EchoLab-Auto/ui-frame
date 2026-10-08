@@ -22,7 +22,7 @@ defineProps<{
 
 .nm-field__required {
   color: var(--nm-color-error);
-  margin-left: 2px;
+  margin-left: var(--nm-spacing-2xs);
 }
 
 @media (prefers-reduced-motion: reduce) {

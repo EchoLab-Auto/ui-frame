@@ -60,12 +60,12 @@ const classList = computed(() => ['nm-radio-group', `nm-radio-group--${resolvedD
 
   &--horizontal {
     flex-wrap: wrap;
-    gap: 12px 24px;
+    gap: var(--nm-spacing-12) var(--nm-spacing-lg);
   }
 
   &--vertical {
     flex-direction: column;
-    gap: 12px;
+    gap: var(--nm-spacing-12);
   }
 }
 

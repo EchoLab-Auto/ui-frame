@@ -116,6 +116,12 @@
   --nm-spacing-xl: 32px;
   --nm-spacing-2xl: 40px;
   --nm-spacing-3xl: 48px;
+  // 细调刻度（2px 网格）——组件内部对位与紧凑档
+  --nm-spacing-6: 6px;
+  --nm-spacing-10: 10px;
+  --nm-spacing-12: 12px;
+  --nm-spacing-14: 14px;
+  --nm-spacing-20: 20px;
   // Negative spacing for margin/offset utilities
   --nm-spacing-neg-xs: -4px;
   --nm-spacing-neg-sm: -8px;
@@ -223,41 +229,41 @@
   // ==========================================
 
   // -- Button --
-  --nm-button-padding-y-sm: 8px;
-  --nm-button-padding-x-sm: 16px;
+  --nm-button-padding-y-sm: var(--nm-spacing-sm);
+  --nm-button-padding-x-sm: var(--nm-spacing-md);
   --nm-button-font-sm: 13px;
   --nm-button-min-height-sm: 32px;
-  --nm-button-padding-y-md: 12px;
-  --nm-button-padding-x-md: 24px;
+  --nm-button-padding-y-md: var(--nm-spacing-12);
+  --nm-button-padding-x-md: var(--nm-spacing-lg);
   --nm-button-font-md: 14px;
   --nm-button-min-height-md: 44px;
-  --nm-button-padding-y-lg: 16px;
-  --nm-button-padding-x-lg: 32px;
+  --nm-button-padding-y-lg: var(--nm-spacing-md);
+  --nm-button-padding-x-lg: var(--nm-spacing-xl);
   --nm-button-font-lg: 16px;
   --nm-button-min-height-lg: 56px;
   --nm-button-min-height: var(--nm-button-min-height-md);
   --nm-button-font-weight: 500;
 
   // -- Input / Textarea --
-  --nm-field-padding-y-sm: 6px;
-  --nm-field-padding-x-sm: 12px;
+  --nm-field-padding-y-sm: var(--nm-spacing-6);
+  --nm-field-padding-x-sm: var(--nm-spacing-12);
   --nm-field-font-sm: 13px;
   --nm-field-min-height-sm: 36px;
-  --nm-field-padding-y-md: 10px;
-  --nm-field-padding-x-md: 16px;
+  --nm-field-padding-y-md: var(--nm-spacing-10);
+  --nm-field-padding-x-md: var(--nm-spacing-md);
   --nm-field-font-md: 14px;
   --nm-field-min-height-md: 48px;
-  --nm-field-padding-y-lg: 14px;
-  --nm-field-padding-x-lg: 20px;
+  --nm-field-padding-y-lg: var(--nm-spacing-14);
+  --nm-field-padding-x-lg: var(--nm-spacing-20);
   --nm-field-font-lg: 16px;
   --nm-field-min-height-lg: 60px;
-  --nm-field-affix-padding-x-sm: 10px;
-  --nm-field-affix-padding-x-md: 14px;
-  --nm-field-affix-padding-x-lg: 16px;
+  --nm-field-affix-padding-x-sm: var(--nm-spacing-10);
+  --nm-field-affix-padding-x-md: var(--nm-spacing-14);
+  --nm-field-affix-padding-x-lg: var(--nm-spacing-md);
 
   // -- Select --
-  --nm-select-option-padding-y: 10px;
-  --nm-select-option-padding-x: 14px;
+  --nm-select-option-padding-y: var(--nm-spacing-10);
+  --nm-select-option-padding-x: var(--nm-spacing-14);
   --nm-select-option-font: 14px;
   --nm-select-option-hover-bg: var(--nm-surface-raised);
   --nm-select-dropdown-max-height: 240px;
@@ -273,16 +279,16 @@
   --nm-select-outlined-option-hover-bg: var(--nm-surface-raised);
 
   // -- Card --
-  --nm-card-padding: 20px;
-  --nm-card-header-padding: 16px 20px;
-  --nm-card-footer-padding: 12px 20px;
+  --nm-card-padding: var(--nm-spacing-20);
+  --nm-card-header-padding: var(--nm-spacing-md) var(--nm-spacing-20);
+  --nm-card-footer-padding: var(--nm-spacing-12) var(--nm-spacing-20);
 
   // -- Modal --
-  --nm-modal-padding: 24px;
-  --nm-modal-header-padding: 20px 24px 0;
-  --nm-modal-footer-padding: 0 24px 20px;
-  --nm-modal-btn-padding-y: 10px;
-  --nm-modal-btn-padding-x: 24px;
+  --nm-modal-padding: var(--nm-spacing-lg);
+  --nm-modal-header-padding: var(--nm-spacing-20) var(--nm-spacing-lg) 0;
+  --nm-modal-footer-padding: 0 var(--nm-spacing-lg) var(--nm-spacing-20);
+  --nm-modal-btn-padding-y: var(--nm-spacing-10);
+  --nm-modal-btn-padding-x: var(--nm-spacing-lg);
   --nm-modal-max-width-sm: 400px;
   --nm-modal-max-width-md: 560px;
   --nm-modal-max-width-lg: 720px;
@@ -290,16 +296,16 @@
   --nm-modal-mask-bg: rgba(0, 0, 0, 0.4);
 
   // -- Tabs --
-  --nm-tabs-tab-padding-y-sm: 6px;
-  --nm-tabs-tab-padding-x-sm: 14px;
+  --nm-tabs-tab-padding-y-sm: var(--nm-spacing-6);
+  --nm-tabs-tab-padding-x-sm: var(--nm-spacing-14);
   --nm-tabs-tab-font-sm: 12px;
-  --nm-tabs-tab-padding-y-md: 10px;
-  --nm-tabs-tab-padding-x-md: 20px;
+  --nm-tabs-tab-padding-y-md: var(--nm-spacing-10);
+  --nm-tabs-tab-padding-x-md: var(--nm-spacing-20);
   --nm-tabs-tab-font-md: 14px;
-  --nm-tabs-tab-padding-y-lg: 14px;
+  --nm-tabs-tab-padding-y-lg: var(--nm-spacing-14);
   --nm-tabs-tab-padding-x-lg: 28px;
   --nm-tabs-tab-font-lg: 16px;
-  --nm-tabs-nav-gap: 4px;
+  --nm-tabs-nav-gap: var(--nm-spacing-xs);
 
   // -- Pagination --
   --nm-pagination-btn-min-width-sm: 30px;
@@ -311,48 +317,48 @@
   --nm-pagination-btn-min-width-lg: 46px;
   --nm-pagination-btn-height-lg: 46px;
   --nm-pagination-btn-font-lg: 16px;
-  --nm-pagination-gap: 12px;
+  --nm-pagination-gap: var(--nm-spacing-12);
 
   // -- Collapse --
-  --nm-collapse-trigger-padding-y-sm: 12px;
-  --nm-collapse-trigger-padding-x-sm: 16px;
+  --nm-collapse-trigger-padding-y-sm: var(--nm-spacing-12);
+  --nm-collapse-trigger-padding-x-sm: var(--nm-spacing-md);
   --nm-collapse-trigger-font-sm: 13px;
-  --nm-collapse-trigger-padding-y-md: 16px;
-  --nm-collapse-trigger-padding-x-md: 20px;
+  --nm-collapse-trigger-padding-y-md: var(--nm-spacing-md);
+  --nm-collapse-trigger-padding-x-md: var(--nm-spacing-20);
   --nm-collapse-trigger-font-md: 15px;
-  --nm-collapse-trigger-padding-y-lg: 20px;
+  --nm-collapse-trigger-padding-y-lg: var(--nm-spacing-20);
   --nm-collapse-trigger-padding-x-lg: 28px;
   --nm-collapse-trigger-font-lg: 16px;
-  --nm-collapse-content-padding-y: 16px;
-  --nm-collapse-content-padding-x: 20px;
-  --nm-collapse-item-gap: 4px;
+  --nm-collapse-content-padding-y: var(--nm-spacing-md);
+  --nm-collapse-content-padding-x: var(--nm-spacing-20);
+  --nm-collapse-item-gap: var(--nm-spacing-xs);
 
   // -- Tree --
   --nm-tree-node-padding-y: 5px;
-  --nm-tree-node-padding-x: 8px;
+  --nm-tree-node-padding-x: var(--nm-spacing-sm);
   --nm-tree-node-font: 13px;
-  --nm-tree-node-indent: 20px;
+  --nm-tree-node-indent: var(--nm-spacing-20);
   --nm-tree-toggle-size: 20px;
 
   // -- Toast --
   --nm-toast-min-width: 280px;
   --nm-toast-max-width: 420px;
-  --nm-toast-padding-y: 14px;
+  --nm-toast-padding-y: var(--nm-spacing-14);
   --nm-toast-padding-x: 18px;
   --nm-toast-font: 14px;
-  --nm-toast-gap: 10px;
+  --nm-toast-gap: var(--nm-spacing-10);
 
   // -- Tooltip --
-  --nm-tooltip-padding-y: 8px;
-  --nm-tooltip-padding-x: 14px;
+  --nm-tooltip-padding-y: var(--nm-spacing-sm);
+  --nm-tooltip-padding-x: var(--nm-spacing-14);
   --nm-tooltip-font: 13px;
   --nm-tooltip-arrow-size: 8px;
 
   // -- Form --
-  --nm-form-item-gap: 16px;
-  --nm-form-item-margin-bottom: 20px;
+  --nm-form-item-gap: var(--nm-spacing-md);
+  --nm-form-item-margin-bottom: var(--nm-spacing-20);
   --nm-form-label-font: 14px;
-  --nm-form-label-margin-bottom: 6px;
+  --nm-form-label-margin-bottom: var(--nm-spacing-6);
   --nm-form-error-font: 12px;
   --nm-form-label-width: 100px;
 
@@ -362,42 +368,42 @@
   --nm-badge-dot-size: 8px;
 
   // -- Tag --
-  --nm-tag-padding-y-sm: 2px;
-  --nm-tag-padding-x-sm: 8px;
+  --nm-tag-padding-y-sm: var(--nm-spacing-2xs);
+  --nm-tag-padding-x-sm: var(--nm-spacing-sm);
   --nm-tag-font-sm: 11px;
-  --nm-tag-padding-y-md: 4px;
-  --nm-tag-padding-x-md: 12px;
+  --nm-tag-padding-y-md: var(--nm-spacing-xs);
+  --nm-tag-padding-x-md: var(--nm-spacing-12);
   --nm-tag-font-md: 12px;
-  --nm-tag-padding-y-lg: 6px;
-  --nm-tag-padding-x-lg: 16px;
+  --nm-tag-padding-y-lg: var(--nm-spacing-6);
+  --nm-tag-padding-x-lg: var(--nm-spacing-md);
   --nm-tag-font-lg: 14px;
-  --nm-tag-gap: 6px;
+  --nm-tag-gap: var(--nm-spacing-6);
 
   // -- Alert --
-  --nm-alert-padding-y-sm: 8px;
-  --nm-alert-padding-x-sm: 12px;
+  --nm-alert-padding-y-sm: var(--nm-spacing-sm);
+  --nm-alert-padding-x-sm: var(--nm-spacing-12);
   --nm-alert-font-sm: 12px;
   --nm-alert-title-font-sm: 13px;
-  --nm-alert-padding-y-md: 12px;
-  --nm-alert-padding-x-md: 16px;
+  --nm-alert-padding-y-md: var(--nm-spacing-12);
+  --nm-alert-padding-x-md: var(--nm-spacing-md);
   --nm-alert-font-md: 13px;
   --nm-alert-title-font-md: 14px;
-  --nm-alert-padding-y-lg: 16px;
-  --nm-alert-padding-x-lg: 20px;
+  --nm-alert-padding-y-lg: var(--nm-spacing-md);
+  --nm-alert-padding-x-lg: var(--nm-spacing-20);
   --nm-alert-font-lg: 14px;
   --nm-alert-title-font-lg: 16px;
-  --nm-alert-title-margin-bottom: 4px;
+  --nm-alert-title-margin-bottom: var(--nm-spacing-xs);
 
   // -- Table --
-  --nm-table-cell-padding-y-sm: 8px;
-  --nm-table-cell-padding-x-sm: 12px;
-  --nm-table-cell-padding-y-md: 12px;
-  --nm-table-cell-padding-x-md: 16px;
-  --nm-table-cell-padding-y-lg: 16px;
-  --nm-table-cell-padding-x-lg: 20px;
-  --nm-table-empty-padding-y: 48px;
-  --nm-table-empty-padding-x: 24px;
-  --nm-table-loading-gap: 12px;
+  --nm-table-cell-padding-y-sm: var(--nm-spacing-sm);
+  --nm-table-cell-padding-x-sm: var(--nm-spacing-12);
+  --nm-table-cell-padding-y-md: var(--nm-spacing-12);
+  --nm-table-cell-padding-x-md: var(--nm-spacing-md);
+  --nm-table-cell-padding-y-lg: var(--nm-spacing-md);
+  --nm-table-cell-padding-x-lg: var(--nm-spacing-20);
+  --nm-table-empty-padding-y: var(--nm-spacing-3xl);
+  --nm-table-empty-padding-x: var(--nm-spacing-lg);
+  --nm-table-loading-gap: var(--nm-spacing-12);
 
   // -- Progress --
   --nm-progress-height-sm: 4px;
@@ -430,7 +436,7 @@
   --nm-breadcrumb-font-sm: 12px;
   --nm-breadcrumb-font-md: 14px;
   --nm-breadcrumb-font-lg: 16px;
-  --nm-breadcrumb-separator-margin: 6px;
+  --nm-breadcrumb-separator-margin: var(--nm-spacing-6);
 
   // -- Code Highlighting (Doc module) --
   --nm-code-comment: #008000;
@@ -483,7 +489,7 @@
   --nm-chart-point-size: 6px;
   --nm-chart-bar-radius: 4px;
   --nm-chart-animate-duration: 0.5s;
-  --nm-chart-legend-gap: 16px;
+  --nm-chart-legend-gap: var(--nm-spacing-md);
   --nm-chart-legend-marker-size: 12px;
 
   // Candlestick / Stock

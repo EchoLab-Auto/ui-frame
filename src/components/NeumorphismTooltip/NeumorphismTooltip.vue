@@ -200,7 +200,7 @@ const classList = computed(() => [
     .nm-tooltip__arrow {
       bottom: -4px;
       left: 50%;
-      margin-left: -4px;
+      margin-left: var(--nm-spacing-neg-xs);
     }
   }
 
@@ -208,7 +208,7 @@ const classList = computed(() => [
     .nm-tooltip__arrow {
       top: -4px;
       left: 50%;
-      margin-left: -4px;
+      margin-left: var(--nm-spacing-neg-xs);
     }
   }
 
@@ -216,7 +216,7 @@ const classList = computed(() => [
     .nm-tooltip__arrow {
       right: -4px;
       top: 50%;
-      margin-top: -4px;
+      margin-top: var(--nm-spacing-neg-xs);
     }
   }
 
@@ -224,7 +224,7 @@ const classList = computed(() => [
     .nm-tooltip__arrow {
       left: -4px;
       top: 50%;
-      margin-top: -4px;
+      margin-top: var(--nm-spacing-neg-xs);
     }
   }
 }

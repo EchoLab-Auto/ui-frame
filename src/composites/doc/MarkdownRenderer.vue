@@ -522,7 +522,7 @@ onBeforeUnmount(() => {
 
 /* Markdown render error */
 .neumorphism-markdown-error {
-  padding: 32px;
+  padding: var(--nm-spacing-xl);
   background: var(--nm-surface-color);
   border-radius: var(--nm-border-radius-lg);
   border: 1px solid var(--nm-color-error);
@@ -531,7 +531,7 @@ onBeforeUnmount(() => {
 .neumorphism-markdown-error-title {
   font-weight: 600;
   color: var(--nm-color-error);
-  margin: 0 0 12px;
+  margin: 0 0 var(--nm-spacing-12);
 }
 
 .neumorphism-markdown-error-msg {
@@ -541,7 +541,7 @@ onBeforeUnmount(() => {
   white-space: pre-wrap;
   word-break: break-word;
   margin: 0;
-  padding: 12px;
+  padding: var(--nm-spacing-12);
   background: var(--nm-bg-color);
   border-radius: var(--nm-border-radius-sm);
 }
@@ -560,7 +560,7 @@ onBeforeUnmount(() => {
 .neumorphism-markdown-content h5,
 .neumorphism-markdown-content h6 {
   margin-top: 36px;
-  margin-bottom: 16px;
+  margin-bottom: var(--nm-spacing-md);
   font-weight: 600;
   color: var(--nm-text-primary);
   line-height: 1.25;
@@ -621,7 +621,7 @@ onBeforeUnmount(() => {
 }
 
 .neumorphism-markdown-content p {
-  margin: 0 0 16px 0;
+  margin: 0 0 var(--nm-spacing-md) 0;
   color: var(--nm-text-primary);
 }
 
@@ -640,13 +640,13 @@ onBeforeUnmount(() => {
 
 .neumorphism-markdown-content ul,
 .neumorphism-markdown-content ol {
-  margin: 0 0 16px 0;
-  padding-left: 24px;
+  margin: 0 0 var(--nm-spacing-md) 0;
+  padding-left: var(--nm-spacing-lg);
   color: var(--nm-text-primary);
 }
 
 .neumorphism-markdown-content li {
-  margin-bottom: 6px;
+  margin-bottom: var(--nm-spacing-6);
 }
 
 .neumorphism-markdown-content li::marker {
@@ -656,13 +656,13 @@ onBeforeUnmount(() => {
 .task-list-item {
   list-style: none;
   padding-left: 0;
-  margin-left: -4px;
+  margin-left: var(--nm-spacing-neg-xs);
 }
 
 .task-checkbox {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--nm-spacing-10);
   cursor: default;
 }
 
@@ -719,7 +719,7 @@ onBeforeUnmount(() => {
 
 .inline-code {
   background-color: var(--nm-surface-color);
-  padding: 3px 8px;
+  padding: 3px var(--nm-spacing-sm);
   border-radius: var(--nm-border-radius-sm);
   font-size: 0.88em;
   font-family: var(--nm-font-mono);
@@ -729,7 +729,7 @@ onBeforeUnmount(() => {
 
 .neumorphism-markdown-content blockquote {
   margin: 0 0 18px 0;
-  padding: 16px 22px;
+  padding: var(--nm-spacing-md) 22px;
   border-left: 3px solid var(--nm-primary-color);
   background-color: var(--nm-surface-color);
   color: var(--nm-text-primary);
@@ -753,7 +753,7 @@ onBeforeUnmount(() => {
 
 .neumorphism-markdown-content th,
 .neumorphism-markdown-content td {
-  padding: 12px 16px;
+  padding: var(--nm-spacing-12) var(--nm-spacing-md);
   border-bottom: 1px solid var(--nm-border-subtle);
   text-align: left;
 }
@@ -789,7 +789,7 @@ onBeforeUnmount(() => {
 .neumorphism-markdown-content hr {
   border: none;
   border-top: 1px solid var(--nm-border-subtle);
-  margin: 32px 0;
+  margin: var(--nm-spacing-xl) 0;
 }
 
 .neumorphism-markdown-content strong {
@@ -876,7 +876,7 @@ onBeforeUnmount(() => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 16px;
+  padding: var(--nm-spacing-12) var(--nm-spacing-md);
   border-bottom: 1px solid var(--nm-border-subtle);
 }
 

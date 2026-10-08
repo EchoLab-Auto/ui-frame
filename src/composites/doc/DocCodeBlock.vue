@@ -55,7 +55,7 @@ const copyLabel = computed(() => (copied.value ? t('markdownCodeCopied') : t('ma
 <!-- 全局样式：token-* 类由 highlightCode 字符串产物使用，scoped 无法命中 v-html 内容 -->
 <style>
 .code-block-wrapper {
-  margin: 0 0 20px 0;
+  margin: 0 0 var(--nm-spacing-20) 0;
   border-radius: var(--nm-border-radius-lg);
   overflow: hidden;
   background-color: var(--nm-surface-color);
@@ -66,7 +66,7 @@ const copyLabel = computed(() => (copied.value ? t('markdownCodeCopied') : t('ma
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 20px;
+  padding: var(--nm-spacing-10) var(--nm-spacing-20);
   border-bottom: 1px solid var(--nm-border-subtle);
 }
 
@@ -84,11 +84,11 @@ const copyLabel = computed(() => (copied.value ? t('markdownCodeCopied') : t('ma
   color: var(--nm-text-placeholder);
   font-family: var(--nm-font-mono);
   margin-left: auto;
-  margin-right: 12px;
+  margin-right: var(--nm-spacing-12);
 }
 
 .code-copy-btn {
-  padding: 4px 10px;
+  padding: var(--nm-spacing-xs) var(--nm-spacing-10);
   border: none;
   border-radius: var(--nm-border-radius-sm);
   font-size: 11px;
@@ -126,7 +126,7 @@ const copyLabel = computed(() => (copied.value ? t('markdownCodeCopied') : t('ma
 .line-numbers {
   display: flex;
   flex-direction: column;
-  padding: 14px 0 14px 14px;
+  padding: var(--nm-spacing-14) 0 var(--nm-spacing-14) var(--nm-spacing-14);
   flex-shrink: 0;
   user-select: none;
   border-right: 1px solid var(--nm-border-subtle);
@@ -138,14 +138,14 @@ const copyLabel = computed(() => (copied.value ? t('markdownCodeCopied') : t('ma
   color: var(--nm-text-placeholder);
   font-family: var(--nm-font-mono);
   text-align: right;
-  padding-right: 14px;
+  padding-right: var(--nm-spacing-14);
   min-width: 28px;
 }
 
 .code-block-body pre {
   flex: 1;
   margin: 0;
-  padding: 14px 20px;
+  padding: var(--nm-spacing-14) var(--nm-spacing-20);
   background: transparent;
   overflow-x: auto;
   box-shadow: none;

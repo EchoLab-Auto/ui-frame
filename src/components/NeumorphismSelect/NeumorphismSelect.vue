@@ -896,7 +896,7 @@ function onContainerBlur(e: FocusEvent) {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 2px;
+  padding: var(--nm-spacing-2xs);
   border: none;
   background: none;
   cursor: pointer;
@@ -1165,7 +1165,7 @@ function onContainerBlur(e: FocusEvent) {
   }
   // 左侧指示点预留空间，避免压字
   .nm-select__option {
-    padding-left: calc(var(--nm-select-option-padding-x) + 16px);
+    padding-left: calc(var(--nm-select-option-padding-x) + var(--nm-spacing-md));
   }
 }
 

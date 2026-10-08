@@ -367,7 +367,7 @@ function handleKeydown(event: KeyboardEvent): void {
 
 .nm-input--floating {
   .nm-input__field {
-    padding-top: calc(var(--nm-field-padding-y-md) + 6px);
+    padding-top: calc(var(--nm-field-padding-y-md) + var(--nm-spacing-6));
   }
 }
 
@@ -380,7 +380,7 @@ function handleKeydown(event: KeyboardEvent): void {
   }
 }
 .nm-input--small.nm-input--floating .nm-input__field {
-  padding-top: calc(var(--nm-field-padding-y-sm) + 4px);
+  padding-top: calc(var(--nm-field-padding-y-sm) + var(--nm-spacing-xs));
 }
 
 .nm-input--large .nm-input__floating-label {
@@ -390,7 +390,7 @@ function handleKeydown(event: KeyboardEvent): void {
   }
 }
 .nm-input--large.nm-input--floating .nm-input__field {
-  padding-top: calc(var(--nm-field-padding-y-lg) + 8px);
+  padding-top: calc(var(--nm-field-padding-y-lg) + var(--nm-spacing-sm));
 }
 
 .nm-input--error .nm-input__floating-label--active {

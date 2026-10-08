@@ -93,7 +93,7 @@ defineExpose({ isNearBottom, showJumpButton, scrollToBottom, recheck })
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: var(--nm-spacing-12);
   padding: 18px var(--nm-spacing-md);
   background-color: var(--nm-chat-tray-bg);
   @include nm-inset(2px, 6px);

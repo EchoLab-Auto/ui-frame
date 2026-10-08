@@ -42,7 +42,7 @@ withDefaults(defineProps<ChatBubbleProps>(), {
 // —— 气泡壳：对齐与色调正交组合 ——
 .nm-chat-bubble {
   max-width: min(78%, 640px);
-  padding: var(--nm-spacing-sm) 14px;
+  padding: var(--nm-spacing-sm) var(--nm-spacing-14);
   border-radius: var(--nm-border-radius-md);
 
   &--start {
@@ -106,7 +106,7 @@ withDefaults(defineProps<ChatBubbleProps>(), {
   display: flex;
   align-items: center;
   gap: var(--nm-spacing-xs);
-  margin-bottom: 2px;
+  margin-bottom: var(--nm-spacing-2xs);
 }
 
 .nm-chat-bubble__head-spacer {

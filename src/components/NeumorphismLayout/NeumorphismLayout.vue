@@ -215,7 +215,7 @@ const siderStyle = computed(() => ({
   left: 50%;
   transform: translateX(-50%);
   z-index: var(--nm-z-popover);
-  padding: 8px 16px;
+  padding: var(--nm-spacing-sm) var(--nm-spacing-md);
   background-color: var(--nm-primary-color);
   color: var(--nm-text-on-primary);
   border-radius: 0 0 var(--nm-border-radius-md) var(--nm-border-radius-md);
@@ -253,14 +253,14 @@ const siderStyle = computed(() => ({
   align-items: center;
   justify-content: space-between;
   height: 56px;
-  padding: 0 16px;
+  padding: 0 var(--nm-spacing-md);
   flex-shrink: 0;
   background-color: var(--nm-surface-color);
   z-index: var(--nm-z-dropdown);
 
   @include nm-screen-md {
     height: 64px;
-    padding: 0 24px;
+    padding: 0 var(--nm-spacing-lg);
   }
 }
 
@@ -268,7 +268,7 @@ const siderStyle = computed(() => ({
 .nm-layout__header-right {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--nm-spacing-12);
   flex: 0 0 auto;
 }
 
@@ -444,7 +444,7 @@ const siderStyle = computed(() => ({
   font-size: var(--nm-font-md);
 
   @include nm-screen-md {
-    padding: 20px var(--nm-spacing-lg);
+    padding: var(--nm-spacing-20) var(--nm-spacing-lg);
   }
 }
 </style>

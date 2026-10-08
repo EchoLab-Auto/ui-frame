@@ -223,12 +223,12 @@ function handleKeyDown(e: KeyboardEvent) {
 .neumorphism-editor-actions {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: var(--nm-spacing-14);
 }
 
 /* Sider */
 .neumorphism-editor-sider {
-  padding: 12px;
+  padding: var(--nm-spacing-12);
 }
 
 .neumorphism-editor-sider-collapsed {
@@ -236,13 +236,13 @@ function handleKeyDown(e: KeyboardEvent) {
   align-items: center;
   justify-content: center;
   height: 100%;
-  padding-top: 16px;
+  padding-top: var(--nm-spacing-md);
   font-size: 20px;
 }
 
 /* Main Container */
 .neumorphism-editor-container {
-  padding: 20px;
+  padding: var(--nm-spacing-20);
 }
 
 .neumorphism-editor-card {
@@ -261,13 +261,13 @@ function handleKeyDown(e: KeyboardEvent) {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 16px;
+  gap: var(--nm-spacing-md);
   flex-wrap: wrap;
-  padding: 20px 24px 16px;
+  padding: var(--nm-spacing-20) var(--nm-spacing-lg) var(--nm-spacing-md);
 }
 
 .neumorphism-editor-title {
-  margin: 0 0 10px;
+  margin: 0 0 var(--nm-spacing-10);
   font-size: 22px;
   font-weight: 700;
   color: var(--nm-text-primary);
@@ -276,7 +276,7 @@ function handleKeyDown(e: KeyboardEvent) {
 .neumorphism-editor-meta {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--nm-spacing-sm);
   flex-wrap: wrap;
 }
 
@@ -295,7 +295,7 @@ function handleKeyDown(e: KeyboardEvent) {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 16px;
+  gap: var(--nm-spacing-md);
   min-height: 400px;
   text-align: center;
   color: var(--nm-text-placeholder);
@@ -316,11 +316,11 @@ function handleKeyDown(e: KeyboardEvent) {
 /* Responsive */
 @media (max-width: 768px) {
   .neumorphism-editor-container {
-    padding: 12px;
+    padding: var(--nm-spacing-12);
   }
 
   .neumorphism-editor-header {
-    padding: 16px;
+    padding: var(--nm-spacing-md);
   }
 
   .neumorphism-editor-title {

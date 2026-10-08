@@ -571,7 +571,7 @@ function handleCalendarKeydown(event: KeyboardEvent) {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 2px;
+  padding: var(--nm-spacing-2xs);
   border: none;
   background: none;
   cursor: pointer;
@@ -614,7 +614,7 @@ function handleCalendarKeydown(event: KeyboardEvent) {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 2px;
+  gap: var(--nm-spacing-2xs);
   margin-bottom: var(--nm-spacing-sm);
   padding: 0 var(--nm-spacing-xs);
 }
@@ -664,7 +664,7 @@ function handleCalendarKeydown(event: KeyboardEvent) {
 .nm-datepicker__weekdays {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  margin-bottom: 2px;
+  margin-bottom: var(--nm-spacing-2xs);
 }
 
 .nm-datepicker__weekday {
@@ -682,7 +682,7 @@ function handleCalendarKeydown(event: KeyboardEvent) {
 .nm-datepicker__days {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 2px;
+  gap: var(--nm-spacing-2xs);
 }
 
 .nm-datepicker__day {
@@ -783,7 +783,7 @@ function handleCalendarKeydown(event: KeyboardEvent) {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 4px 16px;
+  padding: var(--nm-spacing-xs) var(--nm-spacing-md);
   border: none;
   background: none;
   cursor: pointer;

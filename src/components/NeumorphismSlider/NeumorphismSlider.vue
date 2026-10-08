@@ -538,7 +538,7 @@ $slider-thumb-spring: cubic-bezier(0.34, 1.1, 0.64, 1);
   color: var(--nm-text-primary);
   font-size: var(--nm-font-sm);
   font-weight: 500;
-  padding: 2px 8px;
+  padding: var(--nm-spacing-2xs) var(--nm-spacing-sm);
   border-radius: var(--nm-border-radius-sm);
   white-space: nowrap;
   box-shadow:

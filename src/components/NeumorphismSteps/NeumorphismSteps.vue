@@ -369,14 +369,14 @@ function showError(index: number): boolean {
   .nm-steps--horizontal & {
     flex: 1;
     height: 2px;
-    margin: 0 4px;
+    margin: 0 var(--nm-spacing-xs);
     order: 1;
   }
 
   .nm-steps--vertical & {
     width: 2px;
     min-height: 20px;
-    margin: 4px 0;
+    margin: var(--nm-spacing-xs) 0;
     align-self: stretch;
   }
 
@@ -412,7 +412,7 @@ function showError(index: number): boolean {
 .nm-steps__content {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: var(--nm-spacing-2xs);
 
   .nm-steps--center & {
     align-items: center;

@@ -214,7 +214,7 @@ const classList = computed(() => ['nm-tree'])
 
 .nm-tree__search-input {
   width: 100%;
-  padding: 7px 32px 7px 32px;
+  padding: 7px var(--nm-spacing-xl) 7px var(--nm-spacing-xl);
   border: none;
   border-radius: var(--nm-border-radius-sm);
   background-color: var(--nm-surface-color);
@@ -280,8 +280,8 @@ const classList = computed(() => ['nm-tree'])
 .nm-tree__actions {
   display: flex;
   gap: var(--nm-spacing-xs);
-  margin-bottom: 6px;
-  padding: 0 4px;
+  margin-bottom: var(--nm-spacing-6);
+  padding: 0 var(--nm-spacing-xs);
 }
 
 .nm-tree__action-btn {
@@ -290,7 +290,7 @@ const classList = computed(() => ['nm-tree'])
   background: transparent;
   border: none;
   cursor: pointer;
-  padding: 2px 6px;
+  padding: var(--nm-spacing-2xs) var(--nm-spacing-6);
   border-radius: var(--nm-border-radius-xs);
   transition: color var(--nm-transition-fast);
 
@@ -315,7 +315,7 @@ const classList = computed(() => ['nm-tree'])
 // Empty
 .nm-tree__empty {
   text-align: center;
-  padding: var(--nm-spacing-lg) 12px;
+  padding: var(--nm-spacing-lg) var(--nm-spacing-12);
   font-size: var(--nm-font-md);
   color: var(--nm-text-placeholder);
 }

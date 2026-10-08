@@ -3489,16 +3489,16 @@ function useLocale(): {
 
 所有视觉参数以 CSS 自定义属性暴露（`--nm-*`)，亮/暗双主题定义于 `src/styles/tokens.scss`（亮）与 `[data-theme='dark']`（暗）。运行时可通过覆写变量自定义主题：
 
-| 类别   | 代表变量                                                                               | 说明                               |
-| ------ | -------------------------------------------------------------------------------------- | ---------------------------------- |
-| 颜色   | `--nm-bg-color`、`--nm-surface-color`、`--nm-primary-color`、`--nm-color-error`        | 背景/表面/主色/语义色              |
-| 文字   | `--nm-text-primary`、`--nm-text-secondary`、`--nm-text-placeholder`                    | 三级文字色                         |
-| 阴影   | `--nm-shadow-dark`、`--nm-shadow-light`、`--nm-shadow-ambient-lg`、`--nm-shadow-error` | 新拟态明暗阴影与环境光             |
-| 圆角   | `--nm-border-radius-sm/md/lg/full`                                                     | 8 / 16 / 24 / 9999 px              |
-| 间距   | `--nm-spacing-xs` ~ `--nm-spacing-xl`                                                  | 4 / 8 / 12 / 16 / 24 px            |
-| 过渡   | `--nm-transition-fast`、`--nm-transition-slow`                                         | 交互/主题切换时长                  |
-| 层级   | `--nm-z-dropdown/tooltip/popover/overlay/toast`                                        | 浮层基准层级                       |
-| 组件段 | `--nm-select-*`、`--nm-progress-*`、`--nm-chart-*` 等                                  | 组件级 token（Outlined/动效/图表） |
+| 类别   | 代表变量                                                                               | 说明                                                |
+| ------ | -------------------------------------------------------------------------------------- | --------------------------------------------------- |
+| 颜色   | `--nm-bg-color`、`--nm-surface-color`、`--nm-primary-color`、`--nm-color-error`        | 背景/表面/主色/语义色                               |
+| 文字   | `--nm-text-primary`、`--nm-text-secondary`、`--nm-text-placeholder`                    | 三级文字色                                          |
+| 阴影   | `--nm-shadow-dark`、`--nm-shadow-light`、`--nm-shadow-ambient-lg`、`--nm-shadow-error` | 新拟态明暗阴影与环境光                              |
+| 圆角   | `--nm-border-radius-sm/md/lg/full`                                                     | 8 / 16 / 24 / 9999 px                               |
+| 间距   | `--nm-spacing-2xs` ~ `--nm-spacing-3xl`；细调档 `--nm-spacing-6/10/12/14/20`           | 主刻度 2/4/8/16/24/32/40/48 + 细调 6/10/12/14/20 px |
+| 过渡   | `--nm-transition-fast`、`--nm-transition-slow`                                         | 交互/主题切换时长                                   |
+| 层级   | `--nm-z-dropdown/tooltip/popover/overlay/toast`                                        | 浮层基准层级                                        |
+| 组件段 | `--nm-select-*`、`--nm-progress-*`、`--nm-chart-*` 等                                  | 组件级 token（Outlined/动效/图表）                  |
 
 覆写示例：
 

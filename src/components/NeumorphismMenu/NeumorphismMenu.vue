@@ -458,7 +458,7 @@ const expandIconClass = computed(() => [
   padding: var(--nm-spacing-xs);
 
   .nm-menu__submenu {
-    margin: 2px 0 0 0;
+    margin: var(--nm-spacing-2xs) 0 0 0;
     padding: 0 0 0 0;
     list-style: none;
     border-left: 1px solid var(--nm-border-subtle);
@@ -511,7 +511,7 @@ const expandIconClass = computed(() => [
     top: 100%;
     left: 0;
     min-width: 180px;
-    margin: 4px 0 0 0;
+    margin: var(--nm-spacing-xs) 0 0 0;
     padding: var(--nm-spacing-xs);
     list-style: none;
     background-color: var(--nm-surface-color);
@@ -692,7 +692,7 @@ const expandIconClass = computed(() => [
 
   .nm-menu__item-content {
     justify-content: center;
-    padding: var(--nm-menu-padding-y) calc(var(--nm-menu-padding-x) - 2px);
+    padding: var(--nm-menu-padding-y) calc(var(--nm-menu-padding-x) - var(--nm-spacing-2xs));
     gap: 0;
   }
 

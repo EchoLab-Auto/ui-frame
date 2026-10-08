@@ -293,7 +293,7 @@ const defaultIcons: Record<AlertType, { viewBox: string; paths: string[] }> = {
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  padding: 2px;
+  padding: var(--nm-spacing-2xs);
   border: none;
   background: none;
   color: var(--nm-text-placeholder);

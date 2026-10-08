@@ -74,6 +74,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "check:registry": "node scripts/check-component-registry.mjs",
+    "check:spacing": "node scripts/check-spacing.mjs",
     "prepublishOnly": "npm run build",
     "test": "vitest run",
     "test:watch": "vitest",

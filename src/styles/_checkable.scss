@@ -6,7 +6,7 @@
   .nm-#{$name} {
     display: inline-flex;
     align-items: center;
-    gap: 10px;
+    gap: var(--nm-spacing-10);
     cursor: pointer;
     user-select: none;
     color: var(--nm-text-primary);

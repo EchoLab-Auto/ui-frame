@@ -411,7 +411,7 @@ const isLoadingState = computed(() => loadingRef.value)
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 2px;
+  padding: var(--nm-spacing-2xs);
   border: none;
   background: none;
   cursor: pointer;
@@ -486,7 +486,8 @@ const isLoadingState = computed(() => loadingRef.value)
 .nm-autocomplete__option {
   display: flex;
   align-items: center;
-  padding: var(--nm-select-option-padding-y, 6px) var(--nm-select-option-padding-x, 12px);
+  padding: var(--nm-select-option-padding-y, var(--nm-spacing-6))
+    var(--nm-select-option-padding-x, var(--nm-spacing-12));
   font-size: var(--nm-select-option-font, var(--nm-font-base));
   color: var(--nm-text-primary);
   border-radius: var(--nm-border-radius-sm);
@@ -538,7 +539,8 @@ const isLoadingState = computed(() => loadingRef.value)
 // ==========================================
 
 .nm-autocomplete__empty {
-  padding: var(--nm-select-option-padding-y, 6px) var(--nm-select-option-padding-x, 12px);
+  padding: var(--nm-select-option-padding-y, var(--nm-spacing-6))
+    var(--nm-select-option-padding-x, var(--nm-spacing-12));
   font-size: var(--nm-font-base);
   color: var(--nm-text-placeholder);
   text-align: center;
@@ -554,7 +556,8 @@ const isLoadingState = computed(() => loadingRef.value)
   align-items: center;
   justify-content: center;
   gap: var(--nm-spacing-sm);
-  padding: var(--nm-select-option-padding-y, 10px) var(--nm-select-option-padding-x, 12px);
+  padding: var(--nm-select-option-padding-y, var(--nm-spacing-10))
+    var(--nm-select-option-padding-x, var(--nm-spacing-12));
   font-size: var(--nm-font-base);
   color: var(--nm-text-secondary);
   width: 100%;

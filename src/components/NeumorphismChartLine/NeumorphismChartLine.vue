@@ -456,7 +456,7 @@ function onPointClick(pt: { dataIndex: number; seriesIndex: number; value: numbe
     min-height: 0;
     @include nm-inset-deep(6px, 12px);
     border-radius: var(--nm-border-radius-md);
-    padding: 8px;
+    padding: var(--nm-spacing-sm);
     cursor: crosshair;
     contain: layout style;
     outline: none;
@@ -565,7 +565,7 @@ function onPointClick(pt: { dataIndex: number; seriesIndex: number; value: numbe
   position: fixed;
   pointer-events: none;
   z-index: var(--nm-z-dropdown);
-  padding: 10px 14px;
+  padding: var(--nm-spacing-10) var(--nm-spacing-14);
   background: var(--nm-chart-tooltip-bg);
   color: var(--nm-chart-tooltip-text);
   font-size: var(--nm-font-sm);
@@ -576,8 +576,8 @@ function onPointClick(pt: { dataIndex: number; seriesIndex: number; value: numbe
 
   :deep(.nm-chart__tooltip-header) {
     font-weight: 600;
-    margin-bottom: 4px;
-    padding-bottom: 4px;
+    margin-bottom: var(--nm-spacing-xs);
+    padding-bottom: var(--nm-spacing-xs);
     border-bottom: 1px solid var(--nm-chart-grid-color);
     color: var(--nm-text-primary);
     font-size: 13px;
@@ -586,7 +586,7 @@ function onPointClick(pt: { dataIndex: number; seriesIndex: number; value: numbe
   :deep(.nm-chart__tooltip-row) {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: var(--nm-spacing-6);
     white-space: nowrap;
   }
 
@@ -627,13 +627,13 @@ function onPointClick(pt: { dataIndex: number; seriesIndex: number; value: numbe
   display: flex;
   flex-wrap: wrap;
   gap: var(--nm-chart-legend-gap);
-  padding: 4px 0;
+  padding: var(--nm-spacing-xs) 0;
 }
 
 .nm-chart__legend-item {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--nm-spacing-6);
   font-size: var(--nm-font-sm);
   color: var(--nm-text-secondary);
   cursor: default;

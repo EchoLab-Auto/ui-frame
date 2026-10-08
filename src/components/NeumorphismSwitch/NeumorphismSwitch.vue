@@ -117,7 +117,7 @@ $switch-ambient: cubic-bezier(0.4, 0, 0.2, 1);
 .nm-switch {
   display: inline-flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--nm-spacing-12);
   cursor: pointer;
   user-select: none;
   // 触屏：整行命中高度 ≥44px（轨道视觉不变）

@@ -354,7 +354,7 @@ const zeroY = computed(() => {
     min-height: 0;
     @include nm-inset-deep(6px, 12px);
     border-radius: var(--nm-border-radius-md);
-    padding: 8px;
+    padding: var(--nm-spacing-sm);
     cursor: crosshair;
     contain: layout style;
     outline: none;
@@ -416,7 +416,7 @@ const zeroY = computed(() => {
   position: fixed;
   pointer-events: none;
   z-index: var(--nm-z-dropdown);
-  padding: 8px 12px;
+  padding: var(--nm-spacing-sm) var(--nm-spacing-12);
   background: var(--nm-chart-tooltip-bg);
   color: var(--nm-chart-tooltip-text);
   font-size: var(--nm-font-sm);
@@ -455,13 +455,13 @@ const zeroY = computed(() => {
   display: flex;
   flex-wrap: wrap;
   gap: var(--nm-chart-legend-gap);
-  padding: 4px 0;
+  padding: var(--nm-spacing-xs) 0;
 }
 
 .nm-chart__legend-item {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--nm-spacing-6);
   font-size: var(--nm-font-sm);
   color: var(--nm-text-secondary);
   cursor: default;

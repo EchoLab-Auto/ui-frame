@@ -326,7 +326,7 @@ app.use(NeumorphismUI, {
   --nm-shadow-dark: rgba(0, 0, 0, 0.15);
   --nm-shadow-light: rgba(255, 255, 255, 0.8);
 
-  /* 间距 */
+  /* 间距（主刻度 2xs/xs/sm/md/lg/xl/2xl/3xl + 细调档 6/10/12/14/20） */
   --nm-spacing-xs: 4px;
   --nm-spacing-sm: 8px;
   --nm-spacing-md: 16px;

@@ -80,7 +80,9 @@ function handleSelect() {
       'nm-tree-node--expanded': isExpanded,
       'nm-tree-node--focused': isFocused,
     }"
-    :style="{ paddingLeft: `calc(${level} * var(--nm-tree-node-indent, 8px) + 4px)` }"
+    :style="{
+      paddingLeft: `calc(${level} * var(--nm-tree-node-indent, var(--nm-spacing-sm)) + var(--nm-spacing-xs))`,
+    }"
     role="treeitem"
     tabindex="-1"
     :aria-expanded="hasChildren ? isExpanded : undefined"
@@ -194,7 +196,7 @@ function handleSelect() {
   display: flex;
   align-items: center;
   gap: var(--nm-spacing-xs);
-  padding: 5px 8px;
+  padding: var(--nm-tree-node-padding-y) var(--nm-tree-node-padding-x);
   white-space: nowrap;
   border-radius: var(--nm-border-radius-sm);
   transition:

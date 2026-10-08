@@ -253,14 +253,14 @@ defineExpose({ scrollTocToActive })
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 16px 10px 16px;
+  padding: 0 var(--nm-spacing-md) var(--nm-spacing-10) var(--nm-spacing-md);
   font-size: 10px;
   font-weight: 700;
   color: var(--nm-text-placeholder);
   text-transform: uppercase;
   letter-spacing: 1px;
   border-bottom: 1px solid var(--nm-border-subtle);
-  margin-bottom: 8px;
+  margin-bottom: var(--nm-spacing-sm);
 }
 
 .neumorphism-toc-list {
@@ -275,21 +275,21 @@ defineExpose({ scrollTocToActive })
 
 /* 嵌套列表缩进：每一级增加 16px */
 .neumorphism-toc-list .neumorphism-toc-list {
-  padding-left: 16px;
+  padding-left: var(--nm-spacing-md);
 }
 
 .toc-item-row {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--nm-spacing-xs);
 }
 
 .neumorphism-toc-item a {
   flex: 1;
   display: flex;
   align-items: center;
-  gap: 4px;
-  padding: 5px 12px 5px 4px;
+  gap: var(--nm-spacing-xs);
+  padding: 5px var(--nm-spacing-12) 5px var(--nm-spacing-xs);
   font-size: 13px;
   color: var(--nm-text-secondary);
   text-decoration: none;

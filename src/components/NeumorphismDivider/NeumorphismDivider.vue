@@ -69,7 +69,7 @@ const classList = computed(() => [
     display: inline-flex;
     height: 1em;
     border-left: 1px solid var(--nm-border-subtle);
-    margin: 0 12px;
+    margin: 0 var(--nm-spacing-12);
     vertical-align: middle;
   }
 
@@ -90,7 +90,7 @@ const classList = computed(() => [
     }
 
     &.nm-divider--vertical {
-      margin: var(--nm-spacing-lg) 12px;
+      margin: var(--nm-spacing-lg) var(--nm-spacing-12);
     }
   }
 
@@ -102,7 +102,7 @@ const classList = computed(() => [
 }
 
 .nm-divider__text {
-  padding: 0 16px;
+  padding: 0 var(--nm-spacing-md);
   white-space: nowrap;
   font-weight: 500;
   color: var(--nm-text-secondary);

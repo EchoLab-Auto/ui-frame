@@ -113,7 +113,7 @@ const { handleKeydown, submit, canSubmit } = useChatInput({
   display: flex;
   flex-direction: column;
   gap: var(--nm-spacing-xs);
-  padding: 10px var(--nm-spacing-md) var(--nm-spacing-md);
+  padding: var(--nm-spacing-10) var(--nm-spacing-md) var(--nm-spacing-md);
 }
 
 .nm-chat-composer__meta {

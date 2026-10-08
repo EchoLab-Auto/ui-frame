@@ -402,7 +402,7 @@ function getItemClass(item: MenuItem) {
   .nm-nav-menu__list {
     flex-direction: column;
     align-items: stretch;
-    gap: 2px;
+    gap: var(--nm-spacing-2xs);
     padding: var(--nm-spacing-xs);
   }
 
@@ -415,7 +415,7 @@ function getItemClass(item: MenuItem) {
   }
 
   .nm-nav-menu__submenu {
-    margin: 2px 0 0 0;
+    margin: var(--nm-spacing-2xs) 0 0 0;
     padding: 0 0 0 0;
     list-style: none;
     border-left: 1px solid var(--nm-border-subtle);
@@ -546,7 +546,7 @@ function getItemClass(item: MenuItem) {
   justify-content: center;
   color: var(--nm-text-placeholder);
   transition: transform 0.25s $nm-ease-spring;
-  margin-left: 2px;
+  margin-left: var(--nm-spacing-2xs);
   width: 12px;
   height: 12px;
 }

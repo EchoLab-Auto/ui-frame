@@ -158,7 +158,7 @@ const circleStyle = computed(() => ({
 .nm-progress {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--nm-spacing-12);
   width: 100%;
 }
 

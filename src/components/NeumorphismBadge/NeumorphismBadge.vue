@@ -90,7 +90,7 @@ const classList = computed(() => [
   justify-content: center;
   min-width: 20px;
   height: 20px;
-  padding: 0 6px;
+  padding: 0 var(--nm-spacing-6);
   border-radius: var(--nm-border-radius-full);
   background-color: var(--nm-color-error);
   color: var(--nm-text-on-primary);

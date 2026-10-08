@@ -194,7 +194,7 @@ const jumperParts = computed(() => {
 .nm-pagination {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--nm-spacing-12);
   flex-wrap: wrap;
   user-select: none;
 
@@ -223,7 +223,7 @@ const jumperParts = computed(() => {
   justify-content: center;
   min-width: 38px;
   height: 38px;
-  padding: 0 8px;
+  padding: 0 var(--nm-spacing-sm);
   border: none;
   border-radius: var(--nm-border-radius-sm);
   cursor: pointer;
@@ -294,14 +294,14 @@ const jumperParts = computed(() => {
 .nm-pagination__jumper {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--nm-spacing-6);
   font-size: var(--nm-font-base);
   color: var(--nm-text-secondary);
 }
 
 .nm-pagination__jumper-input {
   width: 50px;
-  padding: 6px 8px;
+  padding: var(--nm-spacing-6) var(--nm-spacing-sm);
   border: none;
   text-align: center;
   border-radius: var(--nm-border-radius-sm);

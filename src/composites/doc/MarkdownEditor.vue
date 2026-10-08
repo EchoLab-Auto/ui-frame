@@ -311,9 +311,9 @@ function syncEditScroll() {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: var(--nm-spacing-12);
   flex-wrap: wrap;
-  padding: 8px 16px;
+  padding: var(--nm-spacing-sm) var(--nm-spacing-md);
   flex-shrink: 0;
   background-color: var(--nm-surface-color);
   border-bottom: 1px solid var(--nm-border-subtle);
@@ -326,14 +326,14 @@ function syncEditScroll() {
 .neumorphism-editor-toolbar-left {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--nm-spacing-xs);
   flex-wrap: wrap;
 }
 
 .neumorphism-editor-toolbar-right {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--nm-spacing-12);
 }
 
 .neumorphism-editor-mode-tabs {
@@ -351,8 +351,8 @@ function syncEditScroll() {
   display: flex;
   overflow: hidden;
   min-height: 0;
-  gap: 16px;
-  padding: 16px;
+  gap: var(--nm-spacing-md);
+  padding: var(--nm-spacing-md);
   background-color: var(--nm-bg-color);
   transition:
     background-color var(--nm-transition-slow),
@@ -393,7 +393,7 @@ function syncEditScroll() {
 
 .preview-card {
   background-color: var(--nm-surface-raised);
-  padding: 24px;
+  padding: var(--nm-spacing-lg);
   overflow-y: auto;
 }
 
@@ -424,7 +424,7 @@ function syncEditScroll() {
 
   .neumorphism-editor-toolbar {
     flex-wrap: wrap;
-    gap: 8px;
+    gap: var(--nm-spacing-sm);
   }
 }
 </style>

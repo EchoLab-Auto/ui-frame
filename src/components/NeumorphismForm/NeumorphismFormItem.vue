@@ -102,7 +102,7 @@ defineExpose({ validate, clearError, fieldId })
 
 .nm-form-item__required {
   color: var(--nm-color-error);
-  margin-left: 2px;
+  margin-left: var(--nm-spacing-2xs);
 }
 
 .nm-form-item__content {

@@ -748,7 +748,7 @@ defineExpose({
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: var(--nm-spacing-sm) 12px;
+  padding: var(--nm-spacing-sm) var(--nm-spacing-12);
   border-bottom: 1px solid var(--nm-border-subtle);
   flex-shrink: 0;
 }
@@ -810,8 +810,8 @@ defineExpose({
   z-index: 10;
   display: flex;
   align-items: center;
-  gap: 2px;
-  padding: 4px;
+  gap: var(--nm-spacing-2xs);
+  padding: var(--nm-spacing-xs);
   border-radius: var(--nm-border-radius-full);
   background-color: var(--nm-surface-color);
   @include nm-raised-strong(4px, 10px);
@@ -821,7 +821,7 @@ defineExpose({
 .nm-canvas__divider {
   width: 1px;
   height: 18px;
-  margin: 0 2px;
+  margin: 0 var(--nm-spacing-2xs);
   background-color: var(--nm-border-subtle);
   flex-shrink: 0;
 }

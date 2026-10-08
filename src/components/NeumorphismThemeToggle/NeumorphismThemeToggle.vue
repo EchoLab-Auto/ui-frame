@@ -159,7 +159,7 @@ function selectTheme(value: Theme) {
   @include nm-inset-strong(3px, 6px);
   @include nm-theme-transition;
   user-select: none;
-  gap: 2px;
+  gap: var(--nm-spacing-2xs);
 
   &--disabled {
     opacity: 0.5;
@@ -171,7 +171,7 @@ function selectTheme(value: Theme) {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: var(--nm-spacing-6);
   border: none;
   background: transparent;
   cursor: pointer;
@@ -250,10 +250,10 @@ function selectTheme(value: Theme) {
 // ---------- Size variants ----------
 
 .nm-theme-toggle--small {
-  padding: 2px;
+  padding: var(--nm-spacing-2xs);
 
   .nm-theme-toggle__btn {
-    padding: 5px 8px;
+    padding: 5px var(--nm-spacing-sm);
   }
 
   .nm-theme-toggle__icon {
@@ -266,7 +266,7 @@ function selectTheme(value: Theme) {
   padding: 3px;
 
   .nm-theme-toggle__btn {
-    padding: 6px 12px;
+    padding: var(--nm-spacing-6) var(--nm-spacing-12);
   }
 }
 

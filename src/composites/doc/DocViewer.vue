@@ -247,7 +247,7 @@ function onCanvasNavigate(path: string) {
 .neumorphism-view-switch {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--nm-spacing-xs);
 }
 
 /* Header search */
@@ -265,7 +265,7 @@ function onCanvasNavigate(path: string) {
   left: 0;
   right: 0;
   z-index: 50;
-  margin-top: 4px;
+  margin-top: var(--nm-spacing-xs);
   background-color: var(--nm-surface-raised);
   border-radius: var(--nm-border-radius-md);
   box-shadow:
@@ -278,14 +278,14 @@ function onCanvasNavigate(path: string) {
 .neumorphism-search-list {
   list-style: none;
   margin: 0;
-  padding: 4px;
+  padding: var(--nm-spacing-xs);
 }
 
 .neumorphism-search-item {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  padding: 10px 14px;
+  gap: var(--nm-spacing-2xs);
+  padding: var(--nm-spacing-10) var(--nm-spacing-14);
   cursor: pointer;
   border-radius: var(--nm-border-radius-sm);
   transition: background-color 0.15s ease;
@@ -311,7 +311,7 @@ function onCanvasNavigate(path: string) {
 
 /* Sider */
 .neumorphism-sider-content {
-  padding: 12px;
+  padding: var(--nm-spacing-12);
 }
 
 .neumorphism-sider-collapsed {
@@ -319,13 +319,13 @@ function onCanvasNavigate(path: string) {
   align-items: center;
   justify-content: center;
   height: 100%;
-  padding-top: 16px;
+  padding-top: var(--nm-spacing-md);
   font-size: 20px;
 }
 
 /* Main Content */
 .neumorphism-main-container {
-  padding: 24px 20px;
+  padding: var(--nm-spacing-lg) var(--nm-spacing-20);
 }
 
 .neumorphism-content-card {
@@ -335,11 +335,11 @@ function onCanvasNavigate(path: string) {
 
 /* Document Header */
 .neumorphism-doc-header {
-  padding: 20px 28px 0;
+  padding: var(--nm-spacing-20) 28px 0;
 }
 
 .neumorphism-doc-title {
-  margin: 0 0 12px;
+  margin: 0 0 var(--nm-spacing-12);
   font-size: 28px;
   font-weight: 700;
   color: var(--nm-text-primary);
@@ -348,13 +348,13 @@ function onCanvasNavigate(path: string) {
 .neumorphism-doc-meta {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--nm-spacing-sm);
   flex-wrap: wrap;
 }
 
 /* Document Body */
 .neumorphism-doc-body {
-  padding: 32px 28px;
+  padding: var(--nm-spacing-xl) 28px;
 }
 
 /* Empty State */
@@ -363,7 +363,7 @@ function onCanvasNavigate(path: string) {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 16px;
+  gap: var(--nm-spacing-md);
   min-height: 400px;
   text-align: center;
   color: var(--nm-text-placeholder);
@@ -402,11 +402,11 @@ function onCanvasNavigate(path: string) {
 /* Responsive */
 @media (max-width: 768px) {
   .neumorphism-main-container {
-    padding: 16px 12px;
+    padding: var(--nm-spacing-md) var(--nm-spacing-12);
   }
 
   .neumorphism-doc-header {
-    padding: 16px 20px 0;
+    padding: var(--nm-spacing-md) var(--nm-spacing-20) 0;
   }
 
   .neumorphism-doc-title {
@@ -414,7 +414,7 @@ function onCanvasNavigate(path: string) {
   }
 
   .neumorphism-doc-body {
-    padding: 20px;
+    padding: var(--nm-spacing-20);
   }
 }
 

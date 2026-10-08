@@ -340,7 +340,7 @@ function onNodeKeydown(event: KeyboardEvent, docPath?: string): void {
   font-size: var(--nm-font-xs);
   color: var(--nm-text-secondary);
   background-color: var(--nm-surface-color);
-  padding: 1px 8px;
+  padding: 1px var(--nm-spacing-sm);
   border-radius: var(--nm-border-radius-full);
   box-shadow:
     2px 2px 5px var(--nm-shadow-dark),
@@ -403,8 +403,8 @@ function onNodeKeydown(event: KeyboardEvent, docPath?: string): void {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 4px;
-  padding: 0 16px;
+  gap: var(--nm-spacing-xs);
+  padding: 0 var(--nm-spacing-md);
   box-sizing: border-box;
   background-color: var(--nm-surface-color);
   border-radius: var(--nm-border-radius-md);
