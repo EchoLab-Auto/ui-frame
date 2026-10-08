@@ -232,8 +232,10 @@ defineExpose({ scrollTocToActive })
   background: color-mix(in srgb, var(--nm-text-placeholder) 25%, transparent);
   border-radius: 3px;
 }
-.neumorphism-toc::-webkit-scrollbar-thumb:hover {
-  background: color-mix(in srgb, var(--nm-text-secondary) 40%, transparent);
+@media (hover: hover) {
+  .neumorphism-toc::-webkit-scrollbar-thumb:hover {
+    background: color-mix(in srgb, var(--nm-text-secondary) 40%, transparent);
+  }
 }
 
 .neumorphism-toc-card {
@@ -330,9 +332,11 @@ defineExpose({ scrollTocToActive })
     background-color 0.15s ease;
 }
 
-.toc-toggle:hover {
-  color: var(--nm-primary-color);
-  background-color: color-mix(in srgb, var(--nm-primary-color) 10%, transparent);
+@media (hover: hover) {
+  .toc-toggle:hover {
+    color: var(--nm-primary-color);
+    background-color: color-mix(in srgb, var(--nm-primary-color) 10%, transparent);
+  }
 }
 
 .toc-text {
@@ -341,9 +345,11 @@ defineExpose({ scrollTocToActive })
   white-space: nowrap;
 }
 
-.neumorphism-toc-item a:hover {
-  color: var(--nm-primary-color);
-  border-right-color: color-mix(in srgb, var(--nm-primary-color) 15%, transparent);
+@media (hover: hover) {
+  .neumorphism-toc-item a:hover {
+    color: var(--nm-primary-color);
+    border-right-color: color-mix(in srgb, var(--nm-primary-color) 15%, transparent);
+  }
 }
 
 .neumorphism-toc-item.active a {

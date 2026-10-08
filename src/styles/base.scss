@@ -320,8 +320,10 @@
     transition: background var(--nm-transition-fast);
   }
 
-  &::-webkit-scrollbar-thumb:hover {
-    background: var(--nm-surface-color);
+  @media (hover: hover) {
+    &::-webkit-scrollbar-thumb:hover {
+      background: var(--nm-surface-color);
+    }
   }
 
   &::-webkit-scrollbar-corner {
@@ -359,9 +361,11 @@
     border-radius: var(--nm-border-radius-sm);
     box-shadow: 0 0 8px color-mix(in srgb, var(--nm-primary-color) 70%, transparent);
   }
-  &::-webkit-scrollbar-thumb:hover {
-    background: var(--nm-primary-dark);
-    box-shadow: 0 0 12px color-mix(in srgb, var(--nm-primary-color) 90%, transparent);
+  @media (hover: hover) {
+    &::-webkit-scrollbar-thumb:hover {
+      background: var(--nm-primary-dark);
+      box-shadow: 0 0 12px color-mix(in srgb, var(--nm-primary-color) 90%, transparent);
+    }
   }
   &::-webkit-scrollbar-corner {
     background: transparent;

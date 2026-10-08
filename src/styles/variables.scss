@@ -66,11 +66,13 @@
     box-shadow var(--nm-transition-fast),
     transform var(--nm-transition-fast);
 
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow:
-      8px 8px 16px var(--nm-shadow-dark),
-      -8px -8px 16px var(--nm-shadow-light);
+  @media (hover: hover) {
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow:
+        8px 8px 16px var(--nm-shadow-dark),
+        -8px -8px 16px var(--nm-shadow-light);
+    }
   }
 }
 

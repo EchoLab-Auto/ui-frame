@@ -623,9 +623,11 @@ function formatFileSize(bytes: number): string {
     box-shadow: 0 0 0 3px var(--nm-primary-color);
   }
 
-  &:hover:not(&--disabled):not(&--dragover) {
-    border-color: var(--nm-primary-color);
-    background-color: var(--nm-surface-raised);
+  @media (hover: hover) {
+    &:hover:not(&--disabled):not(&--dragover) {
+      border-color: var(--nm-primary-color);
+      background-color: var(--nm-surface-raised);
+    }
   }
 
   &--dragover {
@@ -767,8 +769,10 @@ function formatFileSize(bytes: number): string {
     color: var(--nm-primary-color);
     cursor: pointer;
 
-    &:hover {
-      text-decoration: underline;
+    @media (hover: hover) {
+      &:hover {
+        text-decoration: underline;
+      }
     }
   }
 }
@@ -824,8 +828,10 @@ function formatFileSize(bytes: number): string {
   cursor: pointer;
   transition: color var(--nm-transition-fast);
 
-  &:hover {
-    color: var(--nm-color-error);
+  @media (hover: hover) {
+    &:hover {
+      color: var(--nm-color-error);
+    }
   }
 }
 
@@ -884,11 +890,13 @@ function formatFileSize(bytes: number): string {
   @include nm-raised(3px, 8px);
   @include nm-theme-transition;
 
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow:
-      6px 6px 12px var(--nm-shadow-dark),
-      -6px -6px 12px var(--nm-shadow-light);
+  @media (hover: hover) {
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow:
+        6px 6px 12px var(--nm-shadow-dark),
+        -6px -6px 12px var(--nm-shadow-light);
+    }
   }
 }
 
@@ -901,42 +909,56 @@ function formatFileSize(bytes: number): string {
   background-color: var(--nm-surface-color);
   cursor: pointer;
 
-  &:hover .nm-upload__card-actions {
-    opacity: 1;
+  @media (hover: hover) {
+    @media (hover: hover) {
+      &:hover .nm-upload__card-actions {
+        opacity: 1;
+      }
+    }
+
+    // 键盘可达性：聚焦到操作按钮时浮现
+    &:focus-within .nm-upload__card-actions {
+      opacity: 1;
+    }
   }
-}
+  .nm-upload__card-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
 
-.nm-upload__card-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
+  .nm-upload__card-progress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    overflow: hidden;
+    background: color-mix(in srgb, var(--nm-mask-bg) 50%, transparent);
+  }
 
-.nm-upload__card-progress {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-  overflow: hidden;
-  background: color-mix(in srgb, var(--nm-mask-bg) 50%, transparent);
-}
+  .nm-upload__card-progress .nm-upload__progress-bar {
+    border-radius: 0;
+    box-shadow: 0 0 8px color-mix(in srgb, var(--nm-primary-color) 50%, transparent);
+  }
 
-.nm-upload__card-progress .nm-upload__progress-bar {
-  border-radius: 0;
-  box-shadow: 0 0 8px color-mix(in srgb, var(--nm-primary-color) 50%, transparent);
-}
+  .nm-upload__card-actions {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--nm-spacing-sm);
+    background: var(--nm-mask-bg);
+    background: var(--nm-mask-bg);
+    opacity: 0;
+    transition: opacity var(--nm-transition-fast);
 
-.nm-upload__card-actions {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--nm-spacing-sm);
-  background: var(--nm-mask-bg);
-  opacity: 0;
-  transition: opacity var(--nm-transition-fast);
+    // 触屏设备（无悬停能力）常显——操作入口在触屏不可隐藏
+    @media (hover: none) {
+      opacity: 1;
+    }
+  }
 }
 
 .nm-upload__card-preview,
@@ -953,13 +975,17 @@ function formatFileSize(bytes: number): string {
   cursor: pointer;
   transition: color var(--nm-transition-fast);
 
-  &:hover {
-    color: var(--nm-primary-color);
+  @media (hover: hover) {
+    &:hover {
+      color: var(--nm-primary-color);
+    }
   }
 }
 
-.nm-upload__card-remove:hover {
-  color: var(--nm-color-error);
+@media (hover: hover) {
+  .nm-upload__card-remove:hover {
+    color: var(--nm-color-error);
+  }
 }
 
 .nm-upload__card-name {

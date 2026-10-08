@@ -562,15 +562,17 @@ const expandIconClass = computed(() => [
 /* ---- Interactive states ---- */
 .nm-menu__item:not(.nm-menu__item--disabled) {
   .nm-menu__item-content {
-    &:hover {
-      background-color: var(--nm-surface-raised);
-      @include nm-hover-lift-strong(-1px);
+    @media (hover: hover) {
+      &:hover {
+        background-color: var(--nm-surface-raised);
+        @include nm-hover-lift-strong(-1px);
 
-      .nm-menu--vertical & {
-        transform: translateX(3px);
-        box-shadow:
-          inset 1px 1px 2px var(--nm-shadow-dark),
-          inset -1px -1px 2px var(--nm-shadow-light);
+        .nm-menu--vertical & {
+          transform: translateX(3px);
+          box-shadow:
+            inset 1px 1px 2px var(--nm-shadow-dark),
+            inset -1px -1px 2px var(--nm-shadow-light);
+        }
       }
     }
 

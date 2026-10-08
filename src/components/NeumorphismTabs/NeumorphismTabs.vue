@@ -199,10 +199,12 @@ const classList = computed(() => [
   position: relative;
   overflow: hidden;
 
-  &:hover:not(&--disabled):not(&--active) {
-    color: var(--nm-text-primary);
-    @include nm-raised(1px, 3px);
-    transform: translateY(-1px);
+  @media (hover: hover) {
+    &:hover:not(&--disabled):not(&--active) {
+      color: var(--nm-text-primary);
+      @include nm-raised(1px, 3px);
+      transform: translateY(-1px);
+    }
   }
 
   &:active:not(&--disabled):not(&--active) {

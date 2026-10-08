@@ -152,9 +152,11 @@ const classList = computed(() => ['nm-collapse', `nm-collapse--${resolvedSize.va
   @include nm-raised(2px, 5px);
   transition: all var(--nm-transition-normal);
 
-  &:hover:not(:disabled) {
-    @include nm-raised(3px, 7px);
-    transform: translateY(-1px);
+  @media (hover: hover) {
+    &:hover:not(:disabled) {
+      @include nm-raised(3px, 7px);
+      transform: translateY(-1px);
+    }
   }
 
   &:active:not(:disabled) {

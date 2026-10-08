@@ -187,10 +187,12 @@ watch(
   // 大段文本拖选时每帧走「变换文本层」慢路径（下游实测卡顿）
   transition: box-shadow 0.35s $nm-ease-spring;
 
-  &:not(.nm-textarea--disabled):not(.nm-textarea--focused):hover {
-    box-shadow:
-      inset 5px 5px 10px var(--nm-shadow-dark),
-      inset -5px -5px 10px var(--nm-shadow-light);
+  @media (hover: hover) {
+    &:not(.nm-textarea--disabled):not(.nm-textarea--focused):hover {
+      box-shadow:
+        inset 5px 5px 10px var(--nm-shadow-dark),
+        inset -5px -5px 10px var(--nm-shadow-light);
+    }
   }
 
   &--focused {

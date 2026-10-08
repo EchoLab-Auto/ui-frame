@@ -175,10 +175,12 @@ function handleChange(event: Event): void {
 }
 
 // Hover physics on the label area
-.nm-checkbox:not(.nm-checkbox--disabled):hover .nm-checkbox__box {
-  box-shadow:
-    inset 3px 3px 6px var(--nm-shadow-dark),
-    inset -3px -3px 6px var(--nm-shadow-light);
+@media (hover: hover) {
+  .nm-checkbox:not(.nm-checkbox--disabled):hover .nm-checkbox__box {
+    box-shadow:
+      inset 3px 3px 6px var(--nm-shadow-dark),
+      inset -3px -3px 6px var(--nm-shadow-light);
+  }
 }
 
 // Active press feedback

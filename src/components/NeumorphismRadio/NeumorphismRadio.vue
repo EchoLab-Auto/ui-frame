@@ -155,14 +155,18 @@ function handleChange(): void {
 }
 
 // Hover physics
-.nm-radio:not(.nm-radio--disabled):hover .nm-radio__circle {
-  box-shadow:
-    inset 3px 3px 6px var(--nm-shadow-dark),
-    inset -3px -3px 6px var(--nm-shadow-light);
+@media (hover: hover) {
+  .nm-radio:not(.nm-radio--disabled):hover .nm-radio__circle {
+    box-shadow:
+      inset 3px 3px 6px var(--nm-shadow-dark),
+      inset -3px -3px 6px var(--nm-shadow-light);
+  }
 }
 
-.nm-radio:not(.nm-radio--disabled):hover .nm-radio__dot {
-  filter: brightness(1.1);
+@media (hover: hover) {
+  .nm-radio:not(.nm-radio--disabled):hover .nm-radio__dot {
+    filter: brightness(1.1);
+  }
 }
 
 // Active press feedback

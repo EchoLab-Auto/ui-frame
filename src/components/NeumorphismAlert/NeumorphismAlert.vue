@@ -304,10 +304,12 @@ const defaultIcons: Record<AlertType, { viewBox: string; paths: string[] }> = {
     transform 0.25s $nm-ease-spring,
     background-color 0.2s ease;
 
-  &:hover {
-    color: var(--nm-text-primary);
-    background-color: var(--nm-surface-raised);
-    transform: rotate(90deg);
+  @media (hover: hover) {
+    &:hover {
+      color: var(--nm-text-primary);
+      background-color: var(--nm-surface-raised);
+      transform: rotate(90deg);
+    }
   }
 
   &:active {

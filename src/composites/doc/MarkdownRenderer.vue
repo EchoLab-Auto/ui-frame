@@ -603,17 +603,21 @@ onBeforeUnmount(() => {
     color 0.2s ease;
 }
 
-.neumorphism-markdown-content h1:hover .heading-anchor,
-.neumorphism-markdown-content h2:hover .heading-anchor,
-.neumorphism-markdown-content h3:hover .heading-anchor,
-.neumorphism-markdown-content h4:hover .heading-anchor,
-.neumorphism-markdown-content h5:hover .heading-anchor,
-.neumorphism-markdown-content h6:hover .heading-anchor {
-  opacity: 1;
+@media (hover: hover) {
+  .neumorphism-markdown-content h1:hover .heading-anchor,
+  .neumorphism-markdown-content h2:hover .heading-anchor,
+  .neumorphism-markdown-content h3:hover .heading-anchor,
+  .neumorphism-markdown-content h4:hover .heading-anchor,
+  .neumorphism-markdown-content h5:hover .heading-anchor,
+  .neumorphism-markdown-content h6:hover .heading-anchor {
+    opacity: 1;
+  }
 }
 
-.heading-anchor:hover {
-  color: var(--nm-primary-color);
+@media (hover: hover) {
+  .heading-anchor:hover {
+    color: var(--nm-primary-color);
+  }
 }
 
 .neumorphism-markdown-content p {
@@ -627,9 +631,11 @@ onBeforeUnmount(() => {
   transition: opacity 0.2s ease;
 }
 
-.neumorphism-markdown-content a:hover {
-  text-decoration: underline;
-  opacity: 0.85;
+@media (hover: hover) {
+  .neumorphism-markdown-content a:hover {
+    text-decoration: underline;
+    opacity: 0.85;
+  }
 }
 
 .neumorphism-markdown-content ul,
@@ -837,8 +843,10 @@ onBeforeUnmount(() => {
     box-shadow 0.2s ease;
 }
 
-.neumorphism-toc-mobile-btn:hover {
-  transform: scale(1.05);
+@media (hover: hover) {
+  .neumorphism-toc-mobile-btn:hover {
+    transform: scale(1.05);
+  }
 }
 
 .neumorphism-toc-mobile-btn.active {
@@ -898,8 +906,10 @@ onBeforeUnmount(() => {
     background-color 0.2s ease;
 }
 
-.neumorphism-toc-mobile-close:hover {
-  color: var(--nm-primary-color);
+@media (hover: hover) {
+  .neumorphism-toc-mobile-close:hover {
+    color: var(--nm-primary-color);
+  }
 }
 
 /* ==========================================

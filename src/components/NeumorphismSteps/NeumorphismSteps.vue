@@ -279,9 +279,11 @@ function showError(index: number): boolean {
   }
 
   // Interactive hover (clickable steps)
-  &:hover:not(:disabled) {
-    transform: translateY(-1px);
-    @include nm-raised(3px, 6px);
+  @media (hover: hover) {
+    &:hover:not(:disabled) {
+      transform: translateY(-1px);
+      @include nm-raised(3px, 6px);
+    }
   }
 
   &:active:not(:disabled) {

@@ -118,8 +118,10 @@ withDefaults(defineProps<ChatBubbleProps>(), {
   opacity: 0;
   transition: opacity 0.2s ease;
 
-  .nm-chat-bubble:hover & {
-    opacity: 1;
+  @media (hover: hover) {
+    .nm-chat-bubble:hover & {
+      opacity: 1;
+    }
   }
 
   @media (hover: none) {

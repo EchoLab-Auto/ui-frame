@@ -256,8 +256,10 @@ const classList = computed(() => ['nm-tree'])
     height: 14px;
   }
 
-  &:hover {
-    color: var(--nm-text-secondary);
+  @media (hover: hover) {
+    &:hover {
+      color: var(--nm-text-secondary);
+    }
   }
 }
 
@@ -279,8 +281,10 @@ const classList = computed(() => ['nm-tree'])
   border-radius: var(--nm-border-radius-xs);
   transition: color var(--nm-transition-fast);
 
-  &:hover {
-    color: var(--nm-primary-color);
+  @media (hover: hover) {
+    &:hover {
+      color: var(--nm-primary-color);
+    }
   }
 }
 

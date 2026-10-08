@@ -367,8 +367,10 @@ function onNodeKeydown(event: KeyboardEvent, docPath?: string): void {
   &--link {
     cursor: pointer;
 
-    &:hover {
-      transform: translateY(-2px);
+    @media (hover: hover) {
+      &:hover {
+        transform: translateY(-2px);
+      }
     }
 
     &:focus-visible {
@@ -432,12 +434,14 @@ function onNodeKeydown(event: KeyboardEvent, docPath?: string): void {
       inset 3px 0 0 var(--nm-primary-color);
   }
 
-  .nm-flow__node--link:hover & {
-    box-shadow:
-      6px 6px 12px var(--nm-shadow-dark),
-      -6px -6px 12px var(--nm-shadow-light),
-      inset 3px 0 0 var(--nm-primary-color),
-      0 0 12px color-mix(in srgb, var(--nm-primary-color) 20%, transparent);
+  @media (hover: hover) {
+    .nm-flow__node--link:hover & {
+      box-shadow:
+        6px 6px 12px var(--nm-shadow-dark),
+        -6px -6px 12px var(--nm-shadow-light),
+        inset 3px 0 0 var(--nm-primary-color),
+        0 0 12px color-mix(in srgb, var(--nm-primary-color) 20%, transparent);
+    }
   }
 
   .nm-flow__node--diamond.nm-flow__node--link & {
@@ -464,8 +468,10 @@ function onNodeKeydown(event: KeyboardEvent, docPath?: string): void {
   .nm-flow__node {
     transition: none;
 
-    &:hover {
-      transform: none;
+    @media (hover: hover) {
+      &:hover {
+        transform: none;
+      }
     }
   }
 }

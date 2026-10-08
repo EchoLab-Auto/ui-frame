@@ -300,35 +300,37 @@ $elevation-shadows: (
 //  Elevation increases, never crosses sign boundary.
 // ============================================================
 .nm-card--hover-bulge {
-  // Raised → more raised
-  &.nm-card--elevation-1:hover {
-    @include nm-card-raised(3);
-  }
-  &.nm-card--elevation-2:hover {
-    @include nm-card-raised(4);
-  }
-  &.nm-card--elevation-3:hover,
-  &.nm-card--elevation-4:hover {
-    @include nm-card-raised(4);
-  }
+  @media (hover: hover) {
+    // Raised → more raised
+    &.nm-card--elevation-1:hover {
+      @include nm-card-raised(3);
+    }
+    &.nm-card--elevation-2:hover {
+      @include nm-card-raised(4);
+    }
+    &.nm-card--elevation-3:hover,
+    &.nm-card--elevation-4:hover {
+      @include nm-card-raised(4);
+    }
 
-  // Pressed → less pressed (toward surface)
-  &.nm-card--elevation--4:hover {
-    @include nm-card-pressed(2);
-  }
-  &.nm-card--elevation--3:hover {
-    @include nm-card-pressed(1);
-  }
-  &.nm-card--elevation--2:hover,
-  &.nm-card--elevation--1:hover {
-    box-shadow: none;
-    background-color: var(--nm-bg-color);
-  }
+    // Pressed → less pressed (toward surface)
+    &.nm-card--elevation--4:hover {
+      @include nm-card-pressed(2);
+    }
+    &.nm-card--elevation--3:hover {
+      @include nm-card-pressed(1);
+    }
+    &.nm-card--elevation--2:hover,
+    &.nm-card--elevation--1:hover {
+      box-shadow: none;
+      background-color: var(--nm-bg-color);
+    }
 
-  // Flush → raised
-  &.nm-card--elevation-0:hover {
-    @include nm-card-raised(2);
-    background-color: var(--nm-surface-color);
+    // Flush → raised
+    &.nm-card--elevation-0:hover {
+      @include nm-card-raised(2);
+      background-color: var(--nm-surface-color);
+    }
   }
 }
 
@@ -337,35 +339,37 @@ $elevation-shadows: (
 //  Elevation decreases, never crosses sign boundary.
 // ============================================================
 .nm-card--hover-sink {
-  // Pressed → more pressed
-  &.nm-card--elevation--1:hover {
-    @include nm-card-pressed(3);
-  }
-  &.nm-card--elevation--2:hover {
-    @include nm-card-pressed(4);
-  }
-  &.nm-card--elevation--3:hover,
-  &.nm-card--elevation--4:hover {
-    @include nm-card-pressed(4);
-  }
+  @media (hover: hover) {
+    // Pressed → more pressed
+    &.nm-card--elevation--1:hover {
+      @include nm-card-pressed(3);
+    }
+    &.nm-card--elevation--2:hover {
+      @include nm-card-pressed(4);
+    }
+    &.nm-card--elevation--3:hover,
+    &.nm-card--elevation--4:hover {
+      @include nm-card-pressed(4);
+    }
 
-  // Raised → less raised (toward surface)
-  &.nm-card--elevation-4:hover {
-    @include nm-card-raised(2);
-  }
-  &.nm-card--elevation-3:hover {
-    @include nm-card-raised(1);
-  }
-  &.nm-card--elevation-2:hover,
-  &.nm-card--elevation-1:hover {
-    box-shadow: none;
-    background-color: var(--nm-bg-color);
-  }
+    // Raised → less raised (toward surface)
+    &.nm-card--elevation-4:hover {
+      @include nm-card-raised(2);
+    }
+    &.nm-card--elevation-3:hover {
+      @include nm-card-raised(1);
+    }
+    &.nm-card--elevation-2:hover,
+    &.nm-card--elevation-1:hover {
+      box-shadow: none;
+      background-color: var(--nm-bg-color);
+    }
 
-  // Flush → pressed
-  &.nm-card--elevation-0:hover {
-    @include nm-card-pressed(2);
-    background-color: var(--nm-surface-raised);
+    // Flush → pressed
+    &.nm-card--elevation-0:hover {
+      @include nm-card-pressed(2);
+      background-color: var(--nm-surface-raised);
+    }
   }
 }
 

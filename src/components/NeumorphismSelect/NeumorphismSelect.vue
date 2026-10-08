@@ -903,8 +903,10 @@ function onContainerBlur(e: FocusEvent) {
   color: var(--nm-text-secondary);
   border-radius: var(--nm-border-radius-full);
   transition: color var(--nm-transition-fast);
-  &:hover {
-    color: var(--nm-text-primary);
+  @media (hover: hover) {
+    &:hover {
+      color: var(--nm-text-primary);
+    }
   }
   &:focus-visible {
     outline: 2px solid var(--nm-primary-color);
@@ -970,12 +972,14 @@ function onContainerBlur(e: FocusEvent) {
     box-shadow 0.25s $nm-ease-ambient;
   position: relative;
 
-  &:hover:not(&--disabled):not(&--empty) {
-    background-color: var(--nm-select-option-hover-bg);
-    transform: translateX(3px);
-    box-shadow:
-      inset 1px 1px 2px var(--nm-shadow-dark),
-      inset -1px -1px 2px var(--nm-shadow-light);
+  @media (hover: hover) {
+    &:hover:not(&--disabled):not(&--empty) {
+      background-color: var(--nm-select-option-hover-bg);
+      transform: translateX(3px);
+      box-shadow:
+        inset 1px 1px 2px var(--nm-shadow-dark),
+        inset -1px -1px 2px var(--nm-shadow-light);
+    }
   }
 
   // 多选键盘高亮项 —— 视觉与 hover 等价
@@ -1136,10 +1140,12 @@ function onContainerBlur(e: FocusEvent) {
   }
 
   // 选项：扁平交互（去位移 / 去凹陷）
-  .nm-select__option:hover:not(.nm-select__option--disabled):not(.nm-select__option--empty) {
-    background-color: var(--nm-select-outlined-option-hover-bg);
-    transform: none;
-    box-shadow: none;
+  @media (hover: hover) {
+    .nm-select__option:hover:not(.nm-select__option--disabled):not(.nm-select__option--empty) {
+      background-color: var(--nm-select-outlined-option-hover-bg);
+      transform: none;
+      box-shadow: none;
+    }
   }
   .nm-select__option--active:not(.nm-select__option--disabled) {
     background-color: var(--nm-select-outlined-option-hover-bg);

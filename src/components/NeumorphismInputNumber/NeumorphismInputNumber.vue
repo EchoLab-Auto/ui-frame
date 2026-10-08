@@ -317,12 +317,14 @@ $number-ambient: cubic-bezier(0.4, 0, 0.2, 1);
     background-color 0.3s $number-ambient,
     color 0.2s $number-ambient;
 
-  &:hover:not(:disabled) {
-    color: var(--nm-primary-color);
-    transform: translateY(-1px);
-    box-shadow:
-      4px 4px 8px var(--nm-shadow-dark),
-      -4px -4px 8px var(--nm-shadow-light);
+  @media (hover: hover) {
+    &:hover:not(:disabled) {
+      color: var(--nm-primary-color);
+      transform: translateY(-1px);
+      box-shadow:
+        4px 4px 8px var(--nm-shadow-dark),
+        -4px -4px 8px var(--nm-shadow-light);
+    }
   }
 
   &:active:not(:disabled) {
@@ -443,8 +445,10 @@ $number-ambient: cubic-bezier(0.4, 0, 0.2, 1);
     animation: none !important;
   }
 
-  .nm-input-number__btn:hover:not(:disabled) {
-    transform: none;
+  @media (hover: hover) {
+    .nm-input-number__btn:hover:not(:disabled) {
+      transform: none;
+    }
   }
 
   .nm-input-number__btn:active:not(:disabled) {

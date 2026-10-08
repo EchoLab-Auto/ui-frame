@@ -579,8 +579,10 @@ function handleCalendarKeydown(event: KeyboardEvent) {
   border-radius: var(--nm-border-radius-full);
   transition: color var(--nm-transition-fast);
 
-  &:hover {
-    color: var(--nm-text-primary);
+  @media (hover: hover) {
+    &:hover {
+      color: var(--nm-text-primary);
+    }
   }
 }
 
@@ -622,12 +624,14 @@ function handleCalendarKeydown(event: KeyboardEvent) {
   border-radius: var(--nm-border-radius-sm);
   transition: all var(--nm-transition-fast);
 
-  &:hover {
-    background-color: var(--nm-surface-raised);
-    color: var(--nm-text-primary);
-    box-shadow:
-      inset 1px 1px 2px var(--nm-shadow-dark),
-      inset -1px -1px 2px var(--nm-shadow-light);
+  @media (hover: hover) {
+    &:hover {
+      background-color: var(--nm-surface-raised);
+      color: var(--nm-text-primary);
+      box-shadow:
+        inset 1px 1px 2px var(--nm-shadow-dark),
+        inset -1px -1px 2px var(--nm-shadow-light);
+    }
   }
 
   &:active {
@@ -688,11 +692,13 @@ function handleCalendarKeydown(event: KeyboardEvent) {
     color 0.25s $nm-ease-ambient;
   position: relative;
 
-  &:hover:not(&--disabled):not(&--selected) {
-    background-color: var(--nm-surface-raised);
-    box-shadow:
-      inset 1px 1px 2px var(--nm-shadow-dark),
-      inset -1px -1px 2px var(--nm-shadow-light);
+  @media (hover: hover) {
+    &:hover:not(&--disabled):not(&--selected) {
+      background-color: var(--nm-surface-raised);
+      box-shadow:
+        inset 1px 1px 2px var(--nm-shadow-dark),
+        inset -1px -1px 2px var(--nm-shadow-light);
+    }
   }
 
   // Other month days (dimmed)
@@ -700,9 +706,11 @@ function handleCalendarKeydown(event: KeyboardEvent) {
     color: var(--nm-text-disabled);
     cursor: default;
 
-    &:hover {
-      background: none;
-      box-shadow: none;
+    @media (hover: hover) {
+      &:hover {
+        background: none;
+        box-shadow: none;
+      }
     }
   }
 
@@ -771,11 +779,13 @@ function handleCalendarKeydown(event: KeyboardEvent) {
   border-radius: var(--nm-border-radius-sm);
   transition: all var(--nm-transition-fast);
 
-  &:hover {
-    background-color: color-mix(in srgb, var(--nm-primary-color) 10%, transparent);
-    box-shadow:
-      inset 1px 1px 2px var(--nm-shadow-dark),
-      inset -1px -1px 2px var(--nm-shadow-light);
+  @media (hover: hover) {
+    &:hover {
+      background-color: color-mix(in srgb, var(--nm-primary-color) 10%, transparent);
+      box-shadow:
+        inset 1px 1px 2px var(--nm-shadow-dark),
+        inset -1px -1px 2px var(--nm-shadow-light);
+    }
   }
 
   &:active {

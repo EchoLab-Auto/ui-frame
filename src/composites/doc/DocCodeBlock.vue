@@ -101,8 +101,10 @@ const copyLabel = computed(() => (copied.value ? t('markdownCodeCopied') : t('ma
     background-color 0.2s ease;
 }
 
-.code-copy-btn:hover {
-  color: var(--nm-primary-color);
+@media (hover: hover) {
+  .code-copy-btn:hover {
+    color: var(--nm-primary-color);
+  }
 }
 
 .code-copy-btn.copied {

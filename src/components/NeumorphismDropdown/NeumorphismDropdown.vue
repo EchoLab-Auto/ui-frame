@@ -194,9 +194,11 @@ const classList = computed(() => ['nm-dropdown'])
   white-space: nowrap;
   user-select: none;
 
-  &:hover:not(&--disabled) {
-    background-color: var(--nm-surface-raised);
-    transform: translateX(2px);
+  @media (hover: hover) {
+    &:hover:not(&--disabled) {
+      background-color: var(--nm-surface-raised);
+      transform: translateX(2px);
+    }
   }
 
   &:active:not(&--disabled) {

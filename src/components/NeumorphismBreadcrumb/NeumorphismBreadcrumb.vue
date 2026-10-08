@@ -121,13 +121,15 @@ function handleClick(item: BreadcrumbItem, index: number) {
     color: var(--nm-text-secondary);
     @include nm-raised(1px, 2px);
 
-    &:hover {
-      color: var(--nm-primary-color);
-      background-color: var(--nm-surface-raised);
-      transform: translateY(-1px);
-      box-shadow:
-        3px 3px 6px var(--nm-shadow-dark),
-        -2px -2px 4px var(--nm-shadow-light);
+    @media (hover: hover) {
+      &:hover {
+        color: var(--nm-primary-color);
+        background-color: var(--nm-surface-raised);
+        transform: translateY(-1px);
+        box-shadow:
+          3px 3px 6px var(--nm-shadow-dark),
+          -2px -2px 4px var(--nm-shadow-light);
+      }
     }
 
     &:active {

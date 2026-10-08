@@ -266,8 +266,10 @@ const showSelectionColumn = computed(
     &--sortable {
       cursor: pointer;
 
-      &:hover {
-        color: var(--nm-text-primary);
+      @media (hover: hover) {
+        &:hover {
+          color: var(--nm-text-primary);
+        }
       }
     }
 

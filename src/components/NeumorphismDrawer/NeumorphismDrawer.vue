@@ -261,9 +261,11 @@ const sizeStyle = computed(() => {
   @include nm-raised(2px, 4px);
   transition: all var(--nm-transition-fast);
 
-  &:hover {
-    @include nm-inset(2px, 4px);
-    color: var(--nm-text-primary);
+  @media (hover: hover) {
+    &:hover {
+      @include nm-inset(2px, 4px);
+      color: var(--nm-text-primary);
+    }
   }
 }
 

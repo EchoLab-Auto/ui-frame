@@ -109,8 +109,10 @@ const classList = computed(() => [
   transition: color 0.3s $nm-ease-ambient;
 }
 
-.nm-divider:hover .nm-divider__text {
-  color: var(--nm-primary-color);
+@media (hover: hover) {
+  .nm-divider:hover .nm-divider__text {
+    color: var(--nm-primary-color);
+  }
 }
 
 // Horizontal with text — line-text-line pattern

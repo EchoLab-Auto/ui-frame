@@ -291,8 +291,10 @@ function onCanvasNavigate(path: string) {
   transition: background-color 0.15s ease;
 }
 
-.neumorphism-search-item:hover {
-  background-color: var(--nm-bg-color);
+@media (hover: hover) {
+  .neumorphism-search-item:hover {
+    background-color: var(--nm-bg-color);
+  }
 }
 
 .neumorphism-search-title {

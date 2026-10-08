@@ -184,12 +184,14 @@ function handleClick(event: MouseEvent): void {
     box-shadow 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
     transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
 
-  &:not(.nm-button--disabled):hover {
-    transform: translateY(-2px);
-    box-shadow:
-      0 3px 6px var(--nm-shadow-ambient-xl),
-      6px 6px 14px var(--nm-shadow-dark),
-      -3px -3px 10px var(--nm-shadow-light);
+  @media (hover: hover) {
+    &:not(.nm-button--disabled):hover {
+      transform: translateY(-2px);
+      box-shadow:
+        0 3px 6px var(--nm-shadow-ambient-xl),
+        6px 6px 14px var(--nm-shadow-dark),
+        -3px -3px 10px var(--nm-shadow-light);
+    }
   }
 
   &:not(.nm-button--disabled):active {
@@ -210,10 +212,12 @@ function handleClick(event: MouseEvent): void {
     inset -3px -3px 6px var(--nm-shadow-light-deep);
   transition: box-shadow 0.3s ease;
 
-  &:not(.nm-button--disabled):hover {
-    box-shadow:
-      inset 4px 4px 8px var(--nm-shadow-dark-deep),
-      inset -4px -4px 8px var(--nm-shadow-light-deep);
+  @media (hover: hover) {
+    &:not(.nm-button--disabled):hover {
+      box-shadow:
+        inset 4px 4px 8px var(--nm-shadow-dark-deep),
+        inset -4px -4px 8px var(--nm-shadow-light-deep);
+    }
   }
 
   &:not(.nm-button--disabled):active {
@@ -237,17 +241,19 @@ function handleClick(event: MouseEvent): void {
     0 2px 6px color-mix(in srgb, var(--nm-primary-color) 35%, transparent),
     -2px -2px 6px var(--nm-shadow-light);
 
-  &:not(.nm-button--disabled):hover {
-    background: linear-gradient(
-      135deg,
-      var(--nm-color-primary-300),
-      var(--nm-color-primary-400),
-      var(--nm-color-primary-500)
-    );
-    transform: translateY(-2px);
-    box-shadow:
-      0 4px 12px color-mix(in srgb, var(--nm-primary-color) 50%, transparent),
-      -3px -3px 10px var(--nm-shadow-light);
+  @media (hover: hover) {
+    &:not(.nm-button--disabled):hover {
+      background: linear-gradient(
+        135deg,
+        var(--nm-color-primary-300),
+        var(--nm-color-primary-400),
+        var(--nm-color-primary-500)
+      );
+      transform: translateY(-2px);
+      box-shadow:
+        0 4px 12px color-mix(in srgb, var(--nm-primary-color) 50%, transparent),
+        -3px -3px 10px var(--nm-shadow-light);
+    }
   }
 
   &:not(.nm-button--disabled):active {
@@ -266,13 +272,15 @@ function handleClick(event: MouseEvent): void {
     -2px -2px 6px var(--nm-shadow-light),
     0 0 12px color-mix(in srgb, var(--nm-primary-color) 30%, transparent);
 
-  &:not(.nm-button--disabled):hover {
-    transform: translateY(-2px);
-    box-shadow:
-      0 3px 6px var(--nm-shadow-ambient-xl),
-      6px 6px 14px var(--nm-shadow-dark),
-      -3px -3px 10px var(--nm-shadow-light),
-      0 0 24px color-mix(in srgb, var(--nm-primary-color) 50%, transparent);
+  @media (hover: hover) {
+    &:not(.nm-button--disabled):hover {
+      transform: translateY(-2px);
+      box-shadow:
+        0 3px 6px var(--nm-shadow-ambient-xl),
+        6px 6px 14px var(--nm-shadow-dark),
+        -3px -3px 10px var(--nm-shadow-light),
+        0 0 24px color-mix(in srgb, var(--nm-primary-color) 50%, transparent);
+    }
   }
 
   &:not(.nm-button--disabled):active {
@@ -300,12 +308,14 @@ function handleClick(event: MouseEvent): void {
     transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
     background-color var(--nm-transition-slow);
 
-  &:not(.nm-button--disabled):hover {
-    transform: translateY(-3px);
-    background: color-mix(in srgb, var(--nm-surface-color) 75%, transparent);
-    box-shadow:
-      0 14px 36px var(--nm-shadow-ambient-xl),
-      0 4px 10px color-mix(in srgb, var(--nm-shadow-dark) 30%, transparent);
+  @media (hover: hover) {
+    &:not(.nm-button--disabled):hover {
+      transform: translateY(-3px);
+      background: color-mix(in srgb, var(--nm-surface-color) 75%, transparent);
+      box-shadow:
+        0 14px 36px var(--nm-shadow-ambient-xl),
+        0 4px 10px color-mix(in srgb, var(--nm-shadow-dark) 30%, transparent);
+    }
   }
 
   &:not(.nm-button--disabled):active {
@@ -335,13 +345,15 @@ function handleClick(event: MouseEvent): void {
     transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
     background-color var(--nm-transition-slow);
 
-  &:not(.nm-button--disabled):hover {
-    transform: translateY(-2px);
-    background: color-mix(in srgb, var(--nm-surface-color) 75%, transparent);
-    box-shadow:
-      0 3px 6px var(--nm-shadow-ambient-xl),
-      6px 6px 14px var(--nm-shadow-dark),
-      -3px -3px 10px var(--nm-shadow-light);
+  @media (hover: hover) {
+    &:not(.nm-button--disabled):hover {
+      transform: translateY(-2px);
+      background: color-mix(in srgb, var(--nm-surface-color) 75%, transparent);
+      box-shadow:
+        0 3px 6px var(--nm-shadow-ambient-xl),
+        6px 6px 14px var(--nm-shadow-dark),
+        -3px -3px 10px var(--nm-shadow-light);
+    }
   }
 
   &:not(.nm-button--disabled):active {

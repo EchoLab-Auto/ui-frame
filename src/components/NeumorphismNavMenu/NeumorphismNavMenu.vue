@@ -466,8 +466,10 @@ function getItemClass(item: MenuItem) {
 /* ---- Interactive states ---- */
 .nm-nav-menu__item:not(.nm-nav-menu__item--disabled) {
   .nm-nav-menu__item-content {
-    &:hover {
-      color: var(--nm-primary-color);
+    @media (hover: hover) {
+      &:hover {
+        color: var(--nm-primary-color);
+      }
     }
 
     &:active {
@@ -599,9 +601,11 @@ function getItemClass(item: MenuItem) {
     background-color 0.2s ease,
     transform 0.15s $nm-ease-spring;
 
-  &:hover:not(&--disabled) {
-    background-color: var(--nm-surface-raised);
-    transform: translateX(2px);
+  @media (hover: hover) {
+    &:hover:not(&--disabled) {
+      background-color: var(--nm-surface-raised);
+      transform: translateX(2px);
+    }
   }
 
   &:active:not(&--disabled) {

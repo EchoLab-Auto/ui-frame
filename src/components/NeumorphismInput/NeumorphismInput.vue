@@ -191,11 +191,13 @@ function handleKeydown(event: KeyboardEvent): void {
     background-color var(--nm-transition-slow),
     transform 0.3s $nm-ease-spring;
 
-  &:not(.nm-input--disabled):not(.nm-input--focused):hover {
-    box-shadow:
-      inset 5px 5px 10px var(--nm-shadow-dark),
-      inset -5px -5px 10px var(--nm-shadow-light);
-    transform: translateY(-1px);
+  @media (hover: hover) {
+    &:not(.nm-input--disabled):not(.nm-input--focused):hover {
+      box-shadow:
+        inset 5px 5px 10px var(--nm-shadow-dark),
+        inset -5px -5px 10px var(--nm-shadow-light);
+      transform: translateY(-1px);
+    }
   }
 
   &--focused {

@@ -168,8 +168,10 @@ const variantColors: Record<TagVariant, string> = {
     .nm-tag__close {
       color: color-mix(in srgb, var(--nm-text-on-primary) 70%, transparent);
     }
-    .nm-tag__close:hover {
-      color: var(--nm-text-on-primary);
+    @media (hover: hover) {
+      .nm-tag__close:hover {
+        color: var(--nm-text-on-primary);
+      }
     }
 
     @media (hover: hover) {
@@ -203,9 +205,11 @@ const variantColors: Record<TagVariant, string> = {
     transform 0.25s $nm-ease-spring;
   border-radius: var(--nm-border-radius-full);
 
-  &:hover {
-    color: var(--nm-text-primary);
-    transform: rotate(90deg);
+  @media (hover: hover) {
+    &:hover {
+      color: var(--nm-text-primary);
+      transform: rotate(90deg);
+    }
   }
 
   &:active {

@@ -419,8 +419,10 @@ const isLoadingState = computed(() => loadingRef.value)
   border-radius: var(--nm-border-radius-full);
   transition: color var(--nm-transition-fast);
 
-  &:hover {
-    color: var(--nm-text-primary);
+  @media (hover: hover) {
+    &:hover {
+      color: var(--nm-text-primary);
+    }
   }
 
   &:focus-visible {
@@ -503,12 +505,14 @@ const isLoadingState = computed(() => loadingRef.value)
       inset -1px -1px 2px var(--nm-shadow-light);
   }
 
-  &:hover:not(&--disabled) {
-    background-color: var(--nm-surface-raised);
-    transform: translateX(3px);
-    box-shadow:
-      inset 1px 1px 2px var(--nm-shadow-dark),
-      inset -1px -1px 2px var(--nm-shadow-light);
+  @media (hover: hover) {
+    &:hover:not(&--disabled) {
+      background-color: var(--nm-surface-raised);
+      transform: translateX(3px);
+      box-shadow:
+        inset 1px 1px 2px var(--nm-shadow-dark),
+        inset -1px -1px 2px var(--nm-shadow-light);
+    }
   }
 
   &--disabled {
