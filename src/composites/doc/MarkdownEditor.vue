@@ -242,14 +242,21 @@ function syncEditScroll() {
     <!-- Formatting toolbar -->
     <div class="neumorphism-editor-toolbar">
       <div class="neumorphism-editor-toolbar-left">
-        <NeumorphismButton size="small" title="粗体 (Ctrl+B)" @click="insertBold">
+        <NeumorphismButton size="small" title="粗体 (Ctrl+B)" aria-label="粗体" @click="insertBold">
           <strong>B</strong>
         </NeumorphismButton>
-        <NeumorphismButton size="small" title="斜体 (Ctrl+I)" @click="insertItalic">
+        <NeumorphismButton
+          size="small"
+          title="斜体 (Ctrl+I)"
+          aria-label="斜体"
+          @click="insertItalic"
+        >
           <em>I</em>
         </NeumorphismButton>
-        <NeumorphismButton size="small" title="标题" @click="insertHeading"> H </NeumorphismButton>
-        <NeumorphismButton size="small" title="链接" @click="insertLink"
+        <NeumorphismButton size="small" title="标题" aria-label="标题" @click="insertHeading">
+          H
+        </NeumorphismButton>
+        <NeumorphismButton size="small" title="链接" aria-label="链接" @click="insertLink"
           ><svg
             class="neumorphism-editor-icon"
             viewBox="0 0 24 24"
@@ -263,7 +270,7 @@ function syncEditScroll() {
             <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
             <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" /></svg
         ></NeumorphismButton>
-        <NeumorphismButton size="small" title="图片" @click="insertImage"
+        <NeumorphismButton size="small" title="图片" aria-label="图片" @click="insertImage"
           ><svg
             class="neumorphism-editor-icon"
             viewBox="0 0 24 24"
@@ -278,10 +285,10 @@ function syncEditScroll() {
             <circle cx="9" cy="9" r="2" />
             <path d="M21 15l-3.086-3.086a2 2 0 0 0-2.828 0L6 21" /></svg
         ></NeumorphismButton>
-        <NeumorphismButton size="small" title="行内代码" @click="insertCode">
+        <NeumorphismButton size="small" title="行内代码" aria-label="行内代码" @click="insertCode">
           &lt;/&gt;
         </NeumorphismButton>
-        <NeumorphismButton size="small" title="代码块" @click="insertCodeBlock"
+        <NeumorphismButton size="small" title="代码块" aria-label="代码块" @click="insertCodeBlock"
           ><svg
             class="neumorphism-editor-icon"
             viewBox="0 0 24 24"
@@ -297,7 +304,7 @@ function syncEditScroll() {
               d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"
             /></svg
         ></NeumorphismButton>
-        <NeumorphismButton size="small" title="无序列表" @click="insertList"
+        <NeumorphismButton size="small" title="无序列表" aria-label="无序列表" @click="insertList"
           ><svg
             class="neumorphism-editor-icon"
             viewBox="0 0 24 24"
@@ -311,7 +318,7 @@ function syncEditScroll() {
             <path d="M8 6h13M8 12h13M8 18h13" />
             <path d="M3 6h.01M3 12h.01M3 18h.01" /></svg
         ></NeumorphismButton>
-        <NeumorphismButton size="small" title="表格" @click="insertTable"
+        <NeumorphismButton size="small" title="表格" aria-label="表格" @click="insertTable"
           ><svg
             class="neumorphism-editor-icon"
             viewBox="0 0 24 24"

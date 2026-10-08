@@ -437,6 +437,13 @@ export function install(
       computed(() => pluginConfig)
     )
     hooks.onConfigChange?.(pluginConfig)
+
+    // RTL（部分支持）：开启后把根文档方向置为 rtl——base.scss 的基础镜像
+    // 白名单（方向性图标 / 浮层方位）随 [dir='rtl'] 生效。全组件级的逻辑
+    // 方向属性覆盖尚未完成，见 design-philosophy 第九节的状态说明。
+    if (pluginConfig.rtl && typeof document !== 'undefined') {
+      document.documentElement.setAttribute('dir', 'rtl')
+    }
   }
 
   // Register default components, applying overrides where they exist
