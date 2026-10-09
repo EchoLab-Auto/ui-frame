@@ -72,7 +72,7 @@ import { NeumorphismButton } from '@echolab-auto/ui-frame'
 | 组件                                         | 说明                               | 关键属性                                           |
 | -------------------------------------------- | ---------------------------------- | -------------------------------------------------- |
 | `NeumorphismButton`                          | 凸起/按压/主色/发光/玻璃等变体按钮 | `variant`, `size`, `shape`, `disabled`, `loading`  |
-| `NeumorphismSwitch`                          | 开关切换                           | `v-model`, `size`, `activeText`                    |
+| `NeumorphismSwitch`                          | 开关切换（default / power 变体）   | `v-model`, `variant`, `size`, `activeText`         |
 | `NeumorphismCheckbox`                        | 复选框                             | `v-model`, `label`, `size`, `indeterminate`        |
 | `NeumorphismRadio` / `NeumorphismRadioGroup` | 单选按钮                           | `v-model`, `value`, `direction`                    |
 | `NeumorphismInput`                           | 文本输入框（凹陷效果）             | `v-model`, `label`, `placeholder`, `size`, `error` |

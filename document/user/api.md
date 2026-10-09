@@ -106,16 +106,19 @@ import type {
 
 ```ts
 import { NeumorphismSwitch } from '@echolab-auto/ui-frame'
-import type { NeumorphismSwitchProps } from '@echolab-auto/ui-frame'
+import type { NeumorphismSwitchProps, SwitchVariant } from '@echolab-auto/ui-frame'
 ```
 
-| Props        | Type                             | Default    | Description  |
-| ------------ | -------------------------------- | ---------- | ------------ |
-| modelValue   | `boolean`                        | `false`    | 绑定值       |
-| disabled     | `boolean`                        | `false`    | 是否禁用     |
-| activeText   | `string`                         | —          | 开启状态文本 |
-| inactiveText | `string`                         | —          | 关闭状态文本 |
-| size         | `'small' \| 'medium' \| 'large'` | `'medium'` | 开关尺寸     |
+| Props         | Type                             | Default     | Description                |
+| ------------- | -------------------------------- | ----------- | -------------------------- |
+| modelValue    | `boolean`                        | `false`     | 绑定值                     |
+| disabled      | `boolean`                        | `false`     | 是否禁用                   |
+| activeText    | `string`                         | —           | 开启状态文本               |
+| inactiveText  | `string`                         | —           | 关闭状态文本               |
+| activeColor   | `string`                         | —           | 开启态自定义颜色           |
+| inactiveColor | `string`                         | —           | 关闭态自定义颜色           |
+| size          | `'small' \| 'medium' \| 'large'` | `'medium'`  | 开关尺寸                   |
+| variant       | `'default' \| 'power'`           | `'default'` | 视觉变体：power 为电力开关 |
 
 **Events:** `update:modelValue`, `change`
 
@@ -3102,6 +3105,7 @@ function validateFieldValue(value: unknown, rules: FormRule[]): string | undefin
 | `ButtonSize`                    | Button        |
 | `ButtonShape`                   | Button        |
 | `NeumorphismSwitchProps`        | Switch        |
+| `SwitchVariant`                 | Switch        |
 | `NeumorphismCardProps`          | Card          |
 | `CardVariant`                   | Card          |
 | `CardDepth`                     | Card          |
@@ -3307,7 +3311,7 @@ function useConfig(): ComputedRef<NeumorphismGlobalConfig>
 ```ts
 interface NeumorphismGlobalConfig {
   button?: { size?: ButtonSize; variant?: ButtonVariant; shape?: ButtonShape }
-  switch?: { size?: SwitchSize }
+  switch?: { size?: SwitchSize; variant?: SwitchVariant }
   card?: { elevation?: number; hoverable?: boolean | 'bulge' | 'sink' }
   input?: { size?: InputSize }
   checkbox?: { size?: CheckboxSize }

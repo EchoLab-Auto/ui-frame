@@ -112,6 +112,8 @@ export interface NeumorphismGlobalConfig {
   /** Default switch props */
   switch?: {
     size?: 'small' | 'medium' | 'large'
+    /** 视觉变体：default（凹陷轨道 + 弹簧滑块）/ power（电力开关） */
+    variant?: 'default' | 'power'
   }
   /** Default table props */
   table?: {

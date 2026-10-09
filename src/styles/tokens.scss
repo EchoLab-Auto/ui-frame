@@ -446,6 +446,36 @@
   --nm-switch-width-lg: 68px;
   --nm-switch-height-lg: 36px;
 
+  // ---- Switch · power 变体（variant="power"）----
+  // 设计单位 u：内部几何按 u 缩放，171u × 91u 为器件设计稿
+  --nm-switch-power-unit-sm: 0.8px;
+  --nm-switch-power-unit-md: 1px;
+  --nm-switch-power-unit-lg: 1.25px;
+  // 金属外圈渐变（0deg：下亮上暗）
+  --nm-switch-power-rind-light: #ededed;
+  --nm-switch-power-rind-dark: #9a9a9a;
+  // 深色内腔与内腔阴影基色（组件内按 alpha 混合）
+  --nm-switch-power-well: #727272;
+  --nm-switch-power-shade: #000000;
+  // 圆钮渐变两端与表面拉丝纹理三色
+  --nm-switch-power-knob-light: #f3f3f3;
+  --nm-switch-power-knob-dark: #acacac;
+  --nm-switch-power-knob-tex-light: #f3f3f3;
+  --nm-switch-power-knob-tex-mid: #cacaca;
+  --nm-switch-power-knob-tex-dark: #9c9c9c;
+  // 通电面（器件自带光源，两主题保持常亮）
+  --nm-switch-power-energized: #f3800d;
+  // 冲压标记的浮雕高光与暗部
+  --nm-switch-power-dot-highlight: rgba(190, 190, 190, 0.5);
+  --nm-switch-power-dot-shadow: rgba(50, 50, 50, 0.45);
+  // 指示条渐变两端
+  --nm-switch-power-bar-highlight: rgba(255, 255, 255, 0.32);
+  --nm-switch-power-bar-shadow: rgba(60, 60, 60, 0.3);
+  // 刻印文本（常态灰 / 通电闪烁定格色 + 光晕）
+  --nm-switch-power-label: #808080;
+  --nm-switch-power-label-on: #d56750;
+  --nm-switch-power-label-on-glow: rgba(213, 103, 80, 0.4);
+
   // -- Breadcrumb --
   --nm-breadcrumb-font-sm: 12px;
   --nm-breadcrumb-font-md: 14px;
@@ -585,6 +615,23 @@
   // -- Progress (dark — the pulse beam is a light source, so it stays bright) --
   --nm-progress-pulse-core: rgba(255, 255, 255, 0.9);
   --nm-progress-pulse-sweep: rgba(255, 255, 255, 0.45);
+
+  // -- Switch · power 变体 (dark —— 器件换为深色金属：外圈/内腔/圆钮整体压暗，通电面仍是光源保持常亮) --
+  --nm-switch-power-rind-light: #3d3d40;
+  --nm-switch-power-rind-dark: #1e1e21;
+  --nm-switch-power-well: #2f2f32;
+  --nm-switch-power-knob-light: #646468;
+  --nm-switch-power-knob-dark: #3b3b3f;
+  --nm-switch-power-knob-tex-light: #55555a;
+  --nm-switch-power-knob-tex-mid: #47474c;
+  --nm-switch-power-knob-tex-dark: #36363a;
+  --nm-switch-power-dot-highlight: rgba(150, 150, 158, 0.4);
+  --nm-switch-power-dot-shadow: rgba(0, 0, 0, 0.6);
+  --nm-switch-power-bar-highlight: rgba(255, 255, 255, 0.28);
+  --nm-switch-power-bar-shadow: rgba(0, 0, 0, 0.45);
+  --nm-switch-power-label: #999999;
+  --nm-switch-power-label-on: #e08064;
+  --nm-switch-power-label-on-glow: rgba(224, 128, 100, 0.35);
 
   // -- Code Highlighting (Doc module, dark) --
   --nm-code-comment: #6a9955;

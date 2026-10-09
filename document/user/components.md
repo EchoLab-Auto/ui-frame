@@ -123,16 +123,16 @@ link:
 
 ### 表单输入
 
-| 组件                                                                  | 职责               | 关键 props                                                                           | 亮点                                                                                 |
-| --------------------------------------------------------------------- | ------------------ | ------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------ |
-| [`NeumorphismInput`](./components/input.md)                           | 单行文本输入       | `modelValue`、`type`、`error`、`floatingLabel`、`maxlength`                          | 浮动标签模式；`prefix`/`suffix` 插槽                                                 |
-| [`NeumorphismTextarea`](./components/textarea.md)                     | 多行文本输入       | `modelValue`、`rows`、`autoResize`、`showCount`                                      | 自动高度；字数统计                                                                   |
-| [`NeumorphismInputNumber`](./components/input-number.md)              | 数字输入（± 步进） | `modelValue`、`min`/`max`、`step`、`precision`、`controls`                           | 键盘上下键步进；精度修正                                                             |
-| [`NeumorphismSlider`](./components/slider.md)                         | 滑块（水平/垂直）  | `modelValue`、`min`/`max`、`step`、`vertical`、`showTooltip`、`showStops`            | 拖动中连续触发 `update:modelValue`，交互结束触发一次 `change`（对齐原生 range 语义） |
-| [`NeumorphismSwitch`](./components/switch.md)                         | 开关切换           | `modelValue`、`activeText`/`inactiveText`、`activeColor`/`inactiveColor`             | `thumb` 插槽自定义滑块                                                               |
-| [`NeumorphismCheckbox`](./components/checkbox.md)                     | 复选框             | `modelValue`、`label`、`indeterminate`                                               | 半选态支持                                                                           |
-| [`NeumorphismRadio` / `NeumorphismRadioGroup`](./components/radio.md) | 单选按钮与单选组   | Radio：`value`、`label`；Group：`modelValue`、`direction`                            | `RadioGroupKey` 注入键公开，可自建子项接入协议                                       |
-| [`NeumorphismAutoComplete`](./components/autocomplete.md)             | 输入联想           | `modelValue`、`options`、`searchFn`（异步搜索）、`debounce`（默认 300ms）、`loading` | 防抖异步搜索；浮层自动定位；方向键导航                                               |
+| 组件                                                                  | 职责               | 关键 props                                                                                                   | 亮点                                                                                 |
+| --------------------------------------------------------------------- | ------------------ | ------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------ |
+| [`NeumorphismInput`](./components/input.md)                           | 单行文本输入       | `modelValue`、`type`、`error`、`floatingLabel`、`maxlength`                                                  | 浮动标签模式；`prefix`/`suffix` 插槽                                                 |
+| [`NeumorphismTextarea`](./components/textarea.md)                     | 多行文本输入       | `modelValue`、`rows`、`autoResize`、`showCount`                                                              | 自动高度；字数统计                                                                   |
+| [`NeumorphismInputNumber`](./components/input-number.md)              | 数字输入（± 步进） | `modelValue`、`min`/`max`、`step`、`precision`、`controls`                                                   | 键盘上下键步进；精度修正                                                             |
+| [`NeumorphismSlider`](./components/slider.md)                         | 滑块（水平/垂直）  | `modelValue`、`min`/`max`、`step`、`vertical`、`showTooltip`、`showStops`                                    | 拖动中连续触发 `update:modelValue`，交互结束触发一次 `change`（对齐原生 range 语义） |
+| [`NeumorphismSwitch`](./components/switch.md)                         | 开关切换           | `modelValue`、`variant`（default/power）、`activeText`/`inactiveText`、`activeColor`/`inactiveColor`、`size` | `thumb` 插槽自定义滑块；`variant="power"` 为电力开关（金属器件质感、整径扳动）       |
+| [`NeumorphismCheckbox`](./components/checkbox.md)                     | 复选框             | `modelValue`、`label`、`indeterminate`                                                                       | 半选态支持                                                                           |
+| [`NeumorphismRadio` / `NeumorphismRadioGroup`](./components/radio.md) | 单选按钮与单选组   | Radio：`value`、`label`；Group：`modelValue`、`direction`                                                    | `RadioGroupKey` 注入键公开，可自建子项接入协议                                       |
+| [`NeumorphismAutoComplete`](./components/autocomplete.md)             | 输入联想           | `modelValue`、`options`、`searchFn`（异步搜索）、`debounce`（默认 300ms）、`loading`                         | 防抖异步搜索；浮层自动定位；方向键导航                                               |
 
 ---
 

@@ -359,6 +359,11 @@ onBeforeUnmount(() => {
 const switch1 = ref(false)
 const switch2 = ref(true)
 
+// ---- 开关 · power 变体示例 ----
+const powerSwitch1 = ref(false)
+const powerSwitch2 = ref(true)
+const powerSwitch3 = ref(false)
+
 // ---- 复选框示例 ----
 const checkbox1 = ref(false)
 const checkbox2 = ref(true)
@@ -1261,7 +1266,7 @@ const chartStockData = ref([
               <template #header>
                 <div class="demo-header">
                   <h3 class="demo-title">NeumorphismSwitch 开关</h3>
-                  <span class="demo-badge">3 尺寸 · 文本标签</span>
+                  <span class="demo-badge">3 尺寸 · 文本标签 · power 变体</span>
                 </div>
               </template>
 
@@ -1289,6 +1294,45 @@ const chartStockData = ref([
                   <NeumorphismSwitch v-model="switch2" active-text="开" inactive-text="关" />
                   <NeumorphismSwitch :model-value="true" disabled />
                   <NeumorphismSwitch :model-value="false" disabled />
+                </div>
+              </div>
+
+              <div class="demo-block">
+                <h4 class="demo-label">power 变体（电力开关）</h4>
+                <div class="demo-row demo-row--stacked">
+                  <div class="demo-row">
+                    <NeumorphismSwitch v-model="powerSwitch1" variant="power" size="small" />
+                    <code>small</code>
+                  </div>
+                  <div class="demo-row">
+                    <NeumorphismSwitch v-model="powerSwitch1" variant="power" size="medium" />
+                    <code>medium</code>
+                  </div>
+                  <div class="demo-row">
+                    <NeumorphismSwitch v-model="powerSwitch1" variant="power" size="large" />
+                    <code>large</code>
+                  </div>
+                </div>
+              </div>
+
+              <div class="demo-block">
+                <h4 class="demo-label">power · 通电色与禁用</h4>
+                <div class="demo-row">
+                  <NeumorphismSwitch
+                    v-model="powerSwitch2"
+                    variant="power"
+                    active-color="#27ae60"
+                  />
+                  <NeumorphismSwitch variant="power" :model-value="true" disabled />
+                  <NeumorphismSwitch variant="power" :model-value="false" disabled />
+                </div>
+                <div class="demo-row">
+                  <NeumorphismSwitch
+                    v-model="powerSwitch3"
+                    variant="power"
+                    active-text="通电"
+                    inactive-text="断电"
+                  />
                 </div>
               </div>
             </NeumorphismCard>

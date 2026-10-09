@@ -114,18 +114,18 @@ const { theme, isDark, toggleTheme } = provideTheme()
 
 ### 基础输入（10 个）
 
-| 组件                      | 用途                    | 核心 Props                                                                                                   |
-| ------------------------- | ----------------------- | ------------------------------------------------------------------------------------------------------------ |
-| `NeumorphismButton`       | 凸起/凹陷/主色/玻璃按钮 | `variant`(raised\|pressed\|primary\|glow\|glass\|glass-raised), `size`, `shape`, `loading`                   |
-| `NeumorphismSwitch`       | 开关切换                | `v-model`, `size`, `activeText`, `inactiveText`                                                              |
-| `NeumorphismCheckbox`     | 复选框                  | `v-model`, `label`, `size`, `indeterminate`                                                                  |
-| `NeumorphismRadio`        | 单选按钮                | `v-model`, `value`, `size`, `disabled`                                                                       |
-| `NeumorphismRadioGroup`   | 单选按钮组              | `v-model`, `direction`(horizontal\|vertical)                                                                 |
-| `NeumorphismInput`        | 文本输入框              | `v-model`, `label`, `placeholder`, `size`, `error`                                                           |
-| `NeumorphismTextarea`     | 多行文本                | `v-model`, `rows`, `autoResize`, `showCount`                                                                 |
-| `NeumorphismSelect`       | 下拉选择                | `v-model`, `options`, `clearable`, `multiple`, `filterable`, `loading`, `variant`(default\|outlined), `size` |
-| `NeumorphismInputNumber`  | 数字输入                | `v-model`, `min`, `max`, `step`, `controls`(±按钮)                                                           |
-| `NeumorphismAutoComplete` | 输入联想                | `v-model`, `options`, `loading`, `debounce`                                                                  |
+| 组件                      | 用途                           | 核心 Props                                                                                                   |
+| ------------------------- | ------------------------------ | ------------------------------------------------------------------------------------------------------------ |
+| `NeumorphismButton`       | 凸起/凹陷/主色/玻璃按钮        | `variant`(raised\|pressed\|primary\|glow\|glass\|glass-raised), `size`, `shape`, `loading`                   |
+| `NeumorphismSwitch`       | 开关切换（default/power 变体） | `v-model`, `variant`(default\|power), `size`, `activeText`, `inactiveText`, `activeColor`                    |
+| `NeumorphismCheckbox`     | 复选框                         | `v-model`, `label`, `size`, `indeterminate`                                                                  |
+| `NeumorphismRadio`        | 单选按钮                       | `v-model`, `value`, `size`, `disabled`                                                                       |
+| `NeumorphismRadioGroup`   | 单选按钮组                     | `v-model`, `direction`(horizontal\|vertical)                                                                 |
+| `NeumorphismInput`        | 文本输入框                     | `v-model`, `label`, `placeholder`, `size`, `error`                                                           |
+| `NeumorphismTextarea`     | 多行文本                       | `v-model`, `rows`, `autoResize`, `showCount`                                                                 |
+| `NeumorphismSelect`       | 下拉选择                       | `v-model`, `options`, `clearable`, `multiple`, `filterable`, `loading`, `variant`(default\|outlined), `size` |
+| `NeumorphismInputNumber`  | 数字输入                       | `v-model`, `min`, `max`, `step`, `controls`(±按钮)                                                           |
+| `NeumorphismAutoComplete` | 输入联想                       | `v-model`, `options`, `loading`, `debounce`                                                                  |
 
 ### 表单（3 个）
 
@@ -468,38 +468,38 @@ function showMsg() {
 
 ## 12. 快速决策指南
 
-| 你想做什么    | 用什么                                                                                                       |
-| ------------- | ------------------------------------------------------------------------------------------------------------ |
-| 页面整体布局  | `NeumorphismLayout` + `NeumorphismContainer`                                                                 |
-| 栅格排列      | `NeumorphismRow` + `NeumorphismCol`                                                                          |
-| 卡片分组      | `NeumorphismCard`                                                                                            |
-| 文本输入      | `NeumorphismInput` / `NeumorphismTextarea`                                                                   |
-| 选择/开关     | `NeumorphismSelect` / `NeumorphismCheckbox` / `NeumorphismRadio` / `NeumorphismSwitch` / `NeumorphismSlider` |
-| 数字输入      | `NeumorphismInputNumber`                                                                                     |
-| 日期选择      | `NeumorphismDatePicker`                                                                                      |
-| 搜索联想      | `NeumorphismAutoComplete`                                                                                    |
-| 文件上传      | `NeumorphismUpload`                                                                                          |
-| 表单提交      | `NeumorphismForm` + `NeumorphismFormItem`                                                                    |
-| 表格展示      | `NeumorphismTable`                                                                                           |
-| 树形数据      | `NeumorphismTree`                                                                                            |
-| 列表/虚拟滚动 | `NeumorphismList` / `NeumorphismVirtualList`                                                                 |
-| 标签/角标     | `NeumorphismTag` / `NeumorphismBadge`                                                                        |
-| 进度/加载     | `NeumorphismProgress` / `NeumorphismSkeleton`                                                                |
-| 空状态        | `NeumorphismEmpty`                                                                                           |
-| 弹窗确认      | `NeumorphismModal`                                                                                           |
-| 侧边抽屉      | `NeumorphismDrawer`                                                                                          |
-| 消息提示      | `NeumorphismToastProvider`                                                                                   |
-| 鼠标提示      | `NeumorphismTooltip`                                                                                         |
-| 弹出面板      | `NeumorphismPopover`                                                                                         |
-| 下拉菜单      | `NeumorphismDropdown`                                                                                        |
-| 警告横幅      | `NeumorphismAlert`                                                                                           |
-| 折叠面板      | `NeumorphismCollapse`                                                                                        |
-| 标签页        | `NeumorphismTabs`                                                                                            |
-| 面包屑        | `NeumorphismBreadcrumb`                                                                                      |
-| 分页          | `NeumorphismPagination`                                                                                      |
-| 导航菜单      | `NeumorphismMenu` / `NeumorphismNavMenu`                                                                     |
-| 步骤条        | `NeumorphismSteps`                                                                                           |
-| 主题切换      | `ThemeProvider` + `NeumorphismThemeToggle`                                                                   |
-| 头像          | `NeumorphismAvatar`                                                                                          |
-| 画布          | `NeumorphismCanvas`                                                                                          |
-| 分割线        | `NeumorphismDivider`                                                                                         |
+| 你想做什么    | 用什么                                                                                                                               |
+| ------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| 页面整体布局  | `NeumorphismLayout` + `NeumorphismContainer`                                                                                         |
+| 栅格排列      | `NeumorphismRow` + `NeumorphismCol`                                                                                                  |
+| 卡片分组      | `NeumorphismCard`                                                                                                                    |
+| 文本输入      | `NeumorphismInput` / `NeumorphismTextarea`                                                                                           |
+| 选择/开关     | `NeumorphismSelect` / `NeumorphismCheckbox` / `NeumorphismRadio` / `NeumorphismSwitch`（power 变体为电力开关） / `NeumorphismSlider` |
+| 数字输入      | `NeumorphismInputNumber`                                                                                                             |
+| 日期选择      | `NeumorphismDatePicker`                                                                                                              |
+| 搜索联想      | `NeumorphismAutoComplete`                                                                                                            |
+| 文件上传      | `NeumorphismUpload`                                                                                                                  |
+| 表单提交      | `NeumorphismForm` + `NeumorphismFormItem`                                                                                            |
+| 表格展示      | `NeumorphismTable`                                                                                                                   |
+| 树形数据      | `NeumorphismTree`                                                                                                                    |
+| 列表/虚拟滚动 | `NeumorphismList` / `NeumorphismVirtualList`                                                                                         |
+| 标签/角标     | `NeumorphismTag` / `NeumorphismBadge`                                                                                                |
+| 进度/加载     | `NeumorphismProgress` / `NeumorphismSkeleton`                                                                                        |
+| 空状态        | `NeumorphismEmpty`                                                                                                                   |
+| 弹窗确认      | `NeumorphismModal`                                                                                                                   |
+| 侧边抽屉      | `NeumorphismDrawer`                                                                                                                  |
+| 消息提示      | `NeumorphismToastProvider`                                                                                                           |
+| 鼠标提示      | `NeumorphismTooltip`                                                                                                                 |
+| 弹出面板      | `NeumorphismPopover`                                                                                                                 |
+| 下拉菜单      | `NeumorphismDropdown`                                                                                                                |
+| 警告横幅      | `NeumorphismAlert`                                                                                                                   |
+| 折叠面板      | `NeumorphismCollapse`                                                                                                                |
+| 标签页        | `NeumorphismTabs`                                                                                                                    |
+| 面包屑        | `NeumorphismBreadcrumb`                                                                                                              |
+| 分页          | `NeumorphismPagination`                                                                                                              |
+| 导航菜单      | `NeumorphismMenu` / `NeumorphismNavMenu`                                                                                             |
+| 步骤条        | `NeumorphismSteps`                                                                                                                   |
+| 主题切换      | `ThemeProvider` + `NeumorphismThemeToggle`                                                                                           |
+| 头像          | `NeumorphismAvatar`                                                                                                                  |
+| 画布          | `NeumorphismCanvas`                                                                                                                  |
+| 分割线        | `NeumorphismDivider`                                                                                                                 |
