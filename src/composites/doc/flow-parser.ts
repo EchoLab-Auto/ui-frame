@@ -3,7 +3,7 @@
  *
  * 纯函数、SSR 安全、绝不抛错：非法行收集进 graph.errors，其余内容照常解析。
  *
- * 语法约定（见 DocRenderer docs/guide/prodoc-format.md）：
+ * 语法约定（见文档 document/user/components/doc.md「prodoc-flow 语法速览」）：
  * ```
  * graph LR                      // 方向：LR / RL / TB / BT（缺省 LR + 容错记录）
  * A[开始] --> B{判断}            // []矩形 [/x/]圆角 ()体育场 {}菱形

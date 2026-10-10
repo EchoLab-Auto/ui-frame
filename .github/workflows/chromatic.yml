@@ -51,5 +51,6 @@ jobs:
         with:
           projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
           buildScriptName: build-storybook
+          storybookBuildDir: dist-storybook
           onlyChanged: true
           autoAcceptChanges: ${{ github.ref == 'refs/heads/main' && 'true' || 'false' }}

@@ -83,7 +83,7 @@
     "version": "changeset version && npm run format",
     "release": "npm run build && changeset publish --provenance --access public",
     "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "build-storybook": "storybook build -o dist-storybook"
   },
   "lint-staged": {
     "*.{ts,tsx,vue}": [

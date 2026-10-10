@@ -77,8 +77,7 @@ export default defineConfigWithVueTs(
     ignores: [
       'dist/**',
       'dist-example/**',
-      'storybook-static/**',
-      'examples/dist/**',
+      'dist-storybook/**',
       'node_modules/**',
       '.changeset/**',
       'coverage/**',

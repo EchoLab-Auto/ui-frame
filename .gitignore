@@ -5,6 +5,7 @@ node_modules/
 # 构建输出
 dist/
 dist-example/
+dist-storybook/
 dist-ssr/
 *.local
 
@@ -46,7 +47,6 @@ coverage/
 .npm
 .eslintcache
 .stylelintcache
-storybook-static
 
 # 视觉检查截图（本地分析产物，不入库）
-data/
+screenshots/

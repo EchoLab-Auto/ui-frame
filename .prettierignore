@@ -1,5 +1,6 @@
 dist
 dist-example
+dist-storybook
 node_modules
 .changeset
 coverage

@@ -10,9 +10,8 @@ vitest.config.ts
 # 排除 node_modules
 node_modules/
 
-# 示例和文档源码（不纳入发布包）
+# 示例源码（不纳入发布包）
 examples/
-docs/
 
 # CI/CD 配置
 .github/

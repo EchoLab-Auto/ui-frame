@@ -52,6 +52,8 @@ export default defineConfig({
     dts({
       insertTypesEntry: true,
       cleanVueFileName: true,
+      // 测试工具目录仅供测试使用，不进入发布产物的类型声明
+      exclude: ['src/__test-utils__/**'],
     }),
   ],
   css: {

@@ -27,7 +27,7 @@ document/
 │   ├── animation.md           # 动画效果（阴影模型、缓动、动效）
 │   ├── interaction.md         # 交互效果（键盘、焦点、弹出层、反馈）
 │   ├── agent-guide.md         # Agent 构建指南（组件目录 + 模式 + 决策指南）
-│   └── components/            # 组件详情文档（每组件一篇，共 58 篇）
+│   └── components/            # 组件详情文档（每组件一篇，共 59 篇）
 │       ├── button.md            # NeumorphismButton（按钮）详解
 │       ├── input.md             # NeumorphismInput（输入框）详解
 │       ├── card.md              # NeumorphismCard（卡片）详解
