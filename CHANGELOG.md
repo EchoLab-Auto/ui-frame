@@ -1,5 +1,35 @@
 # @echolab-auto/ui-frame
 
+## 1.4.0
+
+### Minor Changes
+
+- 4ab0399: 新增 `NeumorphismArt` 试验性动态效果组件：内嵌 canvas 渲染程序化效果，首批内置 `pixel-field`（像素脉冲场）、`particles`（粒子连线星座）、`waves`（流动波浪）、`goo`（融合色团）、`ascii`（字符画，经 `src` 传入图片采样亮度映射字符栅格）五种效果；支持 `reactive` 指针交互、`speed`/`density`/`palette`/`seed` 参数化，颜色默认跟随主题 token；触屏与 `prefers-reduced-motion` 自动降级为静态帧。配套公开 headless `useArtRenderer` 渲染循环与全局配置 `art.*` 段。
+
+  新增 `NeumorphismAsciiArt` 字符画正式组件（Art 试验场 `ascii` 效果的正式化）：经 `src` 传入图片渲染为 ASCII 字符画，保持原图宽高比适配（contain）、亮度直方图拉伸保证对比度，支持 `density` / `reactive` / `speed` 与覆盖层插槽；容器 `width` / `height` 可显式拉伸，`height` 留空时按图片宽高比自适应；`radius` 圆角档位（none/small/medium/large/xl）。
+
+- 39d1a9d: NeumorphismCanvas 新增 `infinite` 无限画布模式：平移 / 缩放为无界虚拟状态（`transform: translate() scale()`），替代原生 overflow 滚动，内容可位于任意（含负）画布坐标。新增 `contentBounds` prop、`canvas.infinite` 全局级联、locale 键 `canvasResetView`，以及 expose 方法 `resetView()` / `panBy()` / `getView()` / `toCanvasCoords()`；infinite 模式下普通滚轮平移、触屏单指拖拽平移，复位按钮与 `0` 键动画回到全部内容视图。默认滚动模式行为不变。
+- 1bc419f: `/chat` 模块收敛为纯元组件：移除组合组件 `ChatMessageList` / `ChatMessageItem` / `ChatToolCallBlock` / `ChatReasoningBlock` / `ChatBranchMergeBlock` 与 `componentCategories` 导出。聊天场景的组合（消息行、工具/推理/分支块）属产品侧语义，由宿主用保留的机制原语（`ChatBubble` / `ChatTray` / `ChatFold` / `ChatComposer` / `ChatCopyButton`）自行组装；模块保留 `types.ts` 的 `ChatMessage` 数据契约。迁移参考：EchoAgentPanel 以 `ChatBubble` + doc 模块 `MarkdownRenderer` 自组消息行（2026-09-30）。
+- dfb794c: `NeumorphismSwitch` 新增 `variant="power"` 电力开关变体：器件质感的「整径扳动」开关——金属外圈 + 凹陷内腔 + 带拉丝纹理的圆形旋钮。通电时橙色面自左擦入、旋钮整径滑到右端（半透明叠于通电面）、指示点与指示条换位、刻印文本（可选传入）闪烁后定格为通电色（`0.55s` 延迟 `0.35s`，断电回闪 `0.6s` 延迟 `0.1s`，曲线 `cubic-bezier(0.46, 0.03, 0.52, 0.96)`）。几何按 171u × 91u 设计稿逐帧还原，全部尺寸随设计单位 `u` 缩放（`u = 器件高 / 91`）；`size` 为数字（px 高度），连续无级——power 变体驱动器件高（默认 91px）、default 变体驱动轨道高（默认 30px），8px 下限保护，支持全局配置 `switch.size`（数字）/ `switch.variant` 级联；旧字符串档位（`'small' | 'medium' | 'large'`）保留为**已弃用兼容别名**（映射 24 / 30 / 36px，与 1.3.2 轨道高一致），既有用法无中断，新代码请传数字。圆钮拉丝纹理在器件高低于 34px 后冻结缩放——纹理始终保留、图案周期恒定于 34px 对应值（约 1.49px），不再随尺寸缩小加深亚像素摩尔纹；刻印文本为可选传入（未传不渲染，高度 < 36px 时自动隐藏）；颜色全部走 `--nm-switch-power-*` token（亮/暗两套，通电面为器件光源两主题保持常亮）；`activeColor` 可覆盖通电色，`inactiveColor` 可覆盖内腔底色。无障碍：复用 `role="switch"` + `aria-checked`、locale `switchToggle` 兜底名称、键盘空格切换、外圈键盘焦点环、`prefers-reduced-motion` 降级（状态瞬时呈现）；点击任意部位均可切换。逐帧对齐视频参考：同规格下采样对比整体平均通道差 < 8/255（残差为拉丝纹理相位与亚像素边缘）。
+
+  配套：示例站点在「开关 Switch」演示卡内新增 power 变体演示；组件总览 / API / Agent 指南随变体说明同步（组件总数保持 62 个）。
+
+### Patch Changes
+
+- d418648: 修复 NeumorphismCard 内边距级联泄漏：padding 规则由后代选择器改为子选择器，外层普通卡片不再向内层卡片（含 `no-padding` 卡片）泄漏 24px 内边距。DocTocNav 目录框新增默认内边距 24px（`--nm-spacing-lg`），原先 example 页恰好由该泄漏提供，现由组件自身保证，视觉不变。
+- b4b69eb: 修复图表组件全局配置级联失效：`useLineChart` / `usePieChart` / `useBarChart` 在解构 options 时直接给默认值（如 `curve = 'smooth'`），导致 `chart.line.*` / `chart.pie.*` / `chart.bar.*` 配置段永远轮不到；现改为「显式 prop/options > 全局配置 > 内置兜底」三级解析。`useCandlestickChart` 的 `showVolume` / `showMA` 接入 `chart.candlestick.*` 级联，`maPeriods` 不再被组件 `withDefaults` 的 `[5, 10, 20]` 截断。`chart.colorPalette` 接入 Pie 调色板级联（显式 `colorPalette` > 全局配置 > 主题 token）。NeumorphismChartBar 新增 `orientation` / `stacked` / `barGap` props 以打通显式层。未传 prop 且无全局配置时渲染结果与之前完全一致。
+- b4b69eb: 修复三项组件缺陷：
+
+  1. **NeumorphismInputNumber size 级联读错配置段**：全局配置类型新增独立 `inputNumber?: { size }` 段，组件由误读 `config.input?.size` 改为读 `config.inputNumber?.size`，级联优先级保持「显式 prop > 全局配置 > 内置兜底」，与 Input 的 `input` 段互不影响。
+  2. **NeumorphismThemeToggle 标签隐藏未走级联值**：文字标签显隐由原始 prop `size !== 'small'` 改为级联后的 `resolvedSize !== 'small'`，全局配置 `themeToggle.size: 'small'` 现在同样只显示图标。
+  3. **NeumorphismDivider 的 inset 死 prop**：组件内置 `.nm-divider--inset` 样式——水平分割线左右各让出 `--nm-spacing-lg`（宽度改回 auto 避免溢出），垂直分割线上下各让出 `--nm-spacing-lg`。
+
+- b4b69eb: 修复三处表单/导航组件的声明与渲染脱节：
+
+  - **NeumorphismDatePicker**：`name` prop 此前声明后未使用，现渲染 hidden input 携带格式化日期串参与原生表单提交（无值提交空串）。
+  - **NeumorphismPagination**：`totalLabel` 此前声明后未使用，现作为总数文案模板的覆盖项生效（支持 `{total}` 占位符），未传入时仍走 locale `paginationTotal`，行为向后兼容；跳页器硬编码的「跳至 / 页」提取为 locale 键 `paginationJumper`（zh-CN `跳至 {input} 页` / en-US `Go to {input}`），组件按 `{input}` 占位符拆分为输入框前后两段。
+  - **NeumorphismTabs**：`TabItem.icon` 此前仅保留在类型上，现在 tab 按钮 label 前渲染（emoji/文本字符，`nm-tabs__tab-icon`，`aria-hidden`）。
+
 ## Unreleased
 
 ### Patch Changes
