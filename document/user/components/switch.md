@@ -23,36 +23,33 @@ group: 使用
 
 ### Props
 
-| 名称            | 类型                             | 默认值      | 说明                                                                            |
-| --------------- | -------------------------------- | ----------- | ------------------------------------------------------------------------------- |
-| `modelValue`    | `boolean`                        | `false`     | v-model 绑定开关状态                                                            |
-| `disabled`      | `boolean`                        | `false`     | 禁用：透明度 0.5、`not-allowed` 光标                                            |
-| `variant`       | `'default' \| 'power'`           | `'default'` | 视觉变体：`power` 为电力开关（金属器件、整径扳动）                              |
-| `activeText`    | `string`                         | — / `'ON'`  | 开启侧文本标签（power 变体为通电侧刻印，默认 `ON`）                             |
-| `inactiveText`  | `string`                         | — / `'OFF'` | 关闭侧文本标签（power 变体为断电侧刻印，默认 `OFF`）                            |
-| `activeColor`   | `string`                         | —           | 开启态自定义颜色（default 写入 `--nm-switch-active-color`；power 为通电面颜色） |
-| `inactiveColor` | `string`                         | —           | 关闭态自定义颜色（power 变体为内腔底色）                                        |
-| `size`          | `'small' \| 'medium' \| 'large'` | `'medium'`  | 尺寸档位，支持全局配置 `switch.size` 级联                                       |
+| 名称            | 类型                   | 默认值      | 说明                                                                                                                                                        |
+| --------------- | ---------------------- | ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `modelValue`    | `boolean`              | `false`     | v-model 绑定开关状态                                                                                                                                        |
+| `disabled`      | `boolean`              | `false`     | 禁用：透明度 0.5、`not-allowed` 光标                                                                                                                        |
+| `variant`       | `'default' \| 'power'` | `'default'` | 视觉变体：`power` 为电力开关（金属器件、整径扳动）                                                                                                          |
+| `activeText`    | `string`               | —           | 通电侧文本标签（power 变体为可选刻印，不传则不渲染）                                                                                                        |
+| `inactiveText`  | `string`               | —           | 断电侧文本标签（power 变体为可选刻印，不传则不渲染）                                                                                                        |
+| `activeColor`   | `string`               | —           | 开启态自定义颜色（default 写入 `--nm-switch-active-color`；power 为通电面颜色）                                                                             |
+| `inactiveColor` | `string`               | —           | 关闭态自定义颜色（power 变体为内腔底色）                                                                                                                    |
+| `size`          | `number`               | `30` / `91` | **尺寸 = px 高度（连续）**：default 变体驱动轨道高度（默认 30px）；power 变体驱动器件整机等比缩放、默认 91px；支持全局配置 `switch.size` 级联，8px 下限保护 |
 
-### 尺寸档位的实际数值
+### 尺寸（px 高度）
 
-**default 变体**（轨道滑块）：
+`size` 为连续数字（px 高度），不再使用枚举档位：
 
-| size   | 轨道宽 × 高 | 滑块直径 | 滑块位移 |
-| ------ | ----------- | -------- | -------- |
-| small  | 44 × 24px   | 18px     | 18px     |
-| medium | 56 × 30px   | 24px     | 24px     |
-| large  | 72 × 38px   | 32px     | 32px     |
+- **default 变体**：数字 = 轨道高度。轨道宽、滑块直径、行程按比例联动（宽 = 高 × 56/30，滑块 = 高 × 0.8，行程 = 轨宽 − 滑块 − 2 × 4px）。
+- **power 变体**：数字 = 器件高度，折算为设计单位 `u = 高度 / 91`，整机等比缩放（宽 = 高 × 171/91 ≈ 1.879）。
+- **紧凑降噪（刻印）**：power 变体高度 **< 36px** 时刻印字号不足 ~5px（不可辨读），已传入的刻印文本**自动隐藏**；圆钮拉丝纹理**不隐藏**——低于 **34px** 后纹理缩放冻结在 34px 对应的图案周期（约 1.49px），不再随尺寸缩小加深亚像素摩尔纹，纹理在所有尺寸下始终保留。
 
-**power 变体**（电力开关，几何按 171u × 91u 设计稿逐帧还原，内部一切尺寸随设计单位 `u` 缩放）：
-
-| size   | 胶囊宽 × 高 | 旋钮直径 | 旋钮行程 | 刻印字号               |
-| ------ | ----------- | -------- | -------- | ---------------------- |
-| small  | 137 × 73px  | 64px     | 64px     | `--nm-font-xs`（11px） |
-| medium | 171 × 91px  | 80px     | 80px     | `--nm-font-md`（13px） |
-| large  | 214 × 114px | 100px    | 100px    | `--nm-font-xl`（16px） |
-
-> power 变体的 `OFF` / `ON` 刻印随行内联（左 / 右），控制整体宽度随文本自适应。
+```vue
+<NeumorphismSwitch v-model="a" :size="36" />
+<!-- 轨道高 36px -->
+<NeumorphismSwitch v-model="b" variant="power" :size="44" />
+<!-- 器件高 44px -->
+<NeumorphismSwitch v-model="c" variant="power" :size="24" />
+<!-- 器件高 24px，刻印隐藏、纹理冻结保留 -->
+```
 
 ### Events / Slots
 
@@ -83,8 +80,8 @@ group: 使用
 <!-- power 变体：基础用法 -->
 <NeumorphismSwitch v-model="power" variant="power" />
 
-<!-- power 变体：大号 + 自定义通电色 -->
-<NeumorphismSwitch v-model="power" variant="power" size="large" active-color="#27ae60" />
+<!-- power 变体：大号（器件高 114px）+ 自定义通电色 -->
+<NeumorphismSwitch v-model="power" variant="power" :size="114" active-color="#27ae60" />
 
 <!-- power 变体：本地化刻印 -->
 <NeumorphismSwitch v-model="power" variant="power" active-text="通电" inactive-text="断电" />
@@ -96,7 +93,7 @@ group: 使用
 全局预设：
 
 ```ts
-app.use(NeumorphismUI, { switch: { size: 'medium', variant: 'power' } })
+app.use(NeumorphismUI, { switch: { size: 36, variant: 'power' } })
 ```
 
 ---
@@ -132,8 +129,7 @@ app.use(NeumorphismUI, { switch: { size: 'medium', variant: 'power' } })
 #### 旋钮（knob）
 
 - 行程：整径位移（`translateX(100%)`，正好一个自身直径），从腔体左端滑到右端
-- 通电后 `opacity: 0.93`：叠在橙色面上呈暖调的半透明金属
-- 表面纹理：内圈小圆上的 4u 锥形平铺纹（拉丝质感），随缩放档位等比呈现
+- 表面纹理：内圈小圆上的 4u 锥形平铺纹（拉丝质感），随器件尺寸等比呈现；器件高 **< 34px** 后**冻结缩放**（图案周期恒定在 34px 对应值，纹理不再随尺寸缩小、始终保留）
 - 悬停（仅指针设备）：投影扩散，模拟轻微「抬起」；按下：压缩 3%，松开回弹
 
 #### 通电面（energized face）
@@ -144,19 +140,20 @@ app.use(NeumorphismUI, { switch: { size: 'medium', variant: 'power' } })
 #### 指示点 / 指示条
 
 - 断电：指示点（冲压圆环）驻留腔体右侧；通电：右移 85u 滑出腔体（被裁剪）
-- 通电：指示条从腔体左端外滑入（`-85u → 0`），与 `ON` 刻印同侧呼应
+- 通电：指示条从腔体左端外滑入（`-85u → 0`），与通电侧同向呼应
 
-#### 刻印（OFF / ON）
+#### 刻印（可选，通过 activeText / inactiveText 传入）
 
-- 通电：`ON` 保持灰色至 0.35s，随后闪烁两次定格为 `--nm-switch-power-label-on`（默认 `#d56750`，含 3u 光晕）
-- 断电：`ON` 以 0.1s 延迟闪回灰色；`OFF` 全程静置
+- 不传文本时器件纯净无文字（无任何默认刻印）；传入后随行内联显示在器件两侧
+- 通电：`activeText`（通电侧）保持灰色至 0.35s，随后闪烁两次定格为 `--nm-switch-power-label-on`（默认 `#d56750`，含 3u 光晕）
+- 断电：通电侧刻印以 0.1s 延迟闪回灰色；断电侧刻印全程静置
 - 挂载时静置不闪烁：仅在用户切换后播放（避免初始即通电的实例「假闪烁」）
 
 ### 焦点与无障碍
 
 - 视觉焦点环：default 变体画在轨道上（2px 主色外环 + 保留凹陷阴影），power 变体画在金属外圈外侧；真实焦点都落在隐藏的 `<input role="switch">` 上
 - `aria-checked` 同步状态；双文本都缺失时用 locale 的 `switchToggle` 兜底 `aria-label`，保证屏幕阅读器一定有名称
-- 键盘空格切换（原生 checkbox 语义）；power 变体点击任意部位（含两侧刻印）都可切换
+- 键盘空格切换（原生 checkbox 语义）；power 变体点击任意部位（含器件两侧）都可切换
 
 ### Reduced-motion
 
@@ -173,21 +170,22 @@ power 变体颜色全部来自 `--nm-switch-power-*` token（亮/暗两套），
 ```css
 .nm-switch--power {
   --nm-switch-power-energized: #27ae60; /* 通电色 */
-  --nm-switch-power-unit-md: 1.2px; /* 介质缩放（所有几何随之缩放） */
 }
 ```
 
-| token                                         | 作用                       |
-| --------------------------------------------- | -------------------------- |
-| `--nm-switch-power-unit-{sm,md,lg}`           | 设计单位 u（几何缩放基准） |
-| `--nm-switch-power-rind-{light,dark}`         | 金属外圈渐变两端           |
-| `--nm-switch-power-well` / `-shade`           | 内腔底色 / 内腔阴影基色    |
-| `--nm-switch-power-knob-{light,dark}`         | 旋钮渐变两端               |
-| `--nm-switch-power-knob-tex-{light,mid,dark}` | 旋钮表面拉丝纹理三色       |
-| `--nm-switch-power-energized`                 | 通电面颜色（器件光源）     |
-| `--nm-switch-power-dot-{highlight,shadow}`    | 指示点浮雕高光 / 暗部      |
-| `--nm-switch-power-bar-{highlight,shadow}`    | 指示条渐变两端             |
-| `--nm-switch-power-label` / `-label-on`       | 刻印常态色 / 通电定格色    |
+> 设计单位 `u` 不再由 token 提供——它由 `size`（px 高度）折算：`u = 高度 / 91`。
+> 需要缩放器件时直接调整 `size` 数字即可。
+
+| token                                         | 作用                    |
+| --------------------------------------------- | ----------------------- |
+| `--nm-switch-power-rind-{light,dark}`         | 金属外圈渐变两端        |
+| `--nm-switch-power-well` / `-shade`           | 内腔底色 / 内腔阴影基色 |
+| `--nm-switch-power-knob-{light,dark}`         | 旋钮渐变两端            |
+| `--nm-switch-power-knob-tex-{light,mid,dark}` | 旋钮表面拉丝纹理三色    |
+| `--nm-switch-power-energized`                 | 通电面颜色（器件光源）  |
+| `--nm-switch-power-dot-{highlight,shadow}`    | 指示点浮雕高光 / 暗部   |
+| `--nm-switch-power-bar-{highlight,shadow}`    | 指示条渐变两端          |
+| `--nm-switch-power-label` / `-label-on`       | 刻印常态色 / 通电定格色 |
 
 ---
 

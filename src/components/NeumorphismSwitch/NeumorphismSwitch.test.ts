@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest'
+import { readFileSync } from 'node:fs'
 import { mount } from '@vue/test-utils'
 import NeumorphismSwitch from './NeumorphismSwitch.vue'
 
@@ -7,7 +8,8 @@ describe('NeumorphismSwitch', () => {
     const wrapper = mount(NeumorphismSwitch)
     expect(wrapper.find('input[type="checkbox"]').element.checked).toBe(false)
     expect(wrapper.classes()).toContain('nm-switch')
-    expect(wrapper.classes()).toContain('nm-switch--medium')
+    // 尺寸 = px 高度：默认 30px（通过内联 CSS 变量驱动几何）
+    expect(wrapper.attributes('style')).toContain('--nm-switch-height: 30px')
     expect(wrapper.classes()).not.toContain('nm-switch--checked')
   })
 
@@ -33,14 +35,15 @@ describe('NeumorphismSwitch', () => {
     expect(wrapper.emitted('update:modelValue')).toBeUndefined()
   })
 
-  it('should apply size classes', () => {
-    const sizes = ['small', 'medium', 'large'] as const
-    for (const size of sizes) {
-      const wrapper = mount(NeumorphismSwitch, { props: { size } })
-      expect(wrapper.classes()).toContain(`nm-switch--${size}`)
-    }
+  it('should size by px height via inline CSS variable', () => {
+    const wrapper = mount(NeumorphismSwitch, { props: { size: 40 } })
+    expect(wrapper.attributes('style')).toContain('--nm-switch-height: 40px')
   })
 
+  it('should clamp too-small sizes to 8px', () => {
+    const wrapper = mount(NeumorphismSwitch, { props: { size: 4 } })
+    expect(wrapper.attributes('style')).toContain('--nm-switch-height: 8px')
+  })
   it('should display active and inactive text', () => {
     const wrapper = mount(NeumorphismSwitch, {
       props: { activeText: 'On', inactiveText: 'Off' },
@@ -87,10 +90,10 @@ describe('NeumorphismSwitch', () => {
   describe('power variant', () => {
     const power = { variant: 'power' as const }
 
-    it('should render power structure with variant class', () => {
+    it('should render power structure with variant class and default 91px height', () => {
       const wrapper = mount(NeumorphismSwitch, { props: power })
       expect(wrapper.classes()).toContain('nm-switch--power')
-      expect(wrapper.classes()).toContain('nm-switch--medium')
+      expect(wrapper.attributes('style')).toContain('--nm-switch-power-u: 1px')
       expect(wrapper.classes()).not.toContain('nm-switch--checked')
       expect(wrapper.find('.nm-switch__shell').exists()).toBe(true)
       expect(wrapper.find('.nm-switch__well').exists()).toBe(true)
@@ -126,21 +129,44 @@ describe('NeumorphismSwitch', () => {
       expect(wrapper.emitted('update:modelValue')).toBeUndefined()
     })
 
-    it('should apply size classes', () => {
-      const sizes = ['small', 'medium', 'large'] as const
-      for (const size of sizes) {
-        const wrapper = mount(NeumorphismSwitch, { props: { ...power, size } })
-        expect(wrapper.classes()).toContain(`nm-switch--${size}`)
-      }
+    it('should map px height to device unit u (height / 91)', () => {
+      const wrapper = mount(NeumorphismSwitch, { props: { ...power, size: 44 } })
+      expect(wrapper.attributes('style')).toMatch(/--nm-switch-power-u: 0\.4835/)
+      expect(wrapper.classes()).not.toContain('nm-switch--compact')
     })
 
-    it('should display default ON/OFF engravings', () => {
+    it('should enter compact mode below 36px (engraving suppression)', () => {
+      const wrapper = mount(NeumorphismSwitch, { props: { ...power, size: 24 } })
+      expect(wrapper.classes()).toContain('nm-switch--compact')
+      // 类切换仅控制刻印文本的摘除；圆钮纹理不随阈值隐藏
+      // （低于 34px 冻结缩放、始终保留——见下方纹理冻结契约测试）
+      const wrapper36 = mount(NeumorphismSwitch, { props: { ...power, size: 36 } })
+      expect(wrapper36.classes()).not.toContain('nm-switch--compact')
+    })
+
+    it('should freeze texture scale below 34px instead of hiding it', () => {
+      const source = readFileSync('src/components/NeumorphismSwitch/NeumorphismSwitch.vue', 'utf-8')
+      // 纹理缩放单位钳制：不低于 34px 器件高对应的设计单位（max 取大者）——
+      // 图案周期低于 ~1.5px 会跌入亚像素摩尔纹，届时停止缩放而非隐藏
+      expect(source).toMatch(
+        /--nm-switch-power-tex-u:\s*max\(calc\(34 \/ 91 \* 1px\),\s*var\(--nm-switch-power-u\)\)/
+      )
+      // 图案平铺消费冻结单位（4 × tex-u），而非直接乘随设备缩小的 u
+      expect(source).toMatch(/calc\(4 \* var\(--nm-switch-power-tex-u\)\)/)
+      // 紧凑模式只摘刻印文本，不得再摘除纹理层
+      const compactBlock =
+        source.match(/\.nm-switch--power\.nm-switch--compact \{[\s\S]*?\n\}/)?.[0] ?? ''
+      expect(compactBlock).toContain('nm-switch__state')
+      expect(compactBlock).not.toContain('knob-texture')
+    })
+
+    it('should not render engraving text by default', () => {
       const wrapper = mount(NeumorphismSwitch, { props: power })
-      expect(wrapper.find('.nm-switch__state--off').text()).toBe('OFF')
-      expect(wrapper.find('.nm-switch__state--on').text()).toBe('ON')
+      expect(wrapper.find('.nm-switch__state').exists()).toBe(false)
+      expect(wrapper.text()).toBe('')
     })
 
-    it('should display custom engraving texts', () => {
+    it('should display custom engraving texts when provided', () => {
       const wrapper = mount(NeumorphismSwitch, {
         props: { ...power, activeText: '已通电', inactiveText: '已断电' },
       })

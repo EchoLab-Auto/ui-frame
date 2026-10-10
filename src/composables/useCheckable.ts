@@ -5,7 +5,8 @@ export interface UseCheckableOptions {
   prefix: 'checkbox' | 'radio' | 'switch'
   isChecked: boolean
   isDisabled: boolean
-  size: 'small' | 'medium' | 'large'
+  /** 尺寸档位修饰类；省略时不生成尺寸类（几何由组件自身 CSS 变量驱动） */
+  size?: 'small' | 'medium' | 'large'
   /** 额外类名（如 indeterminate） */
   extraClasses?: Record<string, boolean>
 }
@@ -22,7 +23,7 @@ export function useCheckable(options: () => UseCheckableOptions) {
 
   const classList = computed(() => [
     `nm-${opts.value.prefix}`,
-    `nm-${opts.value.prefix}--${opts.value.size}`,
+    ...(opts.value.size ? [`nm-${opts.value.prefix}--${opts.value.size}`] : []),
     {
       [`nm-${opts.value.prefix}--checked`]: opts.value.isChecked,
       [`nm-${opts.value.prefix}--disabled`]: opts.value.isDisabled,

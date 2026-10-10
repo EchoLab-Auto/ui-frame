@@ -11,16 +11,20 @@ export interface NeumorphismSwitchProps {
   modelValue?: boolean
   /** Whether the switch is disabled */
   disabled?: boolean
-  /** Active/Checked text label */
+  /** Active/Checked text label（power 变体为通电侧刻印，可选，不传则不渲染） */
   activeText?: string
-  /** Inactive/Unchecked text label */
+  /** Inactive/Unchecked text label（power 变体为断电侧刻印，可选，不传则不渲染） */
   inactiveText?: string
   /** Active/Checked color (CSS color value) */
   activeColor?: string
   /** Inactive/Unchecked color (CSS color value) */
   inactiveColor?: string
-  /** Size of the switch */
-  size?: 'small' | 'medium' | 'large'
+  /**
+   * 尺寸——px 高度（连续尺寸）：
+   * default 变体驱动轨道高度（默认 30px）；power 变体驱动器件整机等比缩放
+   * （设计稿 91u 高，默认 91px）。
+   */
+  size?: number
   /** 视觉变体：default（凹陷轨道 + 弹簧滑块）/ power（电力开关，整径扳动圆钮） */
   variant?: SwitchVariant
 }
@@ -32,14 +36,18 @@ const props = withDefaults(defineProps<NeumorphismSwitchProps>(), {
 
 const config = useConfig()
 const { t } = useLocale()
-const resolvedSize = computed(() => props.size ?? config.value.switch?.size ?? 'medium')
 const resolvedVariant = computed(() => props.variant ?? config.value.switch?.variant ?? 'default')
 const isPowerVariant = computed(() => resolvedVariant.value === 'power')
 // 双文本缺省时提供本地化的可访问名称（无障碍门槛：交互元素必须有名称）
 const resolvedAriaLabel = computed(
   () => props.activeText || props.inactiveText || t('switchToggle')
 )
-
+// 尺寸 = px 高度（连续）：default 变体默认 30px（原 medium 档轨道高）、
+// power 变体默认 91px（器件稿 1u = 1px）；8px 下限保护。
+const DEFAULT_HEIGHTS: Record<SwitchVariant, number> = { default: 30, power: 91 }
+const resolvedHeight = computed(() =>
+  Math.max(8, props.size ?? config.value.switch?.size ?? DEFAULT_HEIGHTS[resolvedVariant.value])
+)
 const emit = defineEmits<{
   (e: 'update:modelValue', value: boolean): void
   (e: 'change', value: boolean): void
@@ -62,13 +70,21 @@ watch(
   }
 )
 
+// 紧凑尺寸（刻印降噪）：器件高 < 36px 时刻印字号不足 ~5px，成为视觉噪声（视觉审查实测
+// 呈「灰色污斑」）——自动摘除。圆钮拉丝纹理不再随之摘除：低于 34px 时冻结缩放、始终保留
+// （见 .nm-switch__knob-texture 的 tex-u 钳制）。
+const COMPACT_HEIGHT_THRESHOLD = 36
+const isCompactSize = computed(
+  () => isPowerVariant.value && resolvedHeight.value < COMPACT_HEIGHT_THRESHOLD
+)
+
 const classList = useCheckable(() => ({
   prefix: 'switch',
   isChecked: isChecked.value,
   isDisabled: props.disabled,
-  size: resolvedSize.value,
   extraClasses: {
     'nm-switch--power': isPowerVariant.value,
+    'nm-switch--compact': isCompactSize.value,
     'nm-switch--flash-on': isPowerVariant.value && flashDirection.value === 'on',
     'nm-switch--flash-off': isPowerVariant.value && flashDirection.value === 'off',
   },
@@ -81,6 +97,14 @@ const colorVars = computed(() => {
   return Object.keys(style).length ? style : undefined
 })
 
+// 尺寸变量：default 变体以 --nm-switch-height（轨道高度）驱动几何；
+// power 变体将高度折算为器件设计单位 u（器件稿 91u 高），整机等比缩放。
+const sizeVars = computed(() =>
+  isPowerVariant.value
+    ? { '--nm-switch-power-u': `${resolvedHeight.value / 91}px` }
+    : { '--nm-switch-height': `${resolvedHeight.value}px` }
+)
+
 function handleChange(event: Event): void {
   const target = event.target as HTMLInputElement
   isChecked.value = target.checked
@@ -88,7 +112,7 @@ function handleChange(event: Event): void {
 </script>
 
 <template>
-  <label :class="classList">
+  <label :class="classList" :style="sizeVars">
     <!-- 电力变体（variant="power"）：金属外圈 + 凹陷内腔 + 整径扳动圆钮 -->
     <template v-if="isPowerVariant">
       <input
@@ -102,8 +126,8 @@ function handleChange(event: Event): void {
         @change="handleChange"
       />
 
-      <span class="nm-switch__state nm-switch__state--off" aria-hidden="true">
-        {{ inactiveText ?? 'OFF' }}
+      <span v-if="inactiveText" class="nm-switch__state nm-switch__state--off" aria-hidden="true">
+        {{ inactiveText }}
       </span>
 
       <span class="nm-switch__shell" :style="colorVars">
@@ -117,8 +141,8 @@ function handleChange(event: Event): void {
         </span>
       </span>
 
-      <span class="nm-switch__state nm-switch__state--on" aria-hidden="true">
-        {{ activeText ?? 'ON' }}
+      <span v-if="activeText" class="nm-switch__state nm-switch__state--on" aria-hidden="true">
+        {{ activeText }}
       </span>
     </template>
 
@@ -175,6 +199,9 @@ $switch-power-ease: cubic-bezier(0.46, 0.03, 0.52, 0.96);
 $switch-power-duration: 0.35s;
 
 .nm-switch {
+  // 尺寸 = px 高度，由内联 --nm-switch-height 驱动（默认 30px）
+  --nm-switch-height: 30px;
+
   display: inline-flex;
   align-items: center;
   gap: var(--nm-spacing-12);
@@ -359,57 +386,22 @@ $switch-power-duration: 0.35s;
 }
 
 // ==========================================
-// Size variants
+// Geometry — 轨道高度驱动（size prop，px；默认 30px）
 // ==========================================
-.nm-switch--small {
-  .nm-switch__track {
-    width: 44px;
-    height: var(--nm-spacing-lg);
-    border-radius: calc(24px / 2);
-  }
-
-  .nm-switch__thumb {
-    width: 18px;
-    height: 18px;
-  }
-
-  &.nm-switch--checked .nm-switch__thumb {
-    --nm-switch-shift: 18px; // track(44) - thumb(18) - 2 * gap(4)
-  }
+// 轨宽 = 高 × 56/30，滑块直径 = 高 × 0.8，行程 = 轨宽 − 滑块 − 2 × 4px gap
+.nm-switch__track {
+  width: calc(var(--nm-switch-height) * 1.8667);
+  height: var(--nm-switch-height);
+  border-radius: calc(var(--nm-switch-height) / 2);
 }
 
-.nm-switch--medium {
-  .nm-switch__track {
-    width: 56px;
-    height: 30px;
-    border-radius: calc(30px / 2);
-  }
-
-  .nm-switch__thumb {
-    width: var(--nm-spacing-lg);
-    height: var(--nm-spacing-lg);
-  }
-
-  &.nm-switch--checked .nm-switch__thumb {
-    --nm-switch-shift: var(--nm-spacing-lg); // track(56) - thumb(24) - 2 * gap(4)
-  }
+.nm-switch__thumb {
+  width: calc(var(--nm-switch-height) * 0.8);
+  height: calc(var(--nm-switch-height) * 0.8);
 }
 
-.nm-switch--large {
-  .nm-switch__track {
-    width: 72px;
-    height: 38px;
-    border-radius: calc(38px / 2);
-  }
-
-  .nm-switch__thumb {
-    width: var(--nm-spacing-xl);
-    height: var(--nm-spacing-xl);
-  }
-
-  &.nm-switch--checked .nm-switch__thumb {
-    --nm-switch-shift: var(--nm-spacing-xl); // track(72) - thumb(32) - 2 * gap(4)
-  }
+.nm-switch--checked .nm-switch__thumb {
+  --nm-switch-shift: calc(var(--nm-switch-height) * 1.0667 - 8px);
 }
 
 // ==========================================
@@ -460,39 +452,30 @@ $switch-power-duration: 0.35s;
 // Power variant — 电力开关（variant="power"）
 // ==========================================
 // 器件质感：金属外圈 + 凹陷内腔 + 带拉丝纹理的圆钮。
-// 几何按设计单位 u 缩放（171u × 91u 器件稿），u 由尺寸档位 token 提供；
+// 几何按设计单位 u 缩放（171u × 91u 器件稿），u = 高度 / 91（由 size prop 驱动）；
 // 过渡曲线为原作逐帧拟合值：通电面自左擦入、圆钮整径右移、指示点/指示条换位。
 .nm-switch--power {
-  --nm-switch-power-u: var(--nm-switch-power-unit-md);
+  --nm-switch-power-u: 1px;
 
   position: relative;
   gap: 0;
   color: var(--nm-switch-power-label);
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
-
-  &.nm-switch--small {
-    --nm-switch-power-u: var(--nm-switch-power-unit-sm);
-  }
-
-  &.nm-switch--large {
-    --nm-switch-power-u: var(--nm-switch-power-unit-lg);
-  }
 }
-
-// ---- 刻印文本（OFF / ON）：随行内联，控制整体宽度自适应 ----
+// ---- 刻印文本（可选，通过 activeText / inactiveText 传入）：随行内联，字号随设计单位 u 等比缩放（13u，默认 91px 档 13px）----
 .nm-switch--power .nm-switch__state {
-  font-size: var(--nm-font-md);
+  font-size: calc(var(--nm-switch-power-u) * 13);
   line-height: 1;
   white-space: nowrap;
 }
 
-.nm-switch--power.nm-switch--small .nm-switch__state {
-  font-size: var(--nm-font-xs);
-}
-
-.nm-switch--power.nm-switch--large .nm-switch__state {
-  font-size: var(--nm-font-xl);
+// 紧凑尺寸（器件高 < 36px）：刻印字号不足 ~5px 呈灰色污斑——自动摘除降噪。
+// （圆钮拉丝纹理不随阈值摘除：低于 34px 冻结缩放、始终保留，见 .nm-switch__knob-texture）
+.nm-switch--power.nm-switch--compact {
+  .nm-switch__state {
+    display: none;
+  }
 }
 
 .nm-switch--power .nm-switch__state--off {
@@ -693,7 +676,12 @@ $switch-power-duration: 0.35s;
 }
 
 // ---- 圆钮表面纹理：内圈拉丝纹 ----
+// 图案为 4u 平铺的锥形拉丝纹；周期低于 ~1.5px 时跌入亚像素、呈摩尔纹。
+// 器件高低于 34px 后纹理不再随 u 缩小——缩放单位钳制在 34px 对应值（max 取大者）：
+// 图案周期恒定、纹理始终保留，避免「阈值处切换有无」的视觉跳变。
 .nm-switch--power .nm-switch__knob-texture {
+  --nm-switch-power-tex-u: max(calc(34 / 91 * 1px), var(--nm-switch-power-u));
+
   position: absolute;
   inset: calc(6.5 * var(--nm-switch-power-u));
   border-radius: 50%;
@@ -715,7 +703,7 @@ $switch-power-duration: 0.35s;
     );
   background-size:
     100% 100%,
-    calc(4 * var(--nm-switch-power-u)) calc(4 * var(--nm-switch-power-u));
+    calc(4 * var(--nm-switch-power-tex-u)) calc(4 * var(--nm-switch-power-tex-u));
 }
 
 // ---- 通电后 ON 刻印闪烁并定格为通电色 ----

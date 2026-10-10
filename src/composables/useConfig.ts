@@ -111,7 +111,8 @@ export interface NeumorphismGlobalConfig {
   }
   /** Default switch props */
   switch?: {
-    size?: 'small' | 'medium' | 'large'
+    /** 尺寸 = px 高度（连续尺寸；default 变体默认 30px、power 变体默认 91px） */
+    size?: number
     /** 视觉变体：default（凹陷轨道 + 弹簧滑块）/ power（电力开关） */
     variant?: 'default' | 'power'
   }

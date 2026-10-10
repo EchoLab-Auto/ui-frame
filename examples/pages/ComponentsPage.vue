@@ -355,6 +355,53 @@ onBeforeUnmount(() => {
   }
 })
 
+// ---- 尺寸调参演示：滑动条 + 数值直调（px） ----
+// 组件几何由 CSS 变量驱动：可直接覆盖 Token 的走 Token；
+// 内部几何硬编码的（开关 / 勾选 / 单选框 / 标签 / 分页 / 主题切换 / 环形进度）
+// 由本页样式桥接（见 <style> 末尾「尺寸调参演示」段）。
+const buttonHeight = ref(44)
+const switchTrackHeight = ref(30)
+const powerSwitchHeight = ref(32)
+const checkboxBoxSize = ref(24)
+const radioCircleSize = ref(24)
+const inputHeight = ref(48)
+const avatarDiameter = ref(44)
+const tagFontSize = ref(12)
+const progressBarHeight = ref(8)
+const progressCircleDiameter = ref(120)
+const paginationItemSize = ref(38)
+const spinnerDiameter = ref(28)
+const themeToggleHeight = ref(35)
+const logoWidth = ref(220)
+
+// 派生 Token 覆盖：按目标高度等比缩放内边距与字号（档位内平滑调节）
+function buttonSizeVars(h: number) {
+  const k = h / 44
+  return {
+    '--nm-button-min-height-md': `${h}px`,
+    '--nm-button-padding-y-md': `${Math.round(12 * k)}px`,
+    '--nm-button-padding-x-md': `${Math.round(24 * k)}px`,
+    '--nm-button-font-md': `${Math.max(11, Math.round(14 * k))}px`,
+  }
+}
+
+function inputSizeVars(h: number) {
+  const k = h / 48
+  return {
+    '--nm-field-min-height-md': `${h}px`,
+    '--nm-field-padding-y-md': `${Math.round(10 * k)}px`,
+    '--nm-field-padding-x-md': `${Math.round(16 * k)}px`,
+    '--nm-field-font-md': `${Math.max(11, Math.round(14 * k))}px`,
+  }
+}
+
+function avatarSizeVars(d: number) {
+  return {
+    '--nm-avatar-size-md': `${d}px`,
+    '--nm-avatar-font-md': `${Math.max(10, Math.round((16 * d) / 44))}px`,
+  }
+}
+
 // ---- 开关示例 ----
 const switch1 = ref(false)
 const switch2 = ref(true)
@@ -371,7 +418,7 @@ const checkboxIndeterminate = ref(true)
 
 // ---- 单选框示例 ----
 const radio1 = ref('a')
-const radio2 = ref('medium')
+const radio2 = ref('a')
 
 // ---- 选择器示例 ----
 const select1 = ref('vue')
@@ -502,7 +549,6 @@ const isSimulating = ref(false)
 let simulateTimer: ReturnType<typeof setInterval> | null = null
 
 const progressVariants = ['primary', 'success', 'warning', 'error'] as const
-const progressSizes = ['small', 'medium', 'large'] as const
 const progressEffects = ['default', 'pulse', 'flow', 'wave', 'stripes', 'sparkle'] as const
 
 function simulateLoading() {
@@ -622,7 +668,6 @@ const canvasGridVariant = ref<'dots' | 'lines'>('dots')
 
 // ---- Logo 动效示例 ----
 const logoMode = ref<'pulse' | 'liquid' | 'wave' | 'pointer'>('pulse')
-const logoSize = ref<'small' | 'medium' | 'large'>('medium')
 const logoGoo = ref(true)
 const logoModeOptions = [
   { label: '脉冲传导', value: 'pulse' },
@@ -1195,7 +1240,7 @@ const chartStockData = ref([
               <template #header>
                 <div class="demo-header">
                   <h3 class="demo-title">NeumorphismButton 按钮</h3>
-                  <span class="demo-badge">6 变体 · 3 尺寸 · 3 形状</span>
+                  <span class="demo-badge">6 变体 · 尺寸可调 · 3 形状</span>
                 </div>
               </template>
 
@@ -1238,17 +1283,29 @@ const chartStockData = ref([
               </div>
 
               <div class="demo-block">
-                <h4 class="demo-label">尺寸与形状</h4>
-                <div class="demo-row">
-                  <NeumorphismButton size="small">小</NeumorphismButton>
-                  <NeumorphismButton size="medium">中</NeumorphismButton>
-                  <NeumorphismButton size="large">大</NeumorphismButton>
-                  <NeumorphismDivider direction="vertical" />
-                  <NeumorphismButton shape="rounded">圆角</NeumorphismButton>
-                  <NeumorphismButton shape="pill">胶囊</NeumorphismButton>
-                  <NeumorphismButton shape="circle" size="medium" aria-label="添加"
-                    >+</NeumorphismButton
-                  >
+                <h4 class="demo-label">尺寸与形状（高度可调）</h4>
+                <div class="demo-row demo-row--stacked" style="gap: 12px">
+                  <div class="demo-row">
+                    <NeumorphismSlider
+                      v-model="buttonHeight"
+                      :min="28"
+                      :max="64"
+                      :step="2"
+                      style="width: 200px; flex: 0 0 200px"
+                    />
+                    <code>{{ buttonHeight }}px</code>
+                  </div>
+                  <div class="demo-row">
+                    <NeumorphismButton :style="buttonSizeVars(buttonHeight)"
+                      >按钮</NeumorphismButton
+                    >
+                    <NeumorphismDivider direction="vertical" />
+                    <NeumorphismButton shape="rounded">圆角</NeumorphismButton>
+                    <NeumorphismButton shape="pill">胶囊</NeumorphismButton>
+                    <NeumorphismButton shape="circle" size="medium" aria-label="添加"
+                      >+</NeumorphismButton
+                    >
+                  </div>
                 </div>
               </div>
 
@@ -1266,25 +1323,24 @@ const chartStockData = ref([
               <template #header>
                 <div class="demo-header">
                   <h3 class="demo-title">NeumorphismSwitch 开关</h3>
-                  <span class="demo-badge">3 尺寸 · 文本标签 · power 变体</span>
+                  <span class="demo-badge">尺寸可调 · 文本标签 · power 变体</span>
                 </div>
               </template>
 
               <div class="demo-block">
-                <h4 class="demo-label">尺寸</h4>
-                <div class="demo-row demo-row--stacked">
+                <h4 class="demo-label">尺寸调参（轨道高度）</h4>
+                <div class="demo-row demo-row--stacked" style="gap: 12px">
                   <div class="demo-row">
-                    <NeumorphismSwitch v-model="switch1" size="small" />
-                    <code>small</code>
+                    <NeumorphismSlider
+                      v-model="switchTrackHeight"
+                      :min="18"
+                      :max="44"
+                      :step="2"
+                      style="width: 200px; flex: 0 0 200px"
+                    />
+                    <code>{{ switchTrackHeight }}px</code>
                   </div>
-                  <div class="demo-row">
-                    <NeumorphismSwitch v-model="switch1" size="medium" />
-                    <code>medium</code>
-                  </div>
-                  <div class="demo-row">
-                    <NeumorphismSwitch v-model="switch1" size="large" />
-                    <code>large</code>
-                  </div>
+                  <NeumorphismSwitch v-model="switch1" :size="switchTrackHeight" />
                 </div>
               </div>
 
@@ -1298,42 +1354,56 @@ const chartStockData = ref([
               </div>
 
               <div class="demo-block">
-                <h4 class="demo-label">power 变体（电力开关）</h4>
-                <div class="demo-row demo-row--stacked">
+                <h4 class="demo-label">power 变体（电力开关）· 器件高度可调（18–44px 紧凑档）</h4>
+                <div class="demo-row demo-row--stacked" style="gap: 12px">
                   <div class="demo-row">
-                    <NeumorphismSwitch v-model="powerSwitch1" variant="power" size="small" />
-                    <code>small</code>
+                    <NeumorphismSlider
+                      v-model="powerSwitchHeight"
+                      :min="18"
+                      :max="44"
+                      :step="2"
+                      style="width: 200px; flex: 0 0 200px"
+                    />
+                    <code>{{ powerSwitchHeight }}px</code>
                   </div>
-                  <div class="demo-row">
-                    <NeumorphismSwitch v-model="powerSwitch1" variant="power" size="medium" />
-                    <code>medium</code>
-                  </div>
-                  <div class="demo-row">
-                    <NeumorphismSwitch v-model="powerSwitch1" variant="power" size="large" />
-                    <code>large</code>
-                  </div>
+                  <NeumorphismSwitch
+                    v-model="powerSwitch1"
+                    variant="power"
+                    :size="powerSwitchHeight"
+                  />
                 </div>
+                <p class="demo-hint">
+                  数字直接传给 <code>size</code>（px 高度），器件整机等比缩放；器件高 &lt; 36px
+                  时刻印文本自动隐藏（字号不可辨读）；圆钮拉丝纹理始终保留——低于 34px
+                  后冻结缩放（图案周期恒定，不再加深亚像素摩尔纹）。
+                </p>
               </div>
 
               <div class="demo-block">
-                <h4 class="demo-label">power · 通电色与禁用</h4>
+                <h4 class="demo-label">power · 通电色与禁用（44px 紧凑档）</h4>
                 <div class="demo-row">
                   <NeumorphismSwitch
                     v-model="powerSwitch2"
                     variant="power"
+                    :size="44"
                     active-color="#27ae60"
                   />
-                  <NeumorphismSwitch variant="power" :model-value="true" disabled />
-                  <NeumorphismSwitch variant="power" :model-value="false" disabled />
+                  <NeumorphismSwitch variant="power" :size="44" :model-value="true" disabled />
+                  <NeumorphismSwitch variant="power" :size="44" :model-value="false" disabled />
                 </div>
                 <div class="demo-row">
                   <NeumorphismSwitch
                     v-model="powerSwitch3"
                     variant="power"
+                    :size="44"
                     active-text="通电"
                     inactive-text="断电"
                   />
                 </div>
+                <p class="demo-hint">
+                  刻印文本为可选：不传时器件纯净无文字（上方三个）；传入
+                  <code>active-text</code> / <code>inactive-text</code> 时显示自定义刻印（下方）。
+                </p>
               </div>
             </NeumorphismCard>
 
@@ -1342,7 +1412,7 @@ const chartStockData = ref([
               <template #header>
                 <div class="demo-header">
                   <h3 class="demo-title">NeumorphismCheckbox 复选框</h3>
-                  <span class="demo-badge">半选 · 3 尺寸</span>
+                  <span class="demo-badge">半选 · 尺寸可调</span>
                 </div>
               </template>
 
@@ -1360,12 +1430,27 @@ const chartStockData = ref([
               </div>
 
               <div class="demo-block">
-                <h4 class="demo-label">尺寸与禁用</h4>
-                <div class="demo-row">
-                  <NeumorphismCheckbox v-model="checkbox1" label="小" size="small" />
-                  <NeumorphismCheckbox v-model="checkbox1" label="中" size="medium" />
-                  <NeumorphismCheckbox v-model="checkbox1" label="大" size="large" />
-                  <NeumorphismCheckbox :model-value="true" label="已选中禁用" disabled />
+                <h4 class="demo-label">尺寸调参（指示器尺寸）与禁用</h4>
+                <div class="demo-row demo-row--stacked" style="gap: 12px">
+                  <div class="demo-row">
+                    <NeumorphismSlider
+                      v-model="checkboxBoxSize"
+                      :min="16"
+                      :max="36"
+                      :step="2"
+                      style="width: 200px; flex: 0 0 200px"
+                    />
+                    <code>{{ checkboxBoxSize }}px</code>
+                  </div>
+                  <div class="demo-row">
+                    <div
+                      class="demo-size-checkbox"
+                      :style="{ '--demo-checkbox-size': checkboxBoxSize + 'px' }"
+                    >
+                      <NeumorphismCheckbox v-model="checkbox1" label="复选框" />
+                    </div>
+                    <NeumorphismCheckbox :model-value="true" label="已选中禁用" disabled />
+                  </div>
                 </div>
               </div>
             </NeumorphismCard>
@@ -1392,12 +1477,29 @@ const chartStockData = ref([
               </div>
 
               <div class="demo-block">
-                <h4 class="demo-label">垂直排列 · 小尺寸</h4>
-                <NeumorphismRadioGroup v-model="radio2" direction="vertical" size="small">
-                  <NeumorphismRadio value="small" label="小" />
-                  <NeumorphismRadio value="medium" label="中" />
-                  <NeumorphismRadio value="large" label="大" />
-                </NeumorphismRadioGroup>
+                <h4 class="demo-label">垂直排列 · 圆环尺寸可调</h4>
+                <div class="demo-row demo-row--stacked" style="gap: 14px">
+                  <div class="demo-row">
+                    <NeumorphismSlider
+                      v-model="radioCircleSize"
+                      :min="16"
+                      :max="36"
+                      :step="2"
+                      style="width: 200px; flex: 0 0 200px"
+                    />
+                    <code>{{ radioCircleSize }}px</code>
+                  </div>
+                  <div
+                    class="demo-size-radio"
+                    :style="{ '--demo-radio-size': radioCircleSize + 'px' }"
+                  >
+                    <NeumorphismRadioGroup v-model="radio2" direction="vertical">
+                      <NeumorphismRadio value="a" label="选项 A" />
+                      <NeumorphismRadio value="b" label="选项 B" />
+                      <NeumorphismRadio value="c" label="选项 C" />
+                    </NeumorphismRadioGroup>
+                  </div>
+                </div>
               </div>
             </NeumorphismCard>
 
@@ -1411,11 +1513,23 @@ const chartStockData = ref([
               </template>
 
               <div class="demo-block">
-                <h4 class="demo-label">尺寸</h4>
+                <h4 class="demo-label">尺寸调参（高度）</h4>
                 <div class="demo-row demo-row--stacked form-demo-width">
-                  <NeumorphismInput v-model="inputName" size="small" placeholder="小尺寸输入框" />
-                  <NeumorphismInput v-model="inputName" size="medium" placeholder="中尺寸输入框" />
-                  <NeumorphismInput v-model="inputName" size="large" placeholder="大尺寸输入框" />
+                  <div class="demo-row">
+                    <NeumorphismSlider
+                      v-model="inputHeight"
+                      :min="32"
+                      :max="72"
+                      :step="2"
+                      style="width: 200px; flex: 0 0 200px"
+                    />
+                    <code>{{ inputHeight }}px</code>
+                  </div>
+                  <NeumorphismInput
+                    v-model="inputName"
+                    :style="inputSizeVars(inputHeight)"
+                    placeholder="请输入内容"
+                  />
                 </div>
               </div>
 
@@ -1887,17 +2001,31 @@ const chartStockData = ref([
               <template #header>
                 <div class="demo-header">
                   <h3 class="demo-title">NeumorphismAvatar 头像</h3>
-                  <span class="demo-badge">图片 · 首字母回退 · 3 尺寸</span>
+                  <span class="demo-badge">图片 · 首字母回退 · 尺寸可调</span>
                 </div>
               </template>
 
               <div class="demo-block">
-                <h4 class="demo-label">尺寸与形状</h4>
-                <div class="demo-row">
-                  <NeumorphismAvatar initials="JD" size="small" />
-                  <NeumorphismAvatar initials="JD" size="medium" />
-                  <NeumorphismAvatar initials="JD" size="large" />
-                  <NeumorphismAvatar initials="JD" size="medium" shape="rounded" />
+                <h4 class="demo-label">尺寸与形状（直径可调）</h4>
+                <div class="demo-row demo-row--stacked" style="gap: 12px">
+                  <div class="demo-row">
+                    <NeumorphismSlider
+                      v-model="avatarDiameter"
+                      :min="28"
+                      :max="96"
+                      :step="4"
+                      style="width: 200px; flex: 0 0 200px"
+                    />
+                    <code>{{ avatarDiameter }}px</code>
+                  </div>
+                  <div class="demo-row">
+                    <NeumorphismAvatar initials="JD" :style="avatarSizeVars(avatarDiameter)" />
+                    <NeumorphismAvatar
+                      initials="JD"
+                      shape="rounded"
+                      :style="avatarSizeVars(avatarDiameter)"
+                    />
+                  </div>
                 </div>
               </div>
 
@@ -1963,18 +2091,32 @@ const chartStockData = ref([
               </div>
 
               <div class="demo-block">
-                <h4 class="demo-label">可关闭与尺寸</h4>
-                <div class="demo-row">
-                  <NeumorphismTag
-                    v-if="tagVisible"
-                    variant="primary"
-                    :closable="true"
-                    @close="tagVisible = false"
-                    >可关闭</NeumorphismTag
-                  >
-                  <NeumorphismTag variant="success" size="small">小</NeumorphismTag>
-                  <NeumorphismTag variant="warning" size="large">大</NeumorphismTag>
-                  <NeumorphismTag variant="error" rounded>圆角</NeumorphismTag>
+                <h4 class="demo-label">可关闭与尺寸（字号可调）</h4>
+                <div class="demo-row demo-row--stacked" style="gap: 12px">
+                  <div class="demo-row">
+                    <NeumorphismSlider
+                      v-model="tagFontSize"
+                      :min="10"
+                      :max="16"
+                      :step="1"
+                      style="width: 200px; flex: 0 0 200px"
+                    />
+                    <code>{{ tagFontSize }}px</code>
+                  </div>
+                  <div class="demo-row">
+                    <div class="demo-size-tag" :style="{ '--demo-tag-f': tagFontSize + 'px' }">
+                      <NeumorphismTag variant="success">标签</NeumorphismTag>
+                    </div>
+                    <NeumorphismDivider direction="vertical" />
+                    <NeumorphismTag
+                      v-if="tagVisible"
+                      variant="primary"
+                      :closable="true"
+                      @close="tagVisible = false"
+                      >可关闭</NeumorphismTag
+                    >
+                    <NeumorphismTag variant="error" rounded>圆角</NeumorphismTag>
+                  </div>
                 </div>
               </div>
             </NeumorphismCard>
@@ -2021,16 +2163,23 @@ const chartStockData = ref([
               </div>
 
               <div class="demo-block">
-                <h4 class="demo-label">尺寸</h4>
-                <div class="progress-rows form-demo-width">
-                  <div v-for="size in progressSizes" :key="size" class="progress-row">
-                    <span class="progress-row__tag">{{ size }}</span>
-                    <NeumorphismProgress
-                      :model-value="progressVal"
-                      :size="size"
-                      class="progress-row__bar"
+                <h4 class="demo-label">尺寸调参（条体高度）</h4>
+                <div class="demo-row demo-row--stacked form-demo-width">
+                  <div class="demo-row">
+                    <NeumorphismSlider
+                      v-model="progressBarHeight"
+                      :min="4"
+                      :max="24"
+                      :step="1"
+                      style="width: 200px; flex: 0 0 200px"
                     />
+                    <code>{{ progressBarHeight }}px</code>
                   </div>
+                  <NeumorphismProgress
+                    :model-value="progressVal"
+                    :style="{ '--nm-progress-height-md': progressBarHeight + 'px' }"
+                    class="progress-row__bar"
+                  />
                 </div>
               </div>
 
@@ -2084,21 +2233,37 @@ const chartStockData = ref([
               </div>
 
               <div class="demo-block">
-                <h4 class="demo-label">环形进度</h4>
-                <div class="progress-rings">
-                  <div v-for="size in progressSizes" :key="size" class="progress-ring">
-                    <NeumorphismProgress
-                      type="circle"
-                      :size="size"
-                      :model-value="progressVal"
-                      variant="primary"
-                      :show-label="true"
+                <h4 class="demo-label">环形进度（直径可调）</h4>
+                <div class="demo-row demo-row--stacked" style="gap: 12px">
+                  <div class="demo-row">
+                    <NeumorphismSlider
+                      v-model="progressCircleDiameter"
+                      :min="64"
+                      :max="200"
+                      :step="4"
+                      style="width: 200px; flex: 0 0 200px"
                     />
-                    <span class="progress-ring__caption">{{ size }}</span>
+                    <code>Ø {{ progressCircleDiameter }}px</code>
                   </div>
-                  <div class="progress-ring">
-                    <NeumorphismProgress type="circle" size="medium" :indeterminate="true" />
-                    <span class="progress-ring__caption">indeterminate</span>
+                  <div class="progress-rings">
+                    <div class="progress-ring">
+                      <div
+                        class="demo-size-progress-circle"
+                        :style="{ '--demo-circle-d': progressCircleDiameter + 'px' }"
+                      >
+                        <NeumorphismProgress
+                          type="circle"
+                          :model-value="progressVal"
+                          variant="primary"
+                          :show-label="true"
+                        />
+                      </div>
+                      <span class="progress-ring__caption">determinate（直径可调）</span>
+                    </div>
+                    <div class="progress-ring">
+                      <NeumorphismProgress type="circle" size="medium" :indeterminate="true" />
+                      <span class="progress-ring__caption">indeterminate</span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -2409,7 +2574,7 @@ const chartStockData = ref([
               <template #header>
                 <div class="demo-header">
                   <h3 class="demo-title">NeumorphismPagination 分页</h3>
-                  <span class="demo-badge">省略号 · 总数 · 跳转 · 3 尺寸</span>
+                  <span class="demo-badge">省略号 · 总数 · 跳转 · 尺寸可调</span>
                 </div>
               </template>
 
@@ -2433,11 +2598,24 @@ const chartStockData = ref([
               </div>
 
               <div class="demo-block">
-                <h4 class="demo-label">尺寸</h4>
+                <h4 class="demo-label">尺寸调参（按钮尺寸）</h4>
                 <div class="demo-row demo-row--stacked" style="gap: 14px">
-                  <NeumorphismPagination v-model="page" :total="50" :page-size="10" size="small" />
-                  <NeumorphismPagination v-model="page" :total="50" :page-size="10" size="medium" />
-                  <NeumorphismPagination v-model="page" :total="50" :page-size="10" size="large" />
+                  <div class="demo-row">
+                    <NeumorphismSlider
+                      v-model="paginationItemSize"
+                      :min="26"
+                      :max="56"
+                      :step="2"
+                      style="width: 200px; flex: 0 0 200px"
+                    />
+                    <code>{{ paginationItemSize }}px</code>
+                  </div>
+                  <div
+                    class="demo-size-pagination"
+                    :style="{ '--demo-pagination-size': paginationItemSize + 'px' }"
+                  >
+                    <NeumorphismPagination v-model="page" :total="50" :page-size="10" />
+                  </div>
                 </div>
               </div>
             </NeumorphismCard>
@@ -2759,11 +2937,19 @@ const chartStockData = ref([
                   </div>
                 </div>
                 <div style="flex: 1; min-width: 220px">
-                  <h4 class="demo-label">Spinner 加载指示</h4>
-                  <div style="display: flex; align-items: center; gap: 16px">
-                    <NeumorphismSpinner size="small" />
-                    <NeumorphismSpinner />
-                    <NeumorphismSpinner size="large" />
+                  <h4 class="demo-label">Spinner 加载指示（直径可调）</h4>
+                  <div class="demo-row demo-row--stacked" style="gap: 12px">
+                    <div class="demo-row">
+                      <NeumorphismSlider
+                        v-model="spinnerDiameter"
+                        :min="12"
+                        :max="48"
+                        :step="2"
+                        style="width: 160px; flex: 0 0 160px"
+                      />
+                      <code>{{ spinnerDiameter }}px</code>
+                    </div>
+                    <NeumorphismSpinner :size="spinnerDiameter" />
                   </div>
                 </div>
               </div>
@@ -3237,19 +3423,23 @@ const chartStockData = ref([
               </div>
 
               <div class="demo-block">
-                <h4 class="demo-label">尺寸</h4>
-                <div class="demo-row demo-row--stacked">
+                <h4 class="demo-label">尺寸调参（整体比例）</h4>
+                <div class="demo-row demo-row--stacked" style="gap: 12px">
                   <div class="demo-row">
-                    <NeumorphismThemeToggle v-model="themeToggleValue" size="small" />
-                    <code>small</code>
+                    <NeumorphismSlider
+                      v-model="themeToggleHeight"
+                      :min="30"
+                      :max="56"
+                      :step="2"
+                      style="width: 200px; flex: 0 0 200px"
+                    />
+                    <code>{{ themeToggleHeight }}px</code>
                   </div>
-                  <div class="demo-row">
-                    <NeumorphismThemeToggle v-model="themeToggleValue" size="medium" />
-                    <code>medium</code>
-                  </div>
-                  <div class="demo-row">
-                    <NeumorphismThemeToggle v-model="themeToggleValue" size="large" />
-                    <code>large</code>
+                  <div
+                    class="demo-size-theme-toggle"
+                    :style="{ '--demo-theme-toggle-h': themeToggleHeight + 'px' }"
+                  >
+                    <NeumorphismThemeToggle v-model="themeToggleValue" />
                   </div>
                 </div>
               </div>
@@ -3552,7 +3742,7 @@ const chartStockData = ref([
                     :elevation="-1"
                     style="padding: 24px; display: inline-block; text-align: center"
                   >
-                    <NeumorphismLogo v-model:mode="logoMode" :size="logoSize" :goo="logoGoo">
+                    <NeumorphismLogo v-model:mode="logoMode" :width="logoWidth" :goo="logoGoo">
                       <template #default="{ replay }">
                         <div style="margin-top: 12px">
                           <NeumorphismButton size="small" @click="replay"
@@ -3565,27 +3755,17 @@ const chartStockData = ref([
                 </div>
 
                 <div class="demo-block" style="flex: 1; min-width: 260px; max-width: 420px">
-                  <h4 class="demo-label">尺寸与滤镜</h4>
+                  <h4 class="demo-label">尺寸与滤镜（宽度可调）</h4>
                   <div class="demo-row demo-row--stacked" style="gap: 12px">
                     <div class="demo-row">
-                      <NeumorphismButton
-                        size="small"
-                        :variant="logoSize === 'small' ? 'pressed' : 'raised'"
-                        @click="logoSize = 'small'"
-                        >small</NeumorphismButton
-                      >
-                      <NeumorphismButton
-                        size="small"
-                        :variant="logoSize === 'medium' ? 'pressed' : 'raised'"
-                        @click="logoSize = 'medium'"
-                        >medium</NeumorphismButton
-                      >
-                      <NeumorphismButton
-                        size="small"
-                        :variant="logoSize === 'large' ? 'pressed' : 'raised'"
-                        @click="logoSize = 'large'"
-                        >large</NeumorphismButton
-                      >
+                      <NeumorphismSlider
+                        v-model="logoWidth"
+                        :min="80"
+                        :max="360"
+                        :step="10"
+                        style="width: 200px; flex: 0 0 200px"
+                      />
+                      <code>{{ logoWidth }}px</code>
                     </div>
                     <div class="demo-row">
                       <NeumorphismSwitch v-model="logoGoo" />
@@ -3600,15 +3780,6 @@ const chartStockData = ref([
                   <p class="demo-hint" style="margin-top: 4px">
                     提示：选择「指针引力」后将鼠标移入 Logo，方块会跟随光标移动。
                   </p>
-                </div>
-              </div>
-
-              <div class="demo-block">
-                <h4 class="demo-label">三种尺寸并排</h4>
-                <div class="demo-row" style="gap: 40px; align-items: flex-end; flex-wrap: wrap">
-                  <NeumorphismLogo :mode="logoMode" size="small" :goo="logoGoo" />
-                  <NeumorphismLogo :mode="logoMode" size="medium" :goo="logoGoo" />
-                  <NeumorphismLogo :mode="logoMode" size="large" :goo="logoGoo" />
                 </div>
               </div>
             </NeumorphismCard>
@@ -4445,13 +4616,6 @@ const chartStockData = ref([
   transform: translateX(30px);
 }
 
-// ---- Headless export tags ----
-.headless-export-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
 .headless-export-tag {
   display: inline-block;
   padding: 5px 12px;
@@ -4480,5 +4644,87 @@ const chartStockData = ref([
   height: 260px;
   border-radius: var(--nm-border-radius-md);
   overflow: hidden;
+}
+
+// ==========================================
+// 尺寸调参演示 — 数字滑动条直调真实渲染尺寸
+// 原生支持数值尺寸的组件（开关 size=px 高度 / 输入框、按钮、头像、进度条走 Token）
+// 直接传数字；内部几何仍硬编码的组件在此以演示级 CSS 桥接（组件源码零改动）：
+// 勾选框 / 单选框 / 标签 / 分页 / 主题切换 / 环形进度
+// ==========================================
+
+.demo-size-checkbox,
+.demo-size-radio,
+.demo-size-tag,
+.demo-size-pagination,
+.demo-size-theme-toggle,
+.demo-size-progress-circle {
+  display: inline-flex;
+  align-items: center;
+}
+
+// 勾选框指示器
+.demo-size-checkbox :deep(.nm-checkbox.nm-checkbox--medium .nm-checkbox__box) {
+  width: var(--demo-checkbox-size);
+  height: var(--demo-checkbox-size);
+}
+
+// 单选框圆环与圆点（点径 = 环径 / 2）
+.demo-size-radio :deep(.nm-radio.nm-radio--medium .nm-radio__circle) {
+  width: var(--demo-radio-size);
+  height: var(--demo-radio-size);
+}
+
+.demo-size-radio :deep(.nm-radio.nm-radio--medium .nm-radio__dot) {
+  width: calc(var(--demo-radio-size) / 2);
+  height: calc(var(--demo-radio-size) / 2);
+}
+
+// 标签：高度 / 内边距 / 字号联动
+.demo-size-tag :deep(.nm-tag.nm-tag--medium) {
+  height: calc(var(--demo-tag-f) * 2.3333);
+  padding: calc(var(--demo-tag-f) / 3) var(--demo-tag-f);
+  font-size: var(--demo-tag-f);
+}
+
+// 分页按钮与省略号（字号 14/38 等比）
+.demo-size-pagination :deep(.nm-pagination.nm-pagination--medium .nm-pagination__btn),
+.demo-size-pagination :deep(.nm-pagination.nm-pagination--medium .nm-pagination__ellipsis) {
+  min-width: var(--demo-pagination-size);
+  height: var(--demo-pagination-size);
+  font-size: calc(var(--demo-pagination-size) * 0.368);
+}
+
+// 主题切换：外边距 / 钮内边距 / 图标 / 文本联动
+.demo-size-theme-toggle :deep(.nm-theme-toggle.nm-theme-toggle--medium) {
+  padding: calc(var(--demo-theme-toggle-h) * 0.12);
+}
+
+.demo-size-theme-toggle :deep(.nm-theme-toggle.nm-theme-toggle--medium .nm-theme-toggle__btn) {
+  padding: calc(var(--demo-theme-toggle-h) * 0.16) calc(var(--demo-theme-toggle-h) * 0.32);
+}
+
+.demo-size-theme-toggle :deep(.nm-theme-toggle.nm-theme-toggle--medium .nm-theme-toggle__icon) {
+  width: calc(var(--demo-theme-toggle-h) * 0.44);
+  height: calc(var(--demo-theme-toggle-h) * 0.44);
+}
+
+.demo-size-theme-toggle :deep(.nm-theme-toggle.nm-theme-toggle--medium .nm-theme-toggle__label) {
+  font-size: calc(var(--demo-theme-toggle-h) * 0.315);
+}
+
+// 环形进度：直径 / 内部 SVG / 中央文字联动（覆盖组件行内尺寸）
+.demo-size-progress-circle :deep(.nm-progress--circle) {
+  width: var(--demo-circle-d) !important;
+  height: var(--demo-circle-d) !important;
+}
+
+.demo-size-progress-circle :deep(.nm-progress--circle .nm-progress-circle__svg) {
+  width: 100%;
+  height: 100%;
+}
+
+.demo-size-progress-circle :deep(.nm-progress--circle .nm-progress-circle__label) {
+  font-size: calc(var(--demo-circle-d) * 0.14);
 }
 </style>

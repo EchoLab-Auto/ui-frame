@@ -63,7 +63,7 @@ describe('useConfig', () => {
       progress: { variant: 'success', size: 'medium' },
       avatar: { size: 'large', shape: 'circle' },
       tree: { showSearch: true, multiple: false },
-      switch: { size: 'small' },
+      switch: { size: 20 },
       table: { size: 'medium', striped: true },
       locale: 'en-US',
       theme: { defaultTheme: 'dark', followSystem: false },

@@ -439,18 +439,10 @@
   --nm-skeleton-animation-duration: 1.5s;
 
   // -- Switch --
-  --nm-switch-width-sm: 44px;
-  --nm-switch-height-sm: 24px;
-  --nm-switch-width-md: 56px;
-  --nm-switch-height-md: 30px;
-  --nm-switch-width-lg: 68px;
-  --nm-switch-height-lg: 36px;
+  // 尺寸语义：px 高度（连续），由 size prop 以内联 --nm-switch-height / --nm-switch-power-u 驱动。
 
   // ---- Switch · power 变体（variant="power"）----
-  // 设计单位 u：内部几何按 u 缩放，171u × 91u 为器件设计稿
-  --nm-switch-power-unit-sm: 0.8px;
-  --nm-switch-power-unit-md: 1px;
-  --nm-switch-power-unit-lg: 1.25px;
+  // 设计单位 u：内部几何按 u 缩放，171u × 91u 为器件设计稿；u = 高度 / 91。
   // 金属外圈渐变（0deg：下亮上暗）
   --nm-switch-power-rind-light: #ededed;
   --nm-switch-power-rind-dark: #9a9a9a;
