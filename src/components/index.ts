@@ -21,7 +21,7 @@ export type {
 } from './NeumorphismButton'
 
 export { default as NeumorphismSwitch } from './NeumorphismSwitch'
-export type { NeumorphismSwitchProps, SwitchVariant } from './NeumorphismSwitch'
+export type { NeumorphismSwitchProps, SwitchVariant, SwitchSize } from './NeumorphismSwitch'
 
 export { default as NeumorphismCard } from './NeumorphismCard'
 export type { NeumorphismCardProps, CardVariant, CardDepth } from './NeumorphismCard'

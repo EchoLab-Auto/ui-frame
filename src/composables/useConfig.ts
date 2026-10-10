@@ -111,8 +111,13 @@ export interface NeumorphismGlobalConfig {
   }
   /** Default switch props */
   switch?: {
-    /** 尺寸 = px 高度（连续尺寸；default 变体默认 30px、power 变体默认 91px） */
-    size?: number
+    /**
+     * 尺寸 = px 高度（连续尺寸；default 变体默认 30px、power 变体默认 91px）。
+     *
+     * @deprecated 字符串档位（`'small' | 'medium' | 'large'`）已弃用，仅为兼容
+     * 旧配置保留：按 small=24 / medium=30 / large=36（px 高度）映射；请改用数字。
+     */
+    size?: number | 'small' | 'medium' | 'large'
     /** 视觉变体：default（凹陷轨道 + 弹簧滑块）/ power（电力开关） */
     variant?: 'default' | 'power'
   }

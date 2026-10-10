@@ -44,6 +44,24 @@ describe('NeumorphismSwitch', () => {
     const wrapper = mount(NeumorphismSwitch, { props: { size: 4 } })
     expect(wrapper.attributes('style')).toContain('--nm-switch-height: 8px')
   })
+
+  // 向后兼容（2026-10）：旧字符串档位保留为弃用别名——映射 24/30/36px。
+  // Panel 等既有消费方经 vendor/npm 升级后无行为中断；新代码应传数字。
+  it('should map deprecated string sizes to px heights (backward compat)', () => {
+    const small = mount(NeumorphismSwitch, { props: { size: 'small' } })
+    expect(small.attributes('style')).toContain('--nm-switch-height: 24px')
+    const medium = mount(NeumorphismSwitch, { props: { size: 'medium' } })
+    expect(medium.attributes('style')).toContain('--nm-switch-height: 30px')
+    const large = mount(NeumorphismSwitch, { props: { size: 'large' } })
+    expect(large.attributes('style')).toContain('--nm-switch-height: 36px')
+  })
+
+  it('should fall back to variant default for unknown string sizes', () => {
+    // 运行时容错：JS 传入未知值不应产生 NaN 几何（--nm-switch-height: NaNpx）。
+    const wrapper = mount(NeumorphismSwitch, { props: { size: 'gigantic' as never } })
+    expect(wrapper.attributes('style')).toContain('--nm-switch-height: 30px')
+  })
+
   it('should display active and inactive text', () => {
     const wrapper = mount(NeumorphismSwitch, {
       props: { activeText: 'On', inactiveText: 'Off' },

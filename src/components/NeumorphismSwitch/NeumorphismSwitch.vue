@@ -5,6 +5,8 @@ import { useCheckable } from '@/composables/useCheckable'
 import { useLocale } from '@/composables/useLocale'
 
 export type SwitchVariant = 'default' | 'power'
+/** @deprecated 旧版尺寸档位（字符串）——保留仅为兼容映射，新代码请用数字（px 高度） */
+export type SwitchSize = 'small' | 'medium' | 'large'
 
 export interface NeumorphismSwitchProps {
   /** v-model binding */
@@ -23,8 +25,11 @@ export interface NeumorphismSwitchProps {
    * 尺寸——px 高度（连续尺寸）：
    * default 变体驱动轨道高度（默认 30px）；power 变体驱动器件整机等比缩放
    * （设计稿 91u 高，默认 91px）。
+   *
+   * @deprecated 字符串档位（`'small' | 'medium' | 'large'`）已弃用，仅为兼容
+   * 旧版保留：按 small=24 / medium=30 / large=36（px 高度）映射；新代码请传数字。
    */
-  size?: number
+  size?: number | SwitchSize
   /** 视觉变体：default（凹陷轨道 + 弹簧滑块）/ power（电力开关，整径扳动圆钮） */
   variant?: SwitchVariant
 }
@@ -45,9 +50,19 @@ const resolvedAriaLabel = computed(
 // 尺寸 = px 高度（连续）：default 变体默认 30px（原 medium 档轨道高）、
 // power 变体默认 91px（器件稿 1u = 1px）；8px 下限保护。
 const DEFAULT_HEIGHTS: Record<SwitchVariant, number> = { default: 30, power: 91 }
-const resolvedHeight = computed(() =>
-  Math.max(8, props.size ?? config.value.switch?.size ?? DEFAULT_HEIGHTS[resolvedVariant.value])
-)
+// 旧字符串档位的兼容映射（已弃用）：按 1.3.2 轨道高 small/medium/large = 24/30/36px。
+// 连续几何对小/大档为近似（如 small 轨宽 44.8px vs 旧 44px），视觉差异可忽略。
+const LEGACY_SIZE_PX: Record<SwitchSize, number> = { small: 24, medium: 30, large: 36 }
+const resolvedHeight = computed(() => {
+  const raw = props.size ?? config.value.switch?.size ?? DEFAULT_HEIGHTS[resolvedVariant.value]
+  // 运行时容错：未知字符串（JS 配置）回退到变体默认高度，避免 NaN 几何。
+  const height =
+    typeof raw === 'number'
+      ? raw
+      : ((LEGACY_SIZE_PX as Record<string, number | undefined>)[raw] ??
+        DEFAULT_HEIGHTS[resolvedVariant.value])
+  return Math.max(8, height)
+})
 const emit = defineEmits<{
   (e: 'update:modelValue', value: boolean): void
   (e: 'change', value: boolean): void
