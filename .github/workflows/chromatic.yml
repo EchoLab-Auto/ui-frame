@@ -18,35 +18,43 @@ concurrency:
 jobs:
   chromatic:
     name: Visual Regression
-    # 仅在配置 CHROMATIC_PROJECT_TOKEN secret 后启用（视觉回归服务需项目令牌）
-    if: ${{ secrets.CHROMATIC_PROJECT_TOKEN != '' }}
+    # 视觉回归服务需项目令牌：未配置 CHROMATIC_PROJECT_TOKEN 时下列步骤全部跳过。
+    # 注意：secrets 不能用于 job 级 if（曾致整个 workflow 被判无效、从未运行）——
+    # 经 job env 转递、在步骤级 if 里用 env 判断。
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:
       HUSKY: 0
+      CHROMATIC_PROJECT_TOKEN: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
 
     steps:
       - name: Checkout
+        if: ${{ env.CHROMATIC_PROJECT_TOKEN != '' }}
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
       - name: Setup Node
+        if: ${{ env.CHROMATIC_PROJECT_TOKEN != '' }}
         uses: actions/setup-node@v4
         with:
           node-version: '22'
           cache: npm
 
       - name: Upgrade npm
+        if: ${{ env.CHROMATIC_PROJECT_TOKEN != '' }}
         run: npm install -g npm@11
 
       - name: Install dependencies
+        if: ${{ env.CHROMATIC_PROJECT_TOKEN != '' }}
         run: npm ci
 
       - name: Build Storybook
+        if: ${{ env.CHROMATIC_PROJECT_TOKEN != '' }}
         run: npm run build-storybook
 
       - name: Publish to Chromatic
+        if: ${{ env.CHROMATIC_PROJECT_TOKEN != '' }}
         uses: chromaui/action@latest
         with:
           projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}

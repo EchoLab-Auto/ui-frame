@@ -64,14 +64,14 @@ on:
   workflow_dispatch: # 支持手动触发
 ```
 
-**矩阵策略**：CI 同时在 Node 20 和 Node 22 上运行，确保跨版本兼容性。仅 Node 22 的任务上传 artifacts（避免重复）。
+**矩阵策略**：CI 同时在 Node 22 和 Node 24 上运行（Node 20 已 EOL（2026-04）；且 jsdom@30——`a11y/interactive.test.ts` 的测试环境——要求 Node ≥22.22.2，矩阵对齐依赖的真实下限）。仅 Node 22 的任务上传 artifacts（避免重复）。
 
 **任务流水线**（`jobs.check`）：
 
 | 步骤               | 命令                                                 | 说明                                           |
 | ------------------ | ---------------------------------------------------- | ---------------------------------------------- |
 | Checkout           | `actions/checkout@v4`                                | 拉取代码                                       |
-| Setup Node         | `actions/setup-node@v4`                              | Node 20/22 矩阵 + npm 缓存                     |
+| Setup Node         | `actions/setup-node@v4`                              | Node 22/24 矩阵 + npm 缓存                     |
 | Upgrade npm        | `npm install -g npm@11`                              | 锁定 npm 版本，避免 lock 文件兼容问题          |
 | Install            | `npm ci`                                             | 纯净安装，依赖 lock 文件                       |
 | Audit              | `npm audit --audit-level=high`                       | 安全检查（仅 high/critical 级别报错）          |
@@ -81,7 +81,7 @@ on:
 | Type check         | `npm run typecheck`                                  | `vue-tsc --noEmit` 全量类型检查                |
 | Test               | `npm run test:coverage`                              | Vitest 单元测试 + 覆盖率阈值门禁               |
 | Build library      | `npm run build`                                      | Vite 构建组件库产物                            |
-| Bundle size        | `find dist -name '*.js' -exec gzip -c {} + \| wc -c` | 全量载荷 < 180KB gzipped, CSS < 36KB gzipped   |
+| Bundle size        | `find dist -name '*.js' -exec gzip -c {} + \| wc -c` | 全量载荷 < 220KB gzipped, CSS < 38KB gzipped   |
 | Build example      | `npm run example:build`                              | 构建示例站点                                   |
 | Verify outputs     | `test -f ...`                                        | 断言产物文件全部存在                           |
 | Package lint       | `npx publint`                                        | 校验 exports/sideEffects/types 等包发布契约    |
@@ -414,3 +414,18 @@ ci: 升级 Node 版本
 feat 新增 Switch 组件      # 缺少冒号
 FEAT: 新增 Switch 组件     # type 必须小写
 ```
+
+### Release 失败：`GitHub Actions is not permitted to create or approve pull requests`
+
+**根因**：仓库/组织设置未允许 Actions 创建 PR——Changesets 无法开「Version Packages」PR。
+
+**修复**：`Settings → Actions → General → Workflow permissions` 勾选 **Allow GitHub Actions to create and approve pull requests**（组织仓库需先在组织级放开）。
+
+### Workflow 显示 `Invalid workflow file`（0 秒失败、无 job）
+
+**根因类别**（本项目与姊妹仓库各命中一次，均已修复）：
+
+- `jobs.<id>.if` 中使用 `secrets` 上下文——如 `if: ${{ secrets.X != '' }}`（本项目 chromatic.yml）。secrets 不可用于 job 级 if，改为经 job `env` 转递、在步骤级 `if` 里以 `env` 判断。
+- `uses:` 字段内使用表达式——如 `uses: dtolnay/rust-toolchain@${{ matrix.toolchain }}`。`uses` 不支持任何表达式，改为 `@master` + `with.toolchain` 注入 matrix。
+
+**排查**：Actions 运行页顶部的 annotation 会给出「(Line: N, Col: M): …」定位信息；此类失败不产生任何 job 日志。

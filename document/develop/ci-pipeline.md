@@ -32,7 +32,7 @@ PR 创建/更新
   │
   ├──→ PR Title Check ──→ 校验 <type>(<scope>): <subject> 格式
   │
-  └──→ CI (Node 20+22 矩阵)
+  └──→ CI (Node 22+24 矩阵)
          ├── npm ci
          ├── npm audit --audit-level=high
          ├── npm run lint         ← ESLint
@@ -58,7 +58,7 @@ Release Published
 
 ### 节点矩阵
 
-CI 在 **Node 20** 和 **Node 22** 上同时运行。只有 Node 22 的 job 上传 artifact。任何节点失败都会阻止合并。
+CI 在 **Node 22** 和 **Node 24** 上同时运行（Node 20 已 EOL；jsdom@30 要求 Node ≥22.22.2）。只有 Node 22 的 job 上传 artifact。任何节点失败都会阻止合并。
 
 ### 步骤清单
 
@@ -116,7 +116,7 @@ npm run example
 
 ```
 □ PR Title Check 通过
-□ CI 全部步骤通过（Node 20 + Node 22 两个矩阵）
+□ CI 全部步骤通过（Node 22 + Node 24 两个矩阵）
 □ CI 中无 cancel-in-progress 导致的步骤跳过
 ```
 
@@ -176,9 +176,9 @@ CI (Node 22) 构建产物
 
 | 缺口                         | 优先级 | 说明                                                                                   |
 | ---------------------------- | ------ | -------------------------------------------------------------------------------------- |
-| **代码覆盖率爬坡**           | 中     | 门禁已接线（CI 跑 `test:coverage`，阈值 70/59/71/72 防退化），按季度爬坡至 80/70/80/80 |
+| **代码覆盖率爬坡**           | 中     | 门禁已接线（CI 跑 `test:coverage`，阈值 73/63/73/75 防退化），按季度爬坡至 80/70/80/80 |
 | **Changeset 强制检查**       | 中     | PR 未强制要求 changeset 文件；可在 CI 中加入 `changeset status` 检查                   |
-| **E2E / 视觉回归测试**       | 低     | 无浏览器自动化测试或截图对比                                                           |
+| **E2E / 视觉回归测试**       | 低     | 截图对比已接线（Chromatic，配置 `CHROMATIC_PROJECT_TOKEN` 后启用）；浏览器 E2E 未覆盖  |
 | **无障碍自动化测试**         | 低     | 无 axe-core 等 a11y 扫描                                                               |
 | **依赖许可证检查**           | 低     | 无 `license-checker` 扫描                                                              |
 | **Prerelease/snapshot 发布** | 低     | 无 `next` 频道或 canary 发布流程                                                       |
