@@ -57,7 +57,7 @@ const CHANNEL_OFFSET = 28
 const CHANNEL_GAP = 20
 
 /** CJK / 全角字符区间 */
-const CJK_RE = /[぀-ヿ㐀-鿿豈-﫿￠-￦⺀-�＀-￯]/
+const CJK_RE = /[぀-ヿ㐀-鿿豈-﫿￠-￦⺀-〿＀-￯]/
 
 /** 文本宽度估算（CJK 感知） */
 function estimateTextWidth(label: string): number {

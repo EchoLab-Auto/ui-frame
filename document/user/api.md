@@ -269,7 +269,7 @@ interface SelectOption {
 - 单选键盘交互与原生 `<select>` 一致：↑↓ 即时切换选中值；多选为 ↑↓ 移动高亮 + Enter 切换选中
 - 下拉靠近视口底部时自动向上翻转展开，空间受限时自动收缩高度
 - `filterable` 模式下触发器内嵌输入框，combobox ARIA 语义移至原生 input
-- `default` 变体的下拉 teleport 到 `<body>`（浮层，不受祖先 `overflow` 裁剪）；`outlined` 变体为**单盒模型**：触发器���体本身就是容器，下拉选项渲染在盒内第二行，展开时盒体随高度过渡纵向延展（负 margin 同步补偿，布局零抖动），滚动时与页面天然同步、无接缝——因此 outlined 触发器不应放在 `overflow: hidden/auto` 的祖先容器内，否则盒体延展会被裁剪
+- `default` 变体的下拉 teleport 到 `<body>`（浮层，不受祖先 `overflow` 裁剪）；`outlined` 变体为**单盒模型**：触发器盒体本身就是容器，下拉选项渲染在盒内第二行，展开时盒体随高度过渡纵向延展（负 margin 同步补偿，布局零抖动），滚动时与页面天然同步、无接缝——因此 outlined 触发器不应放在 `overflow: hidden/auto` 的祖先容器内，否则盒体延展会被裁剪
 
 ---
 
@@ -1394,7 +1394,7 @@ import type { NeumorphismThemeToggleProps } from '@echolab-auto/ui-frame'
 | ----------- | -------------------------------- | ---------- | ---------------- |
 | modelValue  | `'light' \| 'dark' \| 'auto'`    | `'auto'`   | 当前主题模式     |
 | size        | `'small' \| 'medium' \| 'large'` | `'medium'` | 尺寸             |
-| disableAuto | `boolean`                        | `false`    | 禁用自动模��选项 |
+| disableAuto | `boolean`                        | `false`    | 禁用自动模式选项 |
 | disabled    | `boolean`                        | `false`    | 是否禁用         |
 
 **Events:** `update:modelValue`, `change`
@@ -2853,7 +2853,7 @@ import { useSwipe } from '@echolab-auto/ui-frame'
 import type { SwipeDirection, UseSwipeOptions, UseSwipeReturn } from '@echolab-auto/ui-frame'
 ```
 
-触���滑动手势识别（方向/阈值/取消），返回 `{ direction, deltaX, deltaY, isSwiping }`；`UseSwipeOptions = { threshold?: number; onSwipeStart?: () => void; onSwipe?: (dir) => void; onSwipeEnd?: (dir) => void }`。
+触摸滑动手势识别（方向/阈值/取消），返回 `{ direction, deltaX, deltaY, isSwiping }`；`UseSwipeOptions = { threshold?: number; onSwipeStart?: () => void; onSwipe?: (dir) => void; onSwipeEnd?: (dir) => void }`。
 
 ---
 
