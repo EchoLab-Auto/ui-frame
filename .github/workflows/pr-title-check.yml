@@ -33,4 +33,8 @@ jobs:
         run: npm ci
 
       - name: Check PR title
-        run: echo "${{ github.event.pull_request.title }}" | npx commitlint
+        # 安全：PR 标题是不可信输入，不可直接插值进 run 脚本（脚本注入面）——
+        # 经 env 转递为普通变量。
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: printf '%s\n' "$PR_TITLE" | npx commitlint
