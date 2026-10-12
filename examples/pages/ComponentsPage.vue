@@ -278,6 +278,7 @@ const navCategories = [
       { id: 'logo', label: 'Logo 动效 Logo' },
       { id: 'art', label: '试验效果 Art' },
       { id: 'ascii-art', label: '字符画 AsciiArt' },
+      { id: 'pixel-font', label: '像素字体 PixelFont' },
     ],
   },
 ]
@@ -691,6 +692,20 @@ const asciiPalette = computed(() => {
   return undefined
 })
 const asciiAriaLabel = ref('字符画')
+
+// ---- PixelFont 像素字体展示面板 ----
+const pixelTitle = ref('ASCII MOTION')
+const pixelSubtitle = ref('CODE MEETS MOVEMENT')
+const pixelScale = ref(3)
+const pixelCursor = ref(true)
+const pixelAlign = ref<'left' | 'center' | 'right'>('left')
+const pixelAlignOptions = [
+  { label: '左对齐', value: 'left' },
+  { label: '居中', value: 'center' },
+  { label: '右对齐', value: 'right' },
+]
+/** 副题比标题小一档缩放（不低于 1 倍设计尺寸；原作副题约为标题高度的 60%） */
+const pixelSubtitleScale = computed(() => Math.max(1, pixelScale.value - 1))
 
 // ---- Art 试验效果示例 ----
 const artEffect = ref<'pixel-field' | 'particles' | 'waves' | 'goo' | 'ascii'>('pixel-field')
@@ -3970,6 +3985,84 @@ const chartStockData = ref([
                 </div>
               </div>
             </NeumorphismCard>
+
+            <!-- 像素字体（termsyn 6x11 位图字体展示） -->
+            <NeumorphismCard id="pixel-font" :elevation="1" class="demo-card demo-card--full">
+              <template #header>
+                <div class="demo-header">
+                  <h3 class="demo-title">NeumorphismPixelFont 像素字体</h3>
+                  <span class="demo-badge">termsyn 6x11 · 位图字体 · 整数倍缩放</span>
+                </div>
+              </template>
+
+              <div class="demo-block">
+                <h4 class="demo-label">展示（「ASCII MOTION」片头风格：标题 + 副题 + 闪烁光标）</h4>
+                <div class="pixel-stage">
+                  <NeumorphismPixelFont
+                    :text="pixelTitle"
+                    :scale="pixelScale"
+                    :cursor="pixelCursor"
+                    :align="pixelAlign"
+                  />
+                  <NeumorphismPixelFont
+                    :text="pixelSubtitle"
+                    :scale="pixelSubtitleScale"
+                    :align="pixelAlign"
+                  />
+                  <div class="pixel-stage__specimen">
+                    <NeumorphismPixelFont
+                      text="ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                      :scale="2"
+                      :align="pixelAlign"
+                    />
+                    <NeumorphismPixelFont
+                      text="abcdefghijklmnopqrstuvwxyz"
+                      :scale="2"
+                      :align="pixelAlign"
+                    />
+                    <NeumorphismPixelFont
+                      text="0123456789 !?@#$%&*()[]{}<>"
+                      :scale="2"
+                      :align="pixelAlign"
+                    />
+                  </div>
+                </div>
+                <p class="demo-hint" style="margin-top: 8px">
+                  显示区字号 = 11px × scale——位图字体仅在整数倍设计尺寸下保持像素锐利（scale
+                  自动取整）；光标随 reduced-motion 设置自动停闪。
+                </p>
+              </div>
+
+              <div class="demo-block" style="margin-top: 16px">
+                <h4 class="demo-label">参数</h4>
+                <div class="demo-row" style="flex-wrap: wrap; gap: 24px; align-items: center">
+                  <div class="demo-row" style="min-width: 240px; flex: 1">
+                    <span class="demo-form-label">标题文本</span>
+                    <NeumorphismInput v-model="pixelTitle" size="small" style="flex: 1" />
+                  </div>
+                  <div class="demo-row" style="min-width: 240px; flex: 1">
+                    <span class="demo-form-label">副题文本</span>
+                    <NeumorphismInput v-model="pixelSubtitle" size="small" style="flex: 1" />
+                  </div>
+                  <div class="demo-row" style="min-width: 220px">
+                    <NeumorphismSlider v-model="pixelScale" :min="1" :max="6" :step="1" />
+                    <code>scale: {{ pixelScale }}</code>
+                  </div>
+                  <div class="demo-row">
+                    <NeumorphismSwitch v-model="pixelCursor" />
+                    <code>cursor</code>
+                  </div>
+                  <NeumorphismSegmented v-model="pixelAlign" :options="pixelAlignOptions" />
+                </div>
+              </div>
+
+              <div class="demo-block" style="margin-top: 16px">
+                <p class="demo-hint">
+                  字体出处：termsyn 6x11（stlarch 作；Terminus × Tamsyn 混合位图字体，GPL-2）——由
+                  PCF 位图重建为 woff2 内嵌，与原字形逐像素一致；含 400 / 700 双字重。
+                </p>
+              </div>
+            </NeumorphismCard>
           </section>
 
           <!-- ===== 页脚 ===== -->
@@ -4287,6 +4380,25 @@ const chartStockData = ref([
   margin: 8px 0 0;
   font-size: 13px;
   color: var(--nm-text-secondary);
+}
+
+// ---- PixelFont demo：终端「屏幕」舞台 ----
+.pixel-stage {
+  display: flex;
+  flex-direction: column;
+  gap: var(--nm-spacing-md);
+  padding: var(--nm-spacing-20);
+  border-radius: var(--nm-border-radius-md);
+  background-color: var(--nm-bg-color);
+  @include nm-inset-strong(4px, 10px);
+  overflow-x: auto;
+}
+
+.pixel-stage__specimen {
+  display: flex;
+  flex-direction: column;
+  gap: var(--nm-spacing-sm);
+  opacity: 0.5;
 }
 
 .form-demo-width {

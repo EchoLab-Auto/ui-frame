@@ -73,7 +73,7 @@ import { NeumorphismButton, NeumorphismCard, useTheme } from '@echolab-auto/ui-f
 
 ## Vue 组件
 
-本节为主库**基础组件**（`src/components/`，62 个）；组合组件见 [Doc 文档渲染](#doc-文档渲染)；[Chat 聊天面板](#chat-聊天面板) 为纯元组件模块（`src/composites/`）。分类定义见 [组件总览](./components.md#组件分类基础组件与组合组件)。
+本节为主库**基础组件**（`src/components/`，63 个）；组合组件见 [Doc 文档渲染](#doc-文档渲染)；[Chat 聊天面板](#chat-聊天面板) 为纯元组件模块（`src/composites/`）。分类定义见 [组件总览](./components.md#组件分类基础组件与组合组件)。
 
 ### 基础输入
 
@@ -1455,6 +1455,25 @@ import type { NeumorphismAsciiArtProps } from '@echolab-auto/ui-frame'
 | ariaLabel | `string`                                           | locale `asciiArtLabel` | 无障碍名称（`role="img"`）         |
 
 **Slots:** 默认插槽（覆盖层内容，不响应指针）
+
+---
+
+#### NeumorphismPixelFont
+
+```ts
+import { NeumorphismPixelFont } from '@echolab-auto/ui-frame'
+import type { NeumorphismPixelFontProps, PixelFontAlign } from '@echolab-auto/ui-frame'
+```
+
+| Props     | Type                            | Default  | Description                                           |
+| --------- | ------------------------------- | -------- | ----------------------------------------------------- |
+| text      | `string`                        | **必填** | 要渲染的文本（`\n` 换行；空白按字符栅格保留）         |
+| scale     | `number`                        | `3`      | 整数缩放倍率（1 = 11px 设计尺寸；非整数取整，下限 1） |
+| cursor    | `boolean`                       | `false`  | 末尾追加闪烁块光标（reduced-motion 下常亮）           |
+| align     | `'left' \| 'center' \| 'right'` | `'left'` | 文本对齐                                              |
+| ariaLabel | `string`                        | —        | 无障碍名称；传入时 `role="img"`（内部文本对读屏隐藏） |
+
+**说明:** 内嵌 termsyn 6x11 位图字体（GPL-2，stlarch 作；基于 Terminus 与 Tamsyn）——字族名 `'Termsyn 6x11'`，含 400 / 700 双字重。
 
 ---
 
@@ -3143,6 +3162,7 @@ function validateFieldValue(value: unknown, rules: FormRule[]): string | undefin
 | `NeumorphismTreeNodeProps`      | TreeNode      |
 | `NeumorphismArtProps`           | Art           |
 | `NeumorphismAsciiArtProps`      | AsciiArt      |
+| `NeumorphismPixelFontProps`     | PixelFont     |
 | `NeumorphismCanvasProps`        | Canvas        |
 | `NeumorphismPopoverProps`       | Popover       |
 | `NeumorphismDropdownProps`      | Dropdown      |

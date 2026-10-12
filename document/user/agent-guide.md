@@ -20,7 +20,7 @@ import NeumorphismUI from '@echolab-auto/ui-frame'
 import '@echolab-auto/ui-frame/dist/style.css'
 
 const app = createApp(App)
-app.use(NeumorphismUI) // 全局注册所有 62 个组件
+app.use(NeumorphismUI) // 全局注册所有 63 个组件
 app.mount('#app')
 ```
 
@@ -108,7 +108,7 @@ const { theme, isDark, toggleTheme } = provideTheme()
 
 ---
 
-## 4. 完整组件目录（62 个）
+## 4. 完整组件目录（63 个）
 
 以下为主库全局注册的**基础组件**（`src/components/`）；**组合组件**（Doc 文档渲染）与**纯元组件模块**（Chat 聊天面板，位于 `src/composites/`）经子路径 `@echolab-auto/ui-frame/doc`、`/chat` 引入，分类定义见 [组件总览](./components.md#组件分类基础组件与组合组件)。
 

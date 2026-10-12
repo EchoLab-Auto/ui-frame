@@ -113,6 +113,7 @@ import { NeumorphismButton } from '@echolab-auto/ui-frame'
 | `NeumorphismLogo`             | 动态像素 Logo            | `mode`, `size`, `autoplay`, `goo`         |
 | `NeumorphismArt`              | 生成艺术画布（5 种效果） | `effect`, `reactive`, `density`, `seed`   |
 | `NeumorphismAsciiArt`         | 图片转 ASCII 字符画      | `src`, `density`, `reactive`, `radius`    |
+| `NeumorphismPixelFont`        | 像素字体（termsyn 6x11） | `text`, `scale`, `cursor`, `align`        |
 
 ### 反馈
 

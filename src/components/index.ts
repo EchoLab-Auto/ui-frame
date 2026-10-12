@@ -171,6 +171,8 @@ export type { NeumorphismArtProps, ArtEffectName } from './NeumorphismArt'
 export { default as NeumorphismAsciiArt } from './NeumorphismAsciiArt'
 export type { NeumorphismAsciiArtProps, AsciiArtRadius } from './NeumorphismAsciiArt'
 
+export { default as NeumorphismPixelFont } from './NeumorphismPixelFont'
+export type { NeumorphismPixelFontProps, PixelFontAlign } from './NeumorphismPixelFont'
 // Multi-component directories
 export { NeumorphismRadio, NeumorphismRadioGroup } from './NeumorphismRadio'
 export type { NeumorphismRadioProps, NeumorphismRadioGroupProps } from './NeumorphismRadio'
