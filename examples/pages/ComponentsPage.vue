@@ -4,13 +4,7 @@ import { useTheme } from '../../src/composables/useTheme'
 import { useSelect } from '../../src/composables/useSelect'
 import { usePagination } from '../../src/composables/usePagination'
 import { useToast } from '../../src/composables/useToast'
-import {
-  ChatBubble,
-  ChatTray,
-  ChatFold,
-  ChatComposer,
-  ChatCopyButton,
-} from '../../src/composites/chat'
+import { ChatFold, ChatComposer, ChatCopyButton } from '../../src/composites/chat'
 import { DocCodeBlock, DocTocNav, type TocNode } from '../../src/composites/doc'
 import artImage from '../assets/images.jpeg'
 
@@ -129,14 +123,7 @@ const demoSegmentedOptions = [
   { label: '黑名单', value: 'denylist' },
 ]
 
-// --- 聊天元组件 ---
-const trayDemoItems = ref<string[]>(Array.from({ length: 12 }, (_, i) => `历史消息 ${i + 1}`))
-let trayDemoSeq = 12
-function trayDemoAdd() {
-  trayDemoSeq += 1
-  trayDemoItems.value.push(`新消息 ${trayDemoSeq}（贴底时自动跟随）`)
-}
-
+// --- 聊天原子组件 ---
 const composerDemoValue = ref('')
 const composerDemoSent = ref('')
 function composerDemoSend(content: string) {
@@ -246,10 +233,8 @@ const navCategories = [
     ],
   },
   {
-    title: '聊天元组件',
+    title: '聊天原子组件',
     items: [
-      { id: 'chat-bubble', label: '气泡 ChatBubble' },
-      { id: 'chat-tray', label: '托盘 ChatTray' },
       { id: 'chat-fold', label: '折叠块 ChatFold' },
       { id: 'chat-composer', label: '输入器 ChatComposer' },
     ],
@@ -2979,85 +2964,15 @@ const chartStockData = ref([
           <NeumorphismDivider />
 
           <!-- ============================================= -->
-          <!-- 分类：聊天元组件（chat 子路径模块）               -->
+          <!-- 分类：聊天原子组件（chat 子路径模块）               -->
           <!-- ============================================= -->
           <section class="category-section">
-            <h2 class="category-title">聊天元组件</h2>
+            <h2 class="category-title">聊天原子组件</h2>
             <p class="category-desc">
-              <code>@echolab-auto/ui-frame/chat</code> 子路径模块的纯 UI
-              原语：零领域类型、插槽驱动，可自由组装任意聊天式 UI。
-              数据驱动的整体组合效果见顶部导航「聊天组件」页。
+              <code>@echolab-auto/ui-frame/chat</code> 子路径模块的原子组件 （输入器 / 折叠块 /
+              复制按钮）：零领域类型、插槽驱动，可自由 组装任意聊天式
+              UI。整体组装效果见顶部导航「聊天组件」页。
             </p>
-
-            <!-- ChatBubble -->
-            <NeumorphismCard id="chat-bubble" :elevation="1" class="demo-card demo-card--full">
-              <template #header>
-                <div class="demo-header">
-                  <h3 class="demo-title">ChatBubble 气泡</h3>
-                  <span class="demo-badge">对齐 × 色调正交组合 · 悬停复制</span>
-                </div>
-              </template>
-
-              <div class="demo-block">
-                <h4 class="demo-label">对齐 × 色调</h4>
-                <div class="chat-demo-stage">
-                  <ChatBubble align="start">start + default：中性气泡（Agent 侧）</ChatBubble>
-                  <ChatBubble align="end" tone="primary">
-                    end + primary：主色气泡（用户侧）
-                  </ChatBubble>
-                  <ChatBubble align="center" tone="plain">
-                    center + plain：系统消息（细线夹文本）
-                  </ChatBubble>
-                </div>
-              </div>
-
-              <div class="demo-block">
-                <h4 class="demo-label">头部插槽 + 悬停复制</h4>
-                <div class="chat-demo-stage">
-                  <ChatBubble align="start" copy-text="这段正文可以被复制">
-                    <template #head>
-                      <strong style="font-size: var(--nm-font-xs)">Agent</strong>
-                      <span style="font-size: var(--nm-font-xs); color: var(--nm-text-placeholder)">
-                        16:32
-                      </span>
-                    </template>
-                    悬停气泡，头部右侧浮现复制按钮（触屏设备常显）。
-                  </ChatBubble>
-                </div>
-              </div>
-            </NeumorphismCard>
-
-            <!-- ChatTray -->
-            <NeumorphismCard id="chat-tray" :elevation="1" class="demo-card demo-card--full">
-              <template #header>
-                <div class="demo-header">
-                  <h3 class="demo-title">ChatTray 托盘</h3>
-                  <span class="demo-badge">凹陷托盘 · 吸底跟随 · 回到底部</span>
-                </div>
-              </template>
-
-              <div class="demo-block">
-                <h4 class="demo-label">与 ChatBubble 组合</h4>
-                <ChatTray :watch-source="() => trayDemoItems.length" class="chat-tray-demo">
-                  <ChatBubble
-                    v-for="(text, i) in trayDemoItems"
-                    :key="i"
-                    :align="i % 2 ? 'end' : 'start'"
-                    :tone="i % 2 ? 'primary' : 'default'"
-                  >
-                    {{ text }}
-                  </ChatBubble>
-                </ChatTray>
-                <div style="margin-top: 12px; display: flex; gap: 12px; align-items: center">
-                  <NeumorphismButton size="small" @click="trayDemoAdd">
-                    追加一条消息
-                  </NeumorphismButton>
-                  <span style="font-size: var(--nm-font-xs); color: var(--nm-text-placeholder)">
-                    贴底时新消息自动跟随；向上滚动出现"回到底部"按钮
-                  </span>
-                </div>
-              </div>
-            </NeumorphismCard>
 
             <!-- ChatFold -->
             <NeumorphismCard id="chat-fold" :elevation="1" class="demo-card demo-card--full">
@@ -4737,25 +4652,6 @@ const chartStockData = ref([
   border: 1px solid rgba(108, 122, 224, 0.2);
   border-radius: var(--nm-border-radius-sm);
   font-family: 'SF Mono', 'Fira Code', Menlo, Consolas, monospace;
-}
-
-// —— 聊天元组件演示 ——
-.chat-demo-stage {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  padding: var(--nm-spacing-md);
-  border-radius: var(--nm-border-radius-md);
-  background-color: var(--nm-chat-tray-bg);
-  box-shadow:
-    inset 2px 2px 6px var(--nm-shadow-dark),
-    inset -2px -2px 5px var(--nm-shadow-light);
-}
-
-.chat-tray-demo {
-  height: 260px;
-  border-radius: var(--nm-border-radius-md);
-  overflow: hidden;
 }
 
 // ==========================================

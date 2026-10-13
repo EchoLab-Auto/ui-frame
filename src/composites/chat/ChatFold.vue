@@ -19,10 +19,12 @@ const props = withDefaults(defineProps<ChatFoldProps>(), {
   expandable: true,
 })
 
-const emit = defineEmits<{
+export type ChatFoldEmits = {
   (e: 'update:open', value: boolean): void
   (e: 'toggle', value: boolean): void
-}>()
+}
+
+const emit = defineEmits<ChatFoldEmits>()
 
 // 受控 / 非受控混合：open 未传入时内部自维护
 const innerOpen = ref(props.defaultOpen)

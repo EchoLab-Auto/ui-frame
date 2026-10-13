@@ -313,12 +313,6 @@ export interface NeumorphismGlobalConfig {
     size?: 'small' | 'medium' | 'large'
     disabled?: boolean
   }
-  /** Default chat module props */
-  chat?: {
-    markdown?: boolean
-    autoScroll?: boolean
-    scrollThreshold?: number
-  }
 
   /** Locale configuration */
   locale?: 'zh-CN' | 'en-US'

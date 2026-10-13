@@ -65,7 +65,7 @@ import { NeumorphismButton, NeumorphismCard, useTheme } from '@echolab-auto/ui-f
 | `@echolab-auto/ui-frame/extensions`    | 扩展系统                | `import { ComponentRegistry } from '@echolab-auto/ui-frame/extensions'`    |
 | `@echolab-auto/ui-frame/utils`         | 工具函数                | `import { debounce } from '@echolab-auto/ui-frame/utils'`                  |
 | `@echolab-auto/ui-frame/doc`           | 文档渲染模块            | `import { DocViewer } from '@echolab-auto/ui-frame/doc'`                   |
-| `@echolab-auto/ui-frame/chat`          | 聊天面板模块            | `import { ChatTray } from '@echolab-auto/ui-frame/chat'`                   |
+| `@echolab-auto/ui-frame/chat`          | 聊天面板模块            | `import { ChatComposer } from '@echolab-auto/ui-frame/chat'`               |
 
 > 使用子路径导出时样式同样自动注入；仅无打包器场景需手动引入 `import '@echolab-auto/ui-frame/dist/style.css'`
 
@@ -1878,48 +1878,16 @@ interface UseDocLayoutReturn {
 > **依赖**：本模块自身不依赖可选 peer；如需在气泡内渲染 Markdown，可组合 doc 模块的 MarkdownRenderer（届时需安装 `marked` + `dompurify`）。
 
 ```ts
-import {
-  ChatBubble,
-  ChatTray,
-  ChatFold,
-  ChatComposer,
-  ChatCopyButton,
-} from '@echolab-auto/ui-frame/chat'
+import { ChatComposer, ChatFold, ChatCopyButton } from '@echolab-auto/ui-frame/chat'
+import { useChatScroll } from '@echolab-auto/ui-frame/composables/useChatScroll'
 import type { ChatMessage } from '@echolab-auto/ui-frame/chat'
 
-// 宿主自组消息行：ChatTray 托盘内 v-for 渲染 ChatBubble（role → align/tone 映射）
+// 宿主自组消息行：useChatScroll（吸底）+ v-for 气泡行（宿主 CSS 配方）
+//（ChatBubble / ChatTray 已于 2026-10-13 解散——组装件，见 changeset
+// remove-chat-bubble-tray；气泡壳/托盘由宿主以原子 + headless 自组。）
 ```
 
-### 元组件
-
-#### ChatBubble
-
-消息气泡壳：对齐与色调正交组合，头部/正文全插槽。
-
-| Props    | Type                                | Default     | Description                                            |
-| -------- | ----------------------------------- | ----------- | ------------------------------------------------------ |
-| align    | `'start' \| 'end' \| 'center'`      | `'start'`   | 水平对齐（end 居右、center 居中）                      |
-| tone     | `'default' \| 'primary' \| 'plain'` | `'default'` | default 中性气泡 / primary 主色气泡 / plain 无气泡平铺 |
-| copyText | `string`                            | `''`        | 传入则头部显示悬停浮现的复制按钮                       |
-
-**Slots:** `head`（头部行）、default（正文）
-
-**说明：** `primary + end` 压右下角、`default + start` 压左下角（非对称圆角暗示方向）；`plain + center` 出"细线夹文本"系统消息样式。
-
-#### ChatTray
-
-凹陷滚动托盘：吸底跟随 + 离开底部时的"回到底部"按钮。初始挂载瞬时吸底。
-
-| Props           | Type            | Default     | Description                                  |
-| --------------- | --------------- | ----------- | -------------------------------------------- |
-| autoScroll      | `boolean`       | `true`      | 新内容到达时自动吸底（用户本就在底部才跟随） |
-| scrollThreshold | `number`        | `120`       | 距底部多少 px 内视为贴底                     |
-| watchSource     | `() => unknown` | `undefined` | 内容变化侦听源（如 `() => messages.length`） |
-| jumpLabel       | `string`        | locale 文案 | 跳转按钮无障碍文本                           |
-
-**Slots:** default（托盘内容）
-
-**Exposes:** `isNearBottom`、`showJumpButton`、`scrollToBottom(behavior?)`、`recheck()`
+### 原子组件
 
 #### ChatFold
 

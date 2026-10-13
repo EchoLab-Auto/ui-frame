@@ -1,16 +1,15 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import {
-  ChatBubble,
-  ChatTray,
   ChatComposer,
   ChatFold,
-  type ChatBubbleAlign,
-  type ChatBubbleTone,
+  ChatCopyButton,
   type ChatMessage,
   type ChatRole,
   type ChatToolStatus,
 } from '../../src/composites/chat'
+import { useChatScroll } from '../../src/composables/useChatScroll'
+import NeumorphismButton from '../../src/components/NeumorphismButton/NeumorphismButton.vue'
 import NeumorphismStatusDot from '../../src/components/NeumorphismStatusDot/NeumorphismStatusDot.vue'
 import NeumorphismTag from '../../src/components/NeumorphismTag/NeumorphismTag.vue'
 
@@ -19,13 +18,15 @@ const nextId = () => `demo-${++seq}`
 
 const now = () => Math.floor(Date.now() / 1000)
 
-// —— 宿主自组行模型：role → 气泡对齐/色调 + 角色名 ——
-const roleMap: Record<ChatRole, { label: string; align: ChatBubbleAlign; tone: ChatBubbleTone }> = {
-  user: { label: '用户', align: 'end', tone: 'primary' },
-  agent: { label: 'Echo', align: 'start', tone: 'default' },
-  system: { label: '系统', align: 'center', tone: 'plain' },
-  tool: { label: '工具', align: 'start', tone: 'default' },
-  branch: { label: '分支', align: 'start', tone: 'default' },
+// —— 宿主自组行模型：role → 气泡样式变体 + 角色名 ——
+//（2026-10-13 起：ui-frame 解散 ChatBubble，气泡壳样式 / 角色映射由宿主
+// CSS 承担——本页即"原子组装参考实现"。）
+const roleMap: Record<ChatRole, { label: string; variant: 'user' | 'agent' | 'system' }> = {
+  user: { label: '用户', variant: 'user' },
+  agent: { label: 'Echo', variant: 'agent' },
+  system: { label: '系统', variant: 'system' },
+  tool: { label: '工具', variant: 'agent' },
+  branch: { label: '分支', variant: 'agent' },
 }
 
 const toolStatusText: Record<ChatToolStatus, string> = {
@@ -113,8 +114,12 @@ const messages = ref<ChatMessage[]>([
   },
 ])
 
-// ChatTray 吸底侦听源：消息条数变化时重新评估
-const watchSource = () => messages.value.length
+// 吸底滚动（headless）：滚动容器 + 侦听源（消息条数变化时重估）
+const trayRef = ref<HTMLElement | null>(null)
+const { showJumpButton, handleScroll, scrollToBottom } = useChatScroll({
+  container: trayRef,
+  watchSource: () => messages.value.length,
+})
 
 const input = ref('')
 
@@ -154,20 +159,41 @@ function handleCancel() {
         <NeumorphismTag size="small" rounded>deepseek-v4-flash</NeumorphismTag>
       </header>
 
-      <ChatTray class="chat-window__list" :watch-source="watchSource">
-        <ChatBubble
-          v-for="message in messages"
-          :key="message.id"
-          :align="roleMap[message.role].align"
-          :tone="roleMap[message.role].tone"
+      <div class="chat-window__tray">
+        <div
+          ref="trayRef"
+          class="chat-window__list"
+          role="log"
+          aria-live="polite"
+          @scroll="handleScroll"
         >
-          <template v-if="message.role !== 'system'" #head>
-            <span class="chat-row__role">{{ roleMap[message.role].label }}</span>
-            <span v-if="message.time" class="chat-row__time">{{ formatTime(message.time) }}</span>
-          </template>
-          {{ messageText(message) }}
-        </ChatBubble>
-      </ChatTray>
+          <div
+            v-for="message in messages"
+            :key="message.id"
+            class="chat-row"
+            :class="`chat-row--${roleMap[message.role].variant}`"
+          >
+            <div v-if="message.role !== 'system'" class="chat-row__head">
+              <span class="chat-row__role">{{ roleMap[message.role].label }}</span>
+              <span v-if="message.time" class="chat-row__time">{{ formatTime(message.time) }}</span>
+              <span class="chat-row__spacer" />
+              <ChatCopyButton :text="messageText(message)" />
+            </div>
+            <div class="chat-row__content">{{ messageText(message) }}</div>
+          </div>
+        </div>
+        <NeumorphismButton
+          v-if="showJumpButton"
+          class="chat-window__jump"
+          shape="pill"
+          size="small"
+          aria-label="回到底部"
+          title="回到底部"
+          @click="scrollToBottom()"
+        >
+          ↓
+        </NeumorphismButton>
+      </div>
 
       <ChatComposer v-model="input" cancelable @send="handleSend" @cancel="handleCancel" />
     </section>
@@ -176,17 +202,20 @@ function handleCancel() {
     <section class="custom-demo" aria-label="元组件自定义组装演示">
       <h2 class="custom-demo__title">元组件自定义组装</h2>
       <div class="custom-demo__stage">
-        <ChatBubble align="start" copy-text="这段内容可以被复制">
-          <template #head>
+        <div class="chat-row chat-row--agent">
+          <div class="chat-row__head">
             <NeumorphismStatusDot status="busy" size="small" />
-            <span style="font-size: var(--nm-font-xs); color: var(--nm-text-placeholder)">
-              自定义头部：状态点 + 任意内容
-            </span>
-          </template>
-          这是用 <code>ChatBubble</code> 直接拼的消息壳：对齐 / 色调 / 复制按钮都是 prop，
-          头部与正文全是插槽。
-        </ChatBubble>
-        <ChatBubble align="end" tone="primary"> 无头部的主色气泡 —— 只传正文。 </ChatBubble>
+            <span class="chat-row__role">自定义头部：状态点 + 任意内容</span>
+            <span class="chat-row__spacer" />
+            <ChatCopyButton text="这段内容可以被复制" />
+          </div>
+          <div class="chat-row__content">
+            这是宿主 CSS 拼出的消息壳：对齐 / 色调 / 复制按钮由宿主配方承担。
+          </div>
+        </div>
+        <div class="chat-row chat-row--user">
+          <div class="chat-row__content">无头部的用户侧气泡 —— 只放正文。</div>
+        </div>
         <ChatFold>
           <template #head="{ open }">
             <span style="font-size: var(--nm-font-sm)">
@@ -201,7 +230,7 @@ function handleCancel() {
     </section>
 
     <p class="chat-page__hint">
-      宿主自组消息行：ChatTray + v-for ChatBubble（role → 对齐/色调映射） · 吸底滚动 · Enter
+      宿主自组消息行：useChatScroll + v-for 气泡行（role → 宿主样式映射） · 吸底滚动 · Enter
       发送（IME 安全） · 正文纯文本
     </p>
   </div>
@@ -274,17 +303,144 @@ function handleCancel() {
   font-family: var(--nm-font-mono);
 }
 
+// ── 宿主配方（2026-10-13 起替代库内 ChatTray/ChatBubble 组装件）────────────
+// 托盘：凹陷滚动井 + 吸底跳转钮定位（行为在 useChatScroll，视觉由宿主承担）
+.chat-window__tray {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
 .chat-window__list {
   flex: 1;
   min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--nm-spacing-12);
+  padding: 18px var(--nm-spacing-md);
+  background-color: var(--nm-chat-tray-bg);
+  box-shadow:
+    inset 2px 2px 6px var(--nm-shadow-dark),
+    inset -1px -1px 4px var(--nm-shadow-light);
+  scrollbar-width: thin;
+  scrollbar-color: var(--nm-neutral-300) transparent;
 }
 
-// 宿主自组行头：角色 / 时间，压低存在感
+.chat-window__jump {
+  position: absolute;
+  right: var(--nm-spacing-md);
+  bottom: var(--nm-spacing-md);
+}
+
+// 消息行（宿主自组气泡壳：对齐 / 色调 / 圆角暗示方向）
+.chat-row {
+  max-width: min(78%, 640px);
+  padding: var(--nm-spacing-sm) var(--nm-spacing-14);
+  border-radius: var(--nm-border-radius-md);
+
+  &--user {
+    align-self: flex-end;
+    background-color: var(--nm-chat-user-bg);
+    box-shadow:
+      3px 3px 10px var(--nm-shadow-dark),
+      -2px -2px 8px var(--nm-shadow-light);
+    // 非对称圆角：居右压右下角
+    border-radius: var(--nm-border-radius-md) var(--nm-border-radius-md) var(--nm-border-radius-xs)
+      var(--nm-border-radius-md);
+  }
+
+  &--agent {
+    align-self: flex-start;
+    background-color: var(--nm-chat-agent-bg);
+    box-shadow:
+      3px 3px 10px var(--nm-shadow-dark),
+      -2px -2px 8px var(--nm-shadow-light);
+    border-radius: var(--nm-border-radius-md) var(--nm-border-radius-md) var(--nm-border-radius-md)
+      var(--nm-border-radius-xs);
+  }
+
+  &--system {
+    align-self: center;
+    max-width: 92%;
+    padding: 0 var(--nm-spacing-sm);
+    color: var(--nm-chat-system-color);
+    font-size: var(--nm-font-sm);
+    background: none;
+    box-shadow: none;
+    display: flex;
+    align-items: center;
+    gap: var(--nm-spacing-sm);
+
+    &::before,
+    &::after {
+      content: '';
+      height: 1px;
+      width: 32px;
+      background: var(--nm-shadow-dark);
+    }
+  }
+}
+
+// 行头（宿主自组）：角色 / 时间 / 复制按钮（悬停浮现）
+.chat-row__head {
+  display: flex;
+  align-items: center;
+  gap: var(--nm-spacing-xs);
+  margin-bottom: var(--nm-spacing-2xs);
+}
+
+.chat-row__spacer {
+  flex: 1;
+}
+
 .chat-row__role {
   font-size: var(--nm-font-xs);
   font-weight: 600;
   color: var(--nm-text-secondary);
   letter-spacing: 0.02em;
+}
+
+.chat-row__time {
+  font-size: var(--nm-font-xs);
+  color: var(--nm-text-disabled);
+  font-variant-numeric: tabular-nums;
+}
+
+.chat-row__content {
+  color: var(--nm-text-primary);
+  font-size: var(--nm-font-md);
+  line-height: 1.65;
+  white-space: pre-wrap;
+  word-break: break-word;
+
+  // MarkdownRenderer 自带排版，关闭外层 pre-wrap 双重作用
+  &:has(.neumorphism-markdown) {
+    white-space: normal;
+  }
+
+  .chat-row--system & {
+    color: inherit;
+    font-size: inherit;
+  }
+}
+
+// 复制按钮平时隐藏，悬停行时浮现（触屏常显）
+.chat-row .nm-chat-copy {
+  opacity: 0;
+  transition: opacity 0.2s ease;
+
+  @media (hover: hover) {
+    .chat-row:hover & {
+      opacity: 1;
+    }
+  }
+
+  @media (hover: none) {
+    opacity: 1;
+  }
 }
 
 .chat-row__time {
