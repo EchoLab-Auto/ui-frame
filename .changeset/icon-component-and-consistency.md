@@ -4,7 +4,7 @@
 
 新增 `NeumorphismIcon` 图标组件与 `icons` 子路径，并在图标体系上做了三处规范修复（Design Philosophy §8）。
 
-**图标注册表（新增 `@echolab-auto/ui-frame/icons` 子路径）**：`ICON_REGISTRY` 集中定义 55 个语义图标（导航 / 状态 / 文件 / 操作 / 数据 / 消息与智能六组），24 基准 viewBox、线框单色；同时导出 `ICON_NAMES`、`ICON_SIZE_PX`、`ICON_SIZE_ALLOWED`、`ICON_STROKE_ALLOWED`、`defaultStrokeWidth()`。子路径独立打包（`dist/icons/index.js`），只装图标表、不拖整包。此前库内 **31 个组件各自内联 75 个 `<svg>`**，同一几何反复重写（`close` 9 处、`chevron-down` 5 处、`chevron-right` 3 处、`check` 2 处、spinner 弧 2 处）——规范只能被"检查"不能被"复用"，也是消费方被迫自建图标体系的根因。
+**图标注册表（新增 `@echolab-auto/ui-frame/icons` 子路径）**：`ICON_REGISTRY` 集中定义 65 个语义图标（导航 / 状态 / 文件 / 操作 / 数据 / 消息与智能 / 画布七组），24 基准 viewBox、线框单色；同时导出 `ICON_NAMES`、`ICON_SIZE_PX`、`ICON_SIZE_ALLOWED`、`ICON_STROKE_ALLOWED`、`defaultStrokeWidth()`。子路径独立打包（`dist/icons/index.js`），只装图标表、不拖整包。此前库内 **31 个组件各自内联 75 个 `<svg>`**，同一几何反复重写（`close` 9 处、`chevron-down` 5 处、`chevron-right` 3 处、`check` 2 处、spinner 弧 2 处）——规范只能被"检查"不能被"复用"，也是消费方被迫自建图标体系的根因。
 
 **`NeumorphismIcon` 组件**：`name` / `size`（七档 `xs`12 `sm`14 `md`16 `lg`18 `xl`20 `2xl`24 `3xl`32，或数字直传）/ `strokeWidth`（可选覆盖）/ `spin` / `pulse` / `label`。线宽按显示尺寸自动取档（≤12 → `2.5` 微图标补偿；≥24 → `1.5` 大图标轻描；其余 `2`）；`spin` / `pulse` 两个布尔动效（`transform-box: view-box` 锁定旋转中心，`prefers-reduced-motion` 下停用）；`label` 有值时 `role="img"` + `aria-label`，留空则 `aria-hidden`。
 
