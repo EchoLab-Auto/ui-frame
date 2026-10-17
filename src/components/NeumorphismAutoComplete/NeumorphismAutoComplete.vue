@@ -282,16 +282,7 @@ const isLoadingState = computed(() => loadingRef.value)
 
           <!-- Loading spinner -->
           <span v-if="isLoadingState" class="nm-autocomplete__spinner" aria-hidden="true">
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <path d="M12 2a10 10 0 1 0 10 10" />
-            </svg>
+            <NeumorphismIcon name="spinner" size="sm" spin />
           </span>
 
           <!-- Dropdown arrow -->
@@ -343,17 +334,7 @@ const isLoadingState = computed(() => loadingRef.value)
 
           <!-- Loading state -->
           <div v-else-if="isLoadingState" class="nm-autocomplete__loading">
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              class="nm-autocomplete__loading-icon"
-            >
-              <path d="M12 2a10 10 0 1 0 10 10" />
-            </svg>
+            <NeumorphismIcon name="spinner" size="md" spin class="nm-autocomplete__loading-icon" />
             <span>Searching…</span>
           </div>
         </div>
@@ -424,13 +405,7 @@ const isLoadingState = computed(() => loadingRef.value)
   align-items: center;
   justify-content: center;
   color: var(--nm-primary-color);
-  animation: nm-autocomplete-spin 0.8s linear infinite;
-}
-
-@keyframes nm-autocomplete-spin {
-  to {
-    transform: rotate(360deg);
-  }
+  /* 旋转由 <NeumorphismIcon spin> 提供（2026-10 图标统一），此处不再重复声明 */
 }
 
 .nm-autocomplete__arrow {
@@ -557,7 +532,6 @@ const isLoadingState = computed(() => loadingRef.value)
 }
 
 .nm-autocomplete__loading-icon {
-  animation: nm-autocomplete-spin 0.8s linear infinite;
   color: var(--nm-primary-color);
   flex-shrink: 0;
 }

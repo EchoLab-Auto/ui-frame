@@ -534,19 +534,14 @@ function onContainerBlur(e: FocusEvent) {
           >
             <NeumorphismIcon name="close" size="sm" />
           </button>
-          <svg
+          <NeumorphismIcon
             v-if="loading"
+            name="spinner"
+            size="md"
+            spin
             class="nm-select__spinner"
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
             aria-hidden="true"
-          >
-            <path d="M12 2a10 10 0 1 0 10 10" />
-          </svg>
+          />
           <NeumorphismIcon
             v-else
             name="chevron-down"
@@ -589,18 +584,13 @@ function onContainerBlur(e: FocusEvent) {
           >
             <!-- 加载态 -->
             <div v-if="loading" class="nm-select__loading">
-              <svg
+              <NeumorphismIcon
+                name="spinner"
+                size="md"
+                spin
                 class="nm-select__loading-icon"
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
                 aria-hidden="true"
-              >
-                <path d="M12 2a10 10 0 1 0 10 10" />
-              </svg>
+              />
               <span>{{ resolvedLoadingText }}</span>
             </div>
 
@@ -894,7 +884,7 @@ function onContainerBlur(e: FocusEvent) {
 
 .nm-select__spinner {
   color: var(--nm-primary-color);
-  animation: nm-spin 0.8s linear infinite;
+  /* 旋转由 <NeumorphismIcon spin> 提供（2026-10 图标统一） */
 }
 
 .nm-select__arrow {
@@ -1198,7 +1188,6 @@ function onContainerBlur(e: FocusEvent) {
 
 .nm-select__loading-icon {
   color: var(--nm-primary-color);
-  animation: nm-spin 0.8s linear infinite;
   flex-shrink: 0;
 }
 
