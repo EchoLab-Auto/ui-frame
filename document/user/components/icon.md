@@ -7,7 +7,7 @@ y: 1200
 
 # NeumorphismIcon 图标
 
-> 线框单色图标组件。52 个语义名集中定义在 `src/icons/registry.ts`，内置组件与业务代码共用同一套几何——不再各自内联 `<path>`，也不再需要用 emoji 或字符顶替图标。
+> 线框单色图标组件。55 个语义名集中定义在 `src/icons/registry.ts`，内置组件与业务代码共用同一套几何——不再各自内联 `<path>`，也不再需要用 emoji 或字符顶替图标。
 
 ## 为什么需要它
 
@@ -46,7 +46,7 @@ import { ICON_NAMES, ICON_REGISTRY } from '@echolab-auto/ui-frame/icons'
 
 | Prop          | 类型                                                                 | 默认    | 说明                                                                             |
 | ------------- | -------------------------------------------------------------------- | ------- | -------------------------------------------------------------------------------- |
-| `name`        | `IconName`（52 个语义名）                                            | —       | 必填。未知名回退 `close`（不空白、不报错）                                       |
+| `name`        | `IconName`（55 个语义名）                                            | —       | 必填。未知名回退 `close`（不空白、不报错）                                       |
 | `size`        | `'xs' \| 'sm' \| 'md' \| 'lg' \| 'xl' \| '2xl' \| '3xl'` 或 `number` | `'sm'`  | 档位对应 12/14/16/18/20/24/32；数字直传，须落在这 7 个值上（`check:icons` 校验） |
 | `strokeWidth` | `number`                                                             | —       | 覆盖按档自动值；合法 0.5/1/1.5/2/2.5/3                                           |
 | `spin`        | `boolean`                                                            | `false` | 匀速旋转（`1s linear`，`transform-box: view-box` 锁定中心）                      |
@@ -71,7 +71,7 @@ import { ICON_NAMES, ICON_REGISTRY } from '@echolab-auto/ui-frame/icons'
 
 线宽档语义（§8）：`2` 标准 / `2.5` 微图标补偿（≤12px）与转圈 / `3` 勾选标记 / `1.5` 大图标轻描（≥24px）/ `1`·`0.5` 图表细线（数据可视化豁免）。
 
-## 图标目录（52 个）
+## 图标目录（55 个）
 
 | 分组       | 语义名                                                                                                                          |
 | ---------- | ------------------------------------------------------------------------------------------------------------------------------- |
@@ -81,6 +81,7 @@ import { ICON_NAMES, ICON_REGISTRY } from '@echolab-auto/ui-frame/icons'
 | 操作       | `gear` `refresh` `plus` `search` `trash` `copy` `pin` `grip` `more` `drag`                                                      |
 | 数据与内容 | `table` `list` `chart` `calendar` `clock` `user` `users` `upload` `download` `image` `eye` `language`                           |
 | 主题与状态 | `sun` `moon` `monitor` `spinner`                                                                                                |
+| 消息与智能 | `message` `network` `sparkle`                                                                                                   |
 
 实心图标（`dot` / `grip` / `more`）在注册表里标 `filled: true`，渲染时 `fill: currentColor` + `stroke: none`，颜色仍随 `currentColor`。
 
@@ -88,7 +89,7 @@ import { ICON_NAMES, ICON_REGISTRY } from '@echolab-auto/ui-frame/icons'
 
 ```ts
 import { ICON_NAMES } from '@echolab-auto/ui-frame/icons'
-console.log(ICON_NAMES.length) // 52
+console.log(ICON_NAMES.length) // 55
 ```
 
 ## 自定义图标
