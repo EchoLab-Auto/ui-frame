@@ -115,7 +115,7 @@ group: 开发
 
 **唯一实现：`NeumorphismIcon`**（2026-10）
 
-图标几何集中在 `src/icons/registry.ts`（65 个语义名，24 基准 viewBox），由
+图标几何集中在 `src/icons/registry.ts`（79 个语义名，24 基准 viewBox），由
 `NeumorphismIcon` 渲染——**组件与业务代码都不得再各自内联 `<path>`**：
 
 ```vue
