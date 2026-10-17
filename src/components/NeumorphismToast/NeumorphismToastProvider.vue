@@ -93,52 +93,10 @@ const classList = computed(() => [
             :role="toast.type === 'error' || toast.type === 'warning' ? 'alert' : 'status'"
           >
             <span class="nm-toast__icon">
-              <svg
-                v-if="toast.type === 'success'"
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-              >
-                <path d="M5 13l4 4L19 7" />
-              </svg>
-              <svg
-                v-else-if="toast.type === 'error'"
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-              >
-                <circle cx="12" cy="12" r="10" />
-                <path d="M15 9l-6 6M9 9l6 6" />
-              </svg>
-              <svg
-                v-else-if="toast.type === 'warning'"
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-              >
-                <path d="M12 2L2 22h20L12 2zM12 9v4M12 17v1" />
-              </svg>
-              <svg
-                v-else
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-              >
-                <circle cx="12" cy="12" r="10" />
-                <path d="M12 16v-4M12 8v-1" />
-              </svg>
+              <NeumorphismIcon v-if="toast.type === 'success'" name="check" size="lg" />
+              <NeumorphismIcon v-else-if="toast.type === 'error'" name="circle-close" size="lg" />
+              <NeumorphismIcon v-else-if="toast.type === 'warning'" name="warning" size="lg" />
+              <NeumorphismIcon v-else name="circle-info" size="lg" />
             </span>
             <span class="nm-toast__message">{{ toast.message }}</span>
             <button

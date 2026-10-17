@@ -3,6 +3,7 @@ import { computed, onBeforeUnmount } from 'vue'
 import { useNeumorphismSetup } from '@/extensions/createComponent'
 import { useNumberInput } from '@/composables/useNumberInput'
 import NeumorphismFieldLabel from '@/components/NeumorphismField/NeumorphismFieldLabel.vue'
+import NeumorphismIcon from '@/components/NeumorphismIcon/NeumorphismIcon.vue'
 
 defineOptions({ inheritAttrs: false })
 
@@ -170,18 +171,7 @@ function onFocus(event: FocusEvent): void {
         @dblclick.prevent
       >
         <span class="nm-input-number__btn-icon" aria-hidden="true">
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <path d="M5 12h14" />
-          </svg>
+          <NeumorphismIcon name="minus" size="md" />
         </span>
       </button>
 
@@ -217,18 +207,7 @@ function onFocus(event: FocusEvent): void {
         @dblclick.prevent
       >
         <span class="nm-input-number__btn-icon" aria-hidden="true">
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <path d="M12 5v14M5 12h14" />
-          </svg>
+          <NeumorphismIcon name="plus" size="md" />
         </span>
       </button>
     </div>

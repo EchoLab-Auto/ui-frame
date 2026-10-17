@@ -2,6 +2,7 @@
 import { computed, ref, watch, useAttrs } from 'vue'
 import { useCheckable } from '@/composables/useCheckable'
 import { useNeumorphismSetup } from '@/extensions/createComponent'
+import NeumorphismIcon from '@/components/NeumorphismIcon/NeumorphismIcon.vue'
 
 export interface NeumorphismCheckboxProps {
   modelValue?: boolean
@@ -93,18 +94,18 @@ function handleChange(event: Event): void {
         @change="handleChange"
       />
       <span class="nm-checkbox__box" aria-hidden="true">
-        <svg v-if="indeterminate" class="nm-checkbox__icon" viewBox="0 0 24 24" fill="none">
-          <path d="M5 12H19" stroke="currentColor" stroke-width="3" stroke-linecap="round" />
-        </svg>
-        <svg v-else-if="isChecked" class="nm-checkbox__icon" viewBox="0 0 24 24" fill="none">
-          <path
-            d="M5 13l4 4L19 7"
-            stroke="currentColor"
-            stroke-width="3"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          />
-        </svg>
+        <NeumorphismIcon
+          v-if="indeterminate"
+          name="minus"
+          class="nm-checkbox__icon"
+          :stroke-width="3"
+        />
+        <NeumorphismIcon
+          v-else-if="isChecked"
+          name="check"
+          class="nm-checkbox__icon"
+          :stroke-width="3"
+        />
       </span>
     </span>
     <span v-if="label || $slots.default" class="nm-checkbox__label">

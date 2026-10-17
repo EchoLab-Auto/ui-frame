@@ -640,17 +640,12 @@ function onContainerBlur(e: FocusEvent) {
                       :class="{ 'nm-select__checkbox--checked': isSelected(option) }"
                       aria-hidden="true"
                     >
-                      <svg
+                      <NeumorphismIcon
                         v-if="isSelected(option)"
-                        width="12"
-                        height="12"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="3"
-                      >
-                        <path d="M20 6L9 17l-5-5" />
-                      </svg>
+                        name="check"
+                        size="xs"
+                        :stroke-width="3"
+                      />
                     </span>
                     <span class="nm-select__option-label">{{ option.label }}</span>
                   </div>
@@ -689,17 +684,12 @@ function onContainerBlur(e: FocusEvent) {
                     :class="{ 'nm-select__checkbox--checked': isSelected(option) }"
                     aria-hidden="true"
                   >
-                    <svg
+                    <NeumorphismIcon
                       v-if="isSelected(option)"
-                      width="12"
-                      height="12"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="3"
-                    >
-                      <path d="M20 6L9 17l-5-5" />
-                    </svg>
+                      name="check"
+                      size="xs"
+                      :stroke-width="3"
+                    />
                   </span>
                   <span class="nm-select__option-label">{{ option.label }}</span>
                 </div>
