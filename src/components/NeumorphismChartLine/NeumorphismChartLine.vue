@@ -300,7 +300,7 @@ function onPointClick(pt: { dataIndex: number; seriesIndex: number; value: numbe
                 : plotSize.width / 2)
             "
             :y="resolvedMargin.top + plotSize.height + 20"
-            text-anchor="middle"
+            :text-anchor="i === 0 ? 'start' : i === xAxisLabels.length - 1 ? 'end' : 'middle'"
             fill="var(--nm-chart-label-color)"
             class="nm-chart__tick-label"
           >
