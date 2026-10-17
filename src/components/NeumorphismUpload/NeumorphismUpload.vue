@@ -4,6 +4,7 @@ import { useUpload } from '@/composables/useUpload'
 import type { UploadFile, UploadStatus } from '@/composables/useUpload'
 import { useNeumorphismSetup } from '@/extensions/createComponent'
 import { useLocale } from '@/composables/useLocale'
+import NeumorphismIcon from '@/components/NeumorphismIcon/NeumorphismIcon.vue'
 
 export type { UploadFile, UploadStatus }
 
@@ -244,39 +245,19 @@ function formatFileSize(bytes: number): string {
       <!-- @slot Custom trigger content. Bind: dragOver, disabled -->
       <slot name="trigger" :drag-over="dragOver" :disabled="disabled">
         <div class="nm-upload__trigger-content">
-          <svg
+          <NeumorphismIcon
             v-if="dragOver"
+            name="upload"
+            size="3xl"
             class="nm-upload__trigger-icon nm-upload__trigger-icon--drop"
-            width="32"
-            height="32"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1.5"
-            stroke-linecap="round"
-            stroke-linejoin="round"
             aria-hidden="true"
-          >
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-            <polyline points="17,8 12,3 7,8" />
-            <line x1="12" y1="3" x2="12" y2="15" />
-          </svg>
-          <svg
-            v-else
+          />
+          <NeumorphismIcon
+            name="plus"
+            size="3xl"
             class="nm-upload__trigger-icon"
-            width="32"
-            height="32"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1.5"
-            stroke-linecap="round"
-            stroke-linejoin="round"
             aria-hidden="true"
-          >
-            <line x1="12" y1="5" x2="12" y2="19" />
-            <line x1="5" y1="12" x2="19" y2="12" />
-          </svg>
+          />
           <span class="nm-upload__trigger-text">
             {{ dragOver ? dropTextLabel : triggerTextLabel }}
           </span>
@@ -298,21 +279,7 @@ function formatFileSize(bytes: number): string {
       @keydown.space.prevent="onTriggerClick"
     >
       <slot name="trigger" :drag-over="false" :disabled="disabled">
-        <svg
-          class="nm-upload__trigger-icon"
-          width="20"
-          height="20"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          aria-hidden="true"
-        >
-          <line x1="12" y1="5" x2="12" y2="19" />
-          <line x1="5" y1="12" x2="19" y2="12" />
-        </svg>
+        <NeumorphismIcon name="plus" size="xl" class="nm-upload__trigger-icon" aria-hidden="true" />
         <span>{{ triggerTextLabel }}</span>
       </slot>
     </div>
@@ -352,50 +319,11 @@ function formatFileSize(bytes: number): string {
               <path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round" />
             </svg>
             <!-- Done check -->
-            <svg
-              v-else-if="file.status === 'done'"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <polyline points="20,6 9,17 4,12" />
-            </svg>
+            <NeumorphismIcon v-else-if="file.status === 'done'" name="check" size="md" />
             <!-- Error cross -->
-            <svg
-              v-else-if="file.status === 'error'"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <circle cx="12" cy="12" r="10" />
-              <line x1="15" y1="9" x2="9" y2="15" />
-              <line x1="9" y1="9" x2="15" y2="15" />
-            </svg>
+            <NeumorphismIcon v-else-if="file.status === 'error'" name="circle-close" size="md" />
             <!-- Pending file icon -->
-            <svg
-              v-else
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z" />
-              <polyline points="13,2 13,9 20,9" />
-            </svg>
+            <NeumorphismIcon v-else name="file" size="md" />
           </span>
           <a
             v-if="file.url"
@@ -426,20 +354,7 @@ function formatFileSize(bytes: number): string {
             :aria-label="`${resolvedRemoveLabel} ${file.name}`"
             @click="onRemove(file)"
           >
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              aria-hidden="true"
-            >
-              <line x1="18" y1="6" x2="6" y2="18" />
-              <line x1="6" y1="6" x2="18" y2="18" />
-            </svg>
+            <NeumorphismIcon name="close" size="sm" />
           </button>
         </div>
       </template>
@@ -462,17 +377,7 @@ function formatFileSize(bytes: number): string {
           >
             <img :src="file.url" :alt="file.name" class="nm-upload__item-img" />
             <span v-if="hoveredFileId === file.id" class="nm-upload__item-overlay">
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-              >
-                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                <circle cx="12" cy="12" r="3" />
-              </svg>
+              <NeumorphismIcon name="eye" size="xl" />
             </span>
           </button>
           <div class="nm-upload__item-info">
@@ -491,20 +396,7 @@ function formatFileSize(bytes: number): string {
             :aria-label="`${resolvedRemoveLabel} ${file.name}`"
             @click="onRemove(file)"
           >
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              aria-hidden="true"
-            >
-              <line x1="18" y1="6" x2="6" y2="18" />
-              <line x1="6" y1="6" x2="18" y2="18" />
-            </svg>
+            <NeumorphismIcon name="close" size="sm" />
           </button>
         </div>
       </template>
@@ -536,17 +428,7 @@ function formatFileSize(bytes: number): string {
                 :aria-label="`${props.previewLabel || t('uploadPreview')} ${file.name}`"
                 @click.stop="onPreview(file)"
               >
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                >
-                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                  <circle cx="12" cy="12" r="3" />
-                </svg>
+                <NeumorphismIcon name="eye" size="md" />
               </button>
               <button
                 type="button"
@@ -554,21 +436,7 @@ function formatFileSize(bytes: number): string {
                 :aria-label="`${resolvedRemoveLabel} ${file.name}`"
                 @click.stop="onRemove(file)"
               >
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                >
-                  <polyline points="3,6 5,6 21,6" />
-                  <path
-                    d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
-                  />
-                </svg>
+                <NeumorphismIcon name="trash" size="md" />
               </button>
             </div>
           </div>

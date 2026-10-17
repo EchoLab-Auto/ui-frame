@@ -314,20 +314,7 @@ function handleCalendarKeydown(event: KeyboardEvent) {
             <NeumorphismIcon name="close" size="sm" />
           </button>
           <!-- Calendar icon -->
-          <svg
-            class="nm-datepicker__icon"
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-            <line x1="16" y1="2" x2="16" y2="6" />
-            <line x1="8" y1="2" x2="8" y2="6" />
-            <line x1="3" y1="10" x2="21" y2="10" />
-          </svg>
+          <NeumorphismIcon name="calendar" size="md" class="nm-datepicker__icon" />
         </span>
       </div>
 
@@ -342,17 +329,7 @@ function handleCalendarKeydown(event: KeyboardEvent) {
               :aria-label="resolvedPrevYearLabel"
               @click="prevYear"
             >
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-              >
-                <polyline points="11 17 6 12 11 7" />
-                <polyline points="18 17 13 12 18 7" />
-              </svg>
+              <NeumorphismIcon name="chevrons-left" size="sm" />
             </button>
             <button
               class="nm-datepicker__nav-btn"
@@ -360,16 +337,7 @@ function handleCalendarKeydown(event: KeyboardEvent) {
               :aria-label="resolvedPrevMonthLabel"
               @click="prevMonth"
             >
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-              >
-                <polyline points="15 18 9 12 15 6" />
-              </svg>
+              <NeumorphismIcon name="chevron-left" size="sm" />
             </button>
             <span class="nm-datepicker__header-label">
               {{ monthNames.monthName }} {{ monthNames.year }}
@@ -380,16 +348,7 @@ function handleCalendarKeydown(event: KeyboardEvent) {
               :aria-label="resolvedNextMonthLabel"
               @click="nextMonth"
             >
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-              >
-                <polyline points="9 18 15 12 9 6" />
-              </svg>
+              <NeumorphismIcon name="chevron-right" size="sm" />
             </button>
             <button
               class="nm-datepicker__nav-btn"
@@ -397,17 +356,7 @@ function handleCalendarKeydown(event: KeyboardEvent) {
               :aria-label="resolvedNextYearLabel"
               @click="nextYear"
             >
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-              >
-                <polyline points="13 17 18 12 13 7" />
-                <polyline points="6 17 11 12 6 7" />
-              </svg>
+              <NeumorphismIcon name="chevrons-right" size="sm" />
             </button>
           </div>
 

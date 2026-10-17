@@ -90,33 +90,12 @@ const classList = computed(() => [
   },
 ])
 
-/**
- * Built-in SVG icons for each alert type.
- * Consumers can override via the "icon" slot.
- */
-const defaultIcons: Record<AlertType, { viewBox: string; paths: string[] }> = {
-  info: {
-    viewBox: '0 0 24 24',
-    paths: [
-      'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z',
-    ],
-  },
-  success: {
-    viewBox: '0 0 24 24',
-    paths: [
-      'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z',
-    ],
-  },
-  warning: {
-    viewBox: '0 0 24 24',
-    paths: ['M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z'],
-  },
-  error: {
-    viewBox: '0 0 24 24',
-    paths: [
-      'M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z',
-    ],
-  },
+/** Alert 类型 → 语义图标（几何在 icons 注册表，与 Toast 共用同一套）。 */
+const ALERT_ICON: Record<AlertType, 'circle-info' | 'check' | 'warning' | 'circle-close'> = {
+  info: 'circle-info',
+  success: 'check',
+  warning: 'warning',
+  error: 'circle-close',
 }
 </script>
 
@@ -132,14 +111,7 @@ const defaultIcons: Record<AlertType, { viewBox: string; paths: string[] }> = {
       <!-- @slot Custom icon content. Defaults to type-based SVG icon. -->
       <div v-if="resolvedIcon" class="nm-alert__icon" aria-hidden="true">
         <slot name="icon">
-          <svg
-            width="20"
-            height="20"
-            :viewBox="defaultIcons[resolvedType].viewBox"
-            fill="currentColor"
-          >
-            <path v-for="(d, i) in defaultIcons[resolvedType].paths" :key="i" :d="d" />
-          </svg>
+          <NeumorphismIcon :name="ALERT_ICON[resolvedType]" size="xl" />
         </slot>
       </div>
 

@@ -5,6 +5,7 @@ import type { TableColumn, SortDirection } from '@/composables/useTable'
 import { useConfig } from '@/composables/useConfig'
 import { useLocale } from '@/composables/useLocale'
 import NeumorphismCheckbox from '@/components/NeumorphismCheckbox/NeumorphismCheckbox.vue'
+import NeumorphismIcon from '@/components/NeumorphismIcon/NeumorphismIcon.vue'
 
 export type { TableColumn }
 
@@ -164,18 +165,7 @@ const showSelectionColumn = computed(
                 </slot>
                 <!-- Sort indicator -->
                 <span v-if="column.sortable" class="nm-table__sort-icon" aria-hidden="true">
-                  <svg
-                    width="12"
-                    height="12"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2.5"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  >
-                    <path d="M18 15l-6-6-6 6" />
-                  </svg>
+                  <NeumorphismIcon name="chevron-up" size="xs" />
                 </span>
               </span>
             </th>

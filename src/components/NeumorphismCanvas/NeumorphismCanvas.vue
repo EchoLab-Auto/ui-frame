@@ -2,6 +2,7 @@
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useLocale } from '@/composables/useLocale'
 import { useNeumorphismSetup } from '@/extensions/createComponent'
+import NeumorphismIcon from '@/components/NeumorphismIcon/NeumorphismIcon.vue'
 
 export interface NeumorphismCanvasBounds {
   x: number
@@ -612,15 +613,7 @@ defineExpose({
         :disabled="innerZoom <= minZoom"
         @click="zoomOut"
       >
-        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2" />
-          <path
-            d="M8 11h6M21 21l-4.35-4.35"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-          />
-        </svg>
+        <NeumorphismIcon name="zoom-out" size="md" />
       </button>
 
       <span class="nm-canvas__zoom-text">{{ zoomPercent }}%</span>
@@ -632,15 +625,7 @@ defineExpose({
         :disabled="innerZoom >= maxZoom"
         @click="zoomIn"
       >
-        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2" />
-          <path
-            d="M11 8v6M8 11h6M21 21l-4.35-4.35"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-          />
-        </svg>
+        <NeumorphismIcon name="zoom-in" size="md" />
       </button>
 
       <span class="nm-canvas__divider" aria-hidden="true" />
@@ -651,22 +636,7 @@ defineExpose({
         :aria-label="resolvedInfinite ? t('canvasResetView') : t('canvasZoomReset')"
         @click="resolvedInfinite ? resetView() : resetZoom()"
       >
-        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path
-            d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          />
-          <path
-            d="M3 3v5h5"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          />
-        </svg>
+        <NeumorphismIcon name="refresh" size="md" />
       </button>
 
       <button
@@ -676,15 +646,7 @@ defineExpose({
         :aria-label="t('canvasZoomFit')"
         @click="fit"
       >
-        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path
-            d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          />
-        </svg>
+        <NeumorphismIcon name="maximize" size="md" />
       </button>
 
       <button
@@ -694,29 +656,8 @@ defineExpose({
         :aria-label="isFullscreen ? t('canvasExitFullscreen') : t('canvasFullscreen')"
         @click="toggleFullscreen"
       >
-        <svg
-          v-if="!isFullscreen"
-          viewBox="0 0 24 24"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          />
-        </svg>
-        <svg v-else viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path
-            d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          />
-        </svg>
+        <NeumorphismIcon name="arrows-out" size="md" />
+        <NeumorphismIcon name="minimize" size="md" />
       </button>
     </div>
   </div>

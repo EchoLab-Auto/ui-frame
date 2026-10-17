@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import { useSteps } from '@/composables/useSteps'
 import type { StepItem, StepStatus } from '@/composables/useSteps'
 import { useNeumorphismSetup } from '@/extensions/createComponent'
+import NeumorphismIcon from '@/components/NeumorphismIcon/NeumorphismIcon.vue'
 
 export type { StepItem, StepStatus }
 
@@ -116,31 +117,18 @@ function showError(index: number): boolean {
             {{ index + 1 }}
           </span>
           <!-- Check icon for finished steps -->
-          <svg
+          <NeumorphismIcon
             v-else-if="showCheck(index)"
+            name="check"
             class="nm-steps__icon nm-steps__icon--check"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="3"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <polyline points="20 6 9 17 4 12" />
-          </svg>
+            :stroke-width="3"
+          />
           <!-- Error icon for error steps -->
-          <svg
+          <NeumorphismIcon
             v-else-if="showError(index)"
+            name="close"
             class="nm-steps__icon nm-steps__icon--error"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2.5"
-            stroke-linecap="round"
-          >
-            <line x1="18" y1="6" x2="6" y2="18" />
-            <line x1="6" y1="6" x2="18" y2="18" />
-          </svg>
+          />
         </button>
 
         <!-- Connector line (between steps) -->

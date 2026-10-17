@@ -222,6 +222,18 @@ export const ICON_REGISTRY = {
   'chevrons-right': { paths: ['M8 6l6 6-6 6', 'M16 6l6 6-6 6'] },
   'circle-close': { paths: ['M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z', 'M15 9l-6 6M9 9l6 6'] },
   'circle-info': { paths: ['M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z', 'M12 16v-4', 'M12 8h.01'] },
+  'zoom-in': {
+    paths: [
+      'M17 10.5a6.5 6.5 0 1 1-13 0 6.5 6.5 0 0 1 13 0z',
+      'M10.5 7.5v6',
+      'M7.5 10.5h6',
+      'm20 20-4.6-4.6',
+    ],
+  },
+  'zoom-out': {
+    paths: ['M17 10.5a6.5 6.5 0 1 1-13 0 6.5 6.5 0 0 1 13 0z', 'M7.5 10.5h6', 'm20 20-4.6-4.6'],
+  },
+  'arrows-out': { paths: ['M15 3h6v6', 'M9 21H3v-6', 'M21 3l-7 7', 'M3 21l7-7'] },
   inbox: {
     paths: [
       'M22 12h-6l-2 3h-4l-2-3H2',
