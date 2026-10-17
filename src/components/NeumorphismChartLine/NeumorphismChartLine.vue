@@ -60,6 +60,7 @@ const {
   lines,
   points,
   xAxisLabels,
+  xLabelStride,
   yAxisLabels,
   yAxisTicks,
   gridLines,
@@ -286,8 +287,11 @@ function onPointClick(pt: { dataIndex: number; seriesIndex: number; value: numbe
             stroke-width="1"
             vector-effect="non-scaling-stroke"
           />
+          <!-- 标签抽稀（2026-10）：xLabelStride 由「每 ~72px 一个」估算，
+               位置仍按原始索引计算，因此与数据点严格对齐；末位标签恒显示。 -->
           <text
             v-for="(label, i) in xAxisLabels"
+            v-show="i % xLabelStride === 0 || i === xAxisLabels.length - 1"
             :key="'x' + i"
             :x="
               resolvedMargin.left +

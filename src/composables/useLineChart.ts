@@ -119,6 +119,20 @@ export function useLineChart(options: UseLineChartOptions) {
     return series.value[0].data.map(d => d.label ?? '')
   })
 
+  /**
+   * X 轴标签抽稀步长（2026-10）——标签按「每约 72px 一个」估算可容纳数量，
+   * 超出则按 stride 只渲染部分（**位置仍用原始索引**，因此与数据点对齐）。
+   * 时间序列（如 7 天 × 小时桶 = 168 点）此前会把标签挤成一片。
+   */
+  const X_LABEL_MIN_PX = 72
+  const xLabelStride = computed(() => {
+    const count = xAxisLabels.value.length
+    if (count <= 1) return 1
+    const width = chart.plotSize.value.width || 0
+    const maxLabels = Math.max(2, Math.floor(width / X_LABEL_MIN_PX))
+    return Math.max(1, Math.ceil(count / maxLabels))
+  })
+
   // ---- Y-axis ticks ----
   const yAxisTicks = computed(() => chart.niceTicks(yMin.value, yMax.value))
 
@@ -228,6 +242,7 @@ export function useLineChart(options: UseLineChartOptions) {
     lines,
     points,
     xAxisLabels,
+    xLabelStride,
     yAxisLabels,
     yAxisTicks,
     gridLines,

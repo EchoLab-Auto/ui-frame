@@ -126,4 +126,33 @@ describe('useLineChart', () => {
     expect(api.resolvedLineWidth.value).toBe(1)
     expect(api.resolvedShowPoints.value).toBe(true)
   })
+
+  describe('X 轴标签抽稀（2026-10）', () => {
+    /** 生成 n 个点（plot 宽 328，按 72px/标签 → 可容纳 4 个）。 */
+    const many = (n: number): ChartSeries[] => [
+      {
+        name: 'A',
+        data: Array.from({ length: n }, (_, i) => ({ label: `T${i}`, value: i })),
+      },
+    ]
+
+    it('点数少时 stride=1（全量显示）', () => {
+      expect(mountChart(many(3))().xLabelStride.value).toBe(1)
+    })
+
+    it('点数多时按宽度抽稀（328px / 72 ≈ 4 个标签位）', () => {
+      const api = mountChart(many(168))()
+      const stride = api.xLabelStride.value
+      expect(stride).toBeGreaterThan(1)
+      // 渲染出的标签数（含末位）不超过可容纳上限
+      const shown = Math.floor((168 - 1) / stride) + 1 + (167 % stride === 0 ? 0 : 1)
+      expect(shown).toBeLessThanOrEqual(Math.floor(328 / 72) + 1)
+    })
+
+    it('labels 数组本身不被裁剪（位置按原始索引对齐）', () => {
+      const api = mountChart(many(168))()
+      expect(api.xAxisLabels.value).toHaveLength(168)
+      expect(api.xAxisLabels.value[167]).toBe('T167')
+    })
+  })
 })
