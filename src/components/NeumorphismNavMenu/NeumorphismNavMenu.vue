@@ -5,6 +5,7 @@ import { useNeumorphismSetup } from '@/extensions/createComponent'
 import { useTheme } from '@/composables/useTheme'
 import NeumorphismPopover from '@/components/NeumorphismPopover/NeumorphismPopover.vue'
 import type { MenuItem } from '@/composables/useMenu'
+import NeumorphismIcon from '@/components/NeumorphismIcon/NeumorphismIcon.vue'
 
 export type { MenuItem as NeumorphismMenuItemProps }
 
@@ -217,18 +218,7 @@ function getItemClass(item: MenuItem) {
               </span>
               <span class="nm-nav-menu__item-label">{{ item.label }}</span>
               <span class="nm-nav-menu__dropdown-arrow" aria-hidden="true">
-                <svg
-                  width="12"
-                  height="12"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2.5"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                >
-                  <path d="M6 9l6 6 6-6" />
-                </svg>
+                <NeumorphismIcon name="chevron-down" size="xs" />
               </span>
             </div>
             <!-- Active indicator bar -->

@@ -6,6 +6,7 @@ import { useNeumorphismSetup } from '@/extensions/createComponent'
 import { useTheme } from '@/composables/useTheme'
 import NeumorphismTooltip from '@/components/NeumorphismTooltip/NeumorphismTooltip.vue'
 import type { MenuItem } from '@/composables/useMenu'
+import NeumorphismIcon from '@/components/NeumorphismIcon/NeumorphismIcon.vue'
 
 export type { MenuItem as NeumorphismMenuItemProps }
 
@@ -282,19 +283,10 @@ const expandIconClass = computed(() => [
               ]"
               aria-hidden="true"
             >
-              <svg
-                width="12"
-                height="12"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <path v-if="resolvedMode === 'vertical'" d="M9 18l6-6-6-6" />
-                <path v-else d="M6 9l6 6 6-6" />
-              </svg>
+              <NeumorphismIcon
+                :name="resolvedMode === 'vertical' ? 'chevron-right' : 'chevron-down'"
+                size="xs"
+              />
             </span>
           </div>
 
@@ -352,19 +344,10 @@ const expandIconClass = computed(() => [
                       ]"
                       aria-hidden="true"
                     >
-                      <svg
-                        width="12"
-                        height="12"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2.5"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                      >
-                        <path v-if="resolvedMode === 'vertical'" d="M9 18l6-6-6-6" />
-                        <path v-else d="M6 9l6 6 6-6" />
-                      </svg>
+                      <NeumorphismIcon
+                        :name="resolvedMode === 'vertical' ? 'chevron-right' : 'chevron-down'"
+                        size="xs"
+                      />
                     </span>
                   </div>
 

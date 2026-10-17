@@ -4,6 +4,7 @@ import { useCollapse } from '@/composables/useCollapse'
 import type { CollapseItem } from '@/composables/useCollapse'
 import { generateId } from '@/utils'
 import { useNeumorphismSetup } from '@/extensions/createComponent'
+import NeumorphismIcon from '@/components/NeumorphismIcon/NeumorphismIcon.vue'
 
 export type { CollapseItem }
 
@@ -82,16 +83,7 @@ const classList = computed(() => ['nm-collapse', `nm-collapse--${resolvedSize.va
             class="nm-collapse__icon"
             :class="{ 'nm-collapse__icon--active': isActive(item.key) }"
           >
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <path d="M6 9l6 6 6-6" />
-            </svg>
+            <NeumorphismIcon name="chevron-down" size="sm" />
           </span>
         </button>
       </h3>

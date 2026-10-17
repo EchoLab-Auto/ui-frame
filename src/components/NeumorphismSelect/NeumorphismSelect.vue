@@ -547,19 +547,13 @@ function onContainerBlur(e: FocusEvent) {
           >
             <path d="M12 2a10 10 0 1 0 10 10" />
           </svg>
-          <svg
+          <NeumorphismIcon
             v-else
+            name="chevron-down"
+            size="md"
             class="nm-select__arrow"
             :class="{ 'nm-select__arrow--open': isOpen }"
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <path d="M6 9l6 6 6-6" />
-          </svg>
+          />
         </span>
       </div>
 
