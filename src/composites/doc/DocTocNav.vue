@@ -5,6 +5,7 @@ import { useLocale } from '@/composables/useLocale'
 import TocNodeItem from './TocNodeItem.vue'
 import { getScrollBehavior } from './useScrollSpy'
 import type { TocNode } from './useMarkdownToc'
+import NeumorphismIcon from '@/components/NeumorphismIcon/NeumorphismIcon.vue'
 
 export interface DocTocNavProps {
   /** 层级目录树 */
@@ -177,23 +178,7 @@ defineExpose({ scrollTocToActive })
     <NeumorphismCard :elevation="-2" no-padding class="neumorphism-toc-card">
       <div class="neumorphism-toc-header">
         <span class="neumorphism-toc-title"
-          ><svg
-            width="14"
-            height="14"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            aria-hidden="true"
-          >
-            <path d="M8 6h13M8 12h13M8 18h13" />
-            <circle cx="4" cy="6" r="1" />
-            <circle cx="4" cy="12" r="1" />
-            <circle cx="4" cy="18" r="1" />
-          </svg>
-          {{ resolvedTitle }}</span
+          ><NeumorphismIcon name="list" size="sm" /> {{ resolvedTitle }}</span
         >
       </div>
       <ul class="neumorphism-toc-list" role="list">

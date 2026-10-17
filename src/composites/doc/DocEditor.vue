@@ -12,6 +12,7 @@ import NeumorphismTag from '@/components/NeumorphismTag/NeumorphismTag.vue'
 import NeumorphismContainer from '@/components/NeumorphismContainer/NeumorphismContainer.vue'
 import MarkdownEditor from './MarkdownEditor.vue'
 import DocTreeIcon from './DocTreeIcon.vue'
+import NeumorphismIcon from '@/components/NeumorphismIcon/NeumorphismIcon.vue'
 
 export interface DocEditorProps {
   /** 文档树根节点 */
@@ -107,21 +108,7 @@ function handleKeyDown(e: KeyboardEvent) {
       <!-- Header -->
       <template #header-left>
         <span class="neumorphism-editor-brand"
-          ><svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            aria-hidden="true"
-          >
-            <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
-            <path d="M15 5l4 4" />
-          </svg>
-          Doc Editor</span
+          ><NeumorphismIcon name="pencil" size="md" /> Doc Editor</span
         >
       </template>
 
@@ -138,20 +125,7 @@ function handleKeyDown(e: KeyboardEvent) {
             :disabled="!hasChanges"
             @click="handleSave"
           >
-            <svg
-              class="neumorphism-doc-icon"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              aria-hidden="true"
-            >
-              <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
-              <path d="M17 21v-8H7v8" />
-              <path d="M7 3v5h8" />
-            </svg>
+            <NeumorphismIcon name="save" size="xl" class="neumorphism-doc-icon" />
             保存
           </NeumorphismButton>
         </div>
@@ -174,18 +148,7 @@ function handleKeyDown(e: KeyboardEvent) {
           </NeumorphismTree>
         </div>
         <div v-else class="neumorphism-editor-sider-collapsed">
-          <svg
-            class="neumorphism-doc-icon-lg"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            aria-hidden="true"
-          >
-            <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
-          </svg>
+          <NeumorphismIcon name="pencil" size="xl" class="neumorphism-doc-icon-lg" />
         </div>
       </template>
 
@@ -212,20 +175,7 @@ function handleKeyDown(e: KeyboardEvent) {
                   :disabled="!hasChanges"
                   @click="handleSave"
                 >
-                  <svg
-                    class="neumorphism-doc-icon"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    aria-hidden="true"
-                  >
-                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
-                    <path d="M17 21v-8H7v8" />
-                    <path d="M7 3v5h8" />
-                  </svg>
+                  <NeumorphismIcon name="save" size="xl" class="neumorphism-doc-icon" />
                   保存
                 </NeumorphismButton>
               </header>
@@ -248,20 +198,7 @@ function handleKeyDown(e: KeyboardEvent) {
                 class="neumorphism-editor-empty-icon"
               >
                 <span class="neumorphism-doc-empty-icon">
-                  <svg
-                    class="neumorphism-doc-icon-3xl"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    aria-hidden="true"
-                  >
-                    <path
-                      d="M6 14l1.45-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.55 6a2 2 0 0 1-1.94 1.5H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.93a2 2 0 0 1 1.66.9l.82 1.2a2 2 0 0 0 1.66.9H18a2 2 0 0 1 2 2v2"
-                    />
-                  </svg>
+                  <NeumorphismIcon name="folder-open" size="3xl" class="neumorphism-doc-icon-3xl" />
                 </span>
               </NeumorphismCard>
               <p>请从左侧选择一篇文档进行编辑</p>

@@ -23,6 +23,7 @@ import DocFlowCanvas from './DocFlowCanvas.vue'
 import { parseProDocFlow } from './flow-parser'
 import { useMarkdownToc } from './useMarkdownToc'
 import { useScrollSpy } from './useScrollSpy'
+import NeumorphismIcon from '@/components/NeumorphismIcon/NeumorphismIcon.vue'
 
 export type { TocNode } from './useMarkdownToc'
 
@@ -442,23 +443,7 @@ onBeforeUnmount(() => {
     <div class="neumorphism-markdown-body">
       <div v-if="renderError" class="neumorphism-markdown-error" role="alert">
         <p class="neumorphism-markdown-error-title">
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            aria-hidden="true"
-          >
-            <path
-              d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"
-            />
-            <path d="M12 9v4" />
-            <path d="M12 17h.01" />
-          </svg>
+          <NeumorphismIcon name="warning" size="md" />
           渲染错误
         </p>
         <pre class="neumorphism-markdown-error-msg">{{ renderError }}</pre>
@@ -489,22 +474,7 @@ onBeforeUnmount(() => {
       :aria-label="t('markdownTocToggle')"
       @click="showMobileToc = !showMobileToc"
     >
-      <svg
-        width="24"
-        height="24"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="1.5"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        aria-hidden="true"
-      >
-        <path d="M8 6h13M8 12h13M8 18h13" />
-        <circle cx="4" cy="6" r="1" />
-        <circle cx="4" cy="12" r="1" />
-        <circle cx="4" cy="18" r="1" />
-      </svg>
+      <NeumorphismIcon name="list" size="2xl" />
     </button>
 
     <!-- 移动端 TOC 面板 -->
@@ -517,42 +487,14 @@ onBeforeUnmount(() => {
         <NeumorphismCard :elevation="0" class="neumorphism-toc-mobile-panel">
           <div class="neumorphism-toc-mobile-header">
             <span class="neumorphism-toc-mobile-title"
-              ><svg
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                aria-hidden="true"
-              >
-                <path d="M8 6h13M8 12h13M8 18h13" />
-                <circle cx="4" cy="6" r="1" />
-                <circle cx="4" cy="12" r="1" />
-                <circle cx="4" cy="18" r="1" />
-              </svg>
-              {{ t('markdownTocLabel') }}</span
+              ><NeumorphismIcon name="list" size="sm" /> {{ t('markdownTocLabel') }}</span
             >
             <button
               class="neumorphism-toc-mobile-close"
               :aria-label="t('markdownTocClose')"
               @click="showMobileToc = false"
             >
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                aria-hidden="true"
-              >
-                <path d="M18 6L6 18M6 6l12 12" />
-              </svg>
+              <NeumorphismIcon name="close" size="sm" />
             </button>
           </div>
           <DocTocNav

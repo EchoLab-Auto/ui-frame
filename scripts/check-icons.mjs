@@ -29,12 +29,24 @@ const srcDir = resolve(root, 'src')
 const ICON_SIZE_ALLOWED = new Set([12, 14, 16, 18, 20, 24, 32])
 /** §8 描边线宽六档。 */
 const STROKE_ALLOWED = new Set([0.5, 1, 1.5, 2, 2.5, 3])
-/** 允许 emoji 的目录（内容表达/文档树；后续可收缩）。 */
-const SKIP_DIRS = [join('src', 'composites', 'doc'), join('src', 'locales')]
+/** 豁免目录：locales（语言包文案，非图标）。 */
+const SKIP_DIRS = [join('src', 'locales')]
 /** emoji / 图形符号（不含箭头→↔等排版符号，它们在文案里合法）。 */
 const EMOJI_RE = /[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{2B00}-\u{2BFF}]/u
 
 const findings = []
+
+/** 当前行是否处在「图标类」样式块内（向上找最近的 `{` 所在选择器）。 */
+function isInIconBlock(lines, index) {
+  for (let k = index; k >= Math.max(0, index - 8); k--) {
+    const line = lines[k]
+    if (/\}\s*$/.test(line) && k !== index) break
+    if (/^\s*[.&][\w-]*(icon|ico)[\w-]*[^{]*\{/.test(line) || /\bicon\b/.test(line) && /\{/.test(line)) {
+      return true
+    }
+  }
+  return false
+}
 
 function walk(dir, out = []) {
   for (const name of readdirSync(dir)) {
@@ -78,10 +90,17 @@ for (const file of walk(srcDir)) {
     if (/<template[^>]*>/.test(raw)) inTemplate = true
     if (/<\/template>/.test(raw)) inTemplate = false
 
-    // stroke-width（模板属性与样式声明都算）
+    // stroke-width：
+    //  • 模板区——SVG 属性，必须是图标档位；
+    //  • 样式区——只对**图标类**（类名含 icon）校验；图表连线 / 坐标轴 /
+    //    流程图边等数据可视化线条属 §8 豁免，允许任意细线（如 1.6）。
     const sw = raw.match(/stroke-width\s*[:=]\s*["']?([\d.]+)/)
     if (sw && !STROKE_ALLOWED.has(Number(sw[1]))) {
-      findings.push(`${where}  线宽 ${sw[1]} 不在档位 {0.5,1,1.5,2,2.5,3}`)
+      const inTemplateAttr = inTemplate && /stroke-width\s*=/.test(raw)
+      const inIconBlock = /stroke-width\s*:/.test(raw) && isInIconBlock(lines, i)
+      if (inTemplateAttr || inIconBlock) {
+        findings.push(`${where}  图标线宽 ${sw[1]} 不在档位 {0.5,1,1.5,2,2.5,3}`)
+      }
     }
     // 百分比尺寸（会随容器缩放 → 落不到枚举档）。
     // 只针对 **SVG 图标容器**（类名含 `__icon`）：装饰性 CSS 圆点

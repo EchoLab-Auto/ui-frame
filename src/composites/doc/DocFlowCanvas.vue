@@ -4,6 +4,7 @@ import NeumorphismCanvas from '@/components/NeumorphismCanvas/NeumorphismCanvas.
 import { generateId } from '@/utils'
 import { layoutProDocFlow } from './flow-layout'
 import type { ProDocFlowGraph } from './types.js'
+import NeumorphismIcon from '@/components/NeumorphismIcon/NeumorphismIcon.vue'
 
 export interface DocFlowCanvasProps {
   /** 已解析的流程图（解析职责在调用方：flow-parser / flow-graph） */
@@ -280,19 +281,9 @@ function onNodeKeydown(event: KeyboardEvent, docPath?: string): void {
         >
           <div class="nm-flow__node-inner">
             <span class="nm-flow__node-text">{{ n.label }}</span>
-            <span v-if="n.docPath" class="nm-flow__node-link-icon" aria-hidden="true"
-              ><svg
-                width="12"
-                height="12"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <path d="M7 17L17 7M8 7h9v9" /></svg
-            ></span>
+            <span v-if="n.docPath" class="nm-flow__node-link-icon" aria-hidden="true">
+              <NeumorphismIcon name="external" size="xs" />
+            </span>
           </div>
         </div>
       </div>

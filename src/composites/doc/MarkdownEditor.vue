@@ -5,6 +5,7 @@ import NeumorphismCard from '@/components/NeumorphismCard/NeumorphismCard.vue'
 import NeumorphismTextarea from '@/components/NeumorphismTextarea/NeumorphismTextarea.vue'
 import NeumorphismButton from '@/components/NeumorphismButton/NeumorphismButton.vue'
 import MarkdownRenderer from './MarkdownRenderer.vue'
+import NeumorphismIcon from '@/components/NeumorphismIcon/NeumorphismIcon.vue'
 
 export interface MarkdownEditorProps {
   /** Markdown 内容 */
@@ -256,82 +257,24 @@ function syncEditScroll() {
         <NeumorphismButton size="small" title="标题" aria-label="标题" @click="insertHeading">
           H
         </NeumorphismButton>
-        <NeumorphismButton size="small" title="链接" aria-label="链接" @click="insertLink"
-          ><svg
-            class="neumorphism-editor-icon"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            aria-hidden="true"
-          >
-            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
-            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" /></svg
-        ></NeumorphismButton>
-        <NeumorphismButton size="small" title="图片" aria-label="图片" @click="insertImage"
-          ><svg
-            class="neumorphism-editor-icon"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            aria-hidden="true"
-          >
-            <rect x="3" y="3" width="18" height="18" rx="2" />
-            <circle cx="9" cy="9" r="2" />
-            <path d="M21 15l-3.086-3.086a2 2 0 0 0-2.828 0L6 21" /></svg
-        ></NeumorphismButton>
+        <NeumorphismButton size="small" title="链接" aria-label="链接" @click="insertLink">
+          <NeumorphismIcon name="link" size="sm" class="neumorphism-editor-icon" />
+        </NeumorphismButton>
+        <NeumorphismButton size="small" title="图片" aria-label="图片" @click="insertImage">
+          <NeumorphismIcon name="image" size="sm" class="neumorphism-editor-icon" />
+        </NeumorphismButton>
         <NeumorphismButton size="small" title="行内代码" aria-label="行内代码" @click="insertCode">
           &lt;/&gt;
         </NeumorphismButton>
-        <NeumorphismButton size="small" title="代码块" aria-label="代码块" @click="insertCodeBlock"
-          ><svg
-            class="neumorphism-editor-icon"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            aria-hidden="true"
-          >
-            <rect x="8" y="2" width="8" height="4" rx="1" />
-            <path
-              d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"
-            /></svg
-        ></NeumorphismButton>
-        <NeumorphismButton size="small" title="无序列表" aria-label="无序列表" @click="insertList"
-          ><svg
-            class="neumorphism-editor-icon"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            aria-hidden="true"
-          >
-            <path d="M8 6h13M8 12h13M8 18h13" />
-            <path d="M3 6h.01M3 12h.01M3 18h.01" /></svg
-        ></NeumorphismButton>
-        <NeumorphismButton size="small" title="表格" aria-label="表格" @click="insertTable"
-          ><svg
-            class="neumorphism-editor-icon"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            aria-hidden="true"
-          >
-            <rect x="3" y="3" width="18" height="18" rx="2" />
-            <path d="M3 9h18M3 15h18M9 3v18" /></svg
-        ></NeumorphismButton>
+        <NeumorphismButton size="small" title="代码块" aria-label="代码块" @click="insertCodeBlock">
+          <NeumorphismIcon name="clipboard" size="sm" class="neumorphism-editor-icon" />
+        </NeumorphismButton>
+        <NeumorphismButton size="small" title="无序列表" aria-label="无序列表" @click="insertList">
+          <NeumorphismIcon name="list" size="sm" class="neumorphism-editor-icon" />
+        </NeumorphismButton>
+        <NeumorphismButton size="small" title="表格" aria-label="表格" @click="insertTable">
+          <NeumorphismIcon name="table" size="sm" class="neumorphism-editor-icon" />
+        </NeumorphismButton>
       </div>
       <div class="neumorphism-editor-toolbar-right">
         <NeumorphismTabs
@@ -351,29 +294,11 @@ function syncEditScroll() {
               @click="activate(tab.key)"
               @keydown="handleModeTabKeydown($event, tab.key)"
             >
-              <svg
+              <NeumorphismIcon
+                :name="tab.key === 'edit' ? 'pencil' : tab.key === 'split' ? 'split' : 'eye'"
+                size="sm"
                 class="neumorphism-editor-icon"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                aria-hidden="true"
-              >
-                <template v-if="tab.key === 'edit'">
-                  <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
-                  <path d="M15 5l4 4" />
-                </template>
-                <template v-else-if="tab.key === 'split'">
-                  <rect x="3" y="3" width="18" height="18" rx="2" />
-                  <path d="M12 3v18" />
-                </template>
-                <template v-else>
-                  <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
-                  <circle cx="12" cy="12" r="3" />
-                </template>
-              </svg>
+              />
               <span class="nm-tabs__tab-label">{{ tab.label }}</span>
             </button>
           </template>

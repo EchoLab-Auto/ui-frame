@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import NeumorphismIcon from '@/components/NeumorphismIcon/NeumorphismIcon.vue'
 
 export interface ChatFoldProps {
   /** 受控展开态（传入则受控，配合 update:open 使用） */
@@ -56,18 +57,7 @@ function toggle(): void {
         @click="toggle"
       >
         <span class="nm-chat-fold__caret" aria-hidden="true">
-          <svg
-            width="12"
-            height="12"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2.5"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <path :d="isOpen ? 'M6 9l6 6 6-6' : 'M9 6l6 6-6 6'" />
-          </svg>
+          <NeumorphismIcon :name="isOpen ? 'chevron-down' : 'chevron-right'" size="xs" />
         </span>
         <slot name="head" :open="isOpen" />
       </button>

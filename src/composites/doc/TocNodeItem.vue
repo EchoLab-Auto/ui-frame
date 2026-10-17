@@ -32,6 +32,7 @@ function handleSelect(e: Event) {
 
 // 自引用递归组件：通过 import 自身实现
 import TocNodeItem from './TocNodeItem.vue'
+import NeumorphismIcon from '@/components/NeumorphismIcon/NeumorphismIcon.vue'
 </script>
 
 <template>
@@ -50,19 +51,7 @@ import TocNodeItem from './TocNodeItem.vue'
         :aria-label="isCollapsed ? t('markdownTocExpand') : t('markdownTocCollapse')"
         @click="handleToggle"
       >
-        <svg
-          width="12"
-          height="12"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2.5"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          aria-hidden="true"
-        >
-          <path :d="isCollapsed ? 'M9 6l6 6-6 6' : 'M6 9l6 6 6-6'" />
-        </svg>
+        <NeumorphismIcon :name="isCollapsed ? 'chevron-right' : 'chevron-down'" size="xs" />
       </button>
       <a
         href="#"

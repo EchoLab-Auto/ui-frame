@@ -15,6 +15,7 @@ import NeumorphismInput from '@/components/NeumorphismInput/NeumorphismInput.vue
 import MarkdownRenderer from './MarkdownRenderer.vue'
 import DocFlowCanvas from './DocFlowCanvas.vue'
 import DocTreeIcon from './DocTreeIcon.vue'
+import NeumorphismIcon from '@/components/NeumorphismIcon/NeumorphismIcon.vue'
 
 export interface DocViewerProps {
   /** 文档树根节点 */
@@ -94,20 +95,7 @@ function onCanvasNavigate(path: string) {
       <!-- Header -->
       <template #header-left>
         <span class="neumorphism-header-brand"
-          ><svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            aria-hidden="true"
-          >
-            <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20" />
-          </svg>
-          Doc Viewer</span
+          ><NeumorphismIcon name="book" size="md" /> Doc Viewer</span
         >
       </template>
 
@@ -121,20 +109,7 @@ function onCanvasNavigate(path: string) {
             :aria-selected="viewMode === 'doc'"
             @click="viewMode = 'doc'"
           >
-            <svg
-              class="neumorphism-doc-icon"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              aria-hidden="true"
-            >
-              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-              <path d="M14 2v6h6" />
-              <path d="M16 13H8M16 17H8M10 9H8" />
-            </svg>
+            <NeumorphismIcon name="file-text" size="xl" class="neumorphism-doc-icon" />
             文档
           </NeumorphismButton>
           <NeumorphismButton
@@ -146,19 +121,7 @@ function onCanvasNavigate(path: string) {
             :title="canvasGraph ? '流程画布' : '当前文档无流程图与子文档'"
             @click="viewMode = 'canvas'"
           >
-            <svg
-              class="neumorphism-doc-icon"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              aria-hidden="true"
-            >
-              <path d="M1 6v16l7-4 8 4 7-4V2l-7 4-8-4-7 4z" />
-              <path d="M8 2v16M16 6v16" />
-            </svg>
+            <NeumorphismIcon name="map" size="xl" class="neumorphism-doc-icon" />
             画布
           </NeumorphismButton>
         </div>
@@ -204,18 +167,7 @@ function onCanvasNavigate(path: string) {
           </NeumorphismTree>
         </div>
         <div v-else class="neumorphism-sider-collapsed">
-          <svg
-            class="neumorphism-doc-icon-lg"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            aria-hidden="true"
-          >
-            <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20" />
-          </svg>
+          <NeumorphismIcon name="book" size="xl" class="neumorphism-doc-icon-lg" />
         </div>
       </template>
 
@@ -237,20 +189,7 @@ function onCanvasNavigate(path: string) {
                     size="small"
                     rounded
                   >
-                    <svg
-                      class="neumorphism-doc-icon-inline"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      aria-hidden="true"
-                    >
-                      <path
-                        d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"
-                      />
-                    </svg>
+                    <NeumorphismIcon name="folder" size="sm" class="neumorphism-doc-icon-inline" />
                     { displayNode.children.length } 个子项
                   </NeumorphismTag>
                 </div>
@@ -282,20 +221,11 @@ function onCanvasNavigate(path: string) {
               <div class="neumorphism-empty-state">
                 <NeumorphismCard :elevation="2" hoverable="bulge" class="neumorphism-empty-icon">
                   <span class="neumorphism-doc-empty-icon">
-                    <svg
+                    <NeumorphismIcon
+                      name="folder-open"
+                      size="3xl"
                       class="neumorphism-doc-icon-3xl"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      aria-hidden="true"
-                    >
-                      <path
-                        d="M6 14l1.45-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.55 6a2 2 0 0 1-1.94 1.5H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.93a2 2 0 0 1 1.66.9l.82 1.2a2 2 0 0 0 1.66.9H18a2 2 0 0 1 2 2v2"
-                      />
-                    </svg>
+                    />
                   </span>
                 </NeumorphismCard>
                 <p>请从左侧选择一篇文档</p>
