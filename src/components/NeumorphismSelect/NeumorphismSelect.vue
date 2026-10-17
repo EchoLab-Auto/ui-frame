@@ -10,6 +10,7 @@ import { useZIndex } from '@/composables/useZIndex'
 import NeumorphismFieldLabel from '@/components/NeumorphismField/NeumorphismFieldLabel.vue'
 import NeumorphismFieldError from '@/components/NeumorphismField/NeumorphismFieldError.vue'
 import NeumorphismTag from '@/components/NeumorphismTag/NeumorphismTag.vue'
+import NeumorphismIcon from '@/components/NeumorphismIcon/NeumorphismIcon.vue'
 
 export type { SelectOption as NeumorphismSelectOption }
 
@@ -531,16 +532,7 @@ function onContainerBlur(e: FocusEvent) {
             @mousedown.prevent
             @click="onClear"
           >
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <path d="M18 6L6 18M6 6l12 12" />
-            </svg>
+            <NeumorphismIcon name="close" size="sm" />
           </button>
           <svg
             v-if="loading"

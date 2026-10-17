@@ -5,6 +5,7 @@ import { useTree } from '@/composables/useTree'
 import { useNeumorphismSetup } from '@/extensions/createComponent'
 import type { TreeNodeData } from '@/composables/useTree'
 import NeumorphismTreeNode from './NeumorphismTreeNode.vue'
+import NeumorphismIcon from '@/components/NeumorphismIcon/NeumorphismIcon.vue'
 
 export type { TreeNodeData }
 
@@ -149,14 +150,7 @@ const classList = computed(() => ['nm-tree'])
         :aria-label="t('treeClearSearch')"
         @click="onSearchInput('')"
       >
-        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path
-            d="M18 6L6 18M6 6l12 12"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-          />
-        </svg>
+        <NeumorphismIcon name="close" size="sm" />
       </button>
     </div>
 
@@ -259,11 +253,6 @@ const classList = computed(() => ['nm-tree'])
   color: var(--nm-text-placeholder);
   border-radius: var(--nm-border-radius-full);
   padding: 0;
-
-  svg {
-    width: var(--nm-icon-size-sm);
-    height: var(--nm-icon-size-sm);
-  }
 
   // 触屏热区：20px → 44×44（在原有绝对定位之上扩展，视觉不变）
   @media (pointer: coarse) {

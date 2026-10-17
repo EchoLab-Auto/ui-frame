@@ -3,6 +3,7 @@ import { computed, ref, watch, nextTick } from 'vue'
 import { useDrawer, type DrawerPosition } from '@/composables/useDrawer'
 import { useLocale } from '@/composables/useLocale'
 import { generateId } from '@/utils'
+import NeumorphismIcon from '@/components/NeumorphismIcon/NeumorphismIcon.vue'
 
 export interface NeumorphismDrawerProps {
   modelValue?: boolean
@@ -142,16 +143,7 @@ const sizeStyle = computed(() => {
                 type="button"
                 @click="onCloseClick"
               >
-                <svg
-                  width="18"
-                  height="18"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                >
-                  <path d="M18 6L6 18M6 6l12 12" />
-                </svg>
+                <NeumorphismIcon name="close" size="lg" />
               </button>
             </div>
 

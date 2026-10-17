@@ -3,6 +3,7 @@ import { computed, watch } from 'vue'
 import { useLocale } from '@/composables/useLocale'
 import { useAlert, type AlertType } from '@/composables/useAlert'
 import { useNeumorphismSetup } from '@/extensions/createComponent'
+import NeumorphismIcon from '@/components/NeumorphismIcon/NeumorphismIcon.vue'
 
 export type { AlertType }
 
@@ -159,16 +160,7 @@ const defaultIcons: Record<AlertType, { viewBox: string; paths: string[] }> = {
         type="button"
         @click="handleClose"
       >
-        <svg
-          width="14"
-          height="14"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-        >
-          <path d="M18 6L6 18M6 6l12 12" />
-        </svg>
+        <NeumorphismIcon name="close" size="sm" />
       </button>
     </div>
   </transition>

@@ -7,6 +7,7 @@ import { useLocale } from '@/composables/useLocale'
 import NeumorphismFieldLabel from '@/components/NeumorphismField/NeumorphismFieldLabel.vue'
 import NeumorphismFieldError from '@/components/NeumorphismField/NeumorphismFieldError.vue'
 import NeumorphismPopover from '@/components/NeumorphismPopover/NeumorphismPopover.vue'
+import NeumorphismIcon from '@/components/NeumorphismIcon/NeumorphismIcon.vue'
 
 export interface NeumorphismDatePickerProps {
   modelValue?: Date | null
@@ -310,16 +311,7 @@ function handleCalendarKeydown(event: KeyboardEvent) {
             :aria-label="resolvedClearLabel"
             @click="onClear"
           >
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <path d="M18 6L6 18M6 6l12 12" />
-            </svg>
+            <NeumorphismIcon name="close" size="sm" />
           </button>
           <!-- Calendar icon -->
           <svg

@@ -4,7 +4,7 @@ import { useTheme } from '@/composables/useTheme'
 import { useLocale } from '@/composables/useLocale'
 import { useNeumorphismSetup } from '@/extensions/createComponent'
 import type { Theme } from '@/composables/useTheme'
-import NeumorphismIcon from '../NeumorphismIcon/NeumorphismIcon.vue'
+import NeumorphismIcon from '@/components/NeumorphismIcon/NeumorphismIcon.vue'
 
 export interface NeumorphismThemeToggleProps {
   /** v-model binding: 'light' | 'dark' | 'auto' */

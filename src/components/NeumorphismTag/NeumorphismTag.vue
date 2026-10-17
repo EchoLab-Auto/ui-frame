@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import { useLocale } from '@/composables/useLocale'
 import { useNeumorphismSetup } from '@/extensions/createComponent'
+import NeumorphismIcon from '@/components/NeumorphismIcon/NeumorphismIcon.vue'
 
 export type TagVariant = 'default' | 'primary' | 'success' | 'warning' | 'error' | 'info'
 
@@ -93,16 +94,7 @@ const variantColors: Record<TagVariant, string> = {
       type="button"
       @click="handleClose"
     >
-      <svg
-        width="12"
-        height="12"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2.5"
-      >
-        <path d="M18 6L6 18M6 6l12 12" />
-      </svg>
+      <NeumorphismIcon name="close" size="xs" />
     </button>
   </span>
 </template>
