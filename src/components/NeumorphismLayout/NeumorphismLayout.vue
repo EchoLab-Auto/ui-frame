@@ -3,6 +3,7 @@ import { computed, ref } from 'vue'
 import { useLocale } from '@/composables/useLocale'
 import { useTouchDevice } from '@/composables/useTouchDevice'
 import { useNeumorphismSetup } from '@/extensions/createComponent'
+import NeumorphismIcon from '@/components/NeumorphismIcon/NeumorphismIcon.vue'
 
 export interface NeumorphismLayoutProps {
   /** 是否显示顶部导航 */
@@ -136,17 +137,10 @@ const siderStyle = computed(() => ({
           :aria-label="effectiveCollapsed ? t('layoutExpandSider') : t('layoutCollapseSider')"
           @click="toggleCollapse"
         >
-          <svg
-            width="18"
-            height="18"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <path v-if="effectiveCollapsed" d="M16 18l-6-6 6-6" />
-            <path v-else d="M8 18l6-6-6-6" />
-          </svg>
+          <NeumorphismIcon
+            :name="effectiveCollapsed ? 'chevron-right' : 'chevron-left'"
+            size="lg"
+          />
         </button>
         <slot name="header-left" />
       </div>

@@ -4,6 +4,7 @@ import { useLocale } from '@/composables/useLocale'
 // Self-import for recursive component reference in <script setup>
 import NeumorphismTreeNode from './NeumorphismTreeNode.vue'
 import type { TreeNodeData } from '@/composables/useTree'
+import NeumorphismIcon from '@/components/NeumorphismIcon/NeumorphismIcon.vue'
 
 export interface NeumorphismTreeNodeProps {
   node: TreeNodeData
@@ -116,20 +117,7 @@ function handleSelect() {
         :aria-label="isExpanded ? t('treeCollapse') : t('treeExpand')"
         @click.stop="handleToggle"
       >
-        <svg
-          class="nm-tree-node__chevron"
-          viewBox="0 0 24 24"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            d="M9 6l6 6-6 6"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          />
-        </svg>
+        <NeumorphismIcon name="chevron-right" size="sm" class="nm-tree-node__chevron" />
       </button>
 
       <!-- Placeholder when no children (keeps alignment) -->

@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import { useLocale } from '@/composables/useLocale'
 import { usePagination } from '@/composables/usePagination'
 import { useNeumorphismSetup } from '@/extensions/createComponent'
+import NeumorphismIcon from '@/components/NeumorphismIcon/NeumorphismIcon.vue'
 
 export interface NeumorphismPaginationProps {
   modelValue?: number
@@ -111,16 +112,7 @@ const jumperParts = computed(() => {
           type="button"
           @click="prevPage"
         >
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <path d="M15 18l-6-6 6-6" />
-          </svg>
+          <NeumorphismIcon name="chevron-left" size="md" />
         </button>
       </li>
 
@@ -158,16 +150,7 @@ const jumperParts = computed(() => {
           type="button"
           @click="nextPage"
         >
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <path d="M9 18l6-6-6-6" />
-          </svg>
+          <NeumorphismIcon name="chevron-right" size="md" />
         </button>
       </li>
     </ul>
