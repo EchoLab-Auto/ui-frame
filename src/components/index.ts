@@ -216,6 +216,9 @@ export type {
   StatusDotSize,
 } from './NeumorphismStatusDot'
 
+export { default as NeumorphismIcon } from './NeumorphismIcon'
+export type { NeumorphismIconProps } from './NeumorphismIcon'
+
 export { default as NeumorphismSegmented } from './NeumorphismSegmented'
 export type {
   NeumorphismSegmentedProps,

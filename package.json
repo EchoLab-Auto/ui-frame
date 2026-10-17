@@ -24,6 +24,10 @@
       "types": "./dist/chat/index.d.ts",
       "import": "./dist/chat/index.js"
     },
+    "./icons": {
+      "types": "./dist/icons/index.d.ts",
+      "import": "./dist/icons/index.js"
+    },
     "./extensions": {
       "types": "./dist/extensions/index.d.ts",
       "import": "./dist/extensions/index.js"
@@ -75,6 +79,7 @@
     "format:check": "prettier --check .",
     "check:registry": "node scripts/check-component-registry.mjs",
     "check:styles": "node scripts/check-styles.mjs",
+    "check:icons": "node scripts/check-icons.mjs",
     "prepublishOnly": "npm run build",
     "test": "vitest run",
     "test:watch": "vitest",

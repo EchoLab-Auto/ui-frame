@@ -68,6 +68,7 @@ import {
   NeumorphismSpinner,
   NeumorphismStatusDot,
   NeumorphismSegmented,
+  NeumorphismIcon,
 } from './components'
 
 import './styles/index.scss'
@@ -406,6 +407,7 @@ const NAME_TO_COMPONENT = {
   NeumorphismSpinner,
   NeumorphismStatusDot,
   NeumorphismSegmented,
+  NeumorphismIcon,
 } as const
 
 /**

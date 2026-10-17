@@ -27,6 +27,8 @@ const entries: Record<string, string> = {
   'doc/index': resolve(__dirname, 'src/composites/doc/index.ts'),
   'chat/index': resolve(__dirname, 'src/composites/chat/index.ts'),
   'locales/index': resolve(__dirname, 'src/locales/index.ts'),
+  // 图标注册表独立子路径（只装图标表、不拖整包——与 doc/chat 同模式）
+  'icons/index': resolve(__dirname, 'src/icons/index.ts'),
   // 样式独立入口
   tokens: resolve(__dirname, 'src/styles/tokens.ts'),
   base: resolve(__dirname, 'src/styles/base.ts'),

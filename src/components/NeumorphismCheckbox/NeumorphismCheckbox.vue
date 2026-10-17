@@ -125,6 +125,21 @@ function handleChange(event: Event): void {
 @include checkable-focus-ring('checkbox', 'box');
 @include checkable-sizes('checkbox', 'box');
 
+// 勾选图标尺寸档（§8 枚举；box 18/24/30 → icon 12/14/16，视觉占比 67%/58%/53%，
+// 与旧 65% 的观感一致但尺寸可枚举、可被 check:icons 校验）
+.nm-checkbox--small .nm-checkbox__icon {
+  width: var(--nm-icon-size-xs);
+  height: var(--nm-icon-size-xs);
+}
+.nm-checkbox--medium .nm-checkbox__icon {
+  width: var(--nm-icon-size-sm);
+  height: var(--nm-icon-size-sm);
+}
+.nm-checkbox--large .nm-checkbox__icon {
+  width: var(--nm-icon-size-md);
+  height: var(--nm-icon-size-md);
+}
+
 // Checkbox-specific
 .nm-checkbox__box {
   border-radius: var(--nm-border-radius-sm);
@@ -162,8 +177,11 @@ function handleChange(event: Event): void {
 }
 
 .nm-checkbox__icon {
-  width: 65%;
-  height: 65%;
+  /* 尺寸走 §8 枚举档（2026-10）：此前 `65%` 随 box 缩放，实测 11.7 / 15.6 /
+     19.5px——三档全部落在 12/14/16/18/20/24/32 之外，规范无法校验。
+     档位在 size 变体里显式给出（small 12 / medium 14 / large 16）。 */
+  width: var(--nm-icon-size-xs);
+  height: var(--nm-icon-size-xs);
   color: var(--nm-text-on-primary);
   transform: scale(0);
   transition: transform 0.35s $nm-ease-bounce;

@@ -113,9 +113,30 @@ group: 开发
 | `1.5`       | 大图标轻描（≥24px 显示、上传/空态插图）                        |
 | `1` / `0.5` | 图表细线（轴线 1、网格 0.5；数据可视化豁免）                   |
 
-- 图标只承载一个概念；不承载唯一信息（可点击图标必配 `aria-label`）
+**唯一实现：`NeumorphismIcon`**（2026-10）
+
+图标几何集中在 `src/icons/registry.ts`（52 个语义名，24 基准 viewBox），由
+`NeumorphismIcon` 渲染——**组件与业务代码都不得再各自内联 `<path>`**：
+
+```vue
+<NeumorphismIcon name="close" />
+<!-- 默认 sm(14px)，线宽自动 2 -->
+<NeumorphismIcon name="chevron-down" size="xs" />
+<!-- 12px，线宽自动 2.5 -->
+<NeumorphismIcon name="check" :stroke-width="3" />
+<!-- 勾选语义强调 -->
+<NeumorphismIcon name="refresh" spin />
+```
+
+- 尺寸取 `size`（七档或数字，数字须落在枚举值上）；线宽按档自动（≤12 → 2.5、≥24 → 1.5、其余 2），可用 `strokeWidth` 显式覆盖
+- 动效只提供 `spin` / `pulse` 两个布尔开关（产品级专属动画留在产品侧，不进库）
+- 图标只承载一个概念；不承载唯一信息（可点击图标必配 `aria-label` / `label`）
 - emoji 与字符不得充当控件图标（内容表达除外）
-- 防回归：`npm run check:styles` 校验 SVG 尺寸/线宽档位与间距/字号字面量
+- 图标容器不得用百分比定尺寸（会随容器缩放而脱离枚举档）
+- 防回归：`npm run check:icons` 校验注册表合法性 + 组件内 SVG 尺寸/线宽档位/百分比尺寸/emoji 图标；`check:styles` 继续校验间距与字号字面量
+
+> 历史遗留：`src/composites/doc/**` 的文档树仍自带一套 16 viewBox 图标（`DocTreeIcon`），
+> 已列入迁移计划（本脚本对它豁免）。新增/修改的组件请一律走注册表。
 
 ---
 

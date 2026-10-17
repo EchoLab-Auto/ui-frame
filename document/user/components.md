@@ -74,7 +74,7 @@ link:
 
 > 本文档按功能分类介绍 `@echolab-auto/ui-frame` 的全部组件：每个组件的职责、关键 props 与特有亮点。完整的 Props/Events/Slots 表格见 [API 参考](./api.md)，动画与交互的通用机制见 [动画效果](./animation.md) 与 [交互效果](./interaction.md)。
 
-主库全局注册 **63 个组件**（`app.use(NeumorphismUI)` 后全部可用）；Chat 聊天面板与 Doc 文档渲染为独立模块，经子路径 `@echolab-auto/ui-frame/chat`、`@echolab-auto/ui-frame/doc` 引入。
+主库全局注册 **64 个组件**（`app.use(NeumorphismUI)` 后全部可用）；Chat 聊天面板与 Doc 文档渲染为独立模块，经子路径 `@echolab-auto/ui-frame/chat`、`@echolab-auto/ui-frame/doc` 引入。
 
 ---
 
@@ -84,7 +84,7 @@ link:
 
 | 分类         | 定义                                                                                    | 判定标准                                                                                                                         | 代码位置                                                                      | 示例                                                                               |
 | ------------ | --------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
-| **基础组件** | 单一职责、自包含的 UI 原子/分子，是本库的最小可复用单元                                 | 仅靠 props / slots / events 通信；不消费任何领域数据契约；无外部副作用（不发网络请求、不读写宿主业务状态）；可与其他组件任意组合 | `src/components/`（主入口，`app.use(NeumorphismUI)` 全局注册 63 个）          | `NeumorphismButton`、`NeumorphismInput`、[`NeumorphismCard`](./components/card.md) |
+| **基础组件** | 单一职责、自包含的 UI 原子/分子，是本库的最小可复用单元                                 | 仅靠 props / slots / events 通信；不消费任何领域数据契约；无外部副作用（不发网络请求、不读写宿主业务状态）；可与其他组件任意组合 | `src/components/`（主入口，`app.use(NeumorphismUI)` 全局注册 64 个）          | `NeumorphismButton`、`NeumorphismInput`、[`NeumorphismCard`](./components/card.md) |
 | **组合组件** | 由若干基础组件 + headless composable 拼装而成，消费领域数据契约、交付一个完整场景的组件 | 消费领域数据契约（如 `ProDocNode` 文档树）；纯渲染层——不持业务状态、不发网络请求，用户意图经事件上交宿主持久化                   | `src/composites/`（doc 文档渲染，经子路径 `@echolab-auto/ui-frame/doc` 引入） | `DocViewer`、`DocEditor`、`MarkdownRenderer`                                       |
 
 > **元组件**：领域模块内部拆出的纯 UI 原语（`DocCodeBlock`、`DocTocNav` 等）——零领域类型、slot 驱动，性质上属于基础组件，随所在模块经子路径导出，可脱离组合组件自由组装（chat 模块 2026-10-13 起收敛为纯原子层）。
@@ -105,7 +105,7 @@ link:
 
 ---
 
-## 一、基础组件（63 个）
+## 一、基础组件（64 个）
 
 主库 `src/components/` 全局注册的全部组件，按功能分组如下。
 
@@ -231,13 +231,14 @@ link:
 
 ### 扩展与工具
 
-| 组件                                                 | 职责                     | 关键 props                                                                                                                            | 亮点                                                      |
-| ---------------------------------------------------- | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------- |
-| [`ThemeProvider`](./components/theme-provider.md)    | 主题提供者               | `defaultTheme`（light/dark/auto）、`storageKey`、`followSystem`                                                                       | 配套 `useTheme` / `getAntiFlickerScript`（防闪烁脚本）    |
-| [`NeumorphismAsciiArt`](./components/ascii-art.md)   | 字符画（图片 → ASCII）   | `src`、`density`、`reactive`、`speed`、`height`                                                                                       | 保持原图比例；直方图拉伸；指针提亮                        |
-| [`NeumorphismPixelFont`](./components/pixel-font.md) | 像素字体（termsyn 6x11） | `text`、`scale`、`cursor`、`align`、`ariaLabel`                                                                                       | 内嵌位图字体 woff2；整数倍缩放像素保真；闪烁块光标        |
-| [`NeumorphismArt`](./components/art.md)              | 试验性动态效果画布       | `effect`（pixel-field/particles/waves/goo/ascii）、`reactive`、`speed`、`density`、`seed`、`palette`、`src`                           | 5 种程序化效果；指针交互；DPR 适配；reduced-motion 静态帧 |
-| [`NeumorphismCanvas`](./components/canvas.md)        | 可缩放/平移画布          | `modelValue`（缩放 v-model）、`minZoom`/`maxZoom`、`showGrid`、`gridVariant`（dots/lines）、`showControls`/`showFit`/`showFullscreen` | 空格+拖拽平移；Ctrl/Cmd+滚轮缩放；一键适配与全屏          |
+| 组件                                                 | 职责                     | 关键 props                                                                                                                            | 亮点                                                        |
+| ---------------------------------------------------- | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------- |
+| [`ThemeProvider`](./components/theme-provider.md)    | 主题提供者               | `defaultTheme`（light/dark/auto）、`storageKey`、`followSystem`                                                                       | 配套 `useTheme` / `getAntiFlickerScript`（防闪烁脚本）      |
+| [`NeumorphismIcon`](./components/icon.md)            | 线框图标（52 个语义名）  | `name`、`size`（七档或数字）、`strokeWidth`、`spin`、`pulse`、`label`                                                                 | 注册表单一事实源；线宽按尺寸档自动；配套 `icons` 子路径导出 |
+| [`NeumorphismAsciiArt`](./components/ascii-art.md)   | 字符画（图片 → ASCII）   | `src`、`density`、`reactive`、`speed`、`height`                                                                                       | 保持原图比例；直方图拉伸；指针提亮                          |
+| [`NeumorphismPixelFont`](./components/pixel-font.md) | 像素字体（termsyn 6x11） | `text`、`scale`、`cursor`、`align`、`ariaLabel`                                                                                       | 内嵌位图字体 woff2；整数倍缩放像素保真；闪烁块光标          |
+| [`NeumorphismArt`](./components/art.md)              | 试验性动态效果画布       | `effect`（pixel-field/particles/waves/goo/ascii）、`reactive`、`speed`、`density`、`seed`、`palette`、`src`                           | 5 种程序化效果；指针交互；DPR 适配；reduced-motion 静态帧   |
+| [`NeumorphismCanvas`](./components/canvas.md)        | 可缩放/平移画布          | `modelValue`（缩放 v-model）、`minZoom`/`maxZoom`、`showGrid`、`gridVariant`（dots/lines）、`showControls`/`showFit`/`showFullscreen` | 空格+拖拽平移；Ctrl/Cmd+滚轮缩放；一键适配与全屏            |
 
 ---
 

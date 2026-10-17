@@ -4,6 +4,7 @@ import { useTheme } from '@/composables/useTheme'
 import { useLocale } from '@/composables/useLocale'
 import { useNeumorphismSetup } from '@/extensions/createComponent'
 import type { Theme } from '@/composables/useTheme'
+import NeumorphismIcon from '../NeumorphismIcon/NeumorphismIcon.vue'
 
 export interface NeumorphismThemeToggleProps {
   /** v-model binding: 'light' | 'dark' | 'auto' */
@@ -78,6 +79,23 @@ function selectTheme(value: Theme) {
   emit('update:modelValue', value)
   emit('change', value)
 }
+
+/**
+ * 图标尺寸档（§8 枚举）：small → 14；medium/large → 18。
+ * 三态同档，保证并排按钮视觉大小一致（此前激活态 scale(1.1) 让其一档独大）。
+ */
+const iconSize = computed<'sm' | 'lg'>(() => (resolvedSize.value === 'small' ? 'sm' : 'lg'))
+
+/** 主题选项 → 语义图标（三态统一线框，2026-10）。 */
+const THEME_ICON: Record<string, 'sun' | 'monitor' | 'moon'> = {
+  light: 'sun',
+  auto: 'monitor',
+  dark: 'moon',
+}
+
+function themeIconName(value: string) {
+  return THEME_ICON[value] ?? 'monitor'
+}
 </script>
 
 <template>
@@ -94,53 +112,14 @@ function selectTheme(value: Theme) {
       :disabled="disabled"
       @click="selectTheme(opt.value)"
     >
-      <!-- Light icon: sun -->
-      <svg
-        v-if="opt.value === 'light'"
+      <!-- 三态图标统一为线框（2026-10）：sun / monitor / moon 全部 stroke 风格，
+           此前 light 是"实心圆+线框射线"、dark 是"纯实心块"，切换主题时
+           实心↔线框跳变。尺寸与线宽由 NeumorphismIcon 按档自动处理。 -->
+      <NeumorphismIcon
+        :name="themeIconName(opt.value)"
+        :size="iconSize"
         class="nm-theme-toggle__icon"
-        viewBox="0 0 24 24"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <circle cx="12" cy="12" r="4" fill="currentColor" />
-        <path
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32 1.41 1.41M2 12h2m16 0h2M4.93 19.07l1.41-1.41m11.32-11.32 1.41-1.41"
-        />
-      </svg>
-
-      <!-- Auto icon: monitor/sync -->
-      <svg
-        v-if="opt.value === 'auto'"
-        class="nm-theme-toggle__icon"
-        viewBox="0 0 24 24"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <rect x="2" y="3" width="20" height="14" rx="2" stroke="currentColor" stroke-width="2" />
-        <path stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M8 21h8m-4-4v4" />
-        <path
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          d="M12 9v3l2 1.5"
-        />
-        <circle cx="12" cy="12" r="1" fill="currentColor" />
-      </svg>
-
-      <!-- Dark icon: moon -->
-      <svg
-        v-if="opt.value === 'dark'"
-        class="nm-theme-toggle__icon"
-        viewBox="0 0 24 24"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <path fill="currentColor" d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
-      </svg>
+      />
 
       <span v-if="resolvedSize !== 'small'" class="nm-theme-toggle__label">{{ opt.label }}</span>
     </button>
@@ -241,7 +220,9 @@ function selectTheme(value: Theme) {
 }
 
 .nm-theme-toggle__btn--active .nm-theme-toggle__icon {
-  transform: rotate(15deg) scale(1.1);
+  /* 只旋转、不缩放（2026-10 修复）：scale(1.1) 让 14px 图标实测渲染 18.86px，
+     脱离 §8 枚举档且比相邻按钮明显更大更粗。旋转 15° 保留"激活"的可感知差异。 */
+  transform: rotate(15deg);
 }
 
 .nm-theme-toggle__label {

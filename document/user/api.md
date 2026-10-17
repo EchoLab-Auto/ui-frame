@@ -73,7 +73,7 @@ import { NeumorphismButton, NeumorphismCard, useTheme } from '@echolab-auto/ui-f
 
 ## Vue 组件
 
-本节为主库**基础组件**（`src/components/`，63 个）；组合组件见 [Doc 文档渲染](#doc-文档渲染)；[Chat 聊天面板](#chat-聊天面板) 为纯元组件模块（`src/composites/`）。分类定义见 [组件总览](./components.md#组件分类基础组件与组合组件)。
+本节为主库**基础组件**（`src/components/`，64 个）；组合组件见 [Doc 文档渲染](#doc-文档渲染)；[Chat 聊天面板](#chat-聊天面板) 为纯元组件模块（`src/composites/`）。分类定义见 [组件总览](./components.md#组件分类基础组件与组合组件)。
 
 ### 基础输入
 

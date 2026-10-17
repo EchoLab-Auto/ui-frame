@@ -1248,7 +1248,7 @@ import { useChatScroll } from '@echolab-auto/ui-frame/composables/useChatScroll'
 
 ## 深入
 
-- [组件总览](./components.md) — 全部 63 个组件的分类说明、关键 props 与亮点
+- [组件总览](./components.md) — 全部 64 个组件的分类说明、关键 props 与亮点
 - [动画效果](./animation.md) — 台阶高度模型、缓动曲线、悬停与加载动效
 - [交互效果](./interaction.md) — 键盘导航、焦点管理、弹出层与反馈交互
 - [API 参考](./api.md) — 完整的 Props/Events/Slots 手册
