@@ -8,7 +8,8 @@ import { pixelBrightness } from './effects/pixel-field'
 import { shouldLink } from './effects/particles'
 import { waveY } from './effects/waves'
 import { charFor, ASCII_RAMP } from './effects/ascii'
-
+import { asciiEffect } from './effects/ascii'
+import type { ArtState } from './effects'
 // jsdom 无 canvas 2D 实现：桩掉 getContext，验证组件行为而非像素输出
 function stubCanvas() {
   const ctxStub = new Proxy(
@@ -135,7 +136,6 @@ describe('art effects (pure functions)', () => {
     expect(charFor(99)).toBe(ASCII_RAMP[ASCII_RAMP.length - 1])
     expect(charFor(0.5)).toBe(ASCII_RAMP[Math.round(0.5 * (ASCII_RAMP.length - 1))])
   })
-
   it('waveY lifts near the active pointer and is deterministic otherwise', () => {
     const layer = { amplitude: 10, frequency: 0.01, speed: 1, phase: 0, yRatio: 0.5, alpha: 0.2 }
     const base = waveY(100, 50, layer, 1)
@@ -144,5 +144,125 @@ describe('art effects (pure functions)', () => {
     expect(lifted).toBeLessThan(base) // 隆起 = y 减小
     const far = waveY(900, 50, layer, 1, { x: 100, active: true })
     expect(Math.abs(far - waveY(900, 50, layer, 1))).toBeLessThan(0.001)
+  })
+})
+
+describe('ascii render 批量下笔（滚动卡顿优化契约）', () => {
+  interface CountingCtx {
+    ctx: CanvasRenderingContext2D
+    fillTexts: { ch: string; x: number; y: number }[]
+    fontSets: string[]
+    fillStyleSets: number
+    alphaSets: number
+  }
+  function createCountingCtx(): CountingCtx {
+    const out: CountingCtx = {
+      ctx: null as unknown as CanvasRenderingContext2D,
+      fillTexts: [],
+      fontSets: [],
+      fillStyleSets: 0,
+      alphaSets: 0,
+    }
+    out.ctx = new Proxy(
+      {},
+      {
+        get: (_, prop) => {
+          if (prop === 'canvas') return undefined
+          if (prop === 'fillText') {
+            return (ch: string, x: number, y: number) => out.fillTexts.push({ ch, x, y })
+          }
+          return () => {}
+        },
+        set: (_, prop, value) => {
+          if (prop === 'font') out.fontSets.push(String(value))
+          if (prop === 'fillStyle') out.fillStyleSets++
+          if (prop === 'globalAlpha') out.alphaSets++
+          return true
+        },
+      }
+    ) as unknown as CanvasRenderingContext2D
+    return out
+  }
+
+  /** 手工构造 4x2 栅格（绕过图片采样：geometry + 亮度直给，render 懒建派生缓冲） */
+  function makeAsciiState(): ArtState {
+    const state = {
+      width: 40,
+      height: 23,
+      palette: [] as string[],
+      bg: '#e0e0e0',
+      fg: '#333333',
+      src: undefined,
+      density: 1,
+      speed: 0, // 静止：排除呼吸时变量，断言确定性
+      reactive: false,
+      seed: 1,
+      pointer: { x: 0, y: 0, active: false },
+      data: null,
+    } as unknown as ArtState
+    asciiEffect.init(state)
+    const d = state.data as unknown as {
+      cols: number
+      rows: number
+      cellW: number
+      cellH: number
+      offsetX: number
+      offsetY: number
+      lum: Float32Array
+      ready: boolean
+    }
+    d.cols = 4
+    d.rows = 2
+    d.cellW = 10
+    d.cellH = 11.5
+    d.offsetX = 0
+    d.offsetY = 0
+    d.lum = new Float32Array(8).fill(0.9) // 呼吸因子 ∈ [0.85,1] → 全部非空格
+    d.ready = true
+    return state
+  }
+
+  it('基准字体每帧只设一次；透明度/颜色按档批量切换', () => {
+    const { ctx, fillTexts, fontSets, fillStyleSets, alphaSets } = createCountingCtx()
+    asciiEffect.render(ctx, makeAsciiState(), 0)
+    // 4x2 = 8 格全部下笔
+    expect(fillTexts.length).toBe(8)
+    // 字符来自梯度（相位分档后 8 格落在相邻档，至多两种字符）
+    for (const t of fillTexts) expect(ASCII_RAMP).toContain(t.ch)
+    // 性能契约：基准字体 1 次；状态切换远少于逐格（8 格 × 3 种状态 = 24）
+    expect(fontSets).toHaveLength(1)
+    expect(fontSets[0]).toBe('11.5px ui-monospace, monospace')
+    expect(fillStyleSets + alphaSets).toBeLessThan(8)
+    // 坐标：首格 = 第一列/行中心
+    expect(fillTexts[0].x).toBe(5)
+    expect(fillTexts[0].y).toBeCloseTo(5.75)
+  })
+
+  it('同一状态重复渲染结果确定（呼吸流光相位稳定）', () => {
+    const a = createCountingCtx()
+    const b = createCountingCtx()
+    const s1 = makeAsciiState()
+    s1.speed = 1
+    const s2 = makeAsciiState()
+    s2.speed = 1
+    asciiEffect.render(a.ctx, s1, 1.234)
+    asciiEffect.render(b.ctx, s2, 1.234)
+    expect(a.fillTexts).toEqual(b.fillTexts)
+  })
+
+  it('指针热区：附近格放大字形（字体尺寸 > 基准）', () => {
+    const { ctx, fillTexts, fontSets } = createCountingCtx()
+    const state = makeAsciiState()
+    state.reactive = true
+    state.pointer = { x: 5, y: 5.75, active: true } // 悬停首格中心
+    asciiEffect.render(ctx, state, 0)
+    expect(fillTexts.length).toBe(8)
+    // 热区格逐格字体（尺寸放大），非热区仍是基准字体
+    const base = fontSets.filter(f => f === '11.5px ui-monospace, monospace')
+    const grown = fontSets.filter(f => parseFloat(f) > 11.5)
+    expect(grown.length).toBeGreaterThan(0)
+    expect(base.length + grown.length).toBe(fontSets.length)
+    // 首格在指针正下方：boost 最大 → 字号 = cellH * 1.25
+    expect(grown[0]).toBe('14.375px ui-monospace, monospace')
   })
 })

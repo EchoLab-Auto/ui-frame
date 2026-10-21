@@ -72,6 +72,9 @@ useArtRenderer({
   palette: computed(() => props.palette),
   seed: computed(() => undefined),
   src: computed(() => props.src),
+  // 呼吸流光为低频缓动：30fps 上限于观感无差别，空闲常驻开销减半
+  // （指针交互中不节流，滚动期间与视口外由 useArtRenderer 自动停摆）
+  idleFps: 30,
 })
 
 const resolvedAriaLabel = computed(() => props.ariaLabel || t('asciiArtLabel'))

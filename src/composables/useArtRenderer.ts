@@ -14,6 +14,12 @@ export interface UseArtRendererOptions {
   seed: Ref<number | undefined>
   /** 图片资源地址（图片类效果使用，如字符画） */
   src: Ref<string | undefined>
+  /**
+   * 指针未激活时的帧率上限（如字符画这类「缓慢呼吸」的低动态效果用 30 即可，
+   * 主线程常驻成本减半、观感无差别）。指针交互中不节流（跟手）。
+   * 缺省 = 跟随显示器刷新率。
+   */
+  idleFps?: number
 }
 
 const THEME_PALETTE_VARS = [
@@ -23,10 +29,29 @@ const THEME_PALETTE_VARS = [
   '--nm-color-warning',
 ]
 
+/** 页面滚动冻结窗口（ms）：滚动中跳过重绘，滚动停止后回落。滚动手势里动画
+ *  已在高速位移中，冻结不可感知；相反每个 vsync 都叠加画布重绘会让滚动手感
+ *  卡顿（实测滚动中帧间隔从 16ms 恶化到 40ms+）。 */
+const SCROLL_IDLE_MS = 140
+
+/** ResizeObserver 防抖（ms）：移动端 URL bar 折叠 / 窗口拖拽会产生 resize 风暴，
+ *  每次都重采样图片代价高；静置后统一处理。 */
+const RESIZE_DEBOUNCE_MS = 120
+
+/** IntersectionObserver 提前量：离视口 80px 时即恢复循环，滚动进场时动画已连续。 */
+const INTERSECT_ROOT_MARGIN = '80px'
+
 /**
  * NeumorphismArt 的 headless 渲染循环：rAF 驱动 + DPR 适配 + ResizeObserver
  * 尺寸跟踪 + 指针追踪 + 主题切换重读配色。reduced-motion 时只渲染一帧
  * 静态画面，不启动循环。
+ *
+ * 调度门控（2026-10，修滚动卡顿）：
+ * - 视口外停摆（IntersectionObserver）：元素滚出视口即停 rAF，
+ *   屏幕外不再消耗 CPU/合成资源；
+ * - 滚动冻结（window capture 监听）：页面或任意祖先滚动容器滚动期间
+ *   跳过重绘（上一帧保持可见），停止后回落；
+ * - 空闲降帧（idleFps）：指针未激活时按上限节流。
  */
 export function useArtRenderer(opts: UseArtRendererOptions) {
   const { isReducedMotion } = useReducedMotion()
@@ -37,6 +62,16 @@ export function useArtRenderer(opts: UseArtRendererOptions) {
   let resizeObserver: ResizeObserver | null = null
   let themeObserver: MutationObserver | null = null
   let running = false
+
+  // ---- 调度门控状态 ----
+  let intersecting = true
+  let intersectionObserver: IntersectionObserver | null = null
+  let scrolling = false
+  let scrollIdleTimer: ReturnType<typeof setTimeout> | undefined
+  let resizeTimer: ReturnType<typeof setTimeout> | undefined
+  let lastDrawAt = 0
+  let lastDpr = 0
+  const frameInterval = opts.idleFps && opts.idleFps > 0 ? 1000 / opts.idleFps : 0
 
   const isCoarsePointer =
     typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches
@@ -95,7 +130,14 @@ export function useArtRenderer(opts: UseArtRendererOptions) {
 
   function tick(now: number) {
     if (!running) return
-    drawFrame((now - startTime) / 1000)
+    // 滚动中 / 视口外：跳过重绘（上一帧保持可见，恢复后按节拍续画）
+    if (!scrolling && intersecting) {
+      // 空闲降帧：指针交互中不节流（跟手）；否则按 idleFps 间隔节流
+      if (!frameInterval || state.pointer.active || now - lastDrawAt >= frameInterval - 1) {
+        drawFrame((now - startTime) / 1000)
+        lastDrawAt = now
+      }
+    }
     rafId = requestAnimationFrame(tick)
   }
 
@@ -121,6 +163,7 @@ export function useArtRenderer(opts: UseArtRendererOptions) {
     el.height = Math.max(1, Math.round(rect.height * dpr))
     state.width = rect.width
     state.height = rect.height
+    lastDpr = dpr
     ctx = el.getContext('2d')
     ctx?.setTransform(dpr, 0, 0, dpr, 0, 0)
   }
@@ -147,6 +190,37 @@ export function useArtRenderer(opts: UseArtRendererOptions) {
     el.removeEventListener('pointerleave', onPointerLeave)
   }
 
+  // ---- 滚动冻结：任意滚动容器（含页面内层容器；scroll 事件在 capture
+  //  阶段可达 window）滚动期间跳过重绘；SCROLL_IDLE_MS 无滚动后回落。 ----
+  function onScroll() {
+    scrolling = true
+    if (scrollIdleTimer !== undefined) clearTimeout(scrollIdleTimer)
+    scrollIdleTimer = setTimeout(() => {
+      scrollIdleTimer = undefined
+      scrolling = false
+    }, SCROLL_IDLE_MS)
+  }
+
+  /** Resize 统一入口：防抖 + 尺寸/DPR 未变时跳过（避免 URL bar 折叠等
+   *  resize 风暴反复重采样图片）。 */
+  function handleResize() {
+    const el = opts.canvas.value
+    if (!el) return
+    if (resizeTimer !== undefined) clearTimeout(resizeTimer)
+    resizeTimer = setTimeout(() => {
+      resizeTimer = undefined
+      const rect = el.getBoundingClientRect()
+      const dpr = Math.min(window.devicePixelRatio || 1, 2)
+      if (rect.width === state.width && rect.height === state.height && dpr === lastDpr) return
+      syncSize()
+      initEffect()
+    }, RESIZE_DEBOUNCE_MS)
+  }
+
+  if (typeof window !== 'undefined') {
+    window.addEventListener('scroll', onScroll, { capture: true, passive: true })
+  }
+
   // canvas 挂载后启动；卸载前清理全部监听与循环
   const stopWatch = watch(
     opts.canvas,
@@ -158,11 +232,27 @@ export function useArtRenderer(opts: UseArtRendererOptions) {
       initEffect()
       start()
       bindPointer(el)
-      resizeObserver = new ResizeObserver(() => {
-        syncSize()
-        initEffect()
-      })
+      resizeObserver = new ResizeObserver(() => handleResize())
       resizeObserver.observe(el)
+      // 视口门控：滚出视口即停摆（rootMargin 提前 80px 恢复）
+      if (typeof IntersectionObserver !== 'undefined') {
+        intersectionObserver = new IntersectionObserver(
+          entries => {
+            const entry = entries[entries.length - 1]
+            if (!entry) return
+            const visible = entry.isIntersecting
+            if (visible === intersecting) return
+            intersecting = visible
+            if (visible) {
+              start()
+            } else {
+              stop()
+            }
+          },
+          { rootMargin: INTERSECT_ROOT_MARGIN }
+        )
+        intersectionObserver.observe(el)
+      }
       // 主题切换（<html data-theme>）时重读配色并重渲染
       themeObserver = new MutationObserver(() => {
         if (!opts.palette.value?.length) {
@@ -215,8 +305,14 @@ export function useArtRenderer(opts: UseArtRendererOptions) {
   onBeforeUnmount(() => {
     stop()
     stopWatch()
+    if (resizeTimer !== undefined) clearTimeout(resizeTimer)
+    if (scrollIdleTimer !== undefined) clearTimeout(scrollIdleTimer)
     resizeObserver?.disconnect()
+    intersectionObserver?.disconnect()
     themeObserver?.disconnect()
+    if (typeof window !== 'undefined') {
+      window.removeEventListener('scroll', onScroll, { capture: true })
+    }
     if (opts.canvas.value) unbindPointer(opts.canvas.value)
   })
 
