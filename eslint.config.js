@@ -74,14 +74,7 @@ export default defineConfigWithVueTs(
     },
   },
   {
-    ignores: [
-      'dist/**',
-      'dist-example/**',
-      'dist-storybook/**',
-      'node_modules/**',
-      '.changeset/**',
-      'coverage/**',
-    ],
+    ignores: ['dist/**', 'dist-example/**', 'node_modules/**', '.changeset/**', 'coverage/**'],
   },
   prettier
 )

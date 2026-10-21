@@ -425,7 +425,7 @@ FEAT: 新增 Switch 组件     # type 必须小写
 
 **根因类别**（本项目与姊妹仓库各命中一次，均已修复）：
 
-- `jobs.<id>.if` 中使用 `secrets` 上下文——如 `if: ${{ secrets.X != '' }}`（本项目 chromatic.yml）。secrets 不可用于 job 级 if，改为经 job `env` 转递、在步骤级 `if` 里以 `env` 判断。
+- `jobs.<id>.if` 中使用 `secrets` 上下文——如 `if: ${{ secrets.X != '' }}`（本项目曾在 chromatic.yml 命中，该 workflow 已移除）。secrets 不可用于 job 级 if，改为经 job `env` 转递、在步骤级 `if` 里以 `env` 判断。
 - `uses:` 字段内使用表达式——如 `uses: dtolnay/rust-toolchain@${{ matrix.toolchain }}`。`uses` 不支持任何表达式，改为 `@master` + `with.toolchain` 注入 matrix。
 
 **排查**：Actions 运行页顶部的 annotation 会给出「(Line: N, Col: M): …」定位信息；此类失败不产生任何 job 日志。
