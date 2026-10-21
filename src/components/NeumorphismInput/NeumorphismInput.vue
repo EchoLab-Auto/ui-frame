@@ -184,7 +184,13 @@ function handleKeydown(event: KeyboardEvent): void {
   width: 100%;
   background-color: var(--nm-surface-color);
   border-radius: var(--nm-border-radius-md);
+  // hidden 兜底旧浏览器；clip 不创建滚动容器 —— iOS 聚焦内部 input 时
+  // 不会被自动 scrollIntoView 顶出 1px 位移（圆角处露出接缝）
   overflow: hidden;
+  overflow: clip;
+  // iOS 上非交互元素不触发 :active（按压凹陷反馈）；cursor: text 让容器
+  // 进入可点击判定，桌面光标语义也更准确
+  cursor: text;
   @include nm-inset(4px, 8px);
   transition:
     box-shadow 0.35s $nm-ease-spring,

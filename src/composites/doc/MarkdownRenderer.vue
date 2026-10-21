@@ -875,6 +875,7 @@ onBeforeUnmount(() => {
   z-index: var(--nm-z-dropdown);
   background-color: var(--nm-mask-bg);
   backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
 }
 
 .neumorphism-toc-mobile-panel {

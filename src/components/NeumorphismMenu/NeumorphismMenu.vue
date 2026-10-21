@@ -538,7 +538,8 @@ const expandIconClass = computed(() => [
    ========================================== */
 .nm-menu__item {
   position: relative;
-  border-radius: var(--nm-border-radius-sm);
+  // 圆角同心：子菜单浮层外框 16px - padding --nm-spacing-xs(4) = 12
+  border-radius: calc(var(--nm-border-radius-md) - var(--nm-spacing-xs));
 
   &--disabled {
     opacity: 0.4;

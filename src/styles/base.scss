@@ -121,6 +121,34 @@
 // Base Utility Styles
 // ==========================================
 
+// ==========================================
+// 全局约束作用域
+// ==========================================
+// 库内需要重复施加「全局约束」的根作用域有两类：
+//   · .nm-root 子树之外，Teleport 到 body 的浮层根（Modal/Drawer 遮罩、Toast、
+//     Tooltip、Popover、Select/AutoComplete 下拉、Menu 子菜单）各自是独立子树；
+//   · 组件根（Input/Textarea/Select/Tree/Checkbox…）——宿主可能把库组件放进
+//     自绘浮层（Teleport 到 body、整棵不在 .nm-root 内）。
+// 两类节点都必须显式覆盖表单控件外观重置等全局规则，否则 iOS 上会重新套用
+// 系统原生 input 外观（内阴影 + 系统圆角）。
+//
+// 实现用 `:is()` 一次性展开作用域清单：若按「作用域 × 目标」笛卡尔积展开
+// （.nm-root input, .nm-modal__mask input, …），base.css 会从 38KB 涨到 49KB。
+$nm-roots-overlay:
+  '.nm-root', '.nm-theme-default', '.nm-modal__mask', '.nm-drawer__mask', '.nm-toast-container',
+  '.nm-tooltip', '.nm-popover', '.nm-select__dropdown', '.nm-autocomplete__dropdown',
+  '.nm-menu__submenu--floating';
+$nm-roots-form:
+  $nm-roots-overlay, '.nm-input', '.nm-textarea', '.nm-select', '.nm-input-number', '.nm-tree',
+  '.nm-pagination', '.nm-checkbox', '.nm-radio', '.nm-switch', '.nm-slider';
+
+/// 在给定作用域清单下施加一组声明/规则。
+@mixin nm-scope($roots) {
+  :is(#{$roots}) {
+    @content;
+  }
+}
+
 .nm-root,
 .nm-theme-default {
   background-color: var(--nm-bg-color);
@@ -156,26 +184,16 @@
 }
 
 // ---- Mobile-friendly global defaults ----
-.nm-root {
+// text-size-adjust 需覆盖浮层根：iOS 横屏自动放大（text autosizing）会命中
+// Teleport 到 body 的浮层文字，字号/行高与宿主页面不一致。
+@include nm-scope($nm-roots-overlay) {
   -webkit-text-size-adjust: 100%;
   -ms-text-size-adjust: 100%;
+}
 
+.nm-root {
   @media (prefers-reduced-motion: no-preference) {
     scroll-behavior: smooth;
-  }
-
-  :where(&) a,
-  :where(&) button,
-  :where(&) [role='button'] {
-    touch-action: manipulation;
-  }
-
-  :where(&) input,
-  :where(&) textarea,
-  :where(&) select {
-    -webkit-appearance: none;
-    appearance: none;
-    border-radius: 0;
   }
 
   :where(&) img,
@@ -185,28 +203,94 @@
   }
 }
 
+// ---- Touch-action: 消除双击缩放判定窗口 ----
+// iOS 上点击后要等约 300ms 才能确认是否是双击缩放 —— 触屏「点了没反应」
+// 的主因之一。凡可点角色（含自定义 div 承载的 tab/option/menuitem/switch
+// 与组件级触发器）都声明 manipulation。
+@include nm-scope($nm-roots-form) {
+  :where(a),
+  :where(button),
+  :where([role='button']),
+  :where([role='tab']),
+  :where([role='option']),
+  :where([role='menuitem']),
+  :where([role='switch']),
+  :where([role='checkbox']),
+  :where([role='radio']),
+  :where(.nm-select),
+  :where(.nm-tree-node),
+  :where(.nm-datepicker__trigger),
+  :where(.nm-menu__item),
+  :where(.nm-segmented__item) {
+    touch-action: manipulation;
+  }
+}
+
+// ---- Form control appearance reset ----
+// iOS Safari 会给未重置 appearance 的 input/textarea/select 套上**系统内阴影
+// 与系统圆角**——在浮层（Popover / Select 下拉 / Picker）里就表现为「输入框
+// 圆角跟外面不一样」。
+// min-width: 0：iOS 原生控件按 size 属性取固有宽度，flex 行里会把输入区撑破；
+// touch-action: manipulation：去掉原生控件的双击缩放等待。
+@include nm-scope($nm-roots-form) {
+  :where(input),
+  :where(textarea),
+  :where(select) {
+    -webkit-appearance: none;
+    appearance: none;
+    border-radius: 0;
+    min-width: 0;
+    touch-action: manipulation;
+  }
+
+  // WebKit 的 placeholder 默认带额外不透明度 → 占位文字比设计稿淡一档
+  :where(input, textarea)::placeholder {
+    opacity: 1;
+  }
+}
+
+// ---- iOS Safari form hardening ----
+// iOS 对字号 < 16px 的表单控件有「聚焦自动放大整页」行为：一缩放，圆角、
+// 内边距、对齐全部肉眼可见地错位——这是「iOS 上输入框圆角不对」最常见的
+// 根因。此处把原生控件字号钉在 --nm-form-font-ios-min（16px）。
+//   · pointer: coarse 限定：桌面 Safari 也支持 -webkit-touch-callout，
+//     但鼠标环境不需要牺牲字号档位；
+//   · !important：平台底线，需压过组件 scoped 的字号档位；
+//   · 排除 checkbox/radio/range/file/color/hidden 等非文本控件。
+@supports (-webkit-touch-callout: none) {
+  @media (pointer: coarse) {
+    @include nm-scope($nm-roots-form) {
+      :where(
+        input:not(
+          [type='checkbox'],
+          [type='radio'],
+          [type='range'],
+          [type='file'],
+          [type='color'],
+          [type='hidden']
+        ),
+        textarea,
+        select
+      ) {
+        font-size: var(--nm-form-font-ios-min) !important;
+      }
+    }
+  }
+}
+
 // ---- Touch target floor (coarse pointer) ----
-// 触屏下可点元素的最小命中高度 ≥44px。除 .nm-root 子树外，还需覆盖
-// teleport 到 body 的浮层根（整棵逃出 .nm-root，否则浮层内目标全部逃逸）。
-.nm-root,
-.nm-theme-default,
-.nm-modal__mask,
-.nm-drawer__mask,
-.nm-toast-container,
-.nm-tooltip,
-.nm-popover,
-.nm-select__dropdown,
-.nm-autocomplete__dropdown,
-.nm-menu__submenu--floating {
-  :where(&) button,
-  :where(&) a,
-  :where(&) input,
-  :where(&) select,
-  :where(&) textarea,
-  :where(&) [role='button'],
-  :where(&) [role='tab'],
-  :where(&) [role='option'],
-  :where(&) [role='menuitem'] {
+// 触屏下可点元素的最小命中高度 ≥44px。只覆盖浮层作用域：浮层内的行内小图标
+// 按钮（复制、关闭）靠这条兜住；组件根内的控件由各自 min-height token 保证。
+@include nm-scope($nm-roots-overlay) {
+  :where(button),
+  :where(a),
+  :where(input),
+  :where(select),
+  :where(textarea),
+  :where([role='button']),
+  :where([role='tab']),
+  :where([role='option']),
+  :where([role='menuitem']) {
     @media (pointer: coarse) {
       min-height: 44px;
     }

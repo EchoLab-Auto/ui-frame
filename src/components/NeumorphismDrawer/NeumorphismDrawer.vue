@@ -171,6 +171,7 @@ const sizeStyle = computed(() => {
   z-index: var(--nm-z-overlay);
   background-color: var(--nm-mask-bg);
   backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
   opacity: 0;
   pointer-events: none;
   transition: opacity var(--nm-transition-fast);
@@ -193,10 +194,13 @@ const sizeStyle = computed(() => {
   overflow: hidden;
 
   // Position variants --------------------------------------------------
+  // 安全区：面板贴视口边缘，内部按钮/输入须让开 Home 指示条与横屏刘海。
+  // 用 padding 而不是改 left/top：背景与阴影仍铺满边缘，只有内容内缩。
   &--left {
     left: 0;
     top: 0;
     bottom: 0;
+    padding-left: env(safe-area-inset-left, 0px);
     border-radius: 0 var(--nm-border-radius-lg) var(--nm-border-radius-lg) 0;
   }
 
@@ -204,6 +208,7 @@ const sizeStyle = computed(() => {
     right: 0;
     top: 0;
     bottom: 0;
+    padding-right: env(safe-area-inset-right, 0px);
     border-radius: var(--nm-border-radius-lg) 0 0 var(--nm-border-radius-lg);
   }
 
@@ -211,6 +216,7 @@ const sizeStyle = computed(() => {
     left: 0;
     right: 0;
     top: 0;
+    padding-top: env(safe-area-inset-top, 0px);
     border-radius: 0 0 var(--nm-border-radius-lg) var(--nm-border-radius-lg);
   }
 
@@ -218,6 +224,7 @@ const sizeStyle = computed(() => {
     left: 0;
     right: 0;
     bottom: 0;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
     border-radius: var(--nm-border-radius-lg) var(--nm-border-radius-lg) 0 0;
   }
 }

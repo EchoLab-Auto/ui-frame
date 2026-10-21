@@ -744,6 +744,14 @@ function onContainerBlur(e: FocusEvent) {
     }
   }
 
+  // 按压反馈（2026-10 iOS 复检）：触屏没有 hover，iPad/iPhone 上点触发器
+  // 此前毫无反馈，只有展开后才变色。补 :active 凹陷加深——与 Input 同口径。
+  &:active:not(.nm-select--disabled):not(.nm-select--focused):not(.nm-select--open) {
+    box-shadow:
+      inset 6px 6px 12px var(--nm-shadow-dark),
+      inset -6px -6px 12px var(--nm-shadow-light);
+  }
+
   &--disabled {
     opacity: 0.6;
     cursor: not-allowed;
@@ -918,7 +926,8 @@ function onContainerBlur(e: FocusEvent) {
   padding: var(--nm-select-option-padding-y) var(--nm-select-option-padding-x);
   font-size: var(--nm-select-option-font);
   color: var(--nm-text-primary);
-  border-radius: var(--nm-border-radius-sm);
+  // 圆角同心：下拉外框 16px - padding --nm-spacing-xs(4) = 12
+  border-radius: calc(var(--nm-border-radius-md) - var(--nm-spacing-xs));
   cursor: pointer;
   transition:
     background-color 0.25s $nm-ease-ambient,

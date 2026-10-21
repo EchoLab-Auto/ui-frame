@@ -450,7 +450,8 @@ const isLoadingState = computed(() => loadingRef.value)
     var(--nm-select-option-padding-x, var(--nm-spacing-12));
   font-size: var(--nm-select-option-font, var(--nm-font-base));
   color: var(--nm-text-primary);
-  border-radius: var(--nm-border-radius-sm);
+  // 圆角同心：下拉外框 16px - padding --nm-spacing-xs(4) = 12
+  border-radius: calc(var(--nm-border-radius-md) - var(--nm-spacing-xs));
   cursor: pointer;
   transition:
     background-color 0.25s $nm-ease-ambient,

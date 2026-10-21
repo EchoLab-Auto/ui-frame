@@ -202,6 +202,11 @@ const classList = computed(() => ['nm-modal', `nm-modal--${resolvedSize.value}`]
   justify-content: center;
   background-color: var(--nm-mask-bg);
   backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  // 遮罩铺满视口，但居中容器要避开刘海与 Home 指示条：
+  // 85vh 在 iPhone 上可能正好把弹窗底边送进 Home 区。
+  padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px)
+    env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px);
   opacity: 0;
   pointer-events: none;
   transition: opacity var(--nm-transition-fast);
@@ -215,7 +220,10 @@ const classList = computed(() => ['nm-modal', `nm-modal--${resolvedSize.value}`]
 .nm-modal {
   position: relative;
   width: 100%;
+  // 85dvh：iOS 地址栏收放时 vh 取大概率值，弹窗底部会被 URL 栏遮住；
+  // dvh 跟随可视高度（旧浏览器回落到上面的 vh）。
   max-height: 85vh;
+  max-height: 85dvh;
   display: flex;
   flex-direction: column;
   background-color: var(--nm-surface-color);
@@ -285,6 +293,9 @@ const classList = computed(() => ['nm-modal', `nm-modal--${resolvedSize.value}`]
 .nm-modal__body {
   padding: var(--nm-modal-padding);
   overflow-y: auto;
+  // 滚到底不把滚动链传给背景页（iOS 上 body overscroll 会「橡皮筋穿透」）
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
   color: var(--nm-text-primary);
   font-size: var(--nm-font-base);
   line-height: 1.6;

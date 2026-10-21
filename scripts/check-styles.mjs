@@ -70,6 +70,38 @@ const ICON_SIZE_ALLOWED = new Set(['12', '14', '16', '18', '20', '24', '32'])
 const STROKE_ALLOWED = new Set(['0.5', '1', '1.5', '2', '2.5', '3'])
 const PX_RE = /(?<![\w.-])(-?\d+(?:\.\d+)?)px/g
 
+/**
+ * 剥离 `env(<name>, <fallback>)` 整段表达式。
+ *
+ * 为什么：安全区写法必然是 `env(safe-area-inset-bottom, 0px)`——其中的 0px
+ * 是「浏览器不支持安全区时的兜底」，不是设计间距档位，不该受 token 检查
+ * 约束（也无法用 var(--nm-spacing-*) 表达）。剥离后同一行里其余真实间距值
+ * 照常检查。
+ */
+function stripEnv(input) {
+  let out = ''
+  let i = 0
+  while (i < input.length) {
+    const hit = input.indexOf('env(', i)
+    if (hit === -1) {
+      out += input.slice(i)
+      break
+    }
+    out += input.slice(i, hit)
+    let depth = 0
+    let j = hit + 3
+    for (; j < input.length; j++) {
+      if (input[j] === '(') depth++
+      else if (input[j] === ')') {
+        depth--
+        if (depth === 0) break
+      }
+    }
+    i = j + 1
+  }
+  return out
+}
+
 function* walk(dir) {
   for (const name of readdirSync(dir)) {
     const p = join(dir, name)
@@ -113,7 +145,7 @@ for (const file of walk(srcDir)) {
     if (inStyle) {
       const m = stripped.match(SPACING_PROP_RE)
       if (m) {
-        for (const pm of m[2].matchAll(PX_RE)) {
+        for (const pm of stripEnv(m[2]).matchAll(PX_RE)) {
           const value = `${pm[1]}px`
           if (SPACING_EXEMPT.has(value)) continue
           findings.push({

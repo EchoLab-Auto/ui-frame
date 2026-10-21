@@ -164,6 +164,10 @@ Modal / Drawer 打开时锁定 body 滚动：多层嵌套用计数器，归零�
 
 另有两条全局约定：**触屏适配**（`pointer: coarse` 下交互元素最小 44px 命中区、`touch-action: manipulation`，位移类 hover 不触发）与 **RTL 支持**（`[dir='rtl']` 镜像方向性图标与浮层方位）。
 
+**iOS Safari 表单加固**（`base.scss`）：文本类原生控件的字号在 iOS + 粗指针环境钉在 `--nm-form-font-ios-min`（16px）——低于 16px 时 Safari 聚焦会放大整页，页面一缩放，圆角 / 内边距 / 对齐全部肉眼可见地错位；表单控件外观重置覆盖所有 Teleport 浮层根（否则浮层内输入框会重新套用系统内阴影与系统圆角）；`::placeholder` 显式 `opacity: 1`，避免 WebKit 默认不透明度让占位文字偏淡。宿主若确有更小字号的输入场景，需自行在 `@supports (-webkit-touch-callout: none)` 之外覆盖，并接受聚焦缩放或改用 `maximum-scale` 之外的替代方案。
+
+**安全区**（`env(safe-area-inset-*)`）：宿主开启 `viewport-fit=cover` 后，贴视口边缘的浮层必须自己让开安全区——Toast 容器按方位加 `padding-*`、Drawer 四个方位变体分别内缩、Modal 遮罩加四边 padding（内容居中因此避开刘海与 Home 指示条）。Drawer 用 padding 而非改 `top/bottom`，背景与阴影仍铺满边缘，只有内容内缩。宿主自绘的 body 级浮层（非库组件）需自行处理，库不代管。
+
 ---
 
 ## 深入

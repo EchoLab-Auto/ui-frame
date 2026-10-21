@@ -122,7 +122,9 @@ const classList = computed(() => [
   align-items: center;
   justify-content: center;
   border: none;
-  border-radius: var(--nm-border-radius-sm);
+  // 圆角同心：外框 --nm-border-radius-md(16) - padding --nm-spacing-2xs(2) = 14。
+  // 用 calc 表达几何关系，改外框圆角/内边距时内项自动跟随。
+  border-radius: calc(var(--nm-border-radius-md) - var(--nm-spacing-2xs));
   background: transparent;
   color: var(--nm-text-secondary);
   font-size: var(--nm-font-md);

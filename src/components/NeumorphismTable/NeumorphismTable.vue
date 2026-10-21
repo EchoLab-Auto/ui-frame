@@ -242,7 +242,13 @@ const showSelectionColumn = computed(
   border-radius: var(--nm-border-radius-md);
   background-color: var(--nm-surface-color);
   @include nm-inset(3px, 6px);
-  overflow: hidden;
+  // 横向滚动（2026-10 iOS 复检）：此前 overflow: hidden 把超宽列直接裁掉，
+  // 手指也滑不出来 —— 不是"暂时看不到"而是**永久不可达**。圆角裁剪由
+  // 外层自身 border-radius + 内容内边距保持。
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
 }
 
 .nm-table__inner {
@@ -409,6 +415,7 @@ const showSelectionColumn = computed(
   gap: var(--nm-table-loading-gap);
   background-color: color-mix(in srgb, var(--nm-bg-color) 60%, transparent);
   backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
   /* 组件内部层级（非全局浮层，从 1 起） */
   z-index: 1;
 }

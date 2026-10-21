@@ -275,6 +275,12 @@
   --nm-field-affix-padding-x-md: var(--nm-spacing-14);
   --nm-field-affix-padding-x-lg: var(--nm-spacing-md);
 
+  // -- iOS / 触屏表单 --
+  // iOS Safari 对字号 < 16px 的表单控件会「聚焦自动放大整页」，页面缩放后
+  // 圆角 / 内边距 / 对齐全部错位。base.scss 在 iOS + 粗指针环境下把原生控件
+  // 字号钉在此值上；这是防缩放的下限，不是视觉档位，勿随尺寸档改动。
+  --nm-form-font-ios-min: 16px;
+
   // -- Select --
   --nm-select-option-padding-y: var(--nm-spacing-10);
   --nm-select-option-padding-x: var(--nm-spacing-14);

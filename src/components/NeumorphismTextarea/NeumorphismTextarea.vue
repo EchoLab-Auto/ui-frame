@@ -181,6 +181,11 @@ watch(
   width: 100%;
   background-color: var(--nm-surface-color);
   border-radius: var(--nm-border-radius-md);
+  // 圆角裁剪（旧浏览器 hidden 兜底；clip 不建滚动容器，iOS 聚焦不位移）
+  overflow: hidden;
+  overflow: clip;
+  // iOS 容器 :active 需要 cursor 参与命中判定
+  cursor: text;
   @include nm-inset(4px, 8px);
   @include nm-theme-transition;
   // 仅过渡阴影 —— 去掉 hover/focused 的 1px 抬升：容器 transform 会建立变换层，

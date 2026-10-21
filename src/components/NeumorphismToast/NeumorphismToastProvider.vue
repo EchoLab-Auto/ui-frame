@@ -125,7 +125,32 @@ const classList = computed(() => [
   flex-direction: column;
   gap: var(--nm-toast-gap);
   pointer-events: none;
+  // 安全区：容器贴在视口边缘（top/bottom: 0），不垫安全区时底部 toast 被
+  // iPhone Home 指示条压住、顶部 toast 压在 Dynamic Island / 状态栏下。
+  // 只按方位加，避免四条边都多出内边距把居中档挤偏。
   padding: var(--nm-spacing-md);
+
+  &--top-left,
+  &--top-right,
+  &--top-center {
+    padding-top: calc(var(--nm-spacing-md) + env(safe-area-inset-top, 0px));
+  }
+
+  &--bottom-left,
+  &--bottom-right,
+  &--bottom-center {
+    padding-bottom: calc(var(--nm-spacing-md) + env(safe-area-inset-bottom, 0px));
+  }
+
+  &--top-left,
+  &--bottom-left {
+    padding-left: calc(var(--nm-spacing-md) + env(safe-area-inset-left, 0px));
+  }
+
+  &--top-right,
+  &--bottom-right {
+    padding-right: calc(var(--nm-spacing-md) + env(safe-area-inset-right, 0px));
+  }
 
   &--top-left {
     top: 0;
