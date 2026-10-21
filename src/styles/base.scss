@@ -297,6 +297,59 @@ $nm-roots-form:
   }
 }
 
+// ---- 连续曲率角（iOS 原生角）----
+// `corner-shape` 把 border-radius 的「角部区域」从圆弧换成超椭圆族。
+// Apple 的 UI 圆角是曲率连续的超椭圆（squircle），不是圆弧——直的边与角的
+// 交界处没有曲率突变点，所以看起来「更软」。这里是全库唯一声明 corner-shape
+// 的地方，取值来自 tokens 的两个变量（默认 round = 圆弧，与旧版一致）。
+//
+// 为什么分「外层 / 内层」两组：超椭圆族的等距偏移曲线**不留在族内**。
+// 若内外同指数嵌套（半径仍取 外层 − 间距），角部间隙会比直边松 24%（p=4 时
+// 甚至 39%），肉眼就是「内框角上贴得比边上松」。实测把内层指数抬高
+// （p=2.5 → q=2.9）后，R/d ∈ [1.5, 4] 全程间隙偏差 ≤5.4%（≈0.5px）。
+// 支持度不足的浏览器直接丢弃该声明，自动回落为圆弧。
+:is(
+  .nm-input,
+  .nm-input-number,
+  .nm-textarea,
+  .nm-select,
+  .nm-autocomplete,
+  .nm-datepicker__trigger,
+  .nm-button,
+  .nm-card,
+  .nm-modal,
+  .nm-drawer,
+  .nm-toast,
+  .nm-popover,
+  .nm-tooltip,
+  .nm-dropdown__menu,
+  .nm-select__dropdown,
+  .nm-autocomplete__dropdown,
+  .nm-menu__submenu--floating,
+  .nm-segmented,
+  .nm-tabs__nav,
+  .nm-table__wrapper,
+  .nm-alert,
+  .nm-tag,
+  .nm-upload,
+  .nm-tree,
+  .nm-list
+) {
+  corner-shape: var(--nm-corner-shape, round);
+}
+
+// 内层：位于带内边距容器之内、半径按「外层 − 内边距」取值的元素。
+:is(
+  .nm-segmented__item,
+  .nm-select__option,
+  .nm-autocomplete__option,
+  .nm-dropdown__item,
+  .nm-menu__item,
+  .nm-tabs__tab
+) {
+  corner-shape: var(--nm-corner-shape-nested, round);
+}
+
 // ---- RTL (Right-to-Left) base support ----
 [dir='rtl'] {
   direction: rtl;

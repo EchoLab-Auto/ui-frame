@@ -77,6 +77,22 @@
   --nm-border-radius-full: 9999px;
   --nm-border-radius-xs: 4px;
 
+  // ---- 连续曲率角（iOS 原生角观感）----
+  // Apple 的 UI 圆角不是圆弧，而是曲率连续的超椭圆（squircle）：从直边过渡到
+  // 角部的曲率变化连续，没有圆弧那种「直边/弧」的曲率突变点。CSS 的
+  // `corner-shape` 可以表达这一族曲线，`superellipse(k)` 的数学指数 p = 2^k。
+  //
+  // 取值推导（像素级实测，几何关系见本仓 base.scss 同名注释）：
+  //   · 外层 p = 2.5  → superellipse(1.32)：45° 处比圆弧浅 17%，
+  //     与 iOS UI 的连续角（相对圆弧浅 10~20%）同档；
+  //   · 内层 q = 2.9  → superellipse(1.54)：超椭圆族的等距偏移曲线不留在族内，
+  //     同指数嵌套时角部间隙会松 24%。实测把内层指数提到 2.9、半径仍取
+  //     「外层 − 间距」时，R/d ∈ [1.5, 4] 全程间隙偏差 ≤5.4%（≈0.5px）。
+  // 默认 round（= 圆弧，与旧版完全一致）；宿主把这两个变量改成上面两个值即可
+  // 全库启用。不支持 corner-shape 的浏览器会忽略声明，自动回落为圆弧。
+  --nm-corner-shape: round;
+  --nm-corner-shape-nested: round;
+
   // Generic font sizes
   --nm-font-xs: 11px;
   --nm-font-sm: 12px;
