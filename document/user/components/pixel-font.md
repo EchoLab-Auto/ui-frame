@@ -47,7 +47,7 @@ group: 使用
 ## 字体出处（内嵌 termsyn 6x11）
 
 - **termsyn**：stlarch 作（2011–2012），基于 [Terminus](https://terminus-font.sourceforge.net/) 与 Tamsyn 的混合位图字体，**GPL-2**；来源 [SourceForge](https://sourceforge.net/projects/termsyn/)
-- 本库内嵌版由 PCF 位图重建为像素轮廓 woff2（1 设计像素 = 1px @ 11px 字号），与原始字形**逐像素一致**（可离线复核）；详细说明见 `src/components/NeumorphismPixelFont/FONT-NOTICE.md`
+- 本库内嵌版由 PCF 位图重建为像素轮廓 woff2（1 设计像素 = 1px @ 11px 字号），字形与原始位图**逐像素一致**（可离线复核）；字母 `I` 的横向步进按片头样张收紧为 4px（粗体 5px），使其两侧字距与其余字母一致——详细说明见 `src/components/NeumorphismPixelFont/FONT-NOTICE.md`
 - `@font-face` 随组件样式注册，字族名 `'Termsyn 6x11'`——也可在业务代码中直接用它渲染任意文本（保持整数倍字号即可）
 
 ---
