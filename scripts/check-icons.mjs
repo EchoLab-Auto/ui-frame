@@ -41,7 +41,10 @@ function isInIconBlock(lines, index) {
   for (let k = index; k >= Math.max(0, index - 8); k--) {
     const line = lines[k]
     if (/\}\s*$/.test(line) && k !== index) break
-    if (/^\s*[.&][\w-]*(icon|ico)[\w-]*[^{]*\{/.test(line) || /\bicon\b/.test(line) && /\{/.test(line)) {
+    if (
+      /^\s*[.&][\w-]*(icon|ico)[\w-]*[^{]*\{/.test(line) ||
+      (/\bicon\b/.test(line) && /\{/.test(line))
+    ) {
       return true
     }
   }
