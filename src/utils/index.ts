@@ -1,3 +1,6 @@
+export { GLASS_VARIANTS, glassClassNames, normalizeGlass } from './glass'
+export type { GlassValue, GlassVariant } from './glass'
+
 export {
   isBrowser,
   isServer,
@@ -79,3 +82,15 @@ export function isEmpty(value: unknown): boolean {
   if (typeof value === 'object') return Object.keys(value).length === 0
   return false
 }
+
+// ── 超椭圆轮廓（卡片 squircle / 设备屏角对齐共用几何内核）──────────────
+export {
+  squirclePower,
+  superellipseCorner,
+  squirclePoints,
+  squircleClipPath,
+  pointsToPathData,
+  pointsToClipPath,
+  sampleCornerOffset,
+} from './squircle'
+export type { SquirclePoint, SquircleOptions } from './squircle'

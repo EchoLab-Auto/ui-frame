@@ -48,6 +48,7 @@ import {
   NeumorphismArt,
   NeumorphismAsciiArt,
   NeumorphismPixelFont,
+  NeumorphismGraphView,
   NeumorphismFieldLabel,
   NeumorphismFieldError,
   NeumorphismSlider,
@@ -318,7 +319,26 @@ export type { LocaleMessages, Locale } from './locales'
 export { zhCN, enUS } from './locales'
 
 // Utilities
-export { generateId, debounce, isEmpty } from './utils'
+export {
+  generateId,
+  debounce,
+  isEmpty,
+  normalizeGlass,
+  glassClassNames,
+  GLASS_VARIANTS,
+} from './utils'
+export type { GlassValue, GlassVariant } from './utils'
+// 超椭圆几何内核（卡片 `squircle` prop 与「贴合设备屏角」场景共用）
+export {
+  squirclePower,
+  superellipseCorner,
+  squirclePoints,
+  squircleClipPath,
+  pointsToPathData,
+  pointsToClipPath,
+  sampleCornerOffset,
+} from './utils'
+export type { SquirclePoint, SquircleOptions } from './utils'
 
 // Directives
 export { vMagnetic } from './directives/vMagnetic'
@@ -387,6 +407,7 @@ const NAME_TO_COMPONENT = {
   NeumorphismArt,
   NeumorphismAsciiArt,
   NeumorphismPixelFont,
+  NeumorphismGraphView,
   NeumorphismFieldLabel,
   NeumorphismFieldError,
   NeumorphismSlider,
