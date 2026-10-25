@@ -29,7 +29,7 @@
 
 /** @category 原子组件 */
 export { default as ChatComposer } from './ChatComposer.vue'
-export type { ChatComposerProps } from './ChatComposer.vue'
+export type { ChatComposerProps, ChatComposerFocusEffect } from './ChatComposer.vue'
 export type { ChatComposerEmits } from './ChatComposer.vue'
 
 /** @category 原子组件 */
