@@ -18,6 +18,7 @@ link:
     'comp-art | Art | r>l',
     'comp-ascii-art | 字符画 | r>l',
     'comp-pixel-font | 像素字体 | r>l',
+    'comp-graph-view | 节点图 | r>l',
     'comp-doc | 文档组件 | r>l',
     'comp-theme-toggle | ThemeToggle | r>_',
     'comp-segmented | Segmented | r>_',
@@ -250,11 +251,11 @@ link:
 
 `import { ChatComposer } from '@echolab-auto/ui-frame/chat'`。**纯原子层模块**（2026-10-13 起）：只保留单一职责原子（输入 / 折叠 / 复制），消息行、气泡壳、滚动托盘等组装形态属产品语义、由宿主以原子 + headless composable 自行组装（参考 `examples/pages/ChatPage.vue`）；纯渲染层，不持业务状态、不发网络请求。
 
-| 组件             | 职责       | 亮点                                              |
-| ---------------- | ---------- | ------------------------------------------------- |
-| `ChatFold`       | 折叠块     | 凹陷井/凸起卡片两种形态；可禁用折叠退化为静态行   |
-| `ChatComposer`   | 输入发送栏 | **IME 组合中 Enter 不发送**；自动高度；可取消任务 |
-| `ChatCopyButton` | 复制按钮   | `useClipboard` 驱动                               |
+| 组件             | 职责       | 亮点                                                                       |
+| ---------------- | ---------- | -------------------------------------------------------------------------- |
+| `ChatFold`       | 折叠块     | 凹陷井/凸起卡片两种形态；可禁用折叠退化为静态行                            |
+| `ChatComposer`   | 输入发送栏 | **IME 组合中 Enter 不发送**；自动高度；可取消任务；玻璃托盘 + 4 档聚焦特效 |
+| `ChatCopyButton` | 复制按钮   | `useClipboard` 驱动                                                        |
 
 配套 headless composable：`useChatScroll`（吸底滚动）/ `useChatInput`（输入提交）。
 

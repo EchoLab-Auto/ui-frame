@@ -13,6 +13,17 @@ export default defineConfig({
   },
   plugins: [vue()],
   root: __dirname,
+  server: {
+    // Vite ≥5.4.12 默认只放行 `localhost` 与 IP 形式的 Host 头（防 DNS rebinding）。
+    // 用自定义域名 / 主机名访问开发服务器时会被 403，需要显式加白名单。
+    // 默认空数组 = 保持 Vite 默认行为；按需开启，例如：
+    //   VITE_ALLOWED_HOSTS="ui-frame.local,.local,dev.example.com" npm run example
+    // 前导点表示放行该域名的所有子域。
+    allowedHosts:
+      process.env.VITE_ALLOWED_HOSTS?.split(',')
+        .map(h => h.trim())
+        .filter(Boolean) ?? [],
+  },
   css: {
     preprocessorOptions: {
       scss: {

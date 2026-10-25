@@ -86,17 +86,19 @@ import type {
   ButtonVariant,
   ButtonSize,
   ButtonShape,
+  GlassValue,
 } from '@echolab-auto/ui-frame'
 ```
 
-| Props    | Type                                                                        | Default     | Description  |
-| -------- | --------------------------------------------------------------------------- | ----------- | ------------ |
-| variant  | `'raised' \| 'pressed' \| 'primary' \| 'glow' \| 'glass' \| 'glass-raised'` | `'raised'`  | 阴影变体     |
-| size     | `'small' \| 'medium' \| 'large'`                                            | `'medium'`  | 按钮尺寸     |
-| shape    | `'rounded' \| 'pill' \| 'circle'`                                           | `'rounded'` | 按钮形状     |
-| disabled | `boolean`                                                                   | `false`     | 是否禁用     |
-| loading  | `boolean`                                                                   | `false`     | 是否加载中   |
-| type     | `'button' \| 'submit' \| 'reset'`                                           | `'button'`  | 原生按钮类型 |
+| Props    | Type                                                                        | Default     | Description                                                                                                    |
+| -------- | --------------------------------------------------------------------------- | ----------- | -------------------------------------------------------------------------------------------------------------- |
+| variant  | `'raised' \| 'pressed' \| 'primary' \| 'glow' \| 'glass' \| 'glass-raised'` | `'raised'`  | 阴影变体（玻璃两者为旧写法）                                                                                   |
+| glass    | `boolean \| GlassValue`                                                     | —           | 玻璃档位 `float`/`raised`/`pressed`；与 variant 正交；`true` ≡ `float`；旧 `variant="glass(-raised)"` 自动折叠 |
+| size     | `'small' \| 'medium' \| 'large'`                                            | `'medium'`  | 按钮尺寸                                                                                                       |
+| shape    | `'rounded' \| 'pill' \| 'circle'`                                           | `'rounded'` | 按钮形状                                                                                                       |
+| disabled | `boolean`                                                                   | `false`     | 是否禁用                                                                                                       |
+| loading  | `boolean`                                                                   | `false`     | 是否加载中                                                                                                     |
+| type     | `'button' \| 'submit' \| 'reset'`                                           | `'button'`  | 原生按钮类型                                                                                                   |
 
 **Events:** `click`
 
@@ -514,16 +516,21 @@ interface UploadFile {
 
 ```ts
 import { NeumorphismCard } from '@echolab-auto/ui-frame'
-import type { NeumorphismCardProps, CardVariant, CardDepth } from '@echolab-auto/ui-frame'
+import type {
+  NeumorphismCardProps,
+  CardVariant,
+  CardDepth,
+  CardGlass,
+} from '@echolab-auto/ui-frame'
 ```
 
-| Props     | Type                                     | Default   | Description                        |
-| --------- | ---------------------------------------- | --------- | ---------------------------------- |
-| elevation | `number`                                 | `2`       | 台阶高度：正=凸起，负=凹陷，0=平齐 |
-| hoverable | `boolean \| 'bulge' \| 'sink'`           | `false`   | 悬停动效模式                       |
-| radius    | `'small' \| 'medium' \| 'large' \| 'xl'` | `'large'` | 圆角大小                           |
-| noPadding | `boolean`                                | `false`   | 是否移除内边距                     |
-| glass     | `boolean`                                | `false`   | 玻璃拟态（磨砂背景 + 背景模糊）    |
+| Props     | Type                                     | Default   | Description                                                                                                                                                                                |
+| --------- | ---------------------------------------- | --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| elevation | `number`                                 | `2`       | 台阶高度：正=凸起，负=凹陷，0=平齐                                                                                                                                                         |
+| hoverable | `boolean \| 'bulge' \| 'sink'`           | `false`   | 悬停动效模式                                                                                                                                                                               |
+| radius    | `'small' \| 'medium' \| 'large' \| 'xl'` | `'large'` | 圆角大小                                                                                                                                                                                   |
+| noPadding | `boolean`                                | `false`   | 是否移除内边距                                                                                                                                                                             |
+| glass     | `boolean \| CardGlass`                   | `false`   | 玻璃拟态档位：`float`（悬浮磨砂，同按钮 `glass`）/ `raised`（磨砂 + 凸起双阴影，同按钮 `glass-raised`）/ `pressed`（磨砂 + 凹陷内阴影）；`true` 等价 `float`；阴影强度跟随 `\|elevation\|` |
 
 **Slots:** `header`, default, `footer`
 
@@ -1477,6 +1484,47 @@ import type { NeumorphismPixelFontProps, PixelFontAlign } from '@echolab-auto/ui
 
 ---
 
+#### NeumorphismGraphView（实验性）
+
+```ts
+import { NeumorphismGraphView } from '@echolab-auto/ui-frame'
+import type {
+  NeumorphismGraphViewProps,
+  GraphNode,
+  GraphLink,
+  GraphLabelMode,
+  GraphView,
+} from '@echolab-auto/ui-frame'
+```
+
+| Props              | Type                            | Default             | Description                                                                                                                                                          |
+| ------------------ | ------------------------------- | ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| nodes              | `GraphNode[]`                   | `[]`                | 节点（`id`/`label`/`group`/`size`/`color`/`x`/`y`/`fixed`）                                                                                                          |
+| links              | `GraphLink[]`                   | `[]`                | 连线（`source`/`target` 引用 id，可选 `weight` 弹簧刚度）                                                                                                            |
+| height             | `string \| number`              | `'520px'`           | 容器高度                                                                                                                                                             |
+| nodeRadius         | `number`                        | `7`                 | 基础节点半径；随度数增长（可全局配置 `graph.nodeRadius`）                                                                                                            |
+| linkDistance       | `number`                        | `78`                | 弹簧静止边长（`graph.linkDistance`）                                                                                                                                 |
+| repulsion          | `number`                        | `900`               | 排斥强度常数（`graph.repulsion`）                                                                                                                                    |
+| forceSettings      | `Partial<ForceSettings>`        | —                   | 力学高级旋钮（`spring`/`gravity`/`velocityDecay`/`alphaDecay`/`alphaMin`/`alphaTarget`/`maxSpeed`/`maxRepulsionForce`）；`linkDistance`/`repulsion` 走同名 prop 优先 |
+| showLabels         | `'auto' \| 'always' \| 'hover'` | `'auto'`            | 标签策略（`graph.showLabels`）                                                                                                                                       |
+| showControls       | `boolean`                       | `true`              | 右下角缩放控件（`graph.showControls`）                                                                                                                               |
+| showLegend         | `boolean`                       | `false`             | 左下角分组图例                                                                                                                                                       |
+| highlightNeighbors | `boolean`                       | `true`              | 悬停/选中高亮一度邻居（`graph.highlightNeighbors`）                                                                                                                  |
+| draggable          | `boolean`                       | `true`              | 拖拽节点（`graph.draggable`）                                                                                                                                        |
+| pannable           | `boolean`                       | `true`              | 拖拽背景平移                                                                                                                                                         |
+| zoomable           | `boolean`                       | `true`              | 滚轮/双指缩放（以指针为锚点）                                                                                                                                        |
+| autoFit            | `boolean`                       | `true`              | 挂载与数据变化后自动适应视图                                                                                                                                         |
+| preservePositions  | `boolean`                       | `true`              | 数据刷新保留既有坐标（关闭则重新播种）                                                                                                                               |
+| ariaLabel          | `string`                        | locale `graphLabel` | 无障碍名称（含键盘提示）                                                                                                                                             |
+
+**Events:** `node-click` · `node-hover` · `node-dblclick` · `background-click` · `zoom-change` · `layout-start` · `layout-settled`
+
+**Expose:** `fit()` · `zoomIn()` · `zoomOut()` · `resetLayout()` · `reheat(strength?)` · `focusNode(id)` · `getZoom()` · `getAlpha()` · `getForceSettings()`
+
+**头less 引擎:** `ForceLayout` / `DEFAULT_FORCE_SETTINGS`（`forceLayout.ts`）与视图变换工具 `fitTransform` / `zoomAt` / `screenToWorld` / `worldToScreen` / `seedPosition` / `boundsOf` / `clampScale` / `distance` / `GOLDEN_ANGLE`（`graphMath.ts`）随子路径导出。
+
+---
+
 #### NeumorphismArt
 
 ```ts
@@ -1908,17 +1956,19 @@ import type { ChatMessage } from '@echolab-auto/ui-frame/chat'
 
 聊天输入器：Enter 发送 / Shift+Enter 换行 / **IME 组合中不发送**（中文输入法安全）。
 
-| Props       | Type               | Default     | Description         |
-| ----------- | ------------------ | ----------- | ------------------- |
-| modelValue  | `string`           | `''`        | 输入内容（v-model） |
-| disabled    | `boolean`          | `false`     | 禁用（如未连接）    |
-| placeholder | `string`           | locale 文案 | 占位文本            |
-| cancelable  | `boolean`          | `false`     | 显示"取消任务"按钮  |
-| sendLabel   | `string`           | locale 文案 | 发送按钮文本        |
-| cancelLabel | `string`           | locale 文案 | 取消按钮文本        |
-| rows        | `number \| string` | `3`         | 初始行数            |
-| autoResize  | `boolean`          | `true`      | 随内容自动增高      |
-| maxlength   | `number \| string` | `undefined` | 最大输入长度        |
+| Props       | Type                                    | Default     | Description                                                                                                                                                                                                         |
+| ----------- | --------------------------------------- | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| modelValue  | `string`                                | `''`        | 输入内容（v-model）                                                                                                                                                                                                 |
+| disabled    | `boolean`                               | `false`     | 禁用（如未连接）                                                                                                                                                                                                    |
+| placeholder | `string`                                | locale 文案 | 占位文本                                                                                                                                                                                                            |
+| cancelable  | `boolean`                               | `false`     | 显示"取消任务"按钮                                                                                                                                                                                                  |
+| sendLabel   | `string`                                | locale 文案 | 发送按钮文本                                                                                                                                                                                                        |
+| cancelLabel | `string`                                | locale 文案 | 取消按钮文本                                                                                                                                                                                                        |
+| rows        | `number \| string`                      | `3`         | 初始行数                                                                                                                                                                                                            |
+| autoResize  | `boolean`                               | `true`      | 随内容自动增高                                                                                                                                                                                                      |
+| maxlength   | `number \| string`                      | `undefined` | 最大输入长度                                                                                                                                                                                                        |
+| glass       | `GlassValue`                            | `undefined` | 玻璃拟态档位（`float` / `raised` / `pressed`，`true` ≡ `float`）——材质挂在**外壳**上，成为「浮起的玻璃托盘 › 凹陷输入槽」两层结构                                                                                   |
+| focusEffect | `'ring' \| 'glow' \| 'inset' \| 'none'` | `'ring'`    | 聚焦（选中）特效：外环 / **内辉光** / 纯加深凹陷 / 无装饰。非法值运行时回落到 `ring`。`glow` 用独立的 `mix-blend-mode: screen` 层做**加法光**（不是彩色阴影），光层位于槽背景之上、文字之下，因此文字对比度不受影响 |
 
 **Events:** `update:modelValue`, `send(content)`（trim 后的非空字符串）, `cancel`
 
@@ -3131,6 +3181,7 @@ function validateFieldValue(value: unknown, rules: FormRule[]): string | undefin
 | `NeumorphismArtProps`           | Art           |
 | `NeumorphismAsciiArtProps`      | AsciiArt      |
 | `NeumorphismPixelFontProps`     | PixelFont     |
+| `NeumorphismGraphViewProps`     | GraphView     |
 | `NeumorphismCanvasProps`        | Canvas        |
 | `NeumorphismPopoverProps`       | Popover       |
 | `NeumorphismDropdownProps`      | Dropdown      |

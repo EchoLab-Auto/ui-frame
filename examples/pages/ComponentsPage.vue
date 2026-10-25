@@ -3,6 +3,7 @@ import { ref, computed, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { useTheme } from '../../src/composables/useTheme'
 import { ChatFold, ChatComposer, ChatCopyButton } from '../../src/composites/chat'
 import { DocCodeBlock, DocTocNav, type TocNode } from '../../src/composites/doc'
+import type { GraphLink, GraphNode } from '../../src/components/NeumorphismGraphView'
 import artImage from '../assets/images.jpeg'
 
 // ---- 注入全局主题（由 App.vue provide） ----
@@ -185,6 +186,7 @@ const navCategories = [
       { id: 'art', label: '试验效果 Art' },
       { id: 'ascii-art', label: '字符画 AsciiArt' },
       { id: 'pixel-font', label: '像素字体 PixelFont' },
+      { id: 'graph', label: '节点图 GraphView' },
     ],
   },
 ]
@@ -267,6 +269,184 @@ onBeforeUnmount(() => {
 // 内部几何硬编码的（开关 / 勾选 / 单选框 / 标签 / 分页 / 主题切换 / 环形进度）
 // 由本页样式桥接（见 <style> 末尾「尺寸调参演示」段）。
 const buttonHeight = ref(44)
+
+// ---- Button 展示 + 配置 ----
+type ButtonPresetVariant = 'raised' | 'pressed' | 'primary' | 'glow'
+type ButtonPresetGlass = 'none' | 'float' | 'raised' | 'pressed'
+
+const buttonVariant = ref<ButtonPresetVariant>('raised')
+const buttonGlass = ref<ButtonPresetGlass>('none')
+const buttonSize = ref<'small' | 'medium' | 'large'>('medium')
+const buttonShape = ref<'rounded' | 'pill' | 'circle'>('rounded')
+const buttonText = ref('按钮')
+const buttonLoading = ref(false)
+const buttonDisabled = ref(false)
+/** 预览台背景：平面 = 新拟态本色，彩色 = 衬托玻璃档位 */
+const buttonStage = ref<'plane' | 'gradient'>('gradient')
+
+const buttonVariantOptions = [
+  { label: '凸起', value: 'raised' },
+  { label: '凹陷', value: 'pressed' },
+  { label: '主色', value: 'primary' },
+  { label: '辉光', value: 'glow' },
+]
+const buttonGlassOptions = [
+  { label: '关闭', value: 'none' },
+  { label: '悬浮', value: 'float' },
+  { label: '凸面', value: 'raised' },
+  { label: '凹陷', value: 'pressed' },
+]
+const buttonSizeOptions = [
+  { label: '小', value: 'small' },
+  { label: '中', value: 'medium' },
+  { label: '大', value: 'large' },
+]
+const buttonShapeOptions = [
+  { label: '圆角', value: 'rounded' },
+  { label: '胶囊', value: 'pill' },
+  { label: '圆形', value: 'circle' },
+]
+
+/**
+ * 预览用的高度样式。
+ *
+ * 组件的尺寸档位分别消费 `--nm-button-*-sm/md/lg`，所以滑块必须写到**当前档位**
+ * 对应的那组 token 上——否则选 small / large 时滑块会静默失效。
+ */
+const buttonPreviewStyle = computed(() => {
+  const h = buttonHeight.value
+  const suffix = buttonSize.value === 'small' ? 'sm' : buttonSize.value === 'large' ? 'lg' : 'md'
+  // 以 md 档为基准按比例缩放内边距与字号，保持视觉比例不变
+  const k = h / 44
+  return {
+    [`--nm-button-min-height-${suffix}`]: `${h}px`,
+    [`--nm-button-padding-y-${suffix}`]: `${Math.round(12 * k)}px`,
+    [`--nm-button-padding-x-${suffix}`]: `${Math.round(24 * k)}px`,
+    [`--nm-button-font-${suffix}`]: `${Math.max(11, Math.round(14 * k))}px`,
+  }
+})
+
+/** 传给组件的 glass：'none' 必须显式传 false，否则会走全局配置/旧 variant 语义 */
+const buttonGlassValue = computed<false | Exclude<ButtonPresetGlass, 'none'>>(() =>
+  buttonGlass.value === 'none' ? false : buttonGlass.value
+)
+
+/** 变体一览：点击即载入到上方预览（含玻璃旧写法对照） */
+const buttonPresetList: {
+  key: string
+  label: string
+  code: string
+  variant: ButtonPresetVariant | 'glass' | 'glass-raised'
+  glass: false | 'float' | 'raised' | 'pressed'
+  /** 点击后载入的状态；旧写法格与 float 档等价，故不参与选中态比对 */
+  target: { variant: ButtonPresetVariant; glass: ButtonPresetGlass }
+  match?: false
+}[] = [
+  {
+    key: 'raised',
+    label: '凸起',
+    code: 'variant="raised"',
+    variant: 'raised',
+    glass: false,
+    target: { variant: 'raised', glass: 'none' },
+  },
+  {
+    key: 'pressed',
+    label: '凹陷',
+    code: 'variant="pressed"',
+    variant: 'pressed',
+    glass: false,
+    target: { variant: 'pressed', glass: 'none' },
+  },
+  {
+    key: 'primary',
+    label: '主色',
+    code: 'variant="primary"',
+    variant: 'primary',
+    glass: false,
+    target: { variant: 'primary', glass: 'none' },
+  },
+  {
+    key: 'glow',
+    label: '辉光',
+    code: 'variant="glow"',
+    variant: 'glow',
+    glass: false,
+    target: { variant: 'glow', glass: 'none' },
+  },
+  {
+    key: 'glass-float',
+    label: '悬浮玻璃',
+    code: 'glass="float"',
+    variant: 'raised',
+    glass: 'float',
+    target: { variant: 'raised', glass: 'float' },
+  },
+  {
+    key: 'glass-raised',
+    label: '凸面玻璃',
+    code: 'glass="raised"',
+    variant: 'raised',
+    glass: 'raised',
+    target: { variant: 'raised', glass: 'raised' },
+  },
+  {
+    key: 'glass-pressed',
+    label: '凹陷玻璃',
+    code: 'glass="pressed"',
+    variant: 'raised',
+    glass: 'pressed',
+    target: { variant: 'raised', glass: 'pressed' },
+  },
+  {
+    key: 'legacy-glass',
+    label: '旧写法',
+    code: 'variant="glass"',
+    variant: 'glass',
+    glass: false,
+    target: { variant: 'raised', glass: 'float' },
+    match: false,
+  },
+]
+
+function isButtonPreset(item: (typeof buttonPresetList)[number]): boolean {
+  if (item.match === false) return false
+  return item.target.variant === buttonVariant.value && item.target.glass === buttonGlass.value
+}
+
+function applyButtonPreset(item: (typeof buttonPresetList)[number]): void {
+  buttonVariant.value = item.target.variant
+  buttonGlass.value = item.target.glass
+  buttonStage.value = item.target.glass === 'none' ? buttonStage.value : 'gradient'
+}
+
+function resetButtonDemo(): void {
+  buttonVariant.value = 'raised'
+  buttonGlass.value = 'none'
+  buttonSize.value = 'medium'
+  buttonShape.value = 'rounded'
+  buttonText.value = '按钮'
+  buttonLoading.value = false
+  buttonDisabled.value = false
+  buttonHeight.value = 44
+}
+
+/** 实时代码片段：直接照抄即可复现当前预览 */
+const buttonSnippet = computed(() => {
+  const attrs: string[] = []
+  if (buttonVariant.value !== 'raised') attrs.push(`variant="${buttonVariant.value}"`)
+  if (buttonGlass.value !== 'none') attrs.push(`glass="${buttonGlass.value}"`)
+  if (buttonSize.value !== 'medium') attrs.push(`size="${buttonSize.value}"`)
+  if (buttonShape.value !== 'rounded') attrs.push(`shape="${buttonShape.value}"`)
+  if (buttonLoading.value) attrs.push('loading')
+  if (buttonDisabled.value) attrs.push('disabled')
+  const open = attrs.length ? `<NeumorphismButton ${attrs.join(' ')}>` : '<NeumorphismButton>'
+  const height =
+    buttonHeight.value !== 44
+      ? `\n  <!-- 高度经 --nm-button-* 变量调整：${buttonHeight.value}px -->`
+      : ''
+  return `${open}${buttonText.value || '按钮'}</NeumorphismButton>${height}`
+})
 const switchTrackHeight = ref(30)
 const powerSwitchHeight = ref(32)
 const checkboxBoxSize = ref(24)
@@ -280,17 +460,6 @@ const paginationItemSize = ref(38)
 const spinnerDiameter = ref(28)
 const themeToggleHeight = ref(35)
 const logoWidth = ref(220)
-
-// 派生 Token 覆盖：按目标高度等比缩放内边距与字号（档位内平滑调节）
-function buttonSizeVars(h: number) {
-  const k = h / 44
-  return {
-    '--nm-button-min-height-md': `${h}px`,
-    '--nm-button-padding-y-md': `${Math.round(12 * k)}px`,
-    '--nm-button-padding-x-md': `${Math.round(24 * k)}px`,
-    '--nm-button-font-md': `${Math.max(11, Math.round(14 * k))}px`,
-  }
-}
 
 function inputSizeVars(h: number) {
   const k = h / 48
@@ -613,6 +782,265 @@ const pixelAlignOptions = [
 /** 副题比标题小一档缩放（不低于 1 倍设计尺寸；原作副题约为标题高度的 60%） */
 const pixelSubtitleScale = computed(() => Math.max(1, pixelScale.value - 1))
 
+// ---- GraphView 节点图（实验性）----
+// 模拟一个 Obsidian 风格的知识库：笔记 = 节点（按分组着色），双链 = 连线。
+// 节点坐标留空 → 由黄金角螺旋播种后交给力学模拟铺开。
+// —— 布局与视图（组件 props）——
+const graphNodeRadius = ref(7)
+const graphLinkDistance = ref(78)
+const graphRepulsion = ref(900)
+const graphHeight = ref(520)
+const graphLabelMode = ref<'auto' | 'always' | 'hover'>('auto')
+const graphLabelOptions = [
+  { label: '自动', value: 'auto' },
+  { label: '常显', value: 'always' },
+  { label: '悬停', value: 'hover' },
+]
+const graphShowControls = ref(true)
+const graphShowLegend = ref(true)
+// —— 交互与行为 ——
+const graphHighlight = ref(true)
+const graphDraggable = ref(true)
+const graphPannable = ref(true)
+const graphZoomable = ref(true)
+const graphAutoFit = ref(true)
+const graphPreservePositions = ref(true)
+// —— 力学动力学（经 forceSettings 下传，走的是 ForceLayout 的高级旋钮）——
+const graphSpring = ref(0.008)
+const graphGravity = ref(0.0004)
+const graphVelocityDecay = ref(0.4)
+const graphAlphaDecay = ref(0.0228)
+const graphAlphaMin = ref(0.001)
+const graphMaxSpeed = ref(10)
+const graphMaxRepulsionForce = ref(6)
+const graphForceSettings = computed(() => ({
+  spring: graphSpring.value,
+  gravity: graphGravity.value,
+  velocityDecay: graphVelocityDecay.value,
+  alphaDecay: graphAlphaDecay.value,
+  alphaMin: graphAlphaMin.value,
+  maxSpeed: graphMaxSpeed.value,
+  maxRepulsionForce: graphMaxRepulsionForce.value,
+}))
+
+const graphRef = ref<{
+  resetLayout: () => void
+  fit: () => void
+  reheat: (strength?: number) => void
+  getAlpha: () => number
+} | null>(null)
+const graphHovered = ref<GraphNode | null>(null)
+const graphSelected = ref<GraphNode | null>(null)
+const graphSettled = ref(false)
+
+/** 退火系数读数：模拟运行期间轮询（静止后停表，不留下空转定时器） */
+const graphAlpha = ref(0)
+let graphAlphaTimer: ReturnType<typeof setInterval> | null = null
+
+function startGraphAlphaPoll() {
+  if (graphAlphaTimer) return
+  graphAlphaTimer = setInterval(() => {
+    graphAlpha.value = graphRef.value?.getAlpha() ?? 0
+  }, 100)
+}
+
+function stopGraphAlphaPoll() {
+  if (!graphAlphaTimer) return
+  clearInterval(graphAlphaTimer)
+  graphAlphaTimer = null
+}
+
+function onGraphLayoutStart() {
+  graphSettled.value = false
+  startGraphAlphaPoll()
+}
+
+function onGraphLayoutSettled() {
+  graphSettled.value = true
+  stopGraphAlphaPoll()
+  graphAlpha.value = graphRef.value?.getAlpha() ?? 0
+}
+
+/** 数字读数统一保留固定小数位，避免 0.008000000000000002 之类浮点噪声 */
+function fmt(value: number, digits: number): string {
+  return value.toFixed(digits)
+}
+
+onBeforeUnmount(stopGraphAlphaPoll)
+
+const graphNodes = ref<GraphNode[]>([
+  // 核心
+  { id: 'philosophy', label: '设计哲学', group: '核心', size: 11 },
+  { id: 'tokens', label: '设计令牌', group: '核心', size: 10 },
+  { id: 'theme', label: '主题切换', group: '核心' },
+  { id: 'shadows', label: '阴影模型', group: '核心' },
+  { id: 'easing', label: '缓动曲线', group: '核心' },
+  { id: 'a11y', label: '无障碍', group: '核心' },
+  // 表单
+  { id: 'button', label: '按钮', group: '表单' },
+  { id: 'input', label: '输入框', group: '表单' },
+  { id: 'select', label: '选择器', group: '表单' },
+  { id: 'switch', label: '开关', group: '表单' },
+  { id: 'slider', label: '滑块', group: '表单' },
+  { id: 'form', label: '表单校验', group: '表单' },
+  { id: 'datepicker', label: '日期选择', group: '表单' },
+  // 数据
+  { id: 'table', label: '表格', group: '数据' },
+  { id: 'chart', label: '图表', group: '数据' },
+  { id: 'tree', label: '树形导航', group: '数据' },
+  { id: 'list', label: '列表', group: '数据' },
+  { id: 'pagination', label: '分页', group: '数据' },
+  { id: 'steps', label: '步骤条', group: '数据' },
+  // 文档
+  { id: 'doc', label: '文档渲染', group: '文档' },
+  { id: 'markdown', label: 'Markdown 解析', group: '文档' },
+  { id: 'code-block', label: '代码块', group: '文档' },
+  { id: 'toc', label: '目录导航', group: '文档' },
+  { id: 'chat', label: '聊天面板', group: '文档' },
+  // 实验
+  { id: 'art', label: '试验效果', group: '实验' },
+  { id: 'ascii', label: '字符画', group: '实验' },
+  { id: 'pixel-font', label: '像素字体', group: '实验' },
+  { id: 'canvas', label: '无限画布', group: '实验' },
+  { id: 'graph', label: '节点图', group: '实验', size: 10 },
+])
+
+const graphLinks = ref<GraphLink[]>([
+  // 核心骨架
+  { source: 'philosophy', target: 'tokens', weight: 1.6 },
+  { source: 'philosophy', target: 'shadows' },
+  { source: 'philosophy', target: 'easing' },
+  { source: 'philosophy', target: 'a11y' },
+  { source: 'tokens', target: 'theme' },
+  { source: 'tokens', target: 'shadows', weight: 1.4 },
+  { source: 'tokens', target: 'button' },
+  { source: 'tokens', target: 'input' },
+  { source: 'theme', target: 'a11y' },
+  { source: 'easing', target: 'button' },
+  { source: 'shadows', target: 'button', weight: 1.3 },
+  { source: 'shadows', target: 'switch' },
+  // 表单簇
+  { source: 'button', target: 'form' },
+  { source: 'input', target: 'form', weight: 1.4 },
+  { source: 'select', target: 'form' },
+  { source: 'switch', target: 'form' },
+  { source: 'slider', target: 'form' },
+  { source: 'form', target: 'datepicker' },
+  { source: 'input', target: 'select', weight: 1.2 },
+  { source: 'button', target: 'switch' },
+  { source: 'steps', target: 'form' },
+  // 数据簇
+  { source: 'table', target: 'pagination' },
+  { source: 'table', target: 'list', weight: 1.4 },
+  { source: 'chart', target: 'table' },
+  { source: 'tree', target: 'list' },
+  { source: 'chart', target: 'canvas' },
+  { source: 'list', target: 'tree' },
+  // 文档簇
+  { source: 'doc', target: 'markdown', weight: 1.6 },
+  { source: 'doc', target: 'code-block' },
+  { source: 'doc', target: 'toc' },
+  { source: 'markdown', target: 'code-block', weight: 1.3 },
+  { source: 'chat', target: 'markdown' },
+  { source: 'chat', target: 'code-block' },
+  { source: 'toc', target: 'doc' },
+  { source: 'tree', target: 'doc' },
+  // 实验簇
+  { source: 'art', target: 'canvas' },
+  { source: 'ascii', target: 'art', weight: 1.4 },
+  { source: 'pixel-font', target: 'art' },
+  { source: 'graph', target: 'canvas', weight: 1.4 },
+  { source: 'graph', target: 'pixel-font' },
+  { source: 'graph', target: 'philosophy' },
+  { source: 'graph', target: 'a11y' },
+  { source: 'ascii', target: 'pixel-font' },
+  { source: 'chart', target: 'doc' },
+])
+
+/** 节点度数——点击节点时展示"这篇笔记被引用了多少条双链" */
+const graphDegree = computed(() => {
+  const map = new Map<string, number>()
+  for (const link of graphLinks.value) {
+    map.set(link.source, (map.get(link.source) ?? 0) + 1)
+    map.set(link.target, (map.get(link.target) ?? 0) + 1)
+  }
+  return map
+})
+
+/** 增量数据演示：加/减节点，直观对比 preservePositions（保留坐标）与 autoFit */
+let graphProbeSeq = 0
+
+function addGraphNode() {
+  graphProbeSeq += 1
+  const id = `probe-${graphProbeSeq}`
+  graphNodes.value = [
+    ...graphNodes.value,
+    { id, label: `新增笔记 ${graphProbeSeq}`, group: '实验' },
+  ]
+  graphLinks.value = [...graphLinks.value, { source: id, target: 'graph', weight: 1.4 }]
+}
+
+function removeGraphNode() {
+  const probes = graphNodes.value.filter(n => n.id.startsWith('probe-'))
+  if (probes.length === 0) return
+  const last = probes[probes.length - 1].id
+  graphNodes.value = graphNodes.value.filter(n => n.id !== last)
+  graphLinks.value = graphLinks.value.filter(l => l.source !== last && l.target !== last)
+  graphProbeSeq -= 1
+}
+
+/** 把所有调参恢复到与组件内置默认一致 */
+function resetGraphDefaults() {
+  graphNodeRadius.value = 7
+  graphLinkDistance.value = 78
+  graphRepulsion.value = 900
+  graphHeight.value = 520
+  graphLabelMode.value = 'auto'
+  graphShowControls.value = true
+  graphShowLegend.value = true
+  graphHighlight.value = true
+  graphDraggable.value = true
+  graphPannable.value = true
+  graphZoomable.value = true
+  graphAutoFit.value = true
+  graphPreservePositions.value = true
+  graphSpring.value = 0.008
+  graphGravity.value = 0.0004
+  graphVelocityDecay.value = 0.4
+  graphAlphaDecay.value = 0.0228
+  graphAlphaMin.value = 0.001
+  graphMaxSpeed.value = 10
+  graphMaxRepulsionForce.value = 6
+}
+
+function onGraphNodeClick(node: GraphNode) {
+  graphSelected.value = node
+}
+
+function onGraphNodeHover(node: GraphNode | null) {
+  graphHovered.value = node
+}
+
+// ---- ChatComposer 玻璃 + 聚焦特效 ----
+type ComposerGlass = 'none' | 'float' | 'raised' | 'pressed'
+type ComposerFocus = 'ring' | 'glow' | 'inset' | 'none'
+
+const composerGlass = ref<ComposerGlass>('raised')
+const composerFocusEffect = ref<ComposerFocus>('glow')
+const composerStage = ref<'plane' | 'gradient'>('gradient')
+const composerGlassOptions = [
+  { label: '关闭', value: 'none' },
+  { label: '悬浮', value: 'float' },
+  { label: '凸面', value: 'raised' },
+  { label: '凹陷', value: 'pressed' },
+]
+const composerFocusOptions = [
+  { label: '外环', value: 'ring' },
+  { label: '内辉光', value: 'glow' },
+  { label: '深凹陷', value: 'inset' },
+  { label: '无', value: 'none' },
+]
+
 // ---- Art 试验效果示例 ----
 const artEffect = ref<'pixel-field' | 'particles' | 'waves' | 'goo' | 'ascii'>('pixel-field')
 const artReactive = ref(true)
@@ -864,85 +1292,175 @@ const chartStockData = ref([
             </p>
 
             <!-- 按钮 -->
-            <NeumorphismCard id="buttons" :elevation="1" class="demo-card">
+            <NeumorphismCard id="buttons" :elevation="1" class="demo-card demo-card--full">
               <template #header>
                 <div class="demo-header">
                   <h3 class="demo-title">NeumorphismButton 按钮</h3>
-                  <span class="demo-badge">6 变体 · 尺寸可调 · 3 形状</span>
+                  <span class="demo-badge">展示 + 配置 · 变体 / 玻璃档位 / 尺寸 / 形状 / 状态</span>
                 </div>
               </template>
 
               <div class="demo-block">
-                <h4 class="demo-label">预设变体</h4>
-                <div class="demo-row demo-row--stacked">
-                  <div class="demo-row">
-                    <NeumorphismButton variant="raised">凸起</NeumorphismButton>
-                    <code>variant="raised"</code>
-                  </div>
-                  <div class="demo-row">
-                    <NeumorphismButton variant="pressed">凹陷</NeumorphismButton>
-                    <code>variant="pressed"</code>
-                  </div>
-                  <div class="demo-row">
-                    <NeumorphismButton variant="primary">主色</NeumorphismButton>
-                    <code>variant="primary"</code>
-                  </div>
-                  <div class="demo-row">
-                    <NeumorphismButton variant="glow">辉光</NeumorphismButton>
-                    <code>variant="glow"</code>
-                  </div>
-                </div>
-              </div>
-
-              <div class="demo-block">
-                <h4 class="demo-label">玻璃拟态（磨砂玻璃，置于彩色背景上可见半透明效果）</h4>
-                <div class="demo-row demo-glass-backdrop">
-                  <div class="demo-row demo-row--stacked">
-                    <div class="demo-row">
-                      <NeumorphismButton variant="glass">悬浮玻璃</NeumorphismButton>
-                      <code>variant="glass"</code>
-                    </div>
-                    <div class="demo-row">
-                      <NeumorphismButton variant="glass-raised">凸面玻璃</NeumorphismButton>
-                      <code>variant="glass-raised"</code>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="demo-block">
-                <h4 class="demo-label">尺寸与形状（高度可调）</h4>
-                <div class="demo-row demo-row--stacked" style="gap: 12px">
-                  <div class="demo-row">
-                    <NeumorphismSlider
-                      v-model="buttonHeight"
-                      :min="28"
-                      :max="64"
-                      :step="2"
-                      style="width: 200px; flex: 0 0 200px"
-                    />
-                    <code>{{ buttonHeight }}px</code>
-                  </div>
-                  <div class="demo-row">
-                    <NeumorphismButton :style="buttonSizeVars(buttonHeight)"
-                      >按钮</NeumorphismButton
+                <h4 class="demo-label">展示 + 配置（左侧实时预览，右侧调整参数）</h4>
+                <div class="btn-playground">
+                  <!-- 实时预览 -->
+                  <div class="btn-stage" :class="`btn-stage--${buttonStage}`">
+                    <NeumorphismButton
+                      :variant="buttonVariant"
+                      :glass="buttonGlassValue"
+                      :size="buttonSize"
+                      :shape="buttonShape"
+                      :loading="buttonLoading"
+                      :disabled="buttonDisabled"
+                      :style="buttonPreviewStyle"
+                      aria-label="预览按钮"
                     >
-                    <NeumorphismDivider direction="vertical" />
-                    <NeumorphismButton shape="rounded">圆角</NeumorphismButton>
-                    <NeumorphismButton shape="pill">胶囊</NeumorphismButton>
-                    <NeumorphismButton shape="circle" size="medium" aria-label="添加"
-                      >+</NeumorphismButton
-                    >
+                      {{ buttonText || '按钮' }}
+                    </NeumorphismButton>
+
+                    <p class="btn-stage__spec">
+                      variant=<b>{{ buttonVariant }}</b> · glass=<b>{{ buttonGlass }}</b> · size=<b
+                        >{{ buttonSize }}</b
+                      >
+                      · shape=<b>{{ buttonShape }}</b> · height=<b>{{ buttonHeight }}px</b>
+                      <template v-if="buttonLoading"> · loading</template>
+                      <template v-if="buttonDisabled"> · disabled</template>
+                    </p>
+
+                    <div class="btn-stage__bg">
+                      <span class="btn-stage__bg-label">预览背景</span>
+                      <NeumorphismSegmented
+                        v-model="buttonStage"
+                        :options="[
+                          { label: '平面', value: 'plane' },
+                          { label: '彩色', value: 'gradient' },
+                        ]"
+                        size="small"
+                      />
+                    </div>
+
+                    <p class="demo-hint btn-stage__hint">
+                      玻璃档位需在彩色背景上才看得到磨砂半透明；<code>circle</code> 形状建议配 1–2
+                      字内容。
+                    </p>
+                  </div>
+
+                  <!-- 参数表单 -->
+                  <div class="btn-config">
+                    <div class="btn-config__row">
+                      <span class="btn-config__label">内容文本</span>
+                      <NeumorphismInput v-model="buttonText" size="small" placeholder="按钮" />
+                    </div>
+
+                    <div class="btn-config__row">
+                      <span class="btn-config__label">变体 variant</span>
+                      <NeumorphismSegmented
+                        v-model="buttonVariant"
+                        :options="buttonVariantOptions"
+                        size="small"
+                      />
+                    </div>
+
+                    <div class="btn-config__row">
+                      <span class="btn-config__label">玻璃 glass</span>
+                      <NeumorphismSegmented
+                        v-model="buttonGlass"
+                        :options="buttonGlassOptions"
+                        size="small"
+                      />
+                    </div>
+
+                    <div class="btn-config__row">
+                      <span class="btn-config__label">尺寸 size</span>
+                      <NeumorphismSegmented
+                        v-model="buttonSize"
+                        :options="buttonSizeOptions"
+                        size="small"
+                      />
+                    </div>
+
+                    <div class="btn-config__row">
+                      <span class="btn-config__label">形状 shape</span>
+                      <NeumorphismSegmented
+                        v-model="buttonShape"
+                        :options="buttonShapeOptions"
+                        size="small"
+                      />
+                    </div>
+
+                    <div class="btn-config__row">
+                      <span class="btn-config__label">高度 height</span>
+                      <NeumorphismSlider
+                        v-model="buttonHeight"
+                        :min="28"
+                        :max="64"
+                        :step="2"
+                        size="small"
+                        style="flex: 1"
+                      />
+                      <code class="btn-config__value">{{ buttonHeight }}px</code>
+                    </div>
+
+                    <div class="btn-config__row">
+                      <span class="btn-config__label">状态</span>
+                      <div class="btn-config__toggles">
+                        <label class="btn-config__toggle">
+                          <NeumorphismSwitch v-model="buttonLoading" size="small" />
+                          <span>loading</span>
+                        </label>
+                        <label class="btn-config__toggle">
+                          <NeumorphismSwitch v-model="buttonDisabled" size="small" />
+                          <span>disabled</span>
+                        </label>
+                      </div>
+                    </div>
+
+                    <div class="btn-config__row">
+                      <span class="btn-config__label">操作</span>
+                      <div class="btn-config__actions">
+                        <NeumorphismButton variant="raised" size="small" @click="resetButtonDemo()">
+                          恢复默认
+                        </NeumorphismButton>
+                        <NeumorphismButton
+                          variant="pressed"
+                          size="small"
+                          @click="buttonGlass = 'float'"
+                        >
+                          套用玻璃
+                        </NeumorphismButton>
+                      </div>
+                    </div>
+
+                    <pre class="btn-config__snippet">{{ buttonSnippet }}</pre>
                   </div>
                 </div>
               </div>
 
               <div class="demo-block">
-                <h4 class="demo-label">加载与禁用</h4>
-                <div class="demo-row">
-                  <NeumorphismButton loading>加载中...</NeumorphismButton>
-                  <NeumorphismButton disabled>已禁用</NeumorphismButton>
+                <h4 class="demo-label">全部变体一览（点击载入到上方预览）</h4>
+                <div class="btn-matrix">
+                  <button
+                    v-for="item in buttonPresetList"
+                    :key="item.key"
+                    type="button"
+                    class="btn-matrix__cell"
+                    :class="{ 'btn-matrix__cell--active': isButtonPreset(item) }"
+                    :aria-pressed="isButtonPreset(item)"
+                    @click="applyButtonPreset(item)"
+                  >
+                    <NeumorphismButton :variant="item.variant" :glass="item.glass" size="small">
+                      {{ item.label }}
+                    </NeumorphismButton>
+                    <code class="btn-matrix__code">{{ item.code }}</code>
+                  </button>
                 </div>
+                <p class="demo-hint" style="margin-top: 10px">
+                  旧 <code>variant="glass"</code> / <code>variant="glass-raised"</code> 等价于
+                  <code>glass="float"</code> /
+                  <code>glass="raised"</code>，渲染结果不变（同样的类名与计算样式）。 玻璃与
+                  <code>variant</code> 正交但会覆盖表面底色——要彩色玻璃请改
+                  <code>--nm-glass-bg</code>，而不是叠 <code>variant="primary"</code>。
+                </p>
               </div>
             </NeumorphismCard>
 
@@ -1550,7 +2068,7 @@ const chartStockData = ref([
               <template #header>
                 <div class="demo-header">
                   <h3 class="demo-title">NeumorphismCard 卡片</h3>
-                  <span class="demo-badge">统一台阶高度模型 · 膨胀/下沉悬停</span>
+                  <span class="demo-badge">统一台阶高度模型 · 膨胀/下沉悬停 · 玻璃拟态</span>
                 </div>
               </template>
 
@@ -1621,6 +2139,66 @@ const chartStockData = ref([
                     >
                   </template>
                 </NeumorphismCard>
+              </div>
+
+              <div class="demo-block">
+                <h4 class="demo-label">
+                  玻璃拟态（磨砂玻璃：置于彩色背景上可见半透明与模糊，hover 抬升）
+                </h4>
+                <div class="demo-glass-backdrop demo-glass-backdrop--cards">
+                  <NeumorphismCard glass style="width: 168px">
+                    <div class="demo-glass-card-title">悬浮玻璃</div>
+                    <code class="demo-glass-code">glass="float"</code>
+                  </NeumorphismCard>
+                  <NeumorphismCard glass="raised" :elevation="2" style="width: 168px">
+                    <div class="demo-glass-card-title">凸面玻璃</div>
+                    <code class="demo-glass-code">glass="raised"</code>
+                  </NeumorphismCard>
+                  <NeumorphismCard glass="pressed" :elevation="-2" style="width: 168px">
+                    <div class="demo-glass-card-title">凹陷玻璃</div>
+                    <code class="demo-glass-code">glass="pressed"</code>
+                  </NeumorphismCard>
+                  <NeumorphismCard glass hoverable style="width: 168px">
+                    <div class="demo-glass-card-title">悬停抬升</div>
+                    <code class="demo-glass-code">glass + hoverable</code>
+                  </NeumorphismCard>
+                </div>
+                <p class="demo-hint" style="margin-top: 10px">
+                  玻璃只替换<strong>表面材质</strong>（半透明底 + <code>backdrop-filter</code> 模糊
+                  + 1px 高光边），台阶高度模型仍由 <code>elevation</code> 决定——
+                  <code>raised</code> / <code>pressed</code> 的阴影强度跟随
+                  <code>|elevation|</code>；<code>true</code> 等价于
+                  <code>'float'</code>（旧布尔语义）。
+                </p>
+              </div>
+
+              <div class="demo-block">
+                <h4 class="demo-label">玻璃档位与高度组合（1–4 级）</h4>
+                <div class="demo-glass-backdrop demo-glass-backdrop--cards">
+                  <NeumorphismCard
+                    v-for="e in 4"
+                    :key="`gr-${e}`"
+                    glass="raised"
+                    :elevation="e"
+                    style="width: 96px; text-align: center"
+                  >
+                    <strong>{{ e }}</strong>
+                  </NeumorphismCard>
+                </div>
+                <div
+                  class="demo-glass-backdrop demo-glass-backdrop--cards"
+                  style="margin-top: 12px"
+                >
+                  <NeumorphismCard
+                    v-for="e in 4"
+                    :key="`gp-${e}`"
+                    glass="pressed"
+                    :elevation="-e"
+                    style="width: 96px; text-align: center"
+                  >
+                    <strong>{{ -e }}</strong>
+                  </NeumorphismCard>
+                </div>
               </div>
             </NeumorphismCard>
 
@@ -2684,35 +3262,79 @@ const chartStockData = ref([
               </div>
             </NeumorphismCard>
 
-            <!-- ChatComposer -->
             <NeumorphismCard id="chat-composer" :elevation="1" class="demo-card demo-card--full">
               <template #header>
                 <div class="demo-header">
                   <h3 class="demo-title">ChatComposer 输入器</h3>
-                  <span class="demo-badge">Enter 发送 · Shift+Enter 换行 · IME 安全</span>
+                  <span class="demo-badge">Enter 发送 · IME 安全 · 玻璃托盘 · 4 种聚焦特效</span>
                 </div>
               </template>
 
               <div class="demo-block">
-                <ChatComposer
-                  v-model="composerDemoValue"
-                  cancelable
-                  @send="composerDemoSend"
-                  @cancel="composerDemoSent = '（已请求取消任务）'"
-                >
-                  <template #meta>
-                    <span>会话：demo</span>
-                  </template>
-                </ChatComposer>
-                <p
-                  v-if="composerDemoSent"
-                  style="
-                    margin: 8px 0 0;
-                    font-size: var(--nm-font-xs);
-                    color: var(--nm-text-placeholder);
-                  "
-                >
-                  最近事件：{{ composerDemoSent }}
+                <h4 class="demo-label">玻璃托盘 + 聚焦特效（点进输入框看效果）</h4>
+                <div class="composer-stage" :class="`composer-stage--${composerStage}`">
+                  <ChatComposer
+                    v-model="composerDemoValue"
+                    :glass="composerGlass"
+                    :focus-effect="composerFocusEffect"
+                    cancelable
+                    placeholder="试试点进来，看看内辉光 / 外环 / 深凹陷的差别"
+                    @send="composerDemoSend"
+                    @cancel="composerDemoSent = '（已请求取消任务）'"
+                  >
+                    <template #meta>
+                      <span
+                        >glass=<b>{{ composerGlass }}</b> · focusEffect=<b>{{
+                          composerFocusEffect
+                        }}</b></span
+                      >
+                    </template>
+                  </ChatComposer>
+                </div>
+
+                <div class="graph-controls" style="margin-top: 16px">
+                  <div class="graph-ctl">
+                    <span class="graph-ctl__label">玻璃档位 glass</span>
+                    <NeumorphismSegmented
+                      v-model="composerGlass"
+                      :options="composerGlassOptions"
+                      size="small"
+                    />
+                  </div>
+                  <div class="graph-ctl">
+                    <span class="graph-ctl__label">聚焦特效 focusEffect</span>
+                    <NeumorphismSegmented
+                      v-model="composerFocusEffect"
+                      :options="composerFocusOptions"
+                      size="small"
+                    />
+                  </div>
+                  <div class="graph-ctl">
+                    <span class="graph-ctl__label">预览背景</span>
+                    <NeumorphismSegmented
+                      v-model="composerStage"
+                      :options="[
+                        { label: '平面', value: 'plane' },
+                        { label: '彩色', value: 'gradient' },
+                      ]"
+                      size="small"
+                    />
+                  </div>
+                </div>
+
+                <p class="demo-hint" style="margin-top: 10px">
+                  材质挂在<strong>外壳</strong>上（浮起的玻璃托盘），内部输入槽保持凹陷——层次是「玻璃托盘
+                  › 凹陷输入槽」。四档聚焦特效：<code>ring</code> 外侧主色光环（历史默认）、
+                  <code>glow</code>
+                  <strong>内辉光</strong>（主色光从凹槽内部亮起，玻璃模式下托盘一并被点亮）、
+                  <code>inset</code> 纯加深凹陷（无彩色）、<code>none</code>
+                  交给宿主。玻璃需在彩色背景上才看得到磨砂；键入
+                  <kbd>Enter</kbd> 发送、<kbd>Shift</kbd>+<kbd>Enter</kbd>
+                  换行，IME 组字中不误发。
+                </p>
+
+                <p v-if="composerDemoSent" class="demo-hint" style="margin-top: 6px">
+                  最近事件：<code>{{ composerDemoSent }}</code>
                 </p>
               </div>
             </NeumorphismCard>
@@ -3606,6 +4228,301 @@ const chartStockData = ref([
                 </p>
               </div>
             </NeumorphismCard>
+
+            <!-- 节点图（实验性）——Obsidian 风格力导向图 -->
+            <NeumorphismCard id="graph" :elevation="1" class="demo-card demo-card--full">
+              <template #header>
+                <div class="demo-header">
+                  <h3 class="demo-title">NeumorphismGraphView 节点图</h3>
+                  <span class="demo-badge">实验性 · 力导向布局 · 自绘 canvas</span>
+                </div>
+              </template>
+
+              <div class="demo-block">
+                <div class="graph-stage">
+                  <NeumorphismGraphView
+                    ref="graphRef"
+                    :nodes="graphNodes"
+                    :links="graphLinks"
+                    :height="graphHeight"
+                    :node-radius="graphNodeRadius"
+                    :link-distance="graphLinkDistance"
+                    :repulsion="graphRepulsion"
+                    :force-settings="graphForceSettings"
+                    :show-labels="graphLabelMode"
+                    :show-controls="graphShowControls"
+                    :show-legend="graphShowLegend"
+                    :highlight-neighbors="graphHighlight"
+                    :draggable="graphDraggable"
+                    :pannable="graphPannable"
+                    :zoomable="graphZoomable"
+                    :auto-fit="graphAutoFit"
+                    :preserve-positions="graphPreservePositions"
+                    aria-label="组件库知识库节点图"
+                    @node-click="onGraphNodeClick"
+                    @node-hover="onGraphNodeHover"
+                    @layout-start="onGraphLayoutStart"
+                    @layout-settled="onGraphLayoutSettled"
+                  />
+                </div>
+
+                <div class="graph-readout">
+                  <span class="graph-readout__item">
+                    节点 <b>{{ graphNodes.length }}</b> · 连线 <b>{{ graphLinks.length }}</b>
+                  </span>
+                  <span class="graph-readout__item">
+                    悬停
+                    <b>{{ graphHovered ? graphHovered.label : '—' }}</b>
+                  </span>
+                  <span class="graph-readout__item">
+                    选中
+                    <b>{{ graphSelected ? graphSelected.label : '—' }}</b>
+                    <template v-if="graphSelected">
+                      （{{ graphSelected.group }} ·
+                      {{ graphDegree.get(graphSelected.id) ?? 0 }} 条双链）
+                    </template>
+                  </span>
+                  <span class="graph-readout__item">
+                    状态
+                    <b>{{ graphSettled ? '已静止' : '力学模拟中' }}</b>
+                  </span>
+                  <span class="graph-readout__item">
+                    退火 alpha
+                    <b class="graph-readout__num">{{ fmt(graphAlpha, 3) }}</b>
+                  </span>
+                </div>
+
+                <p class="demo-hint" style="margin-top: 10px">
+                  拖拽节点可临时钉住并牵引邻居，拖背景平移，滚轮以光标为锚点缩放，双击节点居中；
+                  悬停高亮一度邻居、其余淡化。键盘：方向键切换节点、Enter 选中、<code>+</code> /
+                  <code>-</code> 缩放、<code>0</code> 适应视图。
+                </p>
+              </div>
+
+              <div class="demo-block" style="margin-top: 16px">
+                <h4 class="demo-label">布局与视图（组件 props）</h4>
+                <div class="graph-controls">
+                  <div class="graph-ctl">
+                    <span class="graph-ctl__label">节点半径 nodeRadius</span>
+                    <NeumorphismSlider
+                      v-model="graphNodeRadius"
+                      :min="2"
+                      :max="20"
+                      :step="1"
+                      size="small"
+                      style="flex: 1"
+                    />
+                    <code class="graph-ctl__value">{{ graphNodeRadius }}px</code>
+                  </div>
+                  <div class="graph-ctl">
+                    <span class="graph-ctl__label">理想边长 linkDistance</span>
+                    <NeumorphismSlider
+                      v-model="graphLinkDistance"
+                      :min="40"
+                      :max="200"
+                      :step="2"
+                      size="small"
+                      style="flex: 1"
+                    />
+                    <code class="graph-ctl__value">{{ graphLinkDistance }}px</code>
+                  </div>
+                  <div class="graph-ctl">
+                    <span class="graph-ctl__label">排斥强度 repulsion</span>
+                    <NeumorphismSlider
+                      v-model="graphRepulsion"
+                      :min="100"
+                      :max="3000"
+                      :step="50"
+                      size="small"
+                      style="flex: 1"
+                    />
+                    <code class="graph-ctl__value">{{ graphRepulsion }}</code>
+                  </div>
+                  <div class="graph-ctl">
+                    <span class="graph-ctl__label">容器高度 height</span>
+                    <NeumorphismSlider
+                      v-model="graphHeight"
+                      :min="320"
+                      :max="760"
+                      :step="20"
+                      size="small"
+                      style="flex: 1"
+                    />
+                    <code class="graph-ctl__value">{{ graphHeight }}px</code>
+                  </div>
+                </div>
+              </div>
+
+              <div class="demo-block" style="margin-top: 16px">
+                <h4 class="demo-label">力学动力学（forceSettings → ForceLayout）</h4>
+                <div class="graph-controls">
+                  <div class="graph-ctl">
+                    <span class="graph-ctl__label">弹簧刚度 spring</span>
+                    <NeumorphismSlider
+                      v-model="graphSpring"
+                      :min="0.001"
+                      :max="0.03"
+                      :step="0.001"
+                      size="small"
+                      style="flex: 1"
+                    />
+                    <code class="graph-ctl__value">{{ fmt(graphSpring, 3) }}</code>
+                  </div>
+                  <div class="graph-ctl">
+                    <span class="graph-ctl__label">向心引力 gravity</span>
+                    <NeumorphismSlider
+                      v-model="graphGravity"
+                      :min="0"
+                      :max="0.002"
+                      :step="0.0001"
+                      size="small"
+                      style="flex: 1"
+                    />
+                    <code class="graph-ctl__value">{{ fmt(graphGravity, 4) }}</code>
+                  </div>
+                  <div class="graph-ctl">
+                    <span class="graph-ctl__label">速度衰减 velocityDecay</span>
+                    <NeumorphismSlider
+                      v-model="graphVelocityDecay"
+                      :min="0"
+                      :max="0.9"
+                      :step="0.05"
+                      size="small"
+                      style="flex: 1"
+                    />
+                    <code class="graph-ctl__value">{{ fmt(graphVelocityDecay, 2) }}</code>
+                  </div>
+                  <div class="graph-ctl">
+                    <span class="graph-ctl__label">单帧限速 maxSpeed</span>
+                    <NeumorphismSlider
+                      v-model="graphMaxSpeed"
+                      :min="2"
+                      :max="40"
+                      :step="1"
+                      size="small"
+                      style="flex: 1"
+                    />
+                    <code class="graph-ctl__value">{{ graphMaxSpeed }}</code>
+                  </div>
+                  <div class="graph-ctl">
+                    <span class="graph-ctl__label">退火速率 alphaDecay</span>
+                    <NeumorphismSlider
+                      v-model="graphAlphaDecay"
+                      :min="0.004"
+                      :max="0.12"
+                      :step="0.002"
+                      size="small"
+                      style="flex: 1"
+                    />
+                    <code class="graph-ctl__value">{{ fmt(graphAlphaDecay, 3) }}</code>
+                  </div>
+                  <div class="graph-ctl">
+                    <span class="graph-ctl__label">退火下限 alphaMin</span>
+                    <NeumorphismSlider
+                      v-model="graphAlphaMin"
+                      :min="0.0004"
+                      :max="0.02"
+                      :step="0.0001"
+                      size="small"
+                      style="flex: 1"
+                    />
+                    <code class="graph-ctl__value">{{ fmt(graphAlphaMin, 4) }}</code>
+                  </div>
+                  <div class="graph-ctl">
+                    <span class="graph-ctl__label">排斥上限 maxRepulsion</span>
+                    <NeumorphismSlider
+                      v-model="graphMaxRepulsionForce"
+                      :min="1"
+                      :max="20"
+                      :step="0.5"
+                      size="small"
+                      style="flex: 1"
+                    />
+                    <code class="graph-ctl__value">{{ fmt(graphMaxRepulsionForce, 1) }}</code>
+                  </div>
+                </div>
+                <p class="demo-hint" style="margin-top: 10px">
+                  力学参数改动只更新引擎设置、不重建节点——位置得以保留，拖滑块时图不会整图重排。
+                  想看"从零重排"点「重新布局」；想温和舒展点「重新唤醒」。
+                </p>
+              </div>
+
+              <div class="demo-block" style="margin-top: 16px">
+                <h4 class="demo-label">视图 / 交互 / 行为（开关类 props）</h4>
+                <div class="graph-switches">
+                  <div class="graph-switch">
+                    <NeumorphismSwitch v-model="graphShowLegend" size="small" />
+                    <span>图例 showLegend</span>
+                  </div>
+                  <div class="graph-switch">
+                    <NeumorphismSwitch v-model="graphShowControls" size="small" />
+                    <span>缩放控件 showControls</span>
+                  </div>
+                  <div class="graph-switch">
+                    <NeumorphismSwitch v-model="graphHighlight" size="small" />
+                    <span>高亮邻居 highlightNeighbors</span>
+                  </div>
+                  <div class="graph-switch">
+                    <NeumorphismSwitch v-model="graphDraggable" size="small" />
+                    <span>拖拽节点 draggable</span>
+                  </div>
+                  <div class="graph-switch">
+                    <NeumorphismSwitch v-model="graphPannable" size="small" />
+                    <span>拖背景平移 pannable</span>
+                  </div>
+                  <div class="graph-switch">
+                    <NeumorphismSwitch v-model="graphZoomable" size="small" />
+                    <span>缩放 zoomable</span>
+                  </div>
+                  <div class="graph-switch">
+                    <NeumorphismSwitch v-model="graphAutoFit" size="small" />
+                    <span>自动适应 autoFit</span>
+                  </div>
+                  <div class="graph-switch">
+                    <NeumorphismSwitch v-model="graphPreservePositions" size="small" />
+                    <span>保留坐标 preservePositions</span>
+                  </div>
+                </div>
+
+                <div class="demo-row" style="flex-wrap: wrap; gap: 24px; align-items: center">
+                  <div class="demo-row">
+                    <span class="demo-form-label">标签 showLabels</span>
+                    <NeumorphismSegmented v-model="graphLabelMode" :options="graphLabelOptions" />
+                  </div>
+                </div>
+
+                <div class="graph-actions">
+                  <NeumorphismButton variant="raised" size="small" @click="graphRef?.fit()">
+                    适应视图
+                  </NeumorphismButton>
+                  <NeumorphismButton
+                    variant="pressed"
+                    size="small"
+                    @click="graphRef?.resetLayout()"
+                  >
+                    重新布局
+                  </NeumorphismButton>
+                  <NeumorphismButton variant="raised" size="small" @click="graphRef?.reheat(0.6)">
+                    重新唤醒
+                  </NeumorphismButton>
+                  <NeumorphismButton variant="raised" size="small" @click="addGraphNode()">
+                    ＋ 新增节点
+                  </NeumorphismButton>
+                  <NeumorphismButton variant="raised" size="small" @click="removeGraphNode()">
+                    － 移除节点
+                  </NeumorphismButton>
+                  <NeumorphismButton variant="raised" size="small" @click="resetGraphDefaults()">
+                    恢复默认
+                  </NeumorphismButton>
+                </div>
+                <p class="demo-hint" style="margin-top: 10px">
+                  「新增 / 移除节点」会改动数据：<code>preservePositions</code>
+                  打开时既有节点留在原位、只有新节点补位（配合
+                  <code>autoFit</code> 自动收进视野）；关掉它整图会重新播种。节点少时可显著看到
+                  <code>autoFit</code> 引起的视图变化。
+                </p>
+              </div>
+            </NeumorphismCard>
           </section>
 
           <!-- ===== 页脚 ===== -->
@@ -3633,6 +4550,31 @@ const chartStockData = ref([
   color: var(--nm-text-secondary);
   white-space: nowrap;
   min-width: 96px;
+}
+
+// 玻璃卡片舞台：彩色渐变 + 网格点，衬托磨砂半透明的层次感
+.demo-glass-backdrop--cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--nm-spacing-lg);
+  align-items: stretch;
+}
+
+.demo-glass-card-title {
+  margin-bottom: var(--nm-spacing-xs);
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+  text-shadow: 0 1px 2px rgb(0 0 0 / 35%);
+}
+
+// 渐变背景上的代码标注：半透明深底 + 白字，双主题都可读
+.demo-glass-code {
+  padding: 2px 6px;
+  border-radius: var(--nm-border-radius-sm);
+  background: rgb(0 0 0 / 32%);
+  color: #fff;
+  font-size: 11px;
 }
 
 // 玻璃拟态演示背景：彩色渐变衬托 backdrop-filter 的磨砂半透明效果
@@ -3945,6 +4887,318 @@ const chartStockData = ref([
 
 .form-demo-width {
   max-width: 420px;
+}
+
+// ---- GraphView demo：节点图舞台 ----
+.graph-stage {
+  border-radius: var(--nm-border-radius-lg);
+  overflow: hidden;
+}
+
+.graph-readout {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 20px;
+  margin-top: 12px;
+  font-size: 13px;
+  color: var(--nm-text-secondary);
+
+  b {
+    color: var(--nm-text-primary);
+    font-weight: 600;
+  }
+}
+
+// 退火系数读数：等宽数字，避免轮询刷新时抖动
+.graph-readout__num {
+  font-variant-numeric: tabular-nums;
+  font-family: var(--nm-font-mono);
+}
+
+// ---- Button 展示 + 配置 ----
+// 左侧预览台 + 右侧参数表单；窄屏自动收成一列
+.btn-playground {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--nm-spacing-xl);
+  align-items: stretch;
+}
+
+.btn-stage {
+  // box-sizing: 预览台有较宽内边距，content-box 会让它在窄屏溢出卡片
+  box-sizing: border-box;
+  flex: 1 1 320px;
+  // 允许压缩到容器宽度（0 而非 300px，否则 390px 视口下会横向溢出）
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--nm-spacing-md);
+  padding: var(--nm-spacing-xl);
+  border-radius: var(--nm-border-radius-lg);
+  // 预览台本身也做成凹陷槽，衬托按钮的凸起关系
+  @include nm-inset-strong(4px, 10px);
+  transition: background var(--nm-transition-slow);
+
+  &--plane {
+    background-color: var(--nm-bg-color);
+  }
+
+  // 彩色台面：玻璃档位的半透明与模糊只有在这种背景上才看得出来
+  &--gradient {
+    background: linear-gradient(
+      135deg,
+      var(--nm-color-primary-300),
+      var(--nm-color-info, #5a8def),
+      var(--nm-color-success, #3fb27f)
+    );
+  }
+}
+
+.btn-stage__spec {
+  margin: 0;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  color: var(--nm-text-secondary);
+  text-align: center;
+  word-break: break-word;
+
+  b {
+    color: var(--nm-text-primary);
+    font-weight: 600;
+  }
+}
+
+// 彩色台面下读数改用白字（深色渐变底上浅灰不可读）
+.btn-stage--gradient .btn-stage__spec,
+.btn-stage--gradient .btn-stage__bg-label,
+.btn-stage--gradient .btn-stage__hint {
+  color: rgb(255 255 255 / 88%);
+
+  b {
+    color: #fff;
+  }
+}
+
+.btn-stage__bg {
+  display: flex;
+  align-items: center;
+  gap: var(--nm-spacing-sm);
+}
+
+.btn-stage__bg-label {
+  font-size: 12px;
+  color: var(--nm-text-secondary);
+}
+
+.btn-stage__hint {
+  margin: 0;
+  text-align: center;
+}
+
+.btn-config {
+  box-sizing: border-box;
+  // 可收缩（0 1），窄屏时随容器变窄而不是溢出被裁
+  flex: 0 1 320px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--nm-spacing-sm);
+}
+
+.btn-config__row {
+  display: flex;
+  align-items: center;
+  gap: var(--nm-spacing-sm);
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+.btn-config__label {
+  flex: 0 0 auto;
+  min-width: 78px;
+  font-size: 12px;
+  color: var(--nm-text-secondary);
+  white-space: nowrap;
+}
+
+.btn-config__value {
+  flex: 0 0 auto;
+  min-width: 48px;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  color: var(--nm-text-primary);
+}
+
+.btn-config__toggles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--nm-spacing-md);
+}
+
+.btn-config__toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--nm-spacing-xs);
+  font-size: 12px;
+  color: var(--nm-text-secondary);
+  cursor: pointer;
+}
+
+.btn-config__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--nm-spacing-sm);
+}
+
+// 实时代码片段：等宽 + 横向可滚，长属性不撑破面板
+.btn-config__snippet {
+  margin: var(--nm-spacing-2xs) 0 0;
+  padding: var(--nm-spacing-sm) var(--nm-spacing-md);
+  border-radius: var(--nm-border-radius-sm);
+  background-color: var(--nm-bg-color);
+  color: var(--nm-text-secondary);
+  font-family: var(--nm-font-mono);
+  font-size: 11px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-all;
+  @include nm-inset(2px, 5px);
+}
+
+// 变体一览：网格铺排，点击载入到预览
+.btn-matrix {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: var(--nm-spacing-sm);
+}
+
+.btn-matrix__cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--nm-spacing-xs);
+  padding: var(--nm-spacing-sm) var(--nm-spacing-xs);
+  border: 1px solid transparent;
+  border-radius: var(--nm-border-radius-md);
+  background: transparent;
+  cursor: pointer;
+  transition:
+    border-color var(--nm-transition-fast),
+    background-color var(--nm-transition-fast);
+
+  &:hover {
+    background-color: var(--nm-surface-raised);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--nm-primary-color);
+    outline-offset: 2px;
+  }
+
+  // 选中态：主色描边 + 淡主色底，一眼看出当前预览对应哪一格
+  &--active {
+    border-color: var(--nm-primary-color);
+    background-color: color-mix(in srgb, var(--nm-primary-color) 10%, transparent);
+
+    .btn-matrix__code {
+      color: var(--nm-primary-color);
+    }
+  }
+}
+
+.btn-matrix__code {
+  font-size: 10px;
+  color: var(--nm-text-placeholder);
+  text-align: center;
+  word-break: break-all;
+}
+
+// ---- ChatComposer 演示：输入器舞台 ----
+.composer-stage {
+  padding: var(--nm-spacing-lg);
+  border-radius: var(--nm-border-radius-lg);
+  transition: background var(--nm-transition-slow);
+
+  &--plane {
+    background-color: var(--nm-bg-color);
+  }
+
+  // 彩色台面：玻璃托盘的磨砂半透明只有在这种背景上才看得出来
+  &--gradient {
+    background: linear-gradient(
+      135deg,
+      var(--nm-color-primary-300),
+      var(--nm-color-info, #5a8def),
+      var(--nm-color-success, #3fb27f)
+    );
+  }
+
+  // 彩色台面下 meta 读数改白字（浅灰在渐变上不可读）
+  &--gradient :deep(.nm-chat-composer__meta) {
+    color: rgb(255 255 255 / 88%);
+
+    b {
+      color: #fff;
+    }
+  }
+}
+
+// 调参面板：两列自适应网格（窄屏自动收成一列）
+.graph-controls {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(330px, 1fr));
+  gap: var(--nm-spacing-sm) var(--nm-spacing-xl);
+}
+
+.graph-ctl {
+  display: flex;
+  align-items: center;
+  gap: var(--nm-spacing-sm);
+  min-width: 0;
+}
+
+.graph-ctl__label {
+  flex: 0 0 auto;
+  min-width: 118px;
+  font-size: 12px;
+  color: var(--nm-text-secondary);
+  white-space: nowrap;
+}
+
+.graph-ctl__value {
+  flex: 0 0 auto;
+  min-width: 52px;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  color: var(--nm-text-primary);
+}
+
+// 开关组：流式排布，每项 = 开关 + 说明
+.graph-switches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--nm-spacing-sm) var(--nm-spacing-lg);
+  margin-bottom: var(--nm-spacing-md);
+}
+
+.graph-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--nm-spacing-xs);
+  font-size: 12px;
+  color: var(--nm-text-secondary);
+  white-space: nowrap;
+}
+
+.graph-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--nm-spacing-sm);
+  margin-top: var(--nm-spacing-md);
 }
 
 // ---- Progress demo ----
