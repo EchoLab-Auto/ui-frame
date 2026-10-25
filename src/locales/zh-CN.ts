@@ -27,6 +27,13 @@ export const zhCN: LocaleMessages = {
   artLabel: '动态效果画布',
   asciiArtLabel: '字符画',
 
+  // GraphView
+  graphLabel: '节点图：方向键切换节点，Enter 选中，加减键缩放，0 适应视图',
+  graphZoomIn: '放大',
+  graphZoomOut: '缩小',
+  graphZoomFit: '适应视图',
+  graphRelayout: '重新布局',
+
   // Tree
   treeExpandAll: '全部展开',
   treeCollapseAll: '全部折叠',

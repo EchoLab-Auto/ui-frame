@@ -8,7 +8,7 @@ group: 使用
 
 # NeumorphismCard
 
-> 内容容器——以统一的「台阶高度模型」（elevation -4~4）表达凸出 / 凹陷 / 平齐三种空间关系，支持悬停膨起或下沉（hoverable）与毛玻璃变体（glass）。内边距经子选择器精确施加，卡片套卡片不会泄漏。源码：`src/components/NeumorphismCard/`。
+> 内容容器——以统一的「台阶高度模型」（elevation -4~4）表达凸出 / 凹陷 / 平齐三种空间关系，支持悬停膨起或下沉（hoverable）与三档毛玻璃变体（glass：`float` / `raised` / `pressed`）。内边距经子选择器精确施加，卡片套卡片不会泄漏。源码：`src/components/NeumorphismCard/`。
 
 ```vue
 <NeumorphismCard :elevation="2" hoverable>
@@ -29,7 +29,7 @@ group: 使用
 | `hoverable` | `boolean \| 'bulge' \| 'sink'`                   | `false`   | 悬停动效：`true`/`'bulge'` 向外膨起，`'sink'` 向内下沉，支持全局配置 `card.hoverable` 级联 |
 | `radius`    | `'small' \| 'medium' \| 'large' \| 'xl'`         | `'large'` | 圆角档位，支持 `card.radius` 级联                                                          |
 | `noPadding` | `boolean`                                        | `false`   | 移除 header / body / footer 的内边距                                                       |
-| `glass`     | `boolean`                                        | `false`   | 毛玻璃变体：半透明背景 + backdrop blur + 细描边（开启后覆盖台阶阴影）                      |
+| `glass`     | `boolean \| 'float' \| 'raised' \| 'pressed'`    | `false`   | 毛玻璃变体档位，支持全局配置 `card.glass` 级联；`true` 等价 `'float'`                      |
 | `variant`   | `'raised' \| 'pressed'`                          | —         | 已废弃，请用 `elevation` 正负号代替                                                        |
 | `depth`     | `'shallow' \| 'medium' \| 'deep' \| 'very-deep'` | —         | 已废弃，请用 `elevation` 绝对值（1~4）代替                                                 |
 
@@ -85,7 +85,21 @@ hover 临时把台阶高度 ±2，且**永不跨越符号边界**（凸起不会
 
 ### 毛玻璃（glass）
 
-`--nm-glass-bg` 半透明背景 + `backdrop-filter: blur(--nm-glass-blur)` + 1px 高光描边；box-shadow 改为固定的浮层阴影，不再随 elevation 分档。
+玻璃**只替换表面材质**：`--nm-glass-bg` 半透明底 + `backdrop-filter: blur(--nm-glass-blur) saturate(1.15)` + `inset 0 0 0 1px` 高光描边（内描边贴合圆角、不占布局）。台阶高度模型仍由 `elevation` 决定，两者正交。
+
+| 档位      | 阴影                                       | 对应按钮变体              |
+| --------- | ------------------------------------------ | ------------------------- |
+| `float`   | 环境投影（浮层感），不随 elevation         | `variant="glass"`         |
+| `raised`  | 新拟态凸起双阴影，强度跟随 `\|elevation\|` | `variant="glass-raised"`  |
+| `pressed` | 新拟态凹陷内阴影，强度跟随 `\|elevation\|` | —（卡片独有的"玻璃凹槽"） |
+
+细节：
+
+- **`elevation` 仍是强度来源**：`glass="raised" :elevation="3"` 用 12px/28px 的双阴影；`elevation="0"` 时按 1 级呈现，避免玻璃"没有体积"；档位决定阴影**方向**，`|elevation|` 决定**强度**（`glass="raised" :elevation="-2"` 仍是凸起 2 级）
+- **hover 抬升**（需同时 `hoverable`）：`float` 抬升 4px、`raised` 抬升 2px 并把双阴影加强一档，`pressed` 不位移而是让内阴影减弱一档（向表面浮起）；过渡曲线与按钮玻璃一致
+- **`isolation: isolate`**：让模糊只在本层发生一次，避免嵌套内容的 `backdrop-filter` 层层叠加（既昂贵又会糊边）
+- **降级**：浏览器不支持 `backdrop-filter` 时退回 94% 不透明的 `--nm-surface-color`，保证内容可读
+- 需置于有色背景 / 图片之上才能看到半透明与模糊效果；纯色平面上视觉等同于普通卡片
 
 ### Reduced-motion
 
@@ -107,8 +121,14 @@ hover 临时把台阶高度 ±2，且**永不跨越符号边界**（凸起不会
   <img src="cover.png" alt="" />
 </NeumorphismCard>
 
-<!-- 毛玻璃浮层 -->
+<!-- 毛玻璃浮层（旧布尔写法，等价 glass="float"） -->
 <NeumorphismCard glass>半透明内容</NeumorphismCard>
+
+<!-- 磨砂玻璃上的凸起卡片：强度跟随 elevation，hover 再抬一档 -->
+<NeumorphismCard glass="raised" :elevation="3" hoverable>……</NeumorphismCard>
+
+<!-- 磨砂玻璃凹槽 -->
+<NeumorphismCard glass="pressed" :elevation="-2">……</NeumorphismCard>
 ```
 
 全局预设：

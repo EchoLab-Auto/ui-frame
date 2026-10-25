@@ -93,27 +93,28 @@ import { NeumorphismButton } from '@echolab-auto/ui-frame'
 
 ### 数据展示
 
-| 组件                          | 说明                     | 关键属性                                  |
-| ----------------------------- | ------------------------ | ----------------------------------------- |
-| `NeumorphismCard`             | 卡片容器（台阶高度模型） | `elevation`(-4~4), `hoverable`, `radius`  |
-| `NeumorphismAvatar`           | 头像                     | `src`, `size`, `shape`, `initials`        |
-| `NeumorphismBadge`            | 角标/红点                | `value`, `dot`, `max`                     |
-| `NeumorphismTag`              | 标签                     | `variant`, `size`, `rounded`              |
-| `NeumorphismProgress`         | 进度条                   | `percentage`, `variant`, `striped`        |
-| `NeumorphismSkeleton`         | 骨架屏                   | `variant`, `animation`                    |
-| `NeumorphismTable`            | 数据表格                 | `columns`, `data`, `striped`, `hoverable` |
-| `NeumorphismTree`             | 树形控件（键盘导航）     | `data`, `selectedKeys`, `showSearch`      |
-| `NeumorphismList`             | 列表                     | `items`, `bordered`, `loading`            |
-| `NeumorphismVirtualList`      | 虚拟滚动列表             | `items`, `itemHeight`, `overscan`         |
-| `NeumorphismChartBar`         | 柱状图                   | `series`, `stacked`, `orientation`        |
-| `NeumorphismChartLine`        | 折线图                   | `series`, `curve`, `area`, `showPoints`   |
-| `NeumorphismChartPie`         | 饼图/环图                | `data`, `innerRadius`, `roundedCorners`   |
-| `NeumorphismChartCandlestick` | K 线图                   | `data`, `showMA`, `showVolume`            |
-| `NeumorphismStatusDot`        | 状态点（呼吸脉冲）       | `status`(online/offline/busy/connecting)  |
-| `NeumorphismLogo`             | 动态像素 Logo            | `mode`, `size`, `autoplay`, `goo`         |
-| `NeumorphismArt`              | 生成艺术画布（5 种效果） | `effect`, `reactive`, `density`, `seed`   |
-| `NeumorphismAsciiArt`         | 图片转 ASCII 字符画      | `src`, `density`, `reactive`, `radius`    |
-| `NeumorphismPixelFont`        | 像素字体（termsyn 6x11） | `text`, `scale`, `cursor`, `align`        |
+| 组件                          | 说明                     | 关键属性                                       |
+| ----------------------------- | ------------------------ | ---------------------------------------------- |
+| `NeumorphismCard`             | 卡片容器（台阶高度模型） | `elevation`(-4~4), `hoverable`, `radius`       |
+| `NeumorphismAvatar`           | 头像                     | `src`, `size`, `shape`, `initials`             |
+| `NeumorphismBadge`            | 角标/红点                | `value`, `dot`, `max`                          |
+| `NeumorphismTag`              | 标签                     | `variant`, `size`, `rounded`                   |
+| `NeumorphismProgress`         | 进度条                   | `percentage`, `variant`, `striped`             |
+| `NeumorphismSkeleton`         | 骨架屏                   | `variant`, `animation`                         |
+| `NeumorphismTable`            | 数据表格                 | `columns`, `data`, `striped`, `hoverable`      |
+| `NeumorphismTree`             | 树形控件（键盘导航）     | `data`, `selectedKeys`, `showSearch`           |
+| `NeumorphismList`             | 列表                     | `items`, `bordered`, `loading`                 |
+| `NeumorphismVirtualList`      | 虚拟滚动列表             | `items`, `itemHeight`, `overscan`              |
+| `NeumorphismChartBar`         | 柱状图                   | `series`, `stacked`, `orientation`             |
+| `NeumorphismChartLine`        | 折线图                   | `series`, `curve`, `area`, `showPoints`        |
+| `NeumorphismChartPie`         | 饼图/环图                | `data`, `innerRadius`, `roundedCorners`        |
+| `NeumorphismChartCandlestick` | K 线图                   | `data`, `showMA`, `showVolume`                 |
+| `NeumorphismStatusDot`        | 状态点（呼吸脉冲）       | `status`(online/offline/busy/connecting)       |
+| `NeumorphismLogo`             | 动态像素 Logo            | `mode`, `size`, `autoplay`, `goo`              |
+| `NeumorphismArt`              | 生成艺术画布（5 种效果） | `effect`, `reactive`, `density`, `seed`        |
+| `NeumorphismAsciiArt`         | 图片转 ASCII 字符画      | `src`, `density`, `reactive`, `radius`         |
+| `NeumorphismPixelFont`        | 像素字体（termsyn 6x11） | `text`, `scale`, `cursor`, `align`             |
+| `NeumorphismGraphView`        | 节点图（力导向，实验性） | `nodes`, `links`, `linkDistance`, `showLabels` |
 
 ### 反馈
 

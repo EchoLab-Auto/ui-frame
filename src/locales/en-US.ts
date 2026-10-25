@@ -27,6 +27,13 @@ export const enUS: LocaleMessages = {
   artLabel: 'Generative art canvas',
   asciiArtLabel: 'ASCII art',
 
+  // GraphView
+  graphLabel: 'Node graph: arrow keys to move selection, Enter to select, +/- to zoom, 0 to fit',
+  graphZoomIn: 'Zoom in',
+  graphZoomOut: 'Zoom out',
+  graphZoomFit: 'Fit to view',
+  graphRelayout: 'Re-layout',
+
   // Tree
   treeExpandAll: 'Expand all',
   treeCollapseAll: 'Collapse all',

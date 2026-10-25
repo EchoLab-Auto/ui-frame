@@ -30,6 +30,13 @@ export interface LocaleMessages {
   artLabel?: string
   asciiArtLabel?: string
 
+  /** GraphView */
+  graphLabel?: string
+  graphZoomIn?: string
+  graphZoomOut?: string
+  graphZoomFit?: string
+  graphRelayout?: string
+
   /** Tree */
   treeExpandAll?: string
   treeCollapseAll?: string

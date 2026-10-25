@@ -20,17 +20,18 @@ group: 使用
 
 ### Props
 
-| 名称        | 类型                                                                        | 默认值      | 说明                                                        |
-| ----------- | --------------------------------------------------------------------------- | ----------- | ----------------------------------------------------------- |
-| `variant`   | `'raised' \| 'pressed' \| 'primary' \| 'glow' \| 'glass' \| 'glass-raised'` | `'raised'`  | 视觉预设变体，见下文[预设变体](#预设变体)                   |
-| `size`      | `'small' \| 'medium' \| 'large'`                                            | `'medium'`  | 尺寸档位（数值见下表）                                      |
-| `shape`     | `'rounded' \| 'pill' \| 'circle'`                                           | `'rounded'` | 圆角形状；`circle` 为正方形图标按钮（宽 = 高 = 最小高度）   |
-| `disabled`  | `boolean`                                                                   | `false`     | 禁用：透明度 0.6、`not-allowed` 光标、屏蔽全部 hover/active |
-| `loading`   | `boolean`                                                                   | `false`     | 加载态：显示 spinner 并**隐含禁用**点击                     |
-| `pressed`   | `boolean`                                                                   | `undefined` | 切换态，映射 `aria-pressed`（不传则不带该属性）             |
-| `type`      | `'button' \| 'submit' \| 'reset'`                                           | `'button'`  | 原生 type；表单内提交用 `type="submit"`                     |
-| `form`      | `string`                                                                    | —           | 原生 form 属性（关联表单 id）                               |
-| `ariaLabel` | `string`                                                                    | —           | 无障碍标签（纯图标按钮必传）                                |
+| 名称        | 类型                                                                        | 默认值      | 说明                                                            |
+| ----------- | --------------------------------------------------------------------------- | ----------- | --------------------------------------------------------------- |
+| `variant`   | `'raised' \| 'pressed' \| 'primary' \| 'glow' \| 'glass' \| 'glass-raised'` | `'raised'`  | 视觉预设变体，见下文[预设变体](#预设变体)；末尾两者为玻璃旧写法 |
+| `glass`     | `boolean \| 'float' \| 'raised' \| 'pressed'`                               | —           | 玻璃拟态档位（与卡片同一套），支持全局配置 `button.glass` 级联  |
+| `size`      | `'small' \| 'medium' \| 'large'`                                            | `'medium'`  | 尺寸档位（数值见下表）                                          |
+| `shape`     | `'rounded' \| 'pill' \| 'circle'`                                           | `'rounded'` | 圆角形状；`circle` 为正方形图标按钮（宽 = 高 = 最小高度）       |
+| `disabled`  | `boolean`                                                                   | `false`     | 禁用：透明度 0.6、`not-allowed` 光标、屏蔽全部 hover/active     |
+| `loading`   | `boolean`                                                                   | `false`     | 加载态：显示 spinner 并**隐含禁用**点击                         |
+| `pressed`   | `boolean`                                                                   | `undefined` | 切换态，映射 `aria-pressed`（不传则不带该属性）                 |
+| `type`      | `'button' \| 'submit' \| 'reset'`                                           | `'button'`  | 原生 type；表单内提交用 `type="submit"`                         |
+| `form`      | `string`                                                                    | —           | 原生 form 属性（关联表单 id）                                   |
+| `ariaLabel` | `string`                                                                    | —           | 无障碍标签（纯图标按钮必传）                                    |
 
 `variant` / `size` / `shape` 均支持**全局配置级联**——显式 prop > `app.use(NeumorphismUI, { button: {...} })` > 内置默认值。
 
@@ -55,14 +56,14 @@ group: 使用
 
 六种视觉预设，各自有独立的 hover / active 物理：
 
-| variant          | 视觉                                                  | 典型场景                         |
-| ---------------- | ----------------------------------------------------- | -------------------------------- |
-| `raised`（默认） | 三层凸面阴影（环境遮挡 + 定向暗影 + 边缘高光）        | 常规操作按钮                     |
-| `pressed`        | 常态即凹陷 inset                                      | 「已按下」语义、开关式操作       |
-| `primary`        | 135° 主色渐变填充 + 发光阴影                          | 表单主提交、关键行动点           |
-| `glow`           | raised + 常驻主色辉光（12px）                         | 强调吸引注意的操作               |
-| `glass`          | 悬浮磨砂玻璃：半透明 + backdrop-blur + 大偏移浮动阴影 | 彩色/图片背景上的浮层操作        |
-| `glass-raised`   | 凸面磨砂玻璃：新拟态三层凸面阴影 + 玻璃材质表面       | 需要凸起立体感又要通透材质的场景 |
+| variant          | 视觉                                           | 典型场景                         |
+| ---------------- | ---------------------------------------------- | -------------------------------- |
+| `raised`（默认） | 三层凸面阴影（环境遮挡 + 定向暗影 + 边缘高光） | 常规操作按钮                     |
+| `pressed`        | 常态即凹陷 inset                               | 「已按下」语义、开关式操作       |
+| `primary`        | 135° 主色渐变填充 + 发光阴影                   | 表单主提交、关键行动点           |
+| `glow`           | raised + 常驻主色辉光（12px）                  | 强调吸引注意的操作               |
+| `glass`          | 悬浮磨砂玻璃（= `glass="float"`，旧写法）      | 彩色/图片背景上的浮层操作        |
+| `glass-raised`   | 凸面磨砂玻璃（= `glass="raised"`，旧写法）     | 需要凸起立体感又要通透材质的场景 |
 
 ```vue
 <NeumorphismButton variant="raised">Raised</NeumorphismButton>
@@ -70,7 +71,15 @@ group: 使用
 <NeumorphismButton variant="primary">Primary</NeumorphismButton>
 <NeumorphismButton variant="glow">Glow</NeumorphismButton>
 
-<!-- 玻璃变体需置于彩色/图片背景上，磨砂半透明才可见 -->
+<!-- 玻璃需置于彩色/图片背景上，磨砂半透明才可见；档位与卡片同一套命名 -->
+<NeumorphismButton glass="float">Float</NeumorphismButton>
+<NeumorphismButton glass="raised">Raised</NeumorphismButton>
+<NeumorphismButton glass="pressed">Pressed</NeumorphismButton>
+
+<!-- 与 variant 正交：彩色玻璃 -->
+<NeumorphismButton glass="raised" variant="primary">Primary Glass</NeumorphismButton>
+
+<!-- 旧写法（等价于 glass="float" / glass="raised"），保持兼容 -->
 <NeumorphismButton variant="glass">Glass</NeumorphismButton>
 <NeumorphismButton variant="glass-raised">GlassRaised</NeumorphismButton>
 ```
@@ -123,19 +132,23 @@ app.use(NeumorphismUI, {
 
 raised 的全部行为 + 常驻 `0 0 12px` 主色辉光（30% 浓度），hover 辉光扩大到 `0 0 24px`、浓度 50%。
 
-### Glass（悬浮磨砂玻璃）
+### 玻璃拟态（glass，三档）
 
-表面为半透明磨砂玻璃（`--nm-glass-bg` 65% 透明表面色 + 20px backdrop-blur + 微亮描边），阴影是**大偏移的浮动投影**（`0 8px 24px` 环境阴影）而非新拟态双边阴影——物理含义是「离开表面的悬浮玻璃板」：
+玻璃**只替换表面材质**，与 `variant` 正交——`variant="primary" glass="raised"` 就是主色玻璃。材质统一为：`--nm-glass-bg` 半透明底 + `backdrop-filter: blur(--nm-glass-blur) saturate(1.15)` + `inset 0 0 0 1px` 高光内描边（内描边贴合圆角、不占布局），并加 `isolation: isolate` 让模糊只发生一次。
 
-| 状态   | 表现                                                                                    | 过渡         |
-| ------ | --------------------------------------------------------------------------------------- | ------------ |
-| 常态   | 磨砂表面 + `0 8px 24px` 浮动投影                                                        | 0.35s spring |
-| hover  | **上浮 3px**（全按钮最大抬升），投影扩大到 `0 14px 36px`，表面不透明度提高（65% → 75%） | 同上         |
-| active | 下压 1px，投影收缩到 `0 2px 8px`（越按越贴近表面），表面更透（55%）                     | 0.15s ease   |
+| 档位      | 阴影物理                                        | 状态表现                                                                                        |
+| --------- | ----------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| `float`   | 大偏移浮动投影 `0 8px 24px`（离开表面的玻璃板） | hover **上浮 3px** + 投影扩到 `0 14px 36px` + 表面 65%→75%；active 下压 1px、投影收缩、表面 55% |
+| `raised`  | 新拟态三凸面阴影（与 `raised` 同物理）          | hover 上浮 2px + 阴影加强一档 + 表面 75%；active 凹陷 inset + 表面 55%                          |
+| `pressed` | 新拟态凹陷 inset（与 `pressed` 同物理）         | hover 内阴影加深；active 更深（5px/10px）                                                       |
 
-### Glass-raised（凸面磨砂玻璃）
+迁移与优先级：
 
-与 raised **完全相同的凸面物理**（三层阴影、hover 上浮 2px、active 凹陷 inset），但表面替换为磨砂玻璃材质 + 18% 亮边描边；hover/active 时表面透明度同样随高度变化（75% / 55%）。
+- 旧 `variant="glass"` ≡ `glass="float"`、`variant="glass-raised"` ≡ `glass="raised"`，两者都由 `glassClassNames()` 生成同一组类名（`nm-button--glass` + `nm-button--glass-<档位>`），渲染结果与旧版一致
+- 优先级：显式 `glass` prop > 全局配置 `button.glass` > 旧 `variant` 的玻璃语义；`glass: false` 可显式关掉 `variant="glass"` 带来的玻璃
+- 档位阴影用双类选择器（`.nm-button--glass.nm-button--glass-raised`，特异性 0,2,0）压过 `.nm-button--raised` 等基础变体，不依赖样式表顺序
+- 玻璃按钮的 `:focus-visible` 改用 `outline` 焦点环（2px 主色 + 2px 偏移）——档位阴影覆盖了 `box-shadow`，用 outline 保证键盘焦点始终可见
+- 不支持 `backdrop-filter` 时退回 94% 不透明表面色，文字保持可读
 
 ### 加载态
 
@@ -154,6 +167,19 @@ raised 的全部行为 + 常驻 `0 0 12px` 主色辉光（30% 浓度），hover 
 - hover 位移类效果包在 `@media (hover: hover)` 内，触屏不触发悬停位移
 - 主题切换时背景色 / 阴影 / 文字色走 0.5s 平滑过渡（`nm-theme-transition`）
 - `prefers-reduced-motion: reduce` 时全部 transition / animation 移除（组件级 media query 块）
+
+---
+
+## example 中的展示 + 配置
+
+`examples/pages/ComponentsPage.vue` 的按钮区已重构为**预览 + 调参**工作台（与字符画区块同款结构）：
+
+- **左侧实时预览台**：单个按钮承载全部参数；台面可在「平面 / 彩色」间切换——玻璃档位只有在彩色背景上才看得出半透明与模糊
+- **右侧参数表单**：内容文本、`variant`、`glass`、`size`、`shape`、高度（28–64px）、`loading` / `disabled` 状态，外加「恢复默认 / 套用玻璃」两个动作
+- **实时代码片段**：面板底部按当前配置生成对应的 `<NeumorphismButton>` 片段（只列出非默认属性），可直接照抄
+- **变体一览**：8 格网格（4 个 `variant` + 3 个玻璃档位 + 1 个旧写法）各自渲染真实按钮，**点击即载入到上方预览**，当前配置对应的那一格高亮
+
+高度滑块会写到**当前尺寸档位**对应的 token 上（`--nm-button-*-sm/md/lg`）——否则切到 `small` / `large` 时滑块会静默失效。
 
 ---
 

@@ -11,6 +11,8 @@ export interface NeumorphismGlobalConfig {
     variant?: 'raised' | 'pressed'
     size?: 'small' | 'medium' | 'large'
     shape?: 'rounded' | 'pill' | 'circle'
+    /** 默认玻璃拟态档位：true / 'float' / 'raised' / 'pressed' */
+    glass?: boolean | 'float' | 'raised' | 'pressed'
   }
   /** Default input props applied to all NeumorphismInput instances */
   input?: {
@@ -131,6 +133,8 @@ export interface NeumorphismGlobalConfig {
   card?: {
     radius?: 'small' | 'medium' | 'large' | 'xl'
     hoverable?: boolean | 'bulge' | 'sink'
+    /** 默认玻璃拟态档位：true / 'float' / 'raised' / 'pressed' */
+    glass?: boolean | 'float' | 'raised' | 'pressed'
   }
   /** Default badge props */
   badge?: {
@@ -253,6 +257,16 @@ export interface NeumorphismGlobalConfig {
   art?: {
     effect?: 'pixel-field' | 'particles' | 'waves' | 'goo' | 'ascii'
     reactive?: boolean
+  }
+  /** Default graph view props */
+  graph?: {
+    nodeRadius?: number
+    linkDistance?: number
+    repulsion?: number
+    showLabels?: 'auto' | 'always' | 'hover'
+    showControls?: boolean
+    draggable?: boolean
+    highlightNeighbors?: boolean
   }
   /** Default alert props */
   alert?: {
