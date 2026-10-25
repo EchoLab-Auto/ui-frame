@@ -462,4 +462,49 @@ describe('MarkdownRenderer', () => {
     expect(wrapper.find('.doc-code-block').exists()).toBe(false)
     expect(wrapper.find('.doc-code-block-mount pre').exists()).toBe(false)
   })
+
+  // ── 数学公式（2026-10；见 ./math.ts） ────────────────────────────────
+  it('渲染行内公式：占位由延迟管线替换为 KaTeX 输出', async () => {
+    const wrapper = mountRenderer('能量守恒 $E=mc^2$ 成立')
+    await vi.waitFor(() => expect(wrapper.find('.katex').exists()).toBe(true))
+    const mount = wrapper.find('.md-math-mount')
+    expect(mount.attributes('data-math-state')).toBe('done')
+    // MathML 同步输出（屏幕阅读器 / 无字体环境）
+    expect(mount.find('.katex-mathml annotation').text()).toBe('E=mc^2')
+  })
+
+  it('渲染块级公式：独占一行的 $$…$$ 得到居中且可横向滚动的块', async () => {
+    const wrapper = mountRenderer('前文\n\n$$\n\\int_0^1 x\\,dx = \\frac{1}{2}\n$$\n\n后文')
+    await vi.waitFor(() => expect(wrapper.find('.katex-display').exists()).toBe(true))
+    const mount = wrapper.find('.md-math-mount--block')
+    expect(mount.exists()).toBe(true)
+    expect(mount.attributes('data-math-state')).toBe('done')
+    // 块级公式不与段落挤在同一行
+    expect(mount.element.tagName).toBe('DIV')
+  })
+
+  it('金额与行内代码不被误渲染成公式', async () => {
+    const wrapper = mountRenderer('这件 $199，代码里 `$a$` 也保持原样')
+    await nextTick()
+    await nextTick()
+    expect(wrapper.find('.md-math-mount').exists()).toBe(false)
+    expect(wrapper.find('code').text()).toBe('$a$')
+  })
+
+  it('内容更新后再次出现的公式仍会被渲染', async () => {
+    const wrapper = mountRenderer('$a$')
+    await vi.waitFor(() => expect(wrapper.find('.katex').exists()).toBe(true))
+
+    await wrapper.setProps({ content: '换成 $b^2$' })
+    await vi.waitFor(() => {
+      expect(wrapper.find('.md-math-mount').attributes('data-tex')).toBe('b^2')
+      expect(wrapper.find('.katex').exists()).toBe(true)
+    })
+  })
+
+  it('非法 TeX 降级为 KaTeX 错误样式，不影响同段其他内容', async () => {
+    const wrapper = mountRenderer('坏公式 $\\frac{a}{$ 后面还有正文')
+    await vi.waitFor(() => expect(wrapper.find('.katex-error').exists()).toBe(true))
+    expect(wrapper.text()).toContain('后面还有正文')
+  })
 })

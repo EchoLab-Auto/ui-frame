@@ -78,7 +78,7 @@ export default defineConfig({
       fileName: (format, entryName) => `${entryName}.js`,
     },
     rollupOptions: {
-      external: ['vue', 'marked', 'mermaid', 'dompurify'],
+      external: ['vue', 'marked', 'mermaid', 'dompurify', 'katex'],
       output: {
         exports: 'named',
         globals: {

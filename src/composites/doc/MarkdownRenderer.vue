@@ -13,7 +13,7 @@ import {
 } from 'vue'
 // TODO(perf): Change to dynamic import for lazy-loading (~40KB saving for non-doc consumers).
 // Requires refactoring extractToc + doRender + renderer setup to async patterns.
-import { marked } from 'marked'
+import { marked, Marked } from 'marked'
 import NeumorphismCard from '@/components/NeumorphismCard/NeumorphismCard.vue'
 import { escapeHtml } from '@/utils'
 import { useLocale } from '@/composables/useLocale'
@@ -23,6 +23,7 @@ import DocFlowCanvas from './DocFlowCanvas.vue'
 import { parseProDocFlow } from './flow-parser'
 import { useMarkdownToc } from './useMarkdownToc'
 import { useScrollSpy } from './useScrollSpy'
+import { mathExtensions, renderMath } from './math'
 import NeumorphismIcon from '@/components/NeumorphismIcon/NeumorphismIcon.vue'
 
 export type { TocNode } from './useMarkdownToc'
@@ -122,6 +123,17 @@ renderer.listitem = function (
   return `<li>${this.parser.parse(tokens)}</li>`
 }
 
+/**
+ * 独立解析器实例（2026-10 数学公式支持）。
+ *
+ * 数学扩展**不能**用 `marked.use()` 注册：那改动的是 marked 的全局单例，
+ * 会把 `$…$` 语法泄漏给本库其他消费方（`useMarkdownToc` 的 lexer、编辑器
+ * 预览等）。这里用私有实例，只让 Markdown 渲染走数学扩展，其余行为与
+ * 之前完全一致（gfm/breaks 仍在 parse 选项里显式给出）。
+ */
+const md = new Marked({ gfm: true, breaks: false })
+md.use({ extensions: mathExtensions })
+
 /** 渲染错误状态 */
 const renderError = ref<string | null>(null)
 
@@ -178,7 +190,7 @@ function doRender() {
       return `<h${depth} id="${id}"><a href="#" data-heading-id="${id}" class="heading-anchor" aria-hidden="true">#</a>${text}</h${depth}>`
     }
 
-    const raw = marked.parse(props.content, {
+    const raw = md.parse(props.content, {
       async: false,
       gfm: true,
       breaks: false,
@@ -275,6 +287,8 @@ function runPostRender(): void {
   renderMermaidDiagrams()
   mountFlowDiagrams()
   mountCodeBlocks()
+  // 公式：动态 import katex 后把占位替换成 KaTeX 输出（未装则保留 TeX 原文）
+  void renderMath(contentRef.value)
   cleanupUnclaimedBlocks()
 }
 
@@ -560,6 +574,59 @@ onBeforeUnmount(() => {
   line-height: 1.75;
   color: var(--nm-text-primary);
   font-size: var(--nm-font-lg);
+}
+
+/* ── 数学公式（KaTeX，可选依赖；见 ./math.ts） ─────────────────────────
+   占位元素在 katex 加载完成前显示 TeX 原文（`.md-math-src`），加载完成后
+   innerHTML 被替换成 KaTeX 输出。两条路径都必须：不撑破容器、长公式可
+   横向滚动（移动端尤其重要）、颜色继承正文（暗色主题无需另配）。 */
+.md-math-mount {
+  max-width: 100%;
+}
+
+.md-math-mount--block {
+  display: block;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 2px 0;
+  text-align: center;
+  /* 惯性滚动 + 触屏横向拖动（移动端长公式的唯一查看方式） */
+  -webkit-overflow-scrolling: touch;
+}
+
+/* 降级/加载中：以等宽字体原样显示 TeX 源码 */
+.md-math-src {
+  font-family: var(--nm-font-mono);
+  font-size: 0.92em;
+  color: var(--nm-text-secondary);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.neumorphism-markdown-content .katex {
+  /* 与正文同色（KaTeX 默认继承 color，这里显式声明以防宿主覆盖） */
+  color: inherit;
+  font-size: 1.05em;
+}
+
+.neumorphism-markdown-content .katex-display {
+  margin: var(--nm-spacing-sm) 0;
+  padding: 2px 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* KaTeX 默认 nowrap：允许在滚动容器内横向溢出而不是撑宽正文 */
+.neumorphism-markdown-content .katex-display > .katex {
+  white-space: nowrap;
+}
+
+/* 渲染失败（非法 TeX）时 katex 输出的红色原文 */
+.neumorphism-markdown-content .katex-error {
+  font-family: var(--nm-font-mono);
+  font-size: 0.92em;
+  word-break: break-word;
 }
 
 .neumorphism-markdown-content h1,

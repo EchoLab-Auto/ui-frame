@@ -73,6 +73,22 @@ export type { UseScrollSpyOptions, UseScrollSpyReturn } from './useScrollSpy'
 
 export { highlightCode } from './highlight'
 
+// === 数学公式（KaTeX，可选依赖；占位 → 挂载后延迟渲染） ===
+export {
+  mathExtensions,
+  renderMath,
+  stripMathDelimiters,
+  matchBlockDollar,
+  matchBlockBracket,
+  matchInlineDollar,
+  matchInlineDoubleDollar,
+  matchInlineBracket,
+  matchInlineParen,
+  MATH_MOUNT_CLASS,
+  MATH_SOURCE_CLASS,
+  MATH_STATE_ATTR,
+} from './math'
+
 // === 核心类型 ===
 export type { ProDocNode, DocTree, ProDocOptions } from './types.js'
 export type {
