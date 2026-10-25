@@ -24,9 +24,10 @@
  * | `\(…\)`         | 行内公式（LaTeX 习惯）|
  * | `\[…\]`         | 块级公式（LaTeX 习惯）|
  *
- * `$…$` 采用 KaTeX auto-render 的**保守**规则（`$` 后不接空白/数字、
- * 闭合 `$` 前不接空白、不跨行、不跨空行），因此 `$100 和 $200` 这类
- * 价格文本不会被误判成公式；写作中含真正的 `$` 时用 `\$` 转义。
+ * `$…$` 采用**保守**规则（起始 `$` 后不接空白、闭合 `$` 前不接空白、闭合
+ * `$` 后不接数字、不跨行、不跨空行），因此 `$100 和 $200`、`成本$199，售价$299`
+ * 这类价格文本不会被误判成公式；起始**可以是数字**（`$2^n$`、`$0.5$`、
+ * `$5\,\text{ms}$` 都要能用）。写作中含真正的 `$` 时用 `\$` 转义。
  * 代码块与行内代码里的 `$` 不受影响（marked 把它们作为整体 token 消费）。
  *
  * @module composites/doc/math
@@ -96,16 +97,27 @@ export function matchBlockBracket(src: string): MathMatch | null {
 /**
  * `$…$` 行内：KaTeX auto-render 的保守规则。
  *
- * - 起始 `$` 后不得紧跟空白或数字（否则 `$100` 这类价格会被吞）；
+ * - 起始 `$` 后不得紧跟空白（`$ a$` 不是公式）；
  * - 闭合 `$` 前不得是空白（`a $ 和 $ b` 不是公式）；
- * - 不跨行；
- * - 内容为空不算。
+ * - 闭合 `$` 后不得紧跟数字（`$5$6` 是两笔金额，不是公式）；
+ * - 内容里不得出现反引号或中文全角标点（`，。、；：！？…`）—— 见下；
+ * - 不跨行；内容为空不算。
+ *
+ * 起始数字**允许**：`$2^n$`、`$0.5$`、`$5\,\text{ms}$` 都是常见公式，早期
+ * 版本为躲价格而禁止"起始为数字"，代价是这些写法全部失效（实测踩到）。价格
+ * 场景由另两条规则覆盖 —— 「这件 $199，那件 $299」的候选闭合 `$` 前面是空格，
+ * 「成本$199，售价$299」的闭合 `$` 后面是数字，两者都不成立。
+ *
+ * 反引号/全角标点这条是**兜底启发式**，来自实测踩坑：句子先出现一个孤立的
+ * `$`（价格），紧接着才是行内代码 `` `$a$` `` 时，扫地会一路扫进代码里，
+ * 把「199，代码里 `」当成公式。TeX 里反引号与全角标点几乎不存在，据此拒绝
+ * 代价极小，却救回这类真实句子。
  */
 export function matchInlineDollar(src: string): MathMatch | null {
   if (src[0] !== '$' || src[1] === '$') return null
   const first = src[1]
   if (first === undefined) return null
-  if (/\s/.test(first) || /[0-9]/.test(first)) return null
+  if (/\s/.test(first)) return null
   for (let i = 1; i < src.length; i += 1) {
     const ch = src[i]
     // 反斜杠转义：跳过一个字符（`\$` 不算闭合定界符）
@@ -120,6 +132,8 @@ export function matchInlineDollar(src: string): MathMatch | null {
     if (/[0-9]/.test(src[i + 1] ?? '')) return null
     const tex = src.slice(1, i)
     if (!tex.trim()) return null
+    // 兜底启发式：TeX 里不会出现的字符 → 这是句子里的散落 `$`，不是公式
+    if (/[`，。、；：！？…]/.test(tex)) return null
     return { tex, raw: src.slice(0, i + 1) }
   }
   return null

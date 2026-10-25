@@ -84,7 +84,14 @@ describe('定界符匹配（边界规则）', () => {
       expect(matchInlineDollar('$a^2+b^2$')).toEqual({ tex: 'a^2+b^2', raw: '$a^2+b^2$' })
     })
 
-    it('起始 $ 后是数字 → 视为金额，不是公式', () => {
+    it('起始数字是合法公式（$2^n$ / $0.5$ / 带单位的量）', () => {
+      expect(matchInlineDollar('$2^n$')?.tex).toBe('2^n')
+      expect(matchInlineDollar('$0.5$')?.tex).toBe('0.5')
+      expect(matchInlineDollar('$5\\,\\text{ms}$')?.tex).toBe('5\\,\\text{ms}')
+    })
+
+    it('价格对不是公式：闭合 $ 前是空白（「$199，那件 $299」）', () => {
+      expect(matchInlineDollar('$199，那件 $299')).toBeNull()
       expect(matchInlineDollar('$100 和 $200')).toBeNull()
     })
 
@@ -198,6 +205,24 @@ describe('marked 扩展：公式 → 占位元素', () => {
     const el = host('**加粗中的 $x$ 公式**')
     const strong = el.querySelector('strong')
     expect(strong?.querySelector(`.${MATH_MOUNT_CLASS}`)).not.toBeNull()
+  })
+
+  it('价格后面紧跟行内代码（$199 … `$a$`）不会把代码扫进公式', () => {
+    // 实测踩坑：孤立的 $ 会一路扫进后面的行内代码，把「199，代码里 `」当公式
+    expect(mounts(host('这件 $199，代码里 `$a$` 也保持原样'))).toHaveLength(0)
+  })
+
+  it('真实价格文本（各种写法）都不产生公式', () => {
+    for (const text of [
+      '这件商品 $199，那件 $299，都不便宜',
+      '成本$199，售价$299',
+      '成本 $5 与 $6 之间',
+      '花了 $199 元',
+      '价格$100-$200',
+      '预算 $1,000,000 里花掉 $200,000',
+    ]) {
+      expect(mounts(host(text)), text).toHaveLength(0)
+    }
   })
 
   it('一段里的多个公式各占一个位置', () => {
