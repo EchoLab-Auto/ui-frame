@@ -451,9 +451,9 @@ export const demoCategories: DemoCategory[] = [
       },
       {
         id: 'ascii-art',
-        nav: '字符画 AsciiArt',
-        title: 'NeumorphismAsciiArt 字符画',
-        badge: '图片 → ASCII · 调参面板 · 实时预览',
+        nav: '图片蒙版 ImageMask',
+        title: 'NeumorphismAsciiArt 图片蒙版',
+        badge: '图片 → 点阵 · 字符画 / 波点两种蒙版 · 实时调参',
         full: true,
         component: AsciiArtDemo,
       },

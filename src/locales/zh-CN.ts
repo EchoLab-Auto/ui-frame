@@ -26,6 +26,7 @@ export const zhCN: LocaleMessages = {
   canvasLabel: '画布视口,方向键平移,加减键缩放,0 重置',
   artLabel: '动态效果画布',
   asciiArtLabel: '字符画',
+  dotArtLabel: '波点画',
 
   // GraphView
   graphLabel: '节点图：方向键切换节点，Enter 选中，加减键缩放，0 适应视图',

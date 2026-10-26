@@ -26,6 +26,7 @@ export const enUS: LocaleMessages = {
   canvasLabel: 'Canvas viewport, arrow keys to pan, plus/minus to zoom, 0 to reset',
   artLabel: 'Generative art canvas',
   asciiArtLabel: 'ASCII art',
+  dotArtLabel: 'Dot pattern',
 
   // GraphView
   graphLabel: 'Node graph: arrow keys to move selection, Enter to select, +/- to zoom, 0 to fit',

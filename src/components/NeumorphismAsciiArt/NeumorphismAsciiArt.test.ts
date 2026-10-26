@@ -108,6 +108,23 @@ describe('NeumorphismAsciiArt', () => {
     expect(nan.find('.nm-ascii-art').attributes('style')).toContain('border-radius: 24px')
   })
 
+  it('默认蒙版为字符画，无障碍名走字符画文案', () => {
+    const wrapper = mount(NeumorphismAsciiArt, { props: { src: '/t.jpg' } })
+    expect(wrapper.find('canvas').attributes('aria-label')).toBe('字符画')
+  })
+
+  it('mask="dots" 时无障碍名改为波点画（蒙版可切换）', () => {
+    const wrapper = mount(NeumorphismAsciiArt, { props: { src: '/t.jpg', mask: 'dots' } })
+    expect(wrapper.find('canvas').attributes('aria-label')).toBe('波点画')
+  })
+
+  it('显式 ariaLabel 优先于蒙版默认文案', () => {
+    const wrapper = mount(NeumorphismAsciiArt, {
+      props: { src: '/t.jpg', mask: 'dots', ariaLabel: '网点构成的人像' },
+    })
+    expect(wrapper.find('canvas').attributes('aria-label')).toBe('网点构成的人像')
+  })
+
   it('renders overlay slot', () => {
     const wrapper = mount(NeumorphismAsciiArt, {
       props: { src: '/test.jpg' },

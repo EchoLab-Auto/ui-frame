@@ -2,13 +2,37 @@
 import { computed, ref, watch } from 'vue'
 import { useArtRenderer } from '@/composables/useArtRenderer'
 import { useLocale } from '@/composables/useLocale'
+import type { ArtMaskName } from '@/components/NeumorphismArt/effects'
+import {
+  DEFAULT_DOT_MAX,
+  DEFAULT_DOT_MIN,
+  DEFAULT_OCCUPANCY,
+} from '@/components/NeumorphismArt/effects/masks'
+
+/** 图片蒙版：把图片按亮度重绘成什么点阵 */
+export type AsciiArtMask = ArtMaskName
 
 /** @deprecated 旧圆角档位（字符串）——保留仅为兼容映射，新代码请传数字（px） */
 export type AsciiArtRadius = 'none' | 'small' | 'medium' | 'large' | 'xl'
 
 export interface NeumorphismAsciiArtProps {
-  /** Image source rendered as ASCII art (required) */
+  /** Image source to render as a luminance mask (required) */
   src: string
+  /**
+   * 图片蒙版：把图片按亮度重绘成什么点阵。
+   * - `ascii`（默认）：字符梯度 ` .·:-=+*#%@`
+   * - `dots`：波点（半调网点，直径随亮度连续变化）
+   */
+  mask?: AsciiArtMask
+  /** 波点蒙版：暗部波点直径（px） */
+  dotMin?: number
+  /** 波点蒙版：亮部波点直径（px） */
+  dotMax?: number
+  /**
+   * 波点蒙版：网格占用——最大波点直径占单元格边长的比例。
+   * `1` = 最亮处波点相切；`0.5` = 只占半格（稀疏网格）。栅格步长 = `dotMax / occupancy`。
+   */
+  occupancy?: number
   /** Density multiplier of the character grid */
   density?: number
   /** Container width (CSS value or px number); default 100% */
@@ -33,6 +57,10 @@ export interface NeumorphismAsciiArtProps {
 }
 
 const props = withDefaults(defineProps<NeumorphismAsciiArtProps>(), {
+  mask: 'ascii',
+  dotMin: DEFAULT_DOT_MIN,
+  dotMax: DEFAULT_DOT_MAX,
+  occupancy: DEFAULT_OCCUPANCY,
   density: 1,
   reactive: false,
   speed: 1,
@@ -91,12 +119,18 @@ useArtRenderer({
   palette: computed(() => props.palette),
   seed: computed(() => undefined),
   src: computed(() => props.src),
+  mask: computed(() => props.mask),
+  dotMin: computed(() => props.dotMin),
+  dotMax: computed(() => props.dotMax),
+  occupancy: computed(() => props.occupancy),
   // 呼吸流光为低频缓动：30fps 上限于观感无差别，空闲常驻开销减半
   // （指针交互中不节流，滚动期间与视口外由 useArtRenderer 自动停摆）
   idleFps: 30,
 })
 
-const resolvedAriaLabel = computed(() => props.ariaLabel || t('asciiArtLabel'))
+const resolvedAriaLabel = computed(
+  () => props.ariaLabel || t(props.mask === 'dots' ? 'dotArtLabel' : 'asciiArtLabel')
+)
 
 function toCssLength(v: string | number): string {
   return typeof v === 'number' ? `${v}px` : v

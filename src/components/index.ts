@@ -169,7 +169,7 @@ export { default as NeumorphismArt } from './NeumorphismArt'
 export type { NeumorphismArtProps, ArtEffectName } from './NeumorphismArt'
 
 export { default as NeumorphismAsciiArt } from './NeumorphismAsciiArt'
-export type { NeumorphismAsciiArtProps, AsciiArtRadius } from './NeumorphismAsciiArt'
+export type { NeumorphismAsciiArtProps, AsciiArtMask, AsciiArtRadius } from './NeumorphismAsciiArt'
 
 export { default as NeumorphismPixelFont } from './NeumorphismPixelFont'
 export type { NeumorphismPixelFontProps, PixelFontAlign } from './NeumorphismPixelFont'

@@ -1,6 +1,11 @@
 import { onBeforeUnmount, watch, type Ref } from 'vue'
 import { useReducedMotion } from './useReducedMotion'
-import { ART_EFFECTS, type ArtEffectName, type ArtState } from '@/components/NeumorphismArt/effects'
+import {
+  ART_EFFECTS,
+  type ArtEffectName,
+  type ArtMaskName,
+  type ArtState,
+} from '@/components/NeumorphismArt/effects'
 
 export interface UseArtRendererOptions {
   /** 目标 canvas 元素 */
@@ -12,8 +17,15 @@ export interface UseArtRendererOptions {
   /** 自定义配色；undefined 时从主题 token 读取 */
   palette: Ref<string[] | undefined>
   seed: Ref<number | undefined>
-  /** 图片资源地址（图片类效果使用，如字符画） */
+  /** 图片资源地址（图片类效果使用，如字符画 / 波点） */
   src: Ref<string | undefined>
+  /** 图片蒙版（图片类效果使用）；缺省由效果决定 */
+  mask?: Ref<ArtMaskName | undefined>
+  /** 波点蒙版：暗部 / 亮部波点直径（px） */
+  dotMin?: Ref<number | undefined>
+  dotMax?: Ref<number | undefined>
+  /** 波点蒙版：网格占用（最大波点直径 / 单元格边长） */
+  occupancy?: Ref<number | undefined>
   /**
    * 指针未激活时的帧率上限（如字符画这类「缓慢呼吸」的低动态效果用 30 即可，
    * 主线程常驻成本减半、观感无差别）。指针交互中不节流（跟手）。
@@ -87,6 +99,10 @@ export function useArtRenderer(opts: UseArtRendererOptions) {
     reactive: false,
     seed: 1,
     src: undefined,
+    mask: undefined,
+    dotMin: undefined,
+    dotMax: undefined,
+    occupancy: undefined,
     pointer: { x: 0, y: 0, active: false },
     data: null,
   }
@@ -113,6 +129,10 @@ export function useArtRenderer(opts: UseArtRendererOptions) {
     state.reactive = opts.reactive.value && !isCoarsePointer && !isReducedMotion.value
     state.seed = opts.seed.value ?? Math.floor(Math.random() * 0xffffffff)
     state.src = opts.src.value
+    state.mask = opts.mask?.value
+    state.dotMin = opts.dotMin?.value
+    state.dotMax = opts.dotMax?.value
+    state.occupancy = opts.occupancy?.value
     if (opts.palette.value?.length) state.palette = opts.palette.value
     const effect = currentEffect()
     effect.init(state)
@@ -269,10 +289,23 @@ export function useArtRenderer(opts: UseArtRendererOptions) {
   )
 
   // 参数变化：重初始化并（静态模式下）补绘一帧
-  watch([opts.effect, opts.density, opts.seed, opts.src], () => {
-    if (!opts.canvas.value) return
-    initEffect()
-  })
+  watch(
+    [
+      opts.effect,
+      opts.density,
+      opts.seed,
+      opts.src,
+      // 蒙版与波点几何变化同样需要重建 data（栅格尺寸/图案类型都变了）
+      () => opts.mask?.value,
+      () => opts.dotMin?.value,
+      () => opts.dotMax?.value,
+      () => opts.occupancy?.value,
+    ],
+    () => {
+      if (!opts.canvas.value) return
+      initEffect()
+    }
+  )
   watch(opts.palette, () => {
     const el = opts.canvas.value
     if (!el) return

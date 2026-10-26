@@ -4,15 +4,22 @@ import { DemoPlayground, DemoField } from '../../demo'
 import artImage from '../../assets/images.jpeg'
 
 /**
- * 字符画（NeumorphismAsciiArt）：图片 → ASCII 栅格的调参面板。
+ * 图片蒙版（NeumorphismAsciiArt）：图片 → 点阵的调参面板。
  *
- * 参数全部搬进配置台（密度 / 速度 / 指针交互 / 圆角 / 尺寸模式 / 宽高 /
- * 配色 / 无障碍名），预览区实时跟随；尺寸模式的文案原样保留，与旧演示一致。
+ * 蒙版只是「每格画什么」：字符画是字符梯度，波点是半调网点。
+ * 采样、适配、呼吸、指针全部共用一条管线，所以切换蒙版时只有图案变。
  */
+type AsciiMaskName = 'ascii' | 'dots'
 type AsciiSizeMode = 'auto' | 'fixed'
 type AsciiPaletteName = 'theme' | 'warm' | 'cool'
 
 // ---- 配置台状态（沿用原页面命名，便于与旧演示逐项对照）----
+const asciiMask = ref<AsciiMaskName>('ascii')
+/** 波点直径（px）：暗部 → 亮部，规格直接是像素，不经档位换算 */
+const asciiDotMin = ref(1)
+const asciiDotMax = ref(8)
+/** 网格占用：最大波点直径 / 单元格边长；1 = 最亮处波点相切 */
+const asciiOccupancy = ref(0.92)
 const asciiDensity = ref(1.2)
 const asciiSpeed = ref(1)
 const asciiReactive = ref(true)
@@ -27,8 +34,13 @@ const asciiPalette = computed(() => {
   if (asciiPaletteName.value === 'cool') return ['#48dbfb', '#54a0ff', '#5f27cd']
   return undefined
 })
-const asciiAriaLabel = ref('字符画')
+// 留空 = 用组件内置默认（随蒙版取「字符画」/「波点画」）
+const asciiAriaLabel = ref('')
 
+const asciiMaskOptions: { label: string; value: AsciiMaskName }[] = [
+  { label: '字符画', value: 'ascii' },
+  { label: '波点', value: 'dots' },
+]
 const asciiSizeOptions: { label: string; value: AsciiSizeMode }[] = [
   { label: '自适应', value: 'auto' },
   { label: '固定尺寸', value: 'fixed' },
@@ -46,6 +58,12 @@ const labelWidth = '96px'
 const snippet = computed(() => {
   // src 是必填项，其它属性只在偏离内置默认时才写出来
   const attrs: string[] = ['src="/images/poster.jpeg"']
+  if (asciiMask.value !== 'ascii') attrs.push(`mask="${asciiMask.value}"`)
+  if (asciiMask.value === 'dots') {
+    if (asciiDotMin.value !== 1) attrs.push(`:dot-min="${asciiDotMin.value.toFixed(1)}"`)
+    if (asciiDotMax.value !== 8) attrs.push(`:dot-max="${asciiDotMax.value.toFixed(1)}"`)
+    if (asciiOccupancy.value !== 0.92) attrs.push(`:occupancy="${asciiOccupancy.value.toFixed(2)}"`)
+  }
   if (asciiDensity.value !== 1) attrs.push(`:density="${asciiDensity.value.toFixed(1)}"`)
   if (asciiSpeed.value !== 1) attrs.push(`:speed="${asciiSpeed.value.toFixed(1)}"`)
   if (asciiReactive.value) attrs.push('reactive')
@@ -74,6 +92,10 @@ const snippet = computed(() => {
       <div style="width: 100%; max-width: 400px">
         <NeumorphismAsciiArt
           :src="artImage"
+          :mask="asciiMask"
+          :dot-min="asciiDotMin"
+          :dot-max="asciiDotMax"
+          :occupancy="asciiOccupancy"
           :density="asciiDensity"
           :speed="asciiSpeed"
           :reactive="asciiReactive"
@@ -86,6 +108,13 @@ const snippet = computed(() => {
       </div>
 
       <template #spec>
+        mask=<b>{{ asciiMask }}</b> ·
+        <template v-if="asciiMask === 'dots'">
+          dot=<b>{{ asciiDotMin.toFixed(1) }}–{{ asciiDotMax.toFixed(1) }}px</b> · occupancy=<b>{{
+            asciiOccupancy.toFixed(2)
+          }}</b>
+          ·
+        </template>
         density=<b>{{ asciiDensity.toFixed(1) }}</b> · speed=<b>{{ asciiSpeed.toFixed(1) }}</b> ·
         reactive=<b>{{ asciiReactive ? 'on' : 'off' }}</b> · radius=<b>{{ asciiRadius }}px</b>
       </template>
@@ -99,6 +128,46 @@ const snippet = computed(() => {
       </template>
 
       <template #config>
+        <DemoField label="蒙版 mask" :label-width="labelWidth">
+          <NeumorphismSegmented v-model="asciiMask" :options="asciiMaskOptions" size="small" />
+        </DemoField>
+
+        <!-- 波点专属：直径与网格占用；字符画下不显示（调了也不生效） -->
+        <template v-if="asciiMask === 'dots'">
+          <DemoField
+            label="点径 dotMin"
+            :value="`${asciiDotMin.toFixed(1)}px`"
+            :label-width="labelWidth"
+            grow
+          >
+            <NeumorphismSlider v-model="asciiDotMin" :min="0" :max="6" :step="0.5" size="small" />
+          </DemoField>
+
+          <DemoField
+            label="点径 dotMax"
+            :value="`${asciiDotMax.toFixed(1)}px`"
+            :label-width="labelWidth"
+            grow
+          >
+            <NeumorphismSlider v-model="asciiDotMax" :min="2" :max="24" :step="0.5" size="small" />
+          </DemoField>
+
+          <DemoField
+            label="网格占用"
+            :value="asciiOccupancy.toFixed(2)"
+            :label-width="labelWidth"
+            grow
+          >
+            <NeumorphismSlider
+              v-model="asciiOccupancy"
+              :min="0.2"
+              :max="1.2"
+              :step="0.02"
+              size="small"
+            />
+          </DemoField>
+        </template>
+
         <DemoField
           label="密度 density"
           :value="asciiDensity.toFixed(1)"
@@ -149,7 +218,7 @@ const snippet = computed(() => {
           />
         </DemoField>
 
-        <DemoField label="无障碍 ariaLabel" :label-width="labelWidth" grow>
+        <DemoField label="ariaLabel（空=默认）" :label-width="labelWidth" grow>
           <NeumorphismInput v-model="asciiAriaLabel" size="small" />
         </DemoField>
       </template>

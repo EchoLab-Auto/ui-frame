@@ -1442,22 +1442,29 @@ interface TreeNodeData {
 
 #### NeumorphismAsciiArt
 
+> 图片蒙版组件：把图片按亮度重绘成点阵。`mask` 决定「每格画什么」——
+> 字符画（`ascii`）与波点（`dots`）共用同一条采样管线。
+
 ```ts
 import { NeumorphismAsciiArt } from '@echolab-auto/ui-frame'
-import type { NeumorphismAsciiArtProps } from '@echolab-auto/ui-frame'
+import type { NeumorphismAsciiArtProps, AsciiArtMask } from '@echolab-auto/ui-frame'
 ```
 
-| Props     | Type                                               | Default                | Description                        |
-| --------- | -------------------------------------------------- | ---------------------- | ---------------------------------- |
-| src       | `string`                                           | **必填**               | 图片地址（渲染为 ASCII 字符画）    |
-| density   | `number`                                           | `1`                    | 字符栅格密度倍率                   |
-| width     | `string \| number`                                 | `'100%'`               | 容器宽度                           |
-| height    | `string \| number`                                 | —（自适应）            | 容器高度；留空按图片宽高比自动定高 |
-| radius    | `'none' \| 'small' \| 'medium' \| 'large' \| 'xl'` | `'large'`              | 容器圆角档位（`none` 为直角）      |
-| reactive  | `boolean`                                          | `false`                | 指针交互（字符提亮放大）           |
-| speed     | `number`                                           | `1`                    | 呼吸流光速度倍率                   |
-| palette   | `string[]`                                         | 主题 token             | 自定义配色                         |
-| ariaLabel | `string`                                           | locale `asciiArtLabel` | 无障碍名称（`role="img"`）         |
+| Props     | Type                | Default                                | Description                                                                      |
+| --------- | ------------------- | -------------------------------------- | -------------------------------------------------------------------------------- |
+| src       | `string`            | **必填**                               | 图片地址（按亮度重绘为蒙版点阵）                                                 |
+| mask      | `'ascii' \| 'dots'` | `'ascii'`                              | 图片蒙版：字符画 / 波点                                                          |
+| dotMin    | `number`            | `1`                                    | 波点蒙版：暗部波点直径（px）                                                     |
+| dotMax    | `number`            | `8`                                    | 波点蒙版：亮部波点直径（px）                                                     |
+| occupancy | `number`            | `0.92`                                 | 波点蒙版：网格占用（最大波点直径 / 单元格边长），栅格步长 = `dotMax / occupancy` |
+| density   | `number`            | `1`                                    | 精细度倍率（字符画为字符栅格密度；波点为整体同比缩放）                           |
+| width     | `string \| number`  | `'100%'`                               | 容器宽度                                                                         |
+| height    | `string \| number`  | —（自适应）                            | 容器高度；留空按图片宽高比自动定高                                               |
+| radius    | `number`            | `24`                                   | 容器圆角半径（px，直接写像素值；`0` 为直角）                                     |
+| reactive  | `boolean`           | `false`                                | 指针交互（指针附近笔画/波点提亮增大）                                            |
+| speed     | `number`            | `1`                                    | 呼吸流光速度倍率                                                                 |
+| palette   | `string[]`          | 主题 token                             | 自定义配色                                                                       |
+| ariaLabel | `string`            | locale `asciiArtLabel` / `dotArtLabel` | 无障碍名称（`role="img"`）；随 `mask` 取默认值                                   |
 
 **Slots:** 默认插槽（覆盖层内容，不响应指针）
 
