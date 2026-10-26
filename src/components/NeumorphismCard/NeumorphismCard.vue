@@ -43,8 +43,14 @@ export interface NeumorphismCardProps {
   variant?: CardVariant
   /** @deprecated Use `elevation` magnitude (1–4) instead. */
   depth?: CardDepth
-  /** Border radius level */
-  radius?: 'small' | 'medium' | 'large' | 'xl'
+  /**
+   * 圆角半径（px，直接就是像素值）。
+   *
+   * 例：`0` 直角、`8` 紧凑、`24`（默认）、`40` 胶囊感。
+   * 支持全局配置 `card.radius` 级联；组件把它写到 `--nm-card-radius`，样式侧
+   * 消费该变量，所以消费方也能用 CSS 覆盖（见 `.nm-card` 规则）。
+   */
+  radius?: number
   /** Whether the card has no padding */
   noPadding?: boolean
   /**
@@ -116,7 +122,19 @@ const props = withDefaults(defineProps<NeumorphismCardProps>(), {
 
 const { config, resolveProp } = useNeumorphismSetup()
 
-const resolvedRadius = computed(() => resolveProp(props.radius, config.value.card?.radius, 'large'))
+/** 默认圆角（px）——等价于原先的 `'large'` 档（`--nm-border-radius-lg` = 24px） */
+const DEFAULT_RADIUS = 24
+
+/**
+ * 圆角（px）：`prop` → 全局配置 `card.radius` → 24 逐级兜底。
+ *
+ * 负值在 CSS 里是非法值（整条 `border-radius` 声明会被丢弃），`NaN` 更会直接
+ * 拼出 `NaNpx`；这里统一夹到 0 / 退回默认，让「传错值」的表现可预期而不是玄学。
+ */
+const resolvedRadius = computed(() => {
+  const px = resolveProp(props.radius, config.value.card?.radius, DEFAULT_RADIUS)
+  return Number.isFinite(px) ? Math.max(0, px) : DEFAULT_RADIUS
+})
 /** `true` 归一为 `'float'`（旧布尔语义的等价档） */
 const resolvedGlass = computed<CardGlass | false>(() =>
   normalizeGlass(resolveProp(props.glass, config.value.card?.glass, undefined))
@@ -140,25 +158,30 @@ const elevation = computed<number>(() => {
 const DEFAULT_SQUIRCLE_EXPONENT = 2.5
 
 const rootRef = ref<HTMLElement | null>(null)
-/** 实测盒尺寸 + 生效圆角（圆角读一次缓存住，见 measure 里的注释） */
+/** 实测盒尺寸 + 生效圆角（圆角的取法见 measure） */
 const box = ref({ width: 0, height: 0, radius: 0 })
 
 const squircleEnabled = computed(() => props.squircle !== false && props.squircle !== undefined)
 
 /**
- * 量尺寸与生效圆角。
+ * 量盒尺寸与"生效圆角"。
  *
- * 圆角为什么"缓存"：开启轮廓后我们会把 `border-radius` 置 0（clip 与圆角取交集，
- * 留着会把超椭圆又裁回圆角矩形），而那时 computed style 读到的就是 0 —— 若照单
- * 全收，下一次尺寸变化就会把半径算成 0、轮廓消失。所以读到的 0 视为"自己清零的"，
- * 保留上一次的非零值。
+ * 圆角优先读计算值 —— 消费方可能用更高特异性的选择器覆盖 `border-radius`
+ * （`.wrap .nm-card { border-radius: 12px }`），轮廓得跟着那条曲线走。
+ *
+ * 读不到（0）时不是"缓存上一次"，而是退回组件自己持有的 `radius`：开启轮廓后
+ * 我们会把 `border-radius` 置 0（clip 与圆角取交集，留着会把超椭圆又裁回圆角
+ * 矩形），此时计算值 0 表达的是"我们自己清零了"，不是真实意图。
+ *
+ * 早先这里缓存过上一次的非零值，那是 `radius` 还是离散档位的年代的权宜之计；
+ * 现在 `radius` 是连续数字（滑块可以实时拖），缓存只会让"改成 0"失灵。
  */
 function measure(): void {
   const el = rootRef.value
   if (!el || typeof window === 'undefined') return
   const rect = el.getBoundingClientRect()
   const rawRadius = Number.parseFloat(getComputedStyle(el).borderTopLeftRadius) || 0
-  const radius = rawRadius > 0 ? rawRadius : box.value.radius
+  const radius = rawRadius > 0 ? rawRadius : resolvedRadius.value
   if (
     box.value.width !== rect.width ||
     box.value.height !== rect.height ||
@@ -181,16 +204,20 @@ const clipValue = computed<string | undefined>(() => {
 })
 
 /**
- * 轮廓通过 **CSS 自定义属性** 下发（`--nm-card-clip`），而不是直接写内联
- * `clip-path`：
- * - 内联 `clip-path: path("…")` 在 jsdom 里会被 cssstyle 的值校验丢掉，
- *   组件行为就没法测；自定义属性存得住。
- * - 消费方也能在样式表里覆盖（例如换成 `polygon()` 做调试）。
- * 样式侧见 `.nm-card { clip-path: var(--nm-card-clip, none) }`。
+ * 根节点的内联自定义属性：
+ * - `--nm-card-clip`：超椭圆 / 自定义轮廓（见上）。
+ * - `--nm-card-radius`：圆角半径（px）。走变量而不是直接写 `border-radius`，
+ *   是为了让「轮廓开启时强制圆角归零」的 `!important` 规则继续成立，也让消费方
+ *   仍可在样式表里整体覆盖圆角（`.wrap .nm-card { border-radius: … }`）。
+ * 样式侧见 `.nm-card { border-radius: var(--nm-card-radius, 24px) }`。
  */
-const rootStyle = computed(() =>
-  clipValue.value ? { '--nm-card-clip': clipValue.value } : undefined
-)
+const rootStyle = computed(() => {
+  const style: Record<string, string> = {
+    '--nm-card-radius': `${resolvedRadius.value}px`,
+  }
+  if (clipValue.value) style['--nm-card-clip'] = clipValue.value
+  return style
+})
 
 let observer: ResizeObserver | null = null
 
@@ -224,10 +251,25 @@ watch(squircleEnabled, on => {
   }
 })
 
+/**
+ * 半径变化也要重测。
+ *
+ * `ResizeObserver` 只盯盒子尺寸：改 `radius` 时盒尺寸不变，不会触发回调，轮廓
+ * 就停在首次测量出来的那个半径上 —— 也就是「拖半径、轮廓不动」。半径已是连续
+ * 的 px 值（滑块实时改它），这个坑比档位时代明显得多。
+ * `flush: 'post'`：等组件把新的 `--nm-card-radius` 写进 DOM 之后再读计算值。
+ */
+watch(
+  resolvedRadius,
+  () => {
+    if (squircleEnabled.value) measure()
+  },
+  { flush: 'post' }
+)
+
 const classList = computed(() => [
   'nm-card',
   `nm-card--elevation-${elevation.value}`,
-  `nm-card--radius-${resolvedRadius.value}`,
   {
     ...Object.fromEntries(glassClassNames('nm-card', resolvedGlass.value).map(c => [c, true])),
     'nm-card--no-padding': props.noPadding,
@@ -328,26 +370,15 @@ $elevation-shadows: (
 // ============================================================
 .nm-card {
   background-color: var(--nm-surface-color);
+  /* 圆角（px）：组件把 `radius` 写到这个自定义属性，此处取用。
+     兜底 24px 对应组件默认值，防止有人把变量清空后圆角消失。 */
+  border-radius: var(--nm-card-radius, 24px);
   /* 超椭圆轮廓（可选）：组件把 `path("…")` 写进这个自定义属性；
      未启用时 var 取兜底 none，等价于没有 clip。 */
   clip-path: var(--nm-card-clip, none);
   color: var(--nm-text-primary);
   overflow: hidden;
   @include nm-theme-transition;
-}
-
-// ---------- Radius ----------
-.nm-card--radius-small {
-  border-radius: var(--nm-border-radius-sm);
-}
-.nm-card--radius-medium {
-  border-radius: var(--nm-border-radius-md);
-}
-.nm-card--radius-large {
-  border-radius: var(--nm-border-radius-lg);
-}
-.nm-card--radius-xl {
-  border-radius: var(--nm-border-radius-xl);
 }
 
 // ---------- 超椭圆轮廓 ----------

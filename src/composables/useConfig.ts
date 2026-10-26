@@ -133,7 +133,8 @@ export interface NeumorphismGlobalConfig {
   }
   /** Default card props */
   card?: {
-    radius?: 'small' | 'medium' | 'large' | 'xl'
+    /** 默认圆角（px），如 `0` / `8` / `24` */
+    radius?: number
     hoverable?: boolean | 'bulge' | 'sink'
     /** 默认玻璃拟态档位：true / 'float' / 'raised' / 'pressed' */
     glass?: boolean | 'float' | 'raised' | 'pressed'

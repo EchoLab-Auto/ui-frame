@@ -9,7 +9,7 @@ describe('NeumorphismCard', () => {
     const wrapper = mount(NeumorphismCard, { slots: { default: 'Content' } })
     expect(wrapper.classes()).toContain('nm-card')
     expect(wrapper.classes()).toContain('nm-card--elevation-2')
-    expect(wrapper.classes()).toContain('nm-card--radius-large')
+    expect(wrapper.attributes('style')).toContain('--nm-card-radius: 24px')
     expect(wrapper.text()).toBe('Content')
   })
 
@@ -20,12 +20,45 @@ describe('NeumorphismCard', () => {
     }
   })
 
-  it('should apply radius classes', () => {
-    const radii = ['small', 'medium', 'large', 'xl'] as const
-    for (const radius of radii) {
+  it('radius 是 px 数字，写到 --nm-card-radius 自定义属性', () => {
+    for (const radius of [0, 4, 12, 24, 40]) {
       const wrapper = mount(NeumorphismCard, { props: { radius } })
-      expect(wrapper.classes()).toContain(`nm-card--radius-${radius}`)
+      expect(wrapper.attributes('style')).toContain(`--nm-card-radius: ${radius}px`)
     }
+  })
+
+  it('radius: 小数也按 px 原样下发', () => {
+    const wrapper = mount(NeumorphismCard, { props: { radius: 7.5 } })
+    expect(wrapper.attributes('style')).toContain('--nm-card-radius: 7.5px')
+  })
+
+  it('radius: 走全局配置 card.radius 级联', () => {
+    const wrapper = mount(NeumorphismCard, {
+      global: {
+        provide: { [ConfigKey as symbol]: computed(() => ({ card: { radius: 8 } })) },
+      },
+    })
+    expect(wrapper.attributes('style')).toContain('--nm-card-radius: 8px')
+  })
+
+  it('radius: prop 优先于全局配置', () => {
+    const wrapper = mount(NeumorphismCard, {
+      props: { radius: 40 },
+      global: {
+        provide: { [ConfigKey as symbol]: computed(() => ({ card: { radius: 8 } })) },
+      },
+    })
+    expect(wrapper.attributes('style')).toContain('--nm-card-radius: 40px')
+  })
+
+  it('radius: 负值夹到 0（CSS 不接受负圆角）', () => {
+    const wrapper = mount(NeumorphismCard, { props: { radius: -8 } })
+    expect(wrapper.attributes('style')).toContain('--nm-card-radius: 0px')
+  })
+
+  it('radius: NaN 退回默认 24', () => {
+    const wrapper = mount(NeumorphismCard, { props: { radius: Number.NaN } })
+    expect(wrapper.attributes('style')).toContain('--nm-card-radius: 24px')
   })
 
   it('should apply no-padding class', () => {
@@ -292,5 +325,42 @@ describe('NeumorphismCard — 超椭圆轮廓（squircle / clipPath）', () => {
     await nextTick()
     expect(clipOf(wrapper)).toBe('')
     expect(wrapper.classes()).not.toContain('nm-card--clipped')
+  })
+
+  it('radius 变化后重测，轮廓跟着改（滑块能实时拖半径）', async () => {
+    // 桩：圆角读的是元素内联的 --nm-card-radius，模拟真实浏览器里
+    // `border-radius: var(--nm-card-radius)` 解析出的计算值
+    vi.spyOn(Element.prototype, 'getBoundingClientRect').mockReturnValue({
+      width: 200,
+      height: 120,
+      top: 0,
+      left: 0,
+      right: 200,
+      bottom: 120,
+      x: 0,
+      y: 0,
+      toJSON: () => ({}),
+    } as DOMRect)
+    vi.spyOn(window, 'getComputedStyle').mockImplementation(
+      el =>
+        ({
+          borderTopLeftRadius:
+            (el as HTMLElement).style.getPropertyValue('--nm-card-radius') || '0px',
+        }) as CSSStyleDeclaration
+    )
+
+    const wrapper = mount(NeumorphismCard, { props: { squircle: true, radius: 16 } })
+    await nextTick()
+    // 首点的 y 就是生效半径
+    expect(nums(clipOf(wrapper))[1]).toBeCloseTo(16, 1)
+
+    await wrapper.setProps({ radius: 40 })
+    await nextTick()
+    expect(nums(clipOf(wrapper))[1]).toBeCloseTo(40, 1)
+
+    // 归零：半径 < 0.5 不再画轮廓（此时 border-radius 被强制 0，缓存也不该自杀）
+    await wrapper.setProps({ radius: 0 })
+    await nextTick()
+    expect(clipOf(wrapper)).toBe('')
   })
 })

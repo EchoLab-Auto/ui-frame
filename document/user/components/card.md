@@ -23,17 +23,19 @@ group: 使用
 
 ### Props
 
-| 名称        | 类型                                             | 默认值    | 说明                                                                                       |
-| ----------- | ------------------------------------------------ | --------- | ------------------------------------------------------------------------------------------ |
-| `elevation` | `number`                                         | `2`       | 台阶高度：正=凸起、负=凹陷、0=平齐，绝对值 1~4 控制阴影强度                                |
-| `hoverable` | `boolean \| 'bulge' \| 'sink'`                   | `false`   | 悬停动效：`true`/`'bulge'` 向外膨起，`'sink'` 向内下沉，支持全局配置 `card.hoverable` 级联 |
-| `radius`    | `'small' \| 'medium' \| 'large' \| 'xl'`         | `'large'` | 圆角档位，支持 `card.radius` 级联                                                          |
-| `noPadding` | `boolean`                                        | `false`   | 移除 header / body / footer 的内边距                                                       |
-| `glass`     | `boolean \| 'float' \| 'raised' \| 'pressed'`    | `false`   | 毛玻璃变体档位，支持全局配置 `card.glass` 级联；`true` 等价 `'float'`                      |
-| `variant`   | `'raised' \| 'pressed'`                          | —         | 已废弃，请用 `elevation` 正负号代替                                                        |
-| `depth`     | `'shallow' \| 'medium' \| 'deep' \| 'very-deep'` | —         | 已废弃，请用 `elevation` 绝对值（1~4）代替                                                 |
+| 名称        | 类型                                             | 默认值  | 说明                                                                                       |
+| ----------- | ------------------------------------------------ | ------- | ------------------------------------------------------------------------------------------ |
+| `elevation` | `number`                                         | `2`     | 台阶高度：正=凸起、负=凹陷、0=平齐，绝对值 1~4 控制阴影强度                                |
+| `hoverable` | `boolean \| 'bulge' \| 'sink'`                   | `false` | 悬停动效：`true`/`'bulge'` 向外膨起，`'sink'` 向内下沉，支持全局配置 `card.hoverable` 级联 |
+| `radius`    | `number`                                         | `24`    | 圆角半径（px，直接写像素值，如 `8` / `16` / `32`），支持 `card.radius` 级联                |
+| `noPadding` | `boolean`                                        | `false` | 移除 header / body / footer 的内边距                                                       |
+| `glass`     | `boolean \| 'float' \| 'raised' \| 'pressed'`    | `false` | 毛玻璃变体档位，支持全局配置 `card.glass` 级联；`true` 等价 `'float'`                      |
+| `variant`   | `'raised' \| 'pressed'`                          | —       | 已废弃，请用 `elevation` 正负号代替                                                        |
+| `depth`     | `'shallow' \| 'medium' \| 'deep' \| 'very-deep'` | —       | 已废弃，请用 `elevation` 绝对值（1~4）代替                                                 |
 
 兼容映射：未传 `elevation` 时按 `variant + depth` 折算——`depth` 映射强度（shallow=1 / medium=2 / deep=3 / very-deep=4），`variant: 'pressed'` 取负。
+
+**圆角以像素为单位**：`radius` 收数字，直接就是 `border-radius` 的 px 值（`0` 直角、`24` 默认、`40` 胶囊感），不做「小 / 中 / 大」档位换算——档位只能近似表达设计稿上的具体数值，而设计稿给的是数字。组件把值写到根节点的 `--nm-card-radius`，样式侧 `border-radius: var(--nm-card-radius, 24px)` 取用，因此消费方既可以用 prop / 全局配置 `card.radius` 指定，也能在样式表里整体覆盖（`.wrap .nm-card { border-radius: 12px }`）。开启 `squircle` / `clipPath` 时组件读的仍是这个「生效圆角」，所以「角形状」与「角大小」互不干扰。
 
 ### Events / Slots
 
@@ -114,7 +116,7 @@ hover 临时把台阶高度 ±2，且**永不跨越符号边界**（凸起不会
 <NeumorphismCard :elevation="-2">嵌入内容</NeumorphismCard>
 
 <!-- 悬停下沉 + 圆角加大 -->
-<NeumorphismCard :elevation="2" hoverable="sink" radius="xl">……</NeumorphismCard>
+<NeumorphismCard :elevation="2" hoverable="sink" :radius="32">……</NeumorphismCard>
 
 <!-- 满出血图片卡：去掉内边距 -->
 <NeumorphismCard :elevation="3" no-padding>
@@ -134,7 +136,7 @@ hover 临时把台阶高度 ±2，且**永不跨越符号边界**（凸起不会
 全局预设：
 
 ```ts
-app.use(NeumorphismUI, { card: { radius: 'medium', hoverable: 'bulge' } })
+app.use(NeumorphismUI, { card: { radius: 16, hoverable: 'bulge' } })
 ```
 
 ---

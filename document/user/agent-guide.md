@@ -51,7 +51,7 @@ import '@echolab-auto/ui-frame/dist/style.css'
 
 ```vue
 <NeumorphismButton variant="raised" size="large" shape="pill" disabled loading />
-<NeumorphismCard :elevation="2" hoverable radius="large" />
+<NeumorphismCard :elevation="2" hoverable :radius="24" />
 <NeumorphismInput size="small" placeholder="输入内容" error="格式错误" />
 ```
 
@@ -139,7 +139,7 @@ const { theme, isDark, toggleTheme } = provideTheme()
 
 | 组件                     | 用途      | 核心 Props                                                                   |
 | ------------------------ | --------- | ---------------------------------------------------------------------------- |
-| `NeumorphismCard`        | 卡片容器  | `elevation`(-4~4), `hoverable`(bulge\|sink), `radius`                        |
+| `NeumorphismCard`        | 卡片容器  | `elevation`(-4~4), `hoverable`(bulge\|sink), `radius`(px)                    |
 | `NeumorphismAvatar`      | 头像      | `src`, `size`, `shape`(circle\|rounded), `initials`                          |
 | `NeumorphismBadge`       | 角标/红点 | `value`, `dot`, `max`, `color`                                               |
 | `NeumorphismTag`         | 标签      | `variant`(default\|primary\|success\|...), `size`, `rounded`                 |
@@ -220,7 +220,7 @@ const { theme, isDark, toggleTheme } = provideTheme()
 ### 表单页面
 
 ```vue
-<NeumorphismCard :elevation="2" radius="large">
+<NeumorphismCard :elevation="2" :radius="24">
   <template #header>用户信息</template>
   <NeumorphismForm :model="form" :rules="rules" @submit="onSubmit">
     <NeumorphismFormItem label="用户名" prop="name" required>

@@ -4,7 +4,6 @@ import { DemoPlayground, DemoField, type DemoStage } from '../../demo'
 
 type CardGlass = 'none' | 'float' | 'raised' | 'pressed'
 type CardHover = 'none' | 'bulge' | 'sink'
-type CardRadius = 'small' | 'medium' | 'large' | 'xl'
 
 // ---- 配置台状态 ----
 /**
@@ -17,7 +16,8 @@ type CardRadius = 'small' | 'medium' | 'large' | 'xl'
 const elevation = ref(2)
 const glass = ref<CardGlass>('none')
 const hoverable = ref<CardHover>('none')
-const radius = ref<CardRadius>('large')
+/** 圆角（px）。默认 24 = 组件默认值，配置台从这里起步，片段才能省略该属性 */
+const radius = ref(24)
 const squircle = ref(false)
 /** 头部 / 底部插槽：卡片只有这两个「结构位」，其余全是材质参数 */
 const showHeader = ref(false)
@@ -40,12 +40,6 @@ const hoverableOptions = [
   { label: '关闭', value: 'none' },
   { label: '膨胀', value: 'bulge' },
   { label: '下沉', value: 'sink' },
-]
-const radiusOptions = [
-  { label: '小', value: 'small' },
-  { label: '中', value: 'medium' },
-  { label: '大', value: 'large' },
-  { label: 'XL', value: 'xl' },
 ]
 
 /**
@@ -88,7 +82,7 @@ function reset() {
   elevation.value = 2
   glass.value = 'none'
   hoverable.value = 'none'
-  radius.value = 'large'
+  radius.value = 24
   squircle.value = false
   showHeader.value = false
   showFooter.value = false
@@ -106,7 +100,7 @@ const snippet = computed(() => {
   if (elevation.value !== 2) attrs.push(`:elevation="${elevation.value}"`)
   if (glass.value !== 'none') attrs.push(`glass="${glass.value}"`)
   if (hoverable.value !== 'none') attrs.push(`hoverable="${hoverable.value}"`)
-  if (radius.value !== 'large') attrs.push(`radius="${radius.value}"`)
+  if (radius.value !== 24) attrs.push(`:radius="${radius.value}"`)
   if (squircle.value) attrs.push('squircle')
   const open = attrs.length ? `<NeumorphismCard ${attrs.join(' ')}>` : '<NeumorphismCard>'
   const slots = [
@@ -145,7 +139,7 @@ const snippet = computed(() => {
         elevation=<b>{{ elevation }}</b> · glass=<b>{{ glass }}</b> · hoverable=<b>{{
           hoverable
         }}</b>
-        · radius=<b>{{ radius }}</b> · squircle=<b>{{ squircle }}</b>
+        · radius=<b>{{ radius }}px</b> · squircle=<b>{{ squircle }}</b>
       </template>
 
       <template #hint>
@@ -166,8 +160,8 @@ const snippet = computed(() => {
           <NeumorphismSegmented v-model="hoverable" :options="hoverableOptions" size="small" />
         </DemoField>
 
-        <DemoField label="圆角 radius">
-          <NeumorphismSegmented v-model="radius" :options="radiusOptions" size="small" />
+        <DemoField label="圆角 radius" :value="`${radius}px`" grow>
+          <NeumorphismSlider v-model="radius" :min="0" :max="48" :step="1" size="small" />
         </DemoField>
 
         <DemoField label="超椭圆 squircle" :value="squircle ? '开' : '关'">
