@@ -787,15 +787,15 @@ import { NeumorphismLogo } from '@echolab-auto/ui-frame'
 import type { NeumorphismLogoProps, LogoMode } from '@echolab-auto/ui-frame'
 ```
 
-| Props     | Type                                         | Default           | Description                              |
-| --------- | -------------------------------------------- | ----------------- | ---------------------------------------- |
-| mode      | `'pulse' \| 'liquid' \| 'wave' \| 'pointer'` | `'pulse'`         | 像素动效模式（级联 logo 段）             |
-| size      | `'small' \| 'medium' \| 'large'`             | `'medium'`        | 尺寸                                     |
-| width     | `string \| number`                           | —（按 size 定宽） | SVG 宽度（CSS 值或 px 数字）             |
-| goo       | `boolean`                                    | `true`            | gooey 融合滤镜                           |
-| autoplay  | `boolean`                                    | `true`            | 自动播放                                 |
-| floating  | `boolean`                                    | `true`            | 浮动动画                                 |
-| ariaLabel | `string`                                     | `'动态像素 Logo'` | 无障碍名称（`role="img"` 的 aria-label） |
+| Props     | Type                                         | Default           | Description                               |
+| --------- | -------------------------------------------- | ----------------- | ----------------------------------------- |
+| mode      | `'pulse' \| 'liquid' \| 'wave' \| 'pointer'` | `'pulse'`         | 像素动效模式（级联 logo 段）              |
+| size      | `number`                                     | `220`             | 宽度（px）；与 `width` 同义、`width` 优先 |
+| width     | `string \| number`                           | —（按 size 定宽） | SVG 宽度（CSS 值或 px 数字）              |
+| goo       | `boolean`                                    | `true`            | gooey 融合滤镜                            |
+| autoplay  | `boolean`                                    | `true`            | 自动播放                                  |
+| floating  | `boolean`                                    | `true`            | 浮动动画                                  |
+| ariaLabel | `string`                                     | `'动态像素 Logo'` | 无障碍名称（`role="img"` 的 aria-label）  |
 
 **Slots:** 默认插槽（动效旁的内容面板，scope: `{ mode, setMode, replay, isReducedMotion }`）
 
@@ -953,7 +953,7 @@ import type {
 | Props  | Type                                              | Default              | Description                       |
 | ------ | ------------------------------------------------- | -------------------- | --------------------------------- |
 | status | `'online' \| 'offline' \| 'busy' \| 'connecting'` | `'online'`           | 状态（决定颜色与 locale 标签）    |
-| size   | `'small' \| 'medium' \| 'large'`                  | `'medium'`           | 直径 8/10/12px                    |
+| size   | `number`                                          | `10`                 | 圆点直径（px）                    |
 | pulse  | `boolean`                                         | `true`               | 过渡态（busy/connecting）呼吸脉冲 |
 | label  | `string`                                          | 按状态的 locale 文案 | 无障碍标签                        |
 
@@ -966,10 +966,10 @@ import { NeumorphismSpinner } from '@echolab-auto/ui-frame'
 import type { NeumorphismSpinnerProps, SpinnerSize } from '@echolab-auto/ui-frame'
 ```
 
-| Props | Type                                       | Default     | Description  |
-| ----- | ------------------------------------------ | ----------- | ------------ |
-| size  | `'small' \| 'medium' \| 'large' \| number` | `'medium'`  | 档位或像素值 |
-| label | `string`                                   | locale 文案 | 无障碍标签   |
+| Props | Type     | Default     | Description |
+| ----- | -------- | ----------- | ----------- |
+| size  | `number` | `20`        | 直径（px）  |
+| label | `string` | locale 文案 | 无障碍标签  |
 
 ---
 
@@ -1176,19 +1176,19 @@ import { NeumorphismModal } from '@echolab-auto/ui-frame'
 import type { NeumorphismModalProps } from '@echolab-auto/ui-frame'
 ```
 
-| Props          | Type                             | Default    | Description                                    |
-| -------------- | -------------------------------- | ---------- | ---------------------------------------------- |
-| modelValue     | `boolean`                        | `false`    | 是否显示                                       |
-| title          | `string`                         | —          | 标题                                           |
-| size           | `'small' \| 'medium' \| 'large'` | `'medium'` | 尺寸                                           |
-| closable       | `boolean`                        | `true`     | 是否可关闭                                     |
-| maskClosable   | `boolean`                        | `true`     | 点击遮罩关闭                                   |
-| showClose      | `boolean`                        | `true`     | 显示关闭按钮                                   |
-| destroyOnClose | `boolean`                        | `false`    | 关闭时销毁内容                                 |
-| footer         | `boolean`                        | `true`     | 显示底部按钮                                   |
-| closeLabel     | `string`                         | —          | 关闭按钮 aria-label（按钮为 SVG 图标，无文字） |
-| cancelLabel    | `string`                         | —          | 取消按钮文字                                   |
-| confirmLabel   | `string`                         | —          | 确认按钮文字                                   |
+| Props          | Type      | Default | Description                                    |
+| -------------- | --------- | ------- | ---------------------------------------------- |
+| modelValue     | `boolean` | `false` | 是否显示                                       |
+| title          | `string`  | —       | 标题                                           |
+| size           | `number`  | `560`   | 最大宽度（px）                                 |
+| closable       | `boolean` | `true`  | 是否可关闭                                     |
+| maskClosable   | `boolean` | `true`  | 点击遮罩关闭                                   |
+| showClose      | `boolean` | `true`  | 显示关闭按钮                                   |
+| destroyOnClose | `boolean` | `false` | 关闭时销毁内容                                 |
+| footer         | `boolean` | `true`  | 显示底部按钮                                   |
+| closeLabel     | `string`  | —       | 关闭按钮 aria-label（按钮为 SVG 图标，无文字） |
+| cancelLabel    | `string`  | —       | 取消按钮文字                                   |
+| confirmLabel   | `string`  | —       | 确认按钮文字                                   |
 
 **Slots:** `header`, default, `footer`
 
@@ -3363,7 +3363,7 @@ interface NeumorphismGlobalConfig {
   }
   textarea?: { size?: TextareaSize }
   form?: { size?: FieldSize; labelWidth?: string; direction?: 'vertical' | 'horizontal' }
-  modal?: { size?: ModalSize; maskClosable?: boolean }
+  modal?: { size?: number; maskClosable?: boolean }
   toast?: { position?: ToastPosition; maxCount?: number }
   tooltip?: { position?: TooltipPosition; trigger?: TooltipTrigger }
   tabs?: { position?: TabPosition; size?: TabSize }
@@ -3414,8 +3414,8 @@ interface NeumorphismGlobalConfig {
   autoComplete?: { size?: AutoCompleteSize; clearable?: boolean }
   slider?: { size?: SliderSize; showTooltip?: boolean; showStops?: boolean }
   inputNumber?: { size?: 'small' | 'medium' | 'large' }
-  statusDot?: { status?: StatusDotStatus; size?: StatusDotSize; pulse?: boolean }
-  spinner?: { size?: SpinnerSize | number }
+  statusDot?: { status?: StatusDotStatus; size?: number; pulse?: boolean }
+  spinner?: { size?: number }
   // 注意：drawer / formItem / virtualList 等配置段在 useConfig 中未定义且组件未消费，设置无效
   menu?: { mode?: 'vertical' | 'horizontal'; size?: MenuSize; selectable?: boolean }
   navMenu?: { mode?: 'horizontal' | 'vertical'; size?: NavMenuSize; showIndicator?: boolean }

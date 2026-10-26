@@ -3,6 +3,7 @@ import { computed, ref, watch } from 'vue'
 import { useArtRenderer } from '@/composables/useArtRenderer'
 import { useLocale } from '@/composables/useLocale'
 
+/** @deprecated 旧圆角档位（字符串）——保留仅为兼容映射，新代码请传数字（px） */
 export type AsciiArtRadius = 'none' | 'small' | 'medium' | 'large' | 'xl'
 
 export interface NeumorphismAsciiArtProps {
@@ -20,8 +21,13 @@ export interface NeumorphismAsciiArtProps {
   speed?: number
   /** Custom palette; defaults to theme tokens */
   palette?: string[]
-  /** Container corner radius */
-  radius?: AsciiArtRadius
+  /**
+   * 容器圆角半径（px，直接就是像素值）。默认 24。
+   *
+   * @deprecated 字符串档位（`'none' | 'small' | 'medium' | 'large' | 'xl'`）已弃用，
+   * 仅按 none=0 / small=8 / medium=16 / large=24 / xl=32（px）兼容映射；新代码请传数字。
+   */
+  radius?: number | AsciiArtRadius
   /** Accessible label */
   ariaLabel?: string
 }
@@ -30,17 +36,30 @@ const props = withDefaults(defineProps<NeumorphismAsciiArtProps>(), {
   density: 1,
   reactive: false,
   speed: 1,
-  radius: 'large',
+  radius: undefined,
 })
 
-/** 圆角档位 → token（none 为直角） */
-const RADIUS_TOKENS: Record<AsciiArtRadius, string> = {
-  none: '0',
-  small: 'var(--nm-border-radius-sm)',
-  medium: 'var(--nm-border-radius-md)',
-  large: 'var(--nm-border-radius-lg)',
-  xl: 'var(--nm-border-radius-xl)',
+/** 旧字符串档位 → px（与 `--nm-border-radius-*` 的值一致；已弃用） */
+const LEGACY_RADIUS_PX: Record<AsciiArtRadius, number> = {
+  none: 0,
+  small: 8,
+  medium: 16,
+  large: 24,
+  xl: 32,
 }
+const DEFAULT_RADIUS_PX = 24
+
+/**
+ * 圆角（px）。几何量用数字：档位只能近似表达设计稿上的值。
+ *
+ * 容错：非有限数退回默认；负值夹到 0（CSS 不接受负圆角）。
+ */
+const radiusPx = computed(() => {
+  const raw = props.radius ?? DEFAULT_RADIUS_PX
+  const px = typeof raw === 'number' ? raw : LEGACY_RADIUS_PX[raw]
+  if (!Number.isFinite(px)) return DEFAULT_RADIUS_PX
+  return Math.max(0, px)
+})
 
 /** 图片自然宽高比（w/h）；height 留空时用于容器自适应 */
 const imgRatio = ref(0)
@@ -86,7 +105,7 @@ function toCssLength(v: string | number): string {
 /** 容器尺寸：width 默认撑满；height 显式传入即拉伸为该尺寸，
  *  留空时按图片宽高比自适应（图片未加载完成前退回 240px 占位） */
 const boxStyle = computed(() => ({
-  borderRadius: RADIUS_TOKENS[props.radius],
+  borderRadius: `${radiusPx.value}px`,
   width: props.width !== undefined ? toCssLength(props.width) : '100%',
   ...(props.height !== undefined
     ? { height: toCssLength(props.height) }

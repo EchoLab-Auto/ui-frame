@@ -4,12 +4,19 @@ import { useLocale } from '@/composables/useLocale'
 import { useNeumorphismSetup } from '@/extensions/createComponent'
 
 export type StatusDotStatus = 'online' | 'offline' | 'busy' | 'connecting'
+/** @deprecated 旧尺寸档位（字符串）——保留仅为兼容映射，新代码请传数字（px 直径） */
 export type StatusDotSize = 'small' | 'medium' | 'large'
 
 export interface NeumorphismStatusDotProps {
   /** 状态（默认 online） */
   status?: StatusDotStatus
-  size?: StatusDotSize
+  /**
+   * 圆点直径（px）。默认 10。几何量就该是数字——档位只能近似表达设计稿上的值。
+   *
+   * @deprecated 字符串档位（`'small' | 'medium' | 'large'`）已弃用，仅按
+   * small=8 / medium=10 / large=12（px）兼容映射；新代码请传数字。
+   */
+  size?: number | StatusDotSize
   /** 连接中/忙碌时是否呼吸脉冲（默认 true） */
   pulse?: boolean
   /** 无障碍标签（默认按状态取 locale 文案） */
@@ -29,7 +36,22 @@ const { config, resolveProp } = useNeumorphismSetup()
 const resolvedStatus = computed(() =>
   resolveProp(props.status, config.value.statusDot?.status, 'online')
 )
-const resolvedSize = computed(() => resolveProp(props.size, config.value.statusDot?.size, 'medium'))
+/** 旧字符串档位 → px 直径（已弃用） */
+const LEGACY_DIAMETER: Record<StatusDotSize, number> = { small: 8, medium: 10, large: 12 }
+const DEFAULT_DIAMETER = 10
+
+/**
+ * 直径（px）：`prop` → 全局配置 `statusDot.size` → 10。
+ *
+ * 容错：非有限数退回默认；负值/0 夹到 4px 下限（0 会让圆点彻底消失，
+ * 通常不是调用方本意，而是配置算错了）。
+ */
+const resolvedDiameter = computed(() => {
+  const raw = resolveProp(props.size, config.value.statusDot?.size, DEFAULT_DIAMETER)
+  const px = typeof raw === 'number' ? raw : LEGACY_DIAMETER[raw as StatusDotSize]
+  if (!Number.isFinite(px)) return DEFAULT_DIAMETER
+  return Math.max(4, px)
+})
 const resolvedPulse = computed(() => resolveProp(props.pulse, config.value.statusDot?.pulse, true))
 
 const resolvedLabel = computed(() => {
@@ -55,13 +77,18 @@ const showPulse = computed(
 const classList = computed(() => [
   'nm-status-dot',
   `nm-status-dot--${resolvedStatus.value}`,
-  `nm-status-dot--${resolvedSize.value}`,
   { 'nm-status-dot--pulse': showPulse.value },
 ])
+
+/** 尺寸走内联样式（px 直径），不再切成三档 class */
+const dotStyle = computed(() => ({
+  width: `${resolvedDiameter.value}px`,
+  height: `${resolvedDiameter.value}px`,
+}))
 </script>
 
 <template>
-  <span :class="classList" role="status" :aria-label="resolvedLabel" />
+  <span :class="classList" :style="dotStyle" role="status" :aria-label="resolvedLabel" />
 </template>
 
 <style scoped lang="scss">
@@ -74,19 +101,6 @@ const classList = computed(() => [
   box-shadow:
     inset 1px 1px 2px var(--nm-shadow-dark),
     inset -1px -1px 2px var(--nm-shadow-light);
-
-  &--small {
-    width: 8px;
-    height: 8px;
-  }
-  &--medium {
-    width: 10px;
-    height: 10px;
-  }
-  &--large {
-    width: 12px;
-    height: 12px;
-  }
 
   &--online {
     background-color: var(--nm-color-success);

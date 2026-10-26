@@ -46,8 +46,41 @@ describe('NeumorphismStatusDot', () => {
     expect(wrapper.classes()).not.toContain('nm-status-dot--pulse')
   })
 
-  it('应用尺寸修饰类', () => {
-    const wrapper = mount(NeumorphismStatusDot, { props: { size: 'large' } })
-    expect(wrapper.classes()).toContain('nm-status-dot--large')
+  it('尺寸是 px 数字：内联 width/height 直接就是像素值', () => {
+    const wrapper = mount(NeumorphismStatusDot, { props: { size: 14 } })
+    const style = wrapper.attributes('style') ?? ''
+    expect(style).toContain('width: 14px')
+    expect(style).toContain('height: 14px')
+    // 不再切成三档 class
+    expect(wrapper.classes().some(c => /--(small|medium|large)$/.test(c))).toBe(false)
+  })
+
+  it('默认直径 10px', () => {
+    const wrapper = mount(NeumorphismStatusDot)
+    expect(wrapper.attributes('style')).toContain('width: 10px')
+  })
+
+  it('旧字符串档位仍兼容映射（small=8 / medium=10 / large=12）', () => {
+    const cases = [
+      ['small', 8],
+      ['medium', 10],
+      ['large', 12],
+    ] as const
+    for (const [size, px] of cases) {
+      const wrapper = mount(NeumorphismStatusDot, { props: { size } })
+      expect(wrapper.attributes('style')).toContain(`width: ${px}px`)
+    }
+  })
+
+  it('容错：0 或负数夹到 4px 下限，NaN 退回默认 10px', () => {
+    expect(mount(NeumorphismStatusDot, { props: { size: 0 } }).attributes('style')).toContain(
+      'width: 4px'
+    )
+    expect(mount(NeumorphismStatusDot, { props: { size: -3 } }).attributes('style')).toContain(
+      'width: 4px'
+    )
+    expect(
+      mount(NeumorphismStatusDot, { props: { size: Number.NaN } }).attributes('style')
+    ).toContain('width: 10px')
   })
 })

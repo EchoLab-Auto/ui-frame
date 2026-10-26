@@ -11,7 +11,7 @@ group: 使用
 > 加载指示器——24 viewBox 的 SVG 双圆环：中性灰轨道 + 主色圆弧 1s 匀速旋转，可像素级定尺寸，内嵌于 Button 的 loading 态。源码：`src/components/NeumorphismSpinner/`。
 
 ```vue
-<NeumorphismSpinner size="small" />
+<NeumorphismSpinner :size="14" />
 ```
 
 ---
@@ -20,10 +20,10 @@ group: 使用
 
 ### Props
 
-| 名称    | 类型                                       | 默认值      | 说明                                                                     |
-| ------- | ------------------------------------------ | ----------- | ------------------------------------------------------------------------ |
-| `size`  | `'small' \| 'medium' \| 'large' \| number` | `'medium'`  | 尺寸档位（14 / 20 / 28px）或具体像素值，支持全局配置 `spinner.size` 级联 |
-| `label` | `string`                                   | locale 文案 | 无障碍标签；缺省取 locale `spinnerLoading`（「加载中」）                 |
+| 名称    | 类型     | 默认值      | 说明                                                       |
+| ------- | -------- | ----------- | ---------------------------------------------------------- |
+| `size`  | `number` | `20`        | 直径（px，直接写像素值），支持全局配置 `spinner.size` 级联 |
+| `label` | `string` | locale 文案 | 无障碍标签；缺省取 locale `spinnerLoading`（「加载中」）   |
 
 ### Events / Slots
 
@@ -35,7 +35,7 @@ group: 使用
 
 ```vue
 <!-- 档位尺寸 -->
-<NeumorphismSpinner size="large" />
+<NeumorphismSpinner :size="28" />
 
 <!-- 像素尺寸（跟随按钮文字） -->
 <NeumorphismSpinner :size="16" />
@@ -47,7 +47,7 @@ group: 使用
 全局预设：
 
 ```ts
-app.use(NeumorphismUI, { spinner: { size: 'small' } })
+app.use(NeumorphismUI, { spinner: { size: 14 } })
 ```
 
 ---

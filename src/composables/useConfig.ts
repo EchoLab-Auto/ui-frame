@@ -46,7 +46,8 @@ export interface NeumorphismGlobalConfig {
   }
   /** Default modal props */
   modal?: {
-    size?: 'small' | 'medium' | 'large'
+    /** 对话框宽度（px）；旧字符串档位仍接受（已弃用） */
+    size?: number | 'small' | 'medium' | 'large'
     maskClosable?: boolean
     closable?: boolean
     showClose?: boolean
@@ -251,7 +252,8 @@ export interface NeumorphismGlobalConfig {
   /** Default logo animation props */
   logo?: {
     mode?: 'pulse' | 'liquid' | 'wave' | 'pointer'
-    size?: 'small' | 'medium' | 'large'
+    /** Logo 宽度（px）；旧字符串档位仍接受（已弃用） */
+    size?: number | 'small' | 'medium' | 'large'
     goo?: boolean
     autoplay?: boolean
     floating?: boolean
@@ -318,7 +320,8 @@ export interface NeumorphismGlobalConfig {
   /** Default status dot props */
   statusDot?: {
     status?: 'online' | 'offline' | 'busy' | 'connecting'
-    size?: 'small' | 'medium' | 'large'
+    /** 圆点直径（px）；旧字符串档位仍接受（已弃用） */
+    size?: number | 'small' | 'medium' | 'large'
     pulse?: boolean
   }
   /** Default spinner props */

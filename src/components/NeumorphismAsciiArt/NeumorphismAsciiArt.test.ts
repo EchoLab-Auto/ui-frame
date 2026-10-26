@@ -78,17 +78,34 @@ describe('NeumorphismAsciiArt', () => {
     expect(style).not.toContain('aspect-ratio')
   })
 
-  it('applies radius tokens, defaults to large, none is square', () => {
+  it('圆角是 px 数字：默认 24，0 为直角', () => {
     const def = mount(NeumorphismAsciiArt, { props: { src: '/t.jpg' } })
-    expect(def.find('.nm-ascii-art').attributes('style')).toContain(
-      'border-radius: var(--nm-border-radius-lg)'
-    )
-    const square = mount(NeumorphismAsciiArt, { props: { src: '/t.jpg', radius: 'none' } })
-    expect(square.find('.nm-ascii-art').attributes('style')).toContain('border-radius: 0')
-    const small = mount(NeumorphismAsciiArt, { props: { src: '/t.jpg', radius: 'small' } })
-    expect(small.find('.nm-ascii-art').attributes('style')).toContain(
-      'border-radius: var(--nm-border-radius-sm)'
-    )
+    expect(def.find('.nm-ascii-art').attributes('style')).toContain('border-radius: 24px')
+    const square = mount(NeumorphismAsciiArt, { props: { src: '/t.jpg', radius: 0 } })
+    expect(square.find('.nm-ascii-art').attributes('style')).toContain('border-radius: 0px')
+    const loose = mount(NeumorphismAsciiArt, { props: { src: '/t.jpg', radius: 40 } })
+    expect(loose.find('.nm-ascii-art').attributes('style')).toContain('border-radius: 40px')
+  })
+
+  it('旧字符串档位仍兼容映射（none=0 / small=8 / medium=16 / large=24 / xl=32）', () => {
+    const cases = [
+      ['none', 0],
+      ['small', 8],
+      ['medium', 16],
+      ['large', 24],
+      ['xl', 32],
+    ] as const
+    for (const [radius, px] of cases) {
+      const wrapper = mount(NeumorphismAsciiArt, { props: { src: '/t.jpg', radius } })
+      expect(wrapper.find('.nm-ascii-art').attributes('style')).toContain(`border-radius: ${px}px`)
+    }
+  })
+
+  it('容错：负值夹到 0，NaN 退回默认 24', () => {
+    const neg = mount(NeumorphismAsciiArt, { props: { src: '/t.jpg', radius: -8 } })
+    expect(neg.find('.nm-ascii-art').attributes('style')).toContain('border-radius: 0px')
+    const nan = mount(NeumorphismAsciiArt, { props: { src: '/t.jpg', radius: Number.NaN } })
+    expect(nan.find('.nm-ascii-art').attributes('style')).toContain('border-radius: 24px')
   })
 
   it('renders overlay slot', () => {

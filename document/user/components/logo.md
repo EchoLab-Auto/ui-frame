@@ -23,8 +23,8 @@ group: 使用
 | 名称        | 类型                                         | 默认值            | 说明                                                                           |
 | ----------- | -------------------------------------------- | ----------------- | ------------------------------------------------------------------------------ |
 | `mode`      | `'pulse' \| 'liquid' \| 'wave' \| 'pointer'` | `'pulse'`         | 像素动效模式（v-model:mode），支持全局配置 `logo.mode` 级联                    |
-| `size`      | `'small' \| 'medium' \| 'large'`             | `'medium'`        | 预设宽度 120 / 220 / 360px，支持全局配置 `logo.size` 级联                      |
-| `width`     | `string \| number`                           | —                 | 自定义 SVG 宽度（数字按 px 计），覆盖 size 档位                                |
+| `size`      | `number`                                     | `220`             | 宽度（px，直接写像素值）；与 `width` 同义、`width` 优先                        |
+| `width`     | `string \| number`                           | —                 | 自定义 SVG 宽度（数字按 px 计），优先于 `size`                                 |
 | `goo`       | `boolean`                                    | `true`            | gooey 融合滤镜（feGaussianBlur + feColorMatrix），支持全局配置 `logo.goo` 级联 |
 | `autoplay`  | `boolean`                                    | `true`            | 播放入场汇聚动画，支持全局配置 `logo.autoplay` 级联                            |
 | `floating`  | `boolean`                                    | `true`            | 整体 7s 上下浮动，支持全局配置 `logo.floating` 级联                            |

@@ -9,7 +9,6 @@ import artImage from '../../assets/images.jpeg'
  * 参数全部搬进配置台（密度 / 速度 / 指针交互 / 圆角 / 尺寸模式 / 宽高 /
  * 配色 / 无障碍名），预览区实时跟随；尺寸模式的文案原样保留，与旧演示一致。
  */
-type AsciiRadius = 'none' | 'small' | 'medium' | 'large' | 'xl'
 type AsciiSizeMode = 'auto' | 'fixed'
 type AsciiPaletteName = 'theme' | 'warm' | 'cool'
 
@@ -17,7 +16,8 @@ type AsciiPaletteName = 'theme' | 'warm' | 'cool'
 const asciiDensity = ref(1.2)
 const asciiSpeed = ref(1)
 const asciiReactive = ref(true)
-const asciiRadius = ref<AsciiRadius>('large')
+/** 圆角（px）。默认 24 = 组件默认值，配置台从这里起步，片段才能省略该属性 */
+const asciiRadius = ref(24)
 const asciiSizeMode = ref<AsciiSizeMode>('auto')
 const asciiWidth = ref(360)
 const asciiHeight = ref(340)
@@ -29,13 +29,6 @@ const asciiPalette = computed(() => {
 })
 const asciiAriaLabel = ref('字符画')
 
-const asciiRadiusOptions: { label: string; value: AsciiRadius }[] = [
-  { label: '直角', value: 'none' },
-  { label: '小', value: 'small' },
-  { label: '中', value: 'medium' },
-  { label: '大', value: 'large' },
-  { label: '特大', value: 'xl' },
-]
 const asciiSizeOptions: { label: string; value: AsciiSizeMode }[] = [
   { label: '自适应', value: 'auto' },
   { label: '固定尺寸', value: 'fixed' },
@@ -56,7 +49,7 @@ const snippet = computed(() => {
   if (asciiDensity.value !== 1) attrs.push(`:density="${asciiDensity.value.toFixed(1)}"`)
   if (asciiSpeed.value !== 1) attrs.push(`:speed="${asciiSpeed.value.toFixed(1)}"`)
   if (asciiReactive.value) attrs.push('reactive')
-  if (asciiRadius.value !== 'large') attrs.push(`radius="${asciiRadius.value}"`)
+  if (asciiRadius.value !== 24) attrs.push(`:radius="${asciiRadius.value}"`)
   // 自适应模式的价值就在「不传尺寸」：只有固定模式才把 width / height 写进片段
   if (asciiSizeMode.value === 'fixed') {
     attrs.push(`:width="${asciiWidth.value}"`, `:height="${asciiHeight.value}"`)
@@ -94,7 +87,7 @@ const snippet = computed(() => {
 
       <template #spec>
         density=<b>{{ asciiDensity.toFixed(1) }}</b> · speed=<b>{{ asciiSpeed.toFixed(1) }}</b> ·
-        reactive=<b>{{ asciiReactive ? 'on' : 'off' }}</b> · radius=<b>{{ asciiRadius }}</b>
+        reactive=<b>{{ asciiReactive ? 'on' : 'off' }}</b> · radius=<b>{{ asciiRadius }}px</b>
       </template>
 
       <template #hint>
@@ -123,8 +116,8 @@ const snippet = computed(() => {
           <NeumorphismSwitch v-model="asciiReactive" size="small" />
         </DemoField>
 
-        <DemoField label="圆角 radius" :label-width="labelWidth">
-          <NeumorphismSegmented v-model="asciiRadius" :options="asciiRadiusOptions" size="small" />
+        <DemoField label="圆角 radius" :value="`${asciiRadius}px`" :label-width="labelWidth" grow>
+          <NeumorphismSlider v-model="asciiRadius" :min="0" :max="64" :step="2" size="small" />
         </DemoField>
 
         <DemoField label="尺寸模式" :label-width="labelWidth">

@@ -78,14 +78,32 @@ describe('NeumorphismModal', () => {
     expect(document.querySelector('.nm-modal__footer')).toBeNull()
   })
 
-  it('should apply size classes', async () => {
-    const sizes = ['small', 'medium', 'large'] as const
-    for (const size of sizes) {
+  it('宽度是 px 数字：内联 max-width 直接就是像素值', async () => {
+    document.body.innerHTML = ''
+    mountModal({ modelValue: true, size: 640 })
+    await nextTick()
+    const modal = document.querySelector('.nm-modal')
+    expect((modal as HTMLElement).style.maxWidth).toBe('640px')
+    // 不再切成三档 class
+    expect(modal!.className).toBe('nm-modal')
+  })
+
+  it('默认宽 560px；旧字符串档位仍兼容（small=400 / medium=560 / large=720）', async () => {
+    document.body.innerHTML = ''
+    mountModal({ modelValue: true })
+    await nextTick()
+    expect((document.querySelector('.nm-modal') as HTMLElement).style.maxWidth).toBe('560px')
+
+    const cases = [
+      ['small', 400],
+      ['medium', 560],
+      ['large', 720],
+    ] as const
+    for (const [size, px] of cases) {
       document.body.innerHTML = ''
       mountModal({ modelValue: true, size })
       await nextTick()
-      const modal = document.querySelector('.nm-modal')
-      expect(modal!.classList.contains(`nm-modal--${size}`)).toBe(true)
+      expect((document.querySelector('.nm-modal') as HTMLElement).style.maxWidth).toBe(`${px}px`)
     }
   })
 

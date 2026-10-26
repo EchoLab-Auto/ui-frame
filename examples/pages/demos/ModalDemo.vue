@@ -2,17 +2,12 @@
 import { ref, computed } from 'vue'
 import { DemoPlayground, DemoField } from '../../demo'
 
-type ModalSize = 'small' | 'medium' | 'large'
 type ModalEvent = 'open' | 'confirm' | 'cancel' | 'close'
-
-interface DemoOption<T> {
-  label: string
-  value: T
-}
 
 // ---- 配置台状态 ----
 const title = ref('示例模态框')
-const size = ref<ModalSize>('small')
+/** 对话框最大宽度（px）。默认 560 = 组件默认值 */
+const size = ref(400)
 /** 点遮罩关闭：组件里 maskClosable 与 closable 是「与」关系，任一为 false 都关不掉 */
 const maskClosable = ref(true)
 /**
@@ -27,12 +22,6 @@ const cancelLabel = ref('取消')
 const visible = ref(false)
 /** 模态框里那个输入框的值：只用来证明焦点被锁在弹层内，Esc 收起后原值仍在 */
 const modalText = ref('')
-
-const sizeOptions: DemoOption<ModalSize>[] = [
-  { label: '小', value: 'small' },
-  { label: '中', value: 'medium' },
-  { label: '大', value: 'large' },
-]
 
 /**
  * 事件回显。
@@ -51,7 +40,7 @@ const eventText = computed(() => (eventLog.value.length ? eventLog.value.join(' 
 
 function reset() {
   title.value = '示例模态框'
-  size.value = 'small'
+  size.value = 400
   maskClosable.value = true
   footerMode.value = 'default'
   confirmLabel.value = '确认'
@@ -63,8 +52,8 @@ const snippet = computed(() => {
   const attrs: string[] = ['v-model="visible"']
   // title 没有默认值（不传就不渲染标题栏标题），所以有值才写
   if (title.value) attrs.push(`title="${title.value}"`)
-  // size 默认 medium；maskClosable / footer 默认 true，只在关掉时补属性
-  if (size.value !== 'medium') attrs.push(`size="${size.value}"`)
+  // size 默认 560；maskClosable / footer 默认 true，只在关掉时补属性
+  if (size.value !== 560) attrs.push(`:size="${size.value}"`)
   if (!maskClosable.value) attrs.push(':mask-closable="false"')
   // 'slot' 时不写 footer 属性，页脚由插槽接管
   if (footerMode.value === 'none') attrs.push(':footer="false"')
@@ -95,7 +84,7 @@ const snippet = computed(() => {
       </p>
 
       <template #spec>
-        size=<b>{{ size }}</b> · title=<b>{{ title || '（无标题）' }}</b> · maskClosable=<b>{{
+        size=<b>{{ size }}px</b> · title=<b>{{ title || '（无标题）' }}</b> · maskClosable=<b>{{
           maskClosable
         }}</b>
         · footer=<b>{{ footerMode }}</b>
@@ -112,8 +101,8 @@ const snippet = computed(() => {
           <NeumorphismInput v-model="title" size="small" placeholder="留空则不渲染标题" />
         </DemoField>
 
-        <DemoField label="尺寸 size">
-          <NeumorphismSegmented v-model="size" :options="sizeOptions" size="small" />
+        <DemoField label="宽度 size" :value="`${size}px`" grow>
+          <NeumorphismSlider v-model="size" :min="240" :max="900" :step="20" size="small" />
         </DemoField>
 
         <DemoField label="确认文案">

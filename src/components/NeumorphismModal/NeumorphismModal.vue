@@ -6,10 +6,19 @@ import { useLocale } from '@/composables/useLocale'
 import { generateId } from '@/utils'
 import NeumorphismIcon from '@/components/NeumorphismIcon/NeumorphismIcon.vue'
 
+/** @deprecated 旧宽度档位（字符串）——保留仅为兼容映射，新代码请传数字（px） */
+export type ModalSize = 'small' | 'medium' | 'large'
+
 export interface NeumorphismModalProps {
   modelValue?: boolean
   title?: string
-  size?: 'small' | 'medium' | 'large'
+  /**
+   * 对话框宽度（px，直接就是像素值）。默认 560。
+   *
+   * @deprecated 字符串档位（`'small' | 'medium' | 'large'`）已弃用，仅按
+   * small=400 / medium=560 / large=720（px）兼容映射；新代码请传数字。
+   */
+  size?: number | ModalSize
   closable?: boolean
   maskClosable?: boolean
   showClose?: boolean
@@ -33,7 +42,24 @@ const props = withDefaults(defineProps<NeumorphismModalProps>(), {
 const { t } = useLocale()
 
 const config = useConfig()
-const resolvedSize = computed(() => props.size ?? config.value.modal?.size ?? 'medium')
+/** 旧字符串档位 → px 宽度（与 `--nm-modal-max-width-*` 的值一致；已弃用） */
+const LEGACY_MAX_WIDTH: Record<ModalSize, number> = { small: 400, medium: 560, large: 720 }
+const DEFAULT_MAX_WIDTH = 560
+
+/**
+ * 对话框最大宽度（px）：`prop` → 全局配置 `modal.size` → 560。
+ *
+ * 容错：非有限数退回默认；下限 240px（再窄标题栏会挤）。
+ */
+const resolvedMaxWidth = computed(() => {
+  const raw = props.size ?? config.value.modal?.size ?? DEFAULT_MAX_WIDTH
+  const px = typeof raw === 'number' ? raw : LEGACY_MAX_WIDTH[raw as ModalSize]
+  if (!Number.isFinite(px)) return DEFAULT_MAX_WIDTH
+  return Math.max(240, px)
+})
+
+/** 宽度直接写成内联 max-width：档位时代是三个 class，多个数字就退化成「一次测量」 */
+const dialogStyle = computed(() => ({ maxWidth: `${resolvedMaxWidth.value}px` }))
 const resolvedClosable = computed(() => props.closable ?? config.value.modal?.closable ?? true)
 const resolvedMaskClosable = computed(
   () => props.maskClosable ?? config.value.modal?.maskClosable ?? true
@@ -121,7 +147,7 @@ function handleKeydown(event: KeyboardEvent) {
   onKeydown(event, dialogRef.value)
 }
 
-const classList = computed(() => ['nm-modal', `nm-modal--${resolvedSize.value}`])
+const classList = computed(() => ['nm-modal'])
 </script>
 
 <template>
@@ -139,6 +165,7 @@ const classList = computed(() => ['nm-modal', `nm-modal--${resolvedSize.value}`]
             v-if="visible"
             ref="dialogRef"
             :class="classList"
+            :style="dialogStyle"
             role="dialog"
             aria-modal="true"
             :aria-labelledby="title ? titleId : undefined"
@@ -231,16 +258,6 @@ const classList = computed(() => ['nm-modal', `nm-modal--${resolvedSize.value}`]
   @include nm-raised(8px, 20px);
   @include nm-theme-transition;
   outline: none;
-
-  &--small {
-    max-width: 400px;
-  }
-  &--medium {
-    max-width: 560px;
-  }
-  &--large {
-    max-width: 720px;
-  }
 }
 
 .nm-modal__header {

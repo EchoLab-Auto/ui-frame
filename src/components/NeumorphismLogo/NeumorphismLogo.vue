@@ -6,13 +6,19 @@ import type { LogoMode as PixelLogoMode } from '@/composables/usePixelLogoAnimat
 import { generateId } from '@/utils'
 
 export type LogoMode = PixelLogoMode
+/** @deprecated 旧尺寸档位（字符串）——保留仅为兼容映射，新代码请用 `width` 或数字 */
 export type LogoSize = 'small' | 'medium' | 'large'
 
 export interface NeumorphismLogoProps {
   /** Animation mode. */
   mode?: LogoMode
-  /** Component size. */
-  size?: LogoSize
+  /**
+   * 宽度（px，直接就是像素值）；与 `width` 同义，`width` 优先。
+   *
+   * @deprecated 字符串档位（`'small' | 'medium' | 'large'`）已弃用，仅按
+   * small=120 / medium=220 / large=360（px 宽）兼容映射；新代码请用 `width`。
+   */
+  size?: number | LogoSize
   /** SVG width (CSS value or number in px). */
   width?: string | number
   /** Whether the gooey filter is enabled. */
@@ -42,9 +48,33 @@ const { config, resolveProp } = useNeumorphismSetup()
 const resolvedMode = computed<LogoMode>(() =>
   resolveProp(props.mode, config.value.logo?.mode, 'pulse')
 )
-const resolvedSize = computed<LogoSize>(() =>
-  resolveProp(props.size, config.value.logo?.size, 'medium')
+/** 旧字符串档位 → px 宽度（已弃用） */
+const LEGACY_WIDTH_PX: Record<LogoSize, number> = { small: 120, medium: 220, large: 360 }
+
+/** 数字 `size` 由内联宽度承载，此时不再挂档位 class（两者择一，避免打架） */
+const resolvedSize = computed<LogoSize>(() => {
+  const explicit = typeof props.size === 'number' ? undefined : props.size
+  const fromConfig = config.value.logo?.size
+  // 全局配置也接受数字（宽度）：数字路径下档位无意义，退回 medium 仅用于 class 名
+  const configSize = typeof fromConfig === 'number' ? undefined : fromConfig
+  return resolveProp(explicit, configSize, 'medium')
+})
+const sizeClass = computed(() =>
+  typeof props.size === 'number' ? undefined : `nm-logo--${resolvedSize.value}`
 )
+
+/**
+ * 内联宽度：`width` 优先，其次数字 `size`。
+ *
+ * 返回 undefined 时交给样式表（旧字符串档位 / 全局配置），行为与档位时代一致。
+ */
+const numericWidth = computed<number | undefined>(() => {
+  const raw = props.width ?? props.size
+  if (raw === undefined) return undefined
+  if (typeof raw === 'string') return undefined
+  if (typeof raw === 'number') return Number.isFinite(raw) && raw > 0 ? raw : undefined
+  return LEGACY_WIDTH_PX[raw as LogoSize]
+})
 const resolvedGoo = computed<boolean>(() => resolveProp(props.goo, config.value.logo?.goo, true))
 const resolvedAutoplay = computed<boolean>(() =>
   resolveProp(props.autoplay, config.value.logo?.autoplay, true)
@@ -90,6 +120,8 @@ function onSetMode(value: LogoMode) {
 }
 
 const widthStyle = computed(() => {
+  const px = numericWidth.value
+  if (px !== undefined) return `${px}px`
   const w = props.width
   if (w === undefined) return undefined
   return typeof w === 'number' ? `${w}px` : w
@@ -97,7 +129,7 @@ const widthStyle = computed(() => {
 
 const classList = computed(() => [
   'nm-logo',
-  `nm-logo--${resolvedSize.value}`,
+  ...(sizeClass.value ? [sizeClass.value] : []),
   { 'nm-logo--reduced-motion': isReducedMotion.value },
   { 'nm-logo--no-float': !resolvedFloating.value },
 ])

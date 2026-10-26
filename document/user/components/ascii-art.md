@@ -22,17 +22,17 @@ group: 使用
 
 ### Props
 
-| 名称        | 类型                                               | 默认值                 | 说明                                       |
-| ----------- | -------------------------------------------------- | ---------------------- | ------------------------------------------ |
-| `src`       | `string`                                           | **必填**               | 图片地址（URL / 打包导入的资源路径）       |
-| `density`   | `number`                                           | `1`                    | 字符栅格密度倍率（越大字符越密）           |
-| `width`     | `string \| number`                                 | `'100%'`               | 容器宽度                                   |
-| `height`    | `string \| number`                                 | —（自适应）            | 容器高度；留空按图片宽高比自动定高         |
-| `radius`    | `'none' \| 'small' \| 'medium' \| 'large' \| 'xl'` | `'large'`              | 容器圆角档位（`none` 为直角）              |
-| `reactive`  | `boolean`                                          | `false`                | 指针交互：指针附近字符提亮放大             |
-| `speed`     | `number`                                           | `1`                    | 呼吸流光速度倍率                           |
-| `palette`   | `string[]`                                         | 主题 token             | 自定义配色；缺省用 `--nm-primary-color` 等 |
-| `ariaLabel` | `string`                                           | locale `asciiArtLabel` | 无障碍名称（`role="img"`）                 |
+| 名称        | 类型               | 默认值                 | 说明                                         |
+| ----------- | ------------------ | ---------------------- | -------------------------------------------- |
+| `src`       | `string`           | **必填**               | 图片地址（URL / 打包导入的资源路径）         |
+| `density`   | `number`           | `1`                    | 字符栅格密度倍率（越大字符越密）             |
+| `width`     | `string \| number` | `'100%'`               | 容器宽度                                     |
+| `height`    | `string \| number` | —（自适应）            | 容器高度；留空按图片宽高比自动定高           |
+| `radius`    | `number`           | `24`                   | 容器圆角半径（px，直接写像素值；`0` 为直角） |
+| `reactive`  | `boolean`          | `false`                | 指针交互：指针附近字符提亮放大               |
+| `speed`     | `number`           | `1`                    | 呼吸流光速度倍率                             |
+| `palette`   | `string[]`         | 主题 token             | 自定义配色；缺省用 `--nm-primary-color` 等   |
+| `ariaLabel` | `string`           | locale `asciiArtLabel` | 无障碍名称（`role="img"`）                   |
 
 ### Slots
 

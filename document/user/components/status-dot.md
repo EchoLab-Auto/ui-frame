@@ -23,7 +23,7 @@ group: 使用
 | 名称     | 类型                                              | 默认值               | 说明                                                                   |
 | -------- | ------------------------------------------------- | -------------------- | ---------------------------------------------------------------------- |
 | `status` | `'online' \| 'offline' \| 'busy' \| 'connecting'` | `'online'`           | 状态（决定颜色与默认 aria 标签），支持全局配置 `statusDot.status` 级联 |
-| `size`   | `'small' \| 'medium' \| 'large'`                  | `'medium'`           | 直径 8 / 10 / 12px，支持 `statusDot.size` 级联                         |
+| `size`   | `number`                                          | `10`                 | 圆点直径（px，直接写像素值），支持 `statusDot.size` 级联               |
 | `pulse`  | `boolean`                                         | `true`               | 过渡态（busy / connecting）呼吸脉冲开关，支持 `statusDot.pulse` 级联   |
 | `label`  | `string`                                          | 按状态的 locale 文案 | 自定义无障碍标签                                                       |
 
@@ -47,7 +47,7 @@ group: 使用
 <NeumorphismBadge dot :value="1">
   <NeumorphismAvatar src="/me.png" />
 </NeumorphismBadge>
-<NeumorphismStatusDot status="busy" size="large" />
+<NeumorphismStatusDot status="busy" :size="12" />
 
 <!-- 连接中 + 自定义标签 -->
 <NeumorphismStatusDot status="connecting" label="正在重连 WebSocket" />
@@ -59,7 +59,7 @@ group: 使用
 全局预设：
 
 ```ts
-app.use(NeumorphismUI, { statusDot: { size: 'small', pulse: false } })
+app.use(NeumorphismUI, { statusDot: { size: 8, pulse: false } })
 ```
 
 ---

@@ -22,19 +22,19 @@ group: 使用
 
 ### Props
 
-| 名称             | 类型                             | 默认值                | 说明                                                                     |
-| ---------------- | -------------------------------- | --------------------- | ------------------------------------------------------------------------ |
-| `modelValue`     | `boolean`                        | `false`               | v-model 控制显示                                                         |
-| `title`          | `string`                         | —                     | 标题（渲染为 `<h2>` 并关联 `aria-labelledby`）                           |
-| `size`           | `'small' \| 'medium' \| 'large'` | `'medium'`            | 最大宽度 400 / 560 / 720px，支持全局配置 `modal.size` 级联               |
-| `closable`       | `boolean`                        | `true`                | 是否可关闭（Esc / 关闭按钮 / 遮罩），支持 `modal.closable` 级联          |
-| `maskClosable`   | `boolean`                        | `true`                | 点击遮罩关闭，支持 `modal.maskClosable` 级联                             |
-| `showClose`      | `boolean`                        | `true`                | 显示右上角关闭按钮，支持 `modal.showClose` 级联                          |
-| `destroyOnClose` | `boolean`                        | `false`               | 关闭 200ms（leave 动画结束）后销毁 DOM，支持 `modal.destroyOnClose` 级联 |
-| `footer`         | `boolean`                        | `true`                | 显示底部按钮区（含默认取消/确认按钮）                                    |
-| `closeLabel`     | `string`                         | locale `modalClose`   | 关闭按钮的 `aria-label`                                                  |
-| `cancelLabel`    | `string`                         | locale `modalCancel`  | 取消按钮文字                                                             |
-| `confirmLabel`   | `string`                         | locale `modalConfirm` | 确认按钮文字                                                             |
+| 名称             | 类型      | 默认值                | 说明                                                                     |
+| ---------------- | --------- | --------------------- | ------------------------------------------------------------------------ |
+| `modelValue`     | `boolean` | `false`               | v-model 控制显示                                                         |
+| `title`          | `string`  | —                     | 标题（渲染为 `<h2>` 并关联 `aria-labelledby`）                           |
+| `size`           | `number`  | `560`                 | 对话框最大宽度（px，直接写像素值），支持全局配置 `modal.size` 级联       |
+| `closable`       | `boolean` | `true`                | 是否可关闭（Esc / 关闭按钮 / 遮罩），支持 `modal.closable` 级联          |
+| `maskClosable`   | `boolean` | `true`                | 点击遮罩关闭，支持 `modal.maskClosable` 级联                             |
+| `showClose`      | `boolean` | `true`                | 显示右上角关闭按钮，支持 `modal.showClose` 级联                          |
+| `destroyOnClose` | `boolean` | `false`               | 关闭 200ms（leave 动画结束）后销毁 DOM，支持 `modal.destroyOnClose` 级联 |
+| `footer`         | `boolean` | `true`                | 显示底部按钮区（含默认取消/确认按钮）                                    |
+| `closeLabel`     | `string`  | locale `modalClose`   | 关闭按钮的 `aria-label`                                                  |
+| `cancelLabel`    | `string`  | locale `modalCancel`  | 取消按钮文字                                                             |
+| `confirmLabel`   | `string`  | locale `modalConfirm` | 确认按钮文字                                                             |
 
 ### Events / Slots
 
@@ -69,7 +69,7 @@ group: 使用
 全局预设：
 
 ```ts
-app.use(NeumorphismUI, { modal: { size: 'medium', maskClosable: false } })
+app.use(NeumorphismUI, { modal: { size: 560, maskClosable: false } })
 ```
 
 ---
