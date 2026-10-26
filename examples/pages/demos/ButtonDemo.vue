@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import { DemoPlayground, DemoField, DemoPresets, type DemoStage, type DemoPreset } from '../../demo'
+import { ref, computed, watch } from 'vue'
+import { DemoPlayground, DemoField, type DemoStage } from '../../demo'
 
 /**
  * 玻璃是 `variant` 的三档取值，不是独立 prop —— 所以这里只有一个变体状态。
@@ -66,52 +66,15 @@ const previewStyle = computed(() => {
   }
 })
 
-// ---- 变体一览 ----
-interface PresetRow extends DemoPreset {
-  variant: ButtonVariant
-  /** 格子里的短名：全叫「按钮」分不出是哪个变体 */
-  label: string
-}
-
-const presetRows: PresetRow[] = [
-  { key: 'raised', code: 'variant="raised"', variant: 'raised', label: '凸起' },
-  { key: 'pressed', code: 'variant="pressed"', variant: 'pressed', label: '凹陷' },
-  { key: 'primary', code: 'variant="primary"', variant: 'primary', label: '主色' },
-  { key: 'glow', code: 'variant="glow"', variant: 'glow', label: '辉光' },
-  { key: 'glass', code: 'variant="glass"', variant: 'glass', label: '悬浮玻璃' },
-  {
-    key: 'glass-raised',
-    code: 'variant="glass-raised"',
-    variant: 'glass-raised',
-    label: '凸面玻璃',
-  },
-  {
-    key: 'glass-pressed',
-    code: 'variant="glass-pressed"',
-    variant: 'glass-pressed',
-    label: '凹陷玻璃',
-  },
-]
-
-const presets = computed<DemoPreset[]>(() =>
-  presetRows.map(row => ({
-    key: row.key,
-    code: row.code,
-    active: row.variant === variant.value,
-  }))
-)
-
-function applyPreset(key: string) {
-  const row = presetRows.find(r => r.key === key)
-  if (!row) return
-  variant.value = row.variant
-  // 玻璃只有彩色台面才看得出磨砂，套用时顺手把台面切到彩色
-  if (GLASS_VARIANTS.has(row.variant)) stage.value = 'gradient'
-}
-
-function rowOf(key: string) {
-  return presetRows.find(r => r.key === key)!
-}
+/**
+ * 切到玻璃变体时把台面切成彩色。
+ *
+ * 玻璃的三分之一观感来自「背后有东西」——平面底色上磨砂几乎不可见。
+ * 这里只在变体变化时顺手切一次，用户之后仍可手动切回平面。
+ */
+watch(variant, next => {
+  if (GLASS_VARIANTS.has(next)) stage.value = 'gradient'
+})
 
 function reset() {
   variant.value = 'raised'
@@ -168,9 +131,10 @@ const snippet = computed(() => {
       </template>
 
       <template #hint>
-        玻璃三档需在彩色背景上才看得到磨砂半透明；<code>circle</code> 形��建议配 1–2 字内容。 玻璃是
+        玻璃三档需在彩色背景上才看得到磨砂半透明；<code>circle</code> 形状建议配 1–2 字内容。玻璃是
         <code>variant</code> 的一档而非独立开关——它同时决定材质与阴影方向，与
-        <code>pressed</code> 这类凸凹变体本就同轴。
+        <code>pressed</code> 这类凸凹变体本就同轴，所以不能叠加。想要彩色玻璃请改
+        <code>--nm-glass-bg</code>：玻璃表面会盖住 <code>primary</code> 的底色。
       </template>
 
       <template #config>
@@ -217,22 +181,5 @@ const snippet = computed(() => {
         </DemoField>
       </template>
     </DemoPlayground>
-  </div>
-
-  <div class="demo-block">
-    <h4 class="demo-label">全部变体一览（点击载入到上方预览）</h4>
-    <DemoPresets :items="presets" @pick="applyPreset">
-      <template #default="{ item }">
-        <NeumorphismButton :variant="rowOf(item.key).variant" size="small">
-          {{ rowOf(item.key).label }}
-        </NeumorphismButton>
-      </template>
-    </DemoPresets>
-    <p class="demo-hint" style="margin-top: 10px">
-      七个变体同属一条轴，因此**不能叠加**：过去的 <code>glass="raised"</code> 已并入
-      <code>variant="glass-raised"</code>。想要彩色玻璃请改 <code>--nm-glass-bg</code>——
-      玻璃表面会覆盖 <code>primary</code> 的底色，叠
-      <code>variant="primary"</code> 只会得到普通玻璃。
-    </p>
   </div>
 </template>
