@@ -218,7 +218,7 @@ const rootStyle = computed(() => ({
 
 .nm-progress__track {
   flex: 1;
-  height: var(--nm-progress-height-md, 12px);
+  height: var(--nm-progress-height-md, 8px);
   overflow: hidden;
   background-color: var(--nm-surface-color);
   border-radius: var(--nm-progress-border-radius, 9999px);
@@ -484,11 +484,13 @@ const rootStyle = computed(() => ({
 }
 
 // Sizes
+// fallback 值必须与 tokens.scss 的 `--nm-progress-height-*`（4 / 8 / 12）一致：
+// 它们只在消费方清空变量时生效，写错就等于留了一个错误的兜底。
 .nm-progress--small .nm-progress__track {
-  height: var(--nm-progress-height-sm, 6px);
+  height: var(--nm-progress-height-sm, 4px);
 }
 .nm-progress--large .nm-progress__track {
-  height: var(--nm-progress-height-lg, 18px);
+  height: var(--nm-progress-height-lg, 12px);
 }
 
 // 数字尺寸（`:size="8"`）：线性轨道厚度直接接内联变量，见 utils/controlScale。
