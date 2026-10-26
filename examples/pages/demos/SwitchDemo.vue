@@ -99,14 +99,6 @@ function reset() {
   applyConfig(cfg({}))
 }
 
-// ---- 后续演示块独立状态 ----
-const labeled = ref(true)
-/** 三档高度共用：点任意一个一起通断，同一状态下比较几何差异 */
-const powerOn = ref(true)
-const powerColored = ref(true)
-const powerLabeled = ref(false)
-const powerHeights = [44, 36, 30]
-
 // ---- 实时代码片段 ----
 const snippet = computed(() => {
   const attrs = ['v-model="checked"']
@@ -202,62 +194,5 @@ const snippet = computed(() => {
         </DemoField>
       </template>
     </DemoPlayground>
-  </div>
-
-  <div class="demo-block">
-    <h4 class="demo-label">文本标签与禁用</h4>
-    <div class="demo-row">
-      <NeumorphismSwitch v-model="labeled" active-text="开" inactive-text="关" />
-      <NeumorphismSwitch :model-value="true" disabled />
-      <NeumorphismSwitch :model-value="false" disabled />
-    </div>
-    <p class="demo-hint">
-      两个文案同时给时不会并排显示。组件按当前状态切换主次色：选中侧主色、另一侧次要色——所以「开 /
-      关」读起来始终只有一个高亮。禁用态整只降透明度并吃掉点击，文案依旧保留（无障碍名优先取自
-      <code>active-text</code> / <code>inactive-text</code>）。
-    </p>
-  </div>
-
-  <div class="demo-block">
-    <h4 class="demo-label">power 变体（电力开关）· 器件高度 44 / 36 / 30px 对比</h4>
-    <div class="demo-row" style="align-items: flex-end; gap: 28px">
-      <div
-        v-for="height in powerHeights"
-        :key="height"
-        style="display: flex; flex-direction: column; align-items: center; gap: 8px"
-      >
-        <NeumorphismSwitch v-model="powerOn" variant="power" :size="height" />
-        <code style="font-size: 11px">{{ height }}px</code>
-      </div>
-    </div>
-    <p class="demo-hint">
-      数字直接传给 <code>size</code>（px 高度），器件整机等比缩放；器件高 &lt; 36px
-      时刻印文本自动隐藏（字号不可辨读）；圆钮拉丝纹理始终保留——低于 34px
-      后冻结缩放（图案周期恒定，不再加深亚像素摩尔纹）。三档共用同一个
-      <code>v-model</code>，点任意一只一起通断，便于在同一状态下比较几何差异。
-    </p>
-  </div>
-
-  <div class="demo-block">
-    <h4 class="demo-label">power · 通电色与禁用（44px 紧凑档）</h4>
-    <div class="demo-row">
-      <NeumorphismSwitch v-model="powerColored" variant="power" :size="44" active-color="#27ae60" />
-      <NeumorphismSwitch variant="power" :size="44" :model-value="true" disabled />
-      <NeumorphismSwitch variant="power" :size="44" :model-value="false" disabled />
-    </div>
-    <div class="demo-row">
-      <NeumorphismSwitch
-        v-model="powerLabeled"
-        variant="power"
-        :size="44"
-        active-text="通电"
-        inactive-text="断电"
-      />
-    </div>
-    <p class="demo-hint">
-      刻印文本为可选：不传时器件纯净无文字（上方三个）；传入 <code>active-text</code> /
-      <code>inactive-text</code> 时显示自定义刻印（下方）。<code>active-color</code>
-      改的是自左擦入的通电面颜色，断电腔体与金属外圈不受影响。
-    </p>
   </div>
 </template>

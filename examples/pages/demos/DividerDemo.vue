@@ -124,24 +124,4 @@ const snippet = computed(() => {
       </template>
     </DemoPlayground>
   </div>
-
-  <div class="demo-block">
-    <h4 class="demo-label">水平方向（带文字）</h4>
-    <NeumorphismDivider>分区 A</NeumorphismDivider>
-    <p class="demo-hint">分割线之间的内容</p>
-    <NeumorphismDivider align="left">居左对齐</NeumorphismDivider>
-    <p class="demo-hint">内容</p>
-    <NeumorphismDivider align="right" dashed>居右对齐（虚线）</NeumorphismDivider>
-  </div>
-
-  <div class="demo-block">
-    <h4 class="demo-label">垂直方向</h4>
-    <div class="demo-row">
-      <span>左侧</span>
-      <NeumorphismDivider direction="vertical" />
-      <span>中间</span>
-      <NeumorphismDivider direction="vertical" dashed />
-      <span>右侧</span>
-    </div>
-  </div>
 </template>

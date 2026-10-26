@@ -143,43 +143,4 @@ const snippet = computed(() => {
       </template>
     </DemoPlayground>
   </div>
-  <div class="demo-block">
-    <h4 class="demo-label">可关闭与尺寸（字号可调）</h4>
-    <div class="demo-row demo-row--stacked" style="gap: 12px">
-      <div class="demo-row">
-        <NeumorphismSlider
-          v-model="fontSize"
-          :min="10"
-          :max="16"
-          :step="1"
-          style="width: 200px; flex: 0 0 200px"
-        />
-        <code>{{ fontSize }}px</code>
-      </div>
-      <div class="demo-row">
-        <div class="demo-size-tag" :style="tagStyle">
-          <NeumorphismTag variant="success">标签</NeumorphismTag>
-        </div>
-        <NeumorphismDivider direction="vertical" />
-        <NeumorphismTag
-          v-if="tagVisible"
-          variant="primary"
-          :closable="true"
-          @close="tagVisible = false"
-        >
-          可关闭
-        </NeumorphismTag>
-        <NeumorphismButton v-else variant="pressed" size="small" @click="tagVisible = true">
-          恢复
-        </NeumorphismButton>
-        <NeumorphismTag variant="error" rounded>圆角</NeumorphismTag>
-      </div>
-    </div>
-    <p class="demo-hint">
-      标签没有字号 prop：这里用演示级 CSS 变量 <code>--demo-tag-f</code> 桥接（见 demo.scss 的
-      <code>.demo-size-tag .nm-tag--medium</code>，高度 / 内边距 /
-      字号一起等比联动），组件样式零改动。 该规则只命中
-      <code>medium</code> 档，换档位改字号请直接覆盖 <code>--nm-font-*</code>。
-    </p>
-  </div>
 </template>

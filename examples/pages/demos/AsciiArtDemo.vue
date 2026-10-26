@@ -162,40 +162,4 @@ const snippet = computed(() => {
       </template>
     </DemoPlayground>
   </div>
-
-  <div class="demo-block">
-    <h4 class="demo-label">尺寸策略：自适应 vs 只给 height（同一参数、实时对比）</h4>
-    <div class="demo-row" style="align-items: flex-start; gap: 20px">
-      <div style="flex: 1 1 200px; min-width: 0">
-        <NeumorphismAsciiArt
-          :src="artImage"
-          :density="asciiDensity"
-          :speed="asciiSpeed"
-          :radius="asciiRadius"
-          :palette="asciiPalette"
-          aria-label="自适应高度的字符画"
-        />
-        <p class="demo-hint">
-          <b>不传 width / height</b>：宽度撑满父级，高度按图片原始宽高比算出来（图片加载完成前用
-          240px 占位）。
-        </p>
-      </div>
-
-      <div style="flex: 1 1 200px; min-width: 0">
-        <NeumorphismAsciiArt
-          :src="artImage"
-          :density="asciiDensity"
-          :speed="asciiSpeed"
-          :radius="asciiRadius"
-          :palette="asciiPalette"
-          :height="200"
-          aria-label="固定高度的字符画"
-        />
-        <p class="demo-hint">
-          <b>只传 height="200"</b>：容器被拉成 200px 高，但字符栅格仍按 contain 居中，图片不形变——
-          多出来的两侧留白就是比例差。
-        </p>
-      </div>
-    </div>
-  </div>
 </template>

@@ -18,6 +18,9 @@ const autoResize = ref(false)
 const label = ref('')
 const placeholder = ref('请输入内容...')
 const disabled = ref(false)
+const readonly = ref(false)
+/** 空串 = 无错误。组件按 `!!error` 判态，所以空串天然等于「关闭」 */
+const errorMsg = ref('')
 
 /**
  * 0 = 不限，但**不能**直接把 0 传给 maxlength：原生 `maxlength="0"` 意味着一个字都输不进去。
@@ -43,14 +46,9 @@ function reset() {
   label.value = ''
   placeholder.value = '请输入内容...'
   disabled.value = false
+  readonly.value = false
+  errorMsg.value = ''
 }
-
-// ---- 后续演示块独立状态 ----
-const projectDesc = ref('')
-const fixedText = ref('固定 3 行：内容超出后出现滚动条。')
-const autoText = ref('自适应高度：内容变多时容器跟着长高，变少时再收回来。')
-const errorText = ref('')
-const readonlyText = ref('这一段是只读内容，可以选中复制，但改不了。')
 
 // ---- 实时代码片段 ----
 const snippet = computed(() => {
@@ -62,6 +60,8 @@ const snippet = computed(() => {
   if (showCount.value) attrs.push('show-count')
   if (autoResize.value) attrs.push('auto-resize')
   if (disabled.value) attrs.push('disabled')
+  if (readonly.value) attrs.push('readonly')
+  if (errorMsg.value) attrs.push(`error="${errorMsg.value}"`)
 
   // 0 不能被当成「不限」写进属性：原生 maxlength="0" 意味着一个字都输不进去，只有省略属性才是真不限
   const note: string[] = maxlength.value
@@ -86,6 +86,8 @@ ${note.join('\n')}`.trimEnd()
           :label="label"
           :placeholder="placeholder"
           :disabled="disabled"
+          :readonly="readonly"
+          :error="errorMsg"
         />
       </div>
 
@@ -95,6 +97,8 @@ ${note.join('\n')}`.trimEnd()
         }}</b>
         · autoResize=<b>{{ autoResize ? '开' : '关' }}</b> · 已输入=<b>{{ content.length }}</b>
         <template v-if="disabled"> · disabled</template>
+        <template v-if="readonly"> · readonly</template>
+        <template v-if="errorMsg"> · error</template>
       </template>
 
       <template #hint>
@@ -148,6 +152,14 @@ ${note.join('\n')}`.trimEnd()
           <NeumorphismSwitch v-model="disabled" size="small" />
         </DemoField>
 
+        <DemoField label="只读 readonly">
+          <NeumorphismSwitch v-model="readonly" size="small" />
+        </DemoField>
+
+        <DemoField label="错误文案 error" grow>
+          <NeumorphismInput v-model="errorMsg" size="small" placeholder="留空则不报错" />
+        </DemoField>
+
         <DemoField label="操作">
           <NeumorphismButton variant="raised" size="small" @click="reset()"
             >恢复默认</NeumorphismButton
@@ -155,58 +167,5 @@ ${note.join('\n')}`.trimEnd()
         </DemoField>
       </template>
     </DemoPlayground>
-  </div>
-
-  <div class="demo-block">
-    <h4 class="demo-label">字数统计（原演示的「项目描述」写法）</h4>
-    <div class="demo-form-width">
-      <NeumorphismTextarea
-        v-model="projectDesc"
-        label="项目描述"
-        placeholder="请描述您的项目..."
-        :maxlength="200"
-        :rows="3"
-        :show-count="true"
-      />
-    </div>
-    <p class="demo-hint">
-      计数显示在右下角（<code>已输入 / 上限</code>），达到上限后原生 <code>maxlength</code>
-      会直接拦住多余的输入——不做「超出变红」的软限制，因为多语言输入法下软限制容易吞字。
-    </p>
-  </div>
-
-  <div class="demo-block">
-    <h4 class="demo-label">固定行数 vs 自适应高度</h4>
-    <div class="demo-row demo-form-width" style="align-items: flex-start; gap: 20px">
-      <div style="flex: 1 1 180px; min-width: 0">
-        <NeumorphismTextarea v-model="fixedText" :rows="3" label="固定 3 行" />
-      </div>
-      <div style="flex: 1 1 180px; min-width: 0">
-        <NeumorphismTextarea v-model="autoText" :rows="3" auto-resize label="auto-resize" />
-      </div>
-    </div>
-    <p class="demo-hint">
-      自适应只跟着内容走：删字后同样会收回去。量高时组件会临时清空 placeholder——浏览器会把折行的
-      placeholder 计入
-      <code>scrollHeight</code>，不清空的话窄容器里的空文本域会先虚高成两行、输入一个字再缩回来。
-    </p>
-  </div>
-
-  <div class="demo-block">
-    <h4 class="demo-label">错误、禁用与只读</h4>
-    <div class="demo-row demo-row--stacked demo-form-width" style="gap: 18px">
-      <NeumorphismTextarea
-        v-model="errorText"
-        placeholder="错误状态"
-        error="请填写项目描述（至少 20 字）"
-        :rows="3"
-      />
-      <NeumorphismTextarea model-value="禁用的文本域" disabled :rows="2" />
-      <NeumorphismTextarea v-model="readonlyText" readonly :rows="2" />
-    </div>
-    <p class="demo-hint">
-      与 Input 一致：<code>error</code> 只换配色与提示语（仍可输入），<code>disabled</code>
-      不可聚焦、不进表单，<code>readonly</code> 可选中复制但不接受修改。
-    </p>
   </div>
 </template>

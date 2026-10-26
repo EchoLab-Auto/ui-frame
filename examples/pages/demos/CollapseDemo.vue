@@ -71,10 +71,6 @@ function toggleAll() {
   active.value = accordion.value ? ['item1'] : ['item1', 'item2']
 }
 
-// ---- 手风琴对照（第 2 个 block）----
-const compareAccordion = ref<string[]>(['item1'])
-const plainAccordion = ref<string[]>(['item1', 'item2'])
-
 /** 恢复默认：配置台「恢复默认」按钮直接调它 */
 function reset(): void {
   accordionModel.value = false
@@ -178,39 +174,5 @@ const snippet = computed(() => {
         </DemoField>
       </template>
     </DemoPlayground>
-  </div>
-
-  <div class="demo-block">
-    <h4 class="demo-label">手风琴 vs 多开（同一份 items，两种 modelValue 语义）</h4>
-    <div class="demo-row" style="gap: 24px; align-items: flex-start">
-      <div style="flex: 1 1 260px; min-width: 240px">
-        <p class="demo-hint" style="margin: 0 0 6px">accordion（同时只开一项）</p>
-        <NeumorphismCollapse v-model="compareAccordion" :items="items" accordion>
-          <template #item1>
-            <p>展开这一栏时，另一栏会自动收起。</p>
-          </template>
-          <template #item2>
-            <p>modelValue 里永远最多只有一个 key。</p>
-          </template>
-          <template #item3>
-            <p>禁用项不参与折叠。</p>
-          </template>
-        </NeumorphismCollapse>
-      </div>
-      <div style="flex: 1 1 260px; min-width: 240px">
-        <p class="demo-hint" style="margin: 0 0 6px">默认（可同时展开多项）</p>
-        <NeumorphismCollapse v-model="plainAccordion" :items="items">
-          <template #item1>
-            <p>默认 <code>accordion=false</code>，可以多栏同开。</p>
-          </template>
-          <template #item2>
-            <p>modelValue 是一个 key 数组，顺序无关。</p>
-          </template>
-          <template #item3>
-            <p>禁用项不参与折叠。</p>
-          </template>
-        </NeumorphismCollapse>
-      </div>
-    </div>
   </div>
 </template>

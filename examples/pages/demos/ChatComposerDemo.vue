@@ -57,16 +57,6 @@ function reset() {
   composerStage.value = 'gradient'
 }
 
-// ---- 四档玻璃并排：同一段文字在不同材质下的样子 ----
-const glassLadder: { key: string; label: string; glass: false | GlassLevel }[] = [
-  { key: 'none', label: '关闭', glass: false },
-  { key: 'float', label: '悬浮 float', glass: 'float' },
-  { key: 'raised', label: '凸面 raised', glass: 'raised' },
-  { key: 'pressed', label: '凹陷 pressed', glass: 'pressed' },
-]
-/** 四档各有自己的输入内容，否则四个 v-model 共享一串文字，一敲全变 */
-const ladderValues = ref<Record<string, string>>({ none: '', float: '', raised: '', pressed: '' })
-
 // ---- 实时代码片段 ----
 const snippet = computed(() => {
   const attrs = ['v-model="value"']
@@ -159,28 +149,5 @@ const snippet = computed(() => {
         </DemoField>
       </template>
     </DemoPlayground>
-  </div>
-
-  <div class="demo-block">
-    <h4 class="demo-label">四档玻璃并排（同一段文字，彩色台面）</h4>
-    <div class="demo-row" style="gap: 16px; align-items: stretch">
-      <div v-for="item in glassLadder" :key="item.key" style="flex: 1 1 280px; min-width: 260px">
-        <h4 class="demo-label">{{ item.label }}</h4>
-        <div class="composer-stage composer-stage--gradient">
-          <ChatComposer
-            v-model="ladderValues[item.key]"
-            :glass="item.glass"
-            focus-effect="glow"
-            :rows="2"
-            :placeholder="`glass=${item.key}`"
-          />
-        </div>
-      </div>
-    </div>
-    <p class="demo-hint">
-      玻璃只换<strong>表面材质</strong>（半透明底 + 模糊 + 高光边），阴影方向仍由档位决定：
-      <code>float</code> 环境投影、<code>raised</code> 凸起双阴影、<code>pressed</code> 凹陷内阴影。
-      玻璃托盘上的输入槽依旧是凹陷的——两层材质叠在一起才有"悬浮玻璃里嵌了块凹槽"的层次。
-    </p>
   </div>
 </template>

@@ -29,16 +29,6 @@ const pixelAlignOptions: { label: string; value: PixelAlign }[] = [
 /** 副题比标题小一档缩放（不低于 1 倍设计尺寸；原作副题约为标题高度的 60%） */
 const pixelSubtitleScale = computed(() => Math.max(1, pixelScale.value - 1))
 
-// ---- 字符集样张（静态内容，不跟配置台的 scale 走，避免样张被放大到出屏）----
-const pixelSpecimenScale = 2
-const pixelCharset = [
-  'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
-  'abcdefghijklmnopqrstuvwxyz',
-  '0123456789 !?@#$%&*()[]{}<>',
-]
-/** 多行文本靠 `\n` 换行（组件内部 white-space: pre，按字符栅格原样保留空白） */
-const pixelMultiline = 'READY.\nPRESS ANY KEY'
-
 /** 字体出处声明：授权信息，原文照抄（放脚本里避免模板换行把中文句子切出多余空格） */
 const fontNotice =
   '字体出处：termsyn 6x11（stlarch 作；Terminus × Tamsyn 混合位图字体，GPL-2）——由 PCF 位图重建为 woff2 内嵌（字形逐像素一致），字母 I 的步进按片头样张收紧，两侧字距与其余字母一致；含 400 / 700 双字重。'
@@ -84,6 +74,7 @@ const snippet = computed(() => {
       </template>
 
       <template #hint>
+        <span style="display: block; margin-bottom: 6px">{{ fontNotice }}</span>
         显示区字号 = 11px × scale——位图字体仅在整数倍设计尺寸下保持像素锐利（scale
         自动取整）；光标随 reduced-motion 设置自动停闪。
       </template>
@@ -110,42 +101,5 @@ const snippet = computed(() => {
         </DemoField>
       </template>
     </DemoPlayground>
-  </div>
-
-  <div class="demo-block">
-    <h4 class="demo-label">字符集样张 · 多行 · 粗体字面</h4>
-    <div class="pixel-stage" style="width: 100%">
-      <div class="pixel-stage__specimen">
-        <NeumorphismPixelFont
-          v-for="line in pixelCharset"
-          :key="line"
-          :text="line"
-          :scale="pixelSpecimenScale"
-          :align="pixelAlign"
-        />
-      </div>
-      <NeumorphismPixelFont
-        :text="pixelMultiline"
-        :scale="pixelSpecimenScale"
-        :align="pixelAlign"
-      />
-      <!-- 内嵌 400 / 700 双字面：font-weight 700 直接切到 termsyn6x11b -->
-      <NeumorphismPixelFont
-        text="ALERT · BOLD 700"
-        :scale="pixelSpecimenScale"
-        :align="pixelAlign"
-        style="font-weight: 700"
-      />
-    </div>
-    <p class="demo-hint">
-      样张用 <code>scale="2"</code> 固定（不跟随上方滑块，免得放大到出屏）。第二行演示
-      <code>\n</code> 换行——文本走
-      <code>white-space: pre</code>，换行与连续空格都按字符栅格原样保留； 最后一行只加了
-      <code>font-weight: 700</code>，即切到内嵌的粗体位图字面（不是伪粗体合成）。
-    </p>
-  </div>
-  <div class="demo-block">
-    <h4 class="demo-label">字体出处与授权</h4>
-    <p class="demo-hint">{{ fontNotice }}</p>
   </div>
 </template>

@@ -47,9 +47,6 @@ const pageModel = computed<number>({
     page.value = value
   },
 })
-
-/** 尺寸调参演示里那份固定 5 页数据（不受配置台影响，保留原始演示） */
-const page2 = ref(3)
 const itemSizeBridge = computed(() => ({ '--demo-pagination-size': `${itemSize.value}px` }))
 
 /** 恢复默认：配置台「恢复默认」按钮直接调它 */
@@ -157,45 +154,5 @@ const snippet = computed(() => {
         </DemoField>
       </template>
     </DemoPlayground>
-  </div>
-
-  <div class="demo-block">
-    <h4 class="demo-label">显示总数与跳转（500 条 / 每页 20 → 25 页）</h4>
-    <NeumorphismPagination
-      v-model="page2"
-      :total="500"
-      :page-size="20"
-      :show-total="true"
-      :show-jumper="true"
-    />
-    <p class="demo-hint">
-      跳转输入框按 <code>change</code> 提交，输入超界时由 <code>usePagination</code> 夹到
-      1..总页数。
-    </p>
-  </div>
-
-  <div class="demo-block">
-    <h4 class="demo-label">按钮尺寸调参（--demo-pagination-size 桥接）</h4>
-    <div class="demo-row demo-row--stacked" style="gap: 14px">
-      <div class="demo-row">
-        <NeumorphismSlider
-          v-model="itemSize"
-          :min="26"
-          :max="56"
-          :step="2"
-          style="width: 200px; flex: 0 0 200px"
-        />
-        <code>{{ itemSize }}px</code>
-      </div>
-      <div class="demo-size-pagination" :style="itemSizeBridge">
-        <NeumorphismPagination v-model="page2" :total="50" :page-size="10" />
-      </div>
-    </div>
-    <p class="demo-hint">
-      页码按钮的 <code>min-width / height / font-size</code> 都由
-      <code>--demo-pagination-size</code> 推导（字号 = 边长 × 0.368）。 桥接类
-      <code>.demo-size-pagination</code> 只覆盖 <code>medium</code> 档，<code>small</code> /
-      <code>large</code> 走组件自带预设 30/46px。
-    </p>
   </div>
 </template>

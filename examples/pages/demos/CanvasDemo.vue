@@ -271,31 +271,4 @@ const snippet = computed(() => {
       </template>
     </DemoPlayground>
   </div>
-
-  <div class="demo-block">
-    <h4 class="demo-label">空画布（展示网格）</h4>
-    <NeumorphismCanvas
-      v-model="canvasZoom"
-      :show-grid="true"
-      :grid-variant="canvasGridVariant"
-      :grid-size="canvasGridSize"
-      height="250px"
-    >
-      <div
-        style="
-          padding: 24px;
-          color: var(--nm-text-placeholder);
-          font-size: 13px;
-          white-space: nowrap;
-        "
-      >
-        在此区域放置任意 SVG / HTML 内容
-      </div>
-    </NeumorphismCanvas>
-    <p class="demo-hint">
-      两块画布故意共享同一个 <code>v-model</code>，方便对照网格参数；实际项目里每块画布各自持有一个
-      zoom ref。空画布用的是默认 <code>min-zoom</code> /
-      <code>max-zoom</code>，所以能把上方调窄的区间 放宽回来。
-    </p>
-  </div>
 </template>

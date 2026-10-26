@@ -153,16 +153,4 @@ const snippet = computed(() => {
       </template>
     </DemoPlayground>
   </div>
-  <div class="demo-block">
-    <h4 class="demo-label">图片模式（加载失败时回退）</h4>
-    <div class="demo-row">
-      <NeumorphismAvatar src="https://i.pravatar.cc/64?img=1" alt="用户" size="medium" />
-      <NeumorphismAvatar src="https://invalid.url/img.jpg" initials="ER" size="medium" alt="用户" />
-      <NeumorphismAvatar src="https://invalid.url/img.jpg" size="large" alt="用户名" />
-    </div>
-    <p class="demo-hint">
-      回退顺序：<code>initials</code> 前 2 个字符（大写）→ <code>alt</code> 首字母 →
-      <code>?</code>；第三个头像没有 <code>initials</code>，回退取的是 <code>alt</code> 的首字母。
-    </p>
-  </div>
 </template>

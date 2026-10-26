@@ -119,26 +119,4 @@ const snippet = computed(() => {
       </template>
     </DemoPlayground>
   </div>
-
-  <div class="demo-block">
-    <h4 class="demo-label">两种典型用法：TypeScript（带行号）+ bash（无行号、一键复制）</h4>
-    <div class="demo-row" style="gap: 24px; align-items: flex-start">
-      <div style="flex: 1 1 320px; min-width: 300px">
-        <h4 class="demo-label">TypeScript（带行号）</h4>
-        <DocCodeBlock :code="codeDemoTs" lang="ts" />
-      </div>
-      <div style="flex: 1 1 320px; min-width: 300px">
-        <h4 class="demo-label">bash（无行号）</h4>
-        <DocCodeBlock
-          code="npm install @echolab-auto/ui-frame"
-          lang="bash"
-          :show-line-numbers="false"
-        />
-      </div>
-    </div>
-    <p class="demo-hint">
-      右上角的复制按钮走 <code>useClipboard</code>，复制成功后按钮文案会切到「已复制」并在 1.5s
-      后复位——一行 shell 命令不需要行号，关掉后左侧整块留白也跟着收掉。
-    </p>
-  </div>
 </template>

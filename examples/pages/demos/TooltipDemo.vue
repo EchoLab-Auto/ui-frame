@@ -107,35 +107,4 @@ const snippet = computed(() => {
       </template>
     </DemoPlayground>
   </div>
-
-  <div class="demo-block">
-    <h4 class="demo-label">四方向 / 点击触发 / 富文本插槽</h4>
-    <div class="demo-row" style="padding: 28px 0; gap: 16px">
-      <NeumorphismTooltip content="上方提示" position="top">
-        <NeumorphismButton variant="pressed" size="small">悬停（上）</NeumorphismButton>
-      </NeumorphismTooltip>
-      <NeumorphismTooltip content="下方提示" position="bottom">
-        <NeumorphismButton variant="pressed" size="small">悬停（下）</NeumorphismButton>
-      </NeumorphismTooltip>
-      <NeumorphismTooltip content="左侧提示" position="left">
-        <NeumorphismButton variant="pressed" size="small">悬停（左）</NeumorphismButton>
-      </NeumorphismTooltip>
-      <NeumorphismTooltip content="右侧提示" position="right">
-        <NeumorphismButton variant="pressed" size="small">悬停（右）</NeumorphismButton>
-      </NeumorphismTooltip>
-      <NeumorphismTooltip position="top" trigger="click">
-        <NeumorphismButton size="small">点击触发</NeumorphismButton>
-        <template #content>
-          <span>自定义<strong>富文本</strong>内容</span>
-        </template>
-      </NeumorphismTooltip>
-      <NeumorphismTooltip content="聚焦时出现，Tab 离开即消失" trigger="focus" position="bottom">
-        <NeumorphismButton size="small">聚焦触发</NeumorphismButton>
-      </NeumorphismTooltip>
-    </div>
-    <p class="demo-hint">
-      纯文本用 <code>content</code> 属性即可；要加粗、换行、放图标时改用 <code>#content</code>
-      插槽——两者同时存在时插槽优先。
-    </p>
-  </div>
 </template>

@@ -104,16 +104,8 @@ function reset() {
   showIndicator.value = true
 }
 
-// ---- Steps 状态与描述（第 2 个 block）----
-/** status 可以逐项覆盖自动推导的 wait/process/finish，用来表达「这一步卡住了」 */
-const detailSteps: StepEntry[] = [
-  { key: 'cart', title: '购物车', description: '已选 3 件商品' },
-  { key: 'address', title: '收货地址', description: '共 2 个可用地址' },
-  { key: 'pay', title: '支付', description: '微信支付失败', status: 'error' },
-  { key: 'done', title: '完成', description: '生成订单' },
-]
-
 // ---- Menu 横向模式（第 3 个 block）----
+/** 横向模式用带子菜单的 items——纵向模式下的子菜单是内联展开，横向是浮层 */
 const horizontalMenuItems: MenuEntry[] = [
   { key: 'home', label: '首页' },
   {
@@ -128,11 +120,18 @@ const horizontalMenuItems: MenuEntry[] = [
   { key: 'about', label: '关于' },
 ]
 
+/** Menu 的排布模式：横向时换用带子菜单的那份 items，否则子菜单看不出差别 */
+const menuMode = ref<'vertical' | 'horizontal'>('vertical')
+const menuPreviewItems = computed(() =>
+  menuMode.value === 'horizontal' ? horizontalMenuItems : menuItems.value
+)
+
 // ---- 实时代码片段 ----
 const snippet = computed(() => {
-  const menuAttrs = [':items="menuItems"']
-  // collapsed 默认 false，非默认才写
-  if (menuCollapsed.value) menuAttrs.push('collapsed')
+  const menuAttrs = [':items="items"']
+  // collapsed 默认 false，非默认才写；横向时 collapsed 无意义
+  if (menuMode.value === 'horizontal') menuAttrs.push('mode="horizontal"')
+  else if (menuCollapsed.value) menuAttrs.push('collapsed')
   const navAttrs = [':items="navItems"', 'default-active="guide"']
   const stepAttrs = ['v-model:current="current"', ':steps="steps"']
   if (stepDirection.value !== 'horizontal') stepAttrs.push(`direction="${stepDirection.value}"`)
@@ -152,10 +151,13 @@ const snippet = computed(() => {
       <div style="width: 100%">
         <div class="demo-row" style="gap: 24px; align-items: flex-start; flex-wrap: wrap">
           <div style="flex: 0 1 220px; min-width: 200px">
-            <h4 class="demo-label">Menu 纵向菜单</h4>
+            <h4 class="demo-label">
+              Menu 菜单（{{ menuMode === 'horizontal' ? '横向' : '纵向' }}）
+            </h4>
             <NeumorphismMenu
-              :items="menuItems"
-              :collapsed="menuCollapsed"
+              :items="menuPreviewItems"
+              :mode="menuMode"
+              :collapsed="menuCollapsed && menuMode === 'vertical'"
               default-active="dashboard"
               @select="onMenuSelect"
             />
@@ -213,6 +215,17 @@ const snippet = computed(() => {
           <NeumorphismSegmented v-model="stepDirection" :options="directionOptions" size="small" />
         </DemoField>
 
+        <DemoField label="Menu 模式">
+          <NeumorphismSegmented
+            v-model="menuMode"
+            :options="[
+              { label: '纵向', value: 'vertical' },
+              { label: '横向', value: 'horizontal' },
+            ]"
+            size="small"
+          />
+        </DemoField>
+
         <DemoField label="Menu">
           <div class="demo-row" style="gap: 16px">
             <label class="demo-toggle">
@@ -242,36 +255,5 @@ const snippet = computed(() => {
         </DemoField>
       </template>
     </DemoPlayground>
-  </div>
-
-  <div class="demo-block">
-    <h4 class="demo-label">Steps 竖直方向 + 描述 + 单步状态覆盖</h4>
-    <div style="max-width: 420px">
-      <NeumorphismSteps
-        v-model:current="stepCurrent"
-        :steps="detailSteps"
-        direction="vertical"
-        @step-click="onStepClick"
-      />
-    </div>
-    <p class="demo-hint">
-      第三项显式写了 <code>status: 'error'</code>，覆盖自动推导出来的状态；其余项仍按
-      <code>current</code> 自动判为 finish / process / wait。<code>description</code>
-      是副标题，竖直方向下才有足够横向空间展示。
-    </p>
-  </div>
-
-  <div class="demo-block">
-    <h4 class="demo-label">Menu 横向模式 + 子菜单</h4>
-    <NeumorphismMenu
-      :items="horizontalMenuItems"
-      mode="horizontal"
-      default-active="home"
-      @select="onMenuSelect"
-    />
-    <p class="demo-hint">
-      <code>mode="horizontal"</code> 时子菜单改为悬停弹出（带 150ms 关闭延迟），键盘 ←/→
-      在顶层项间移动、→/Enter 进入子菜单。最近交互：<strong>{{ lastAction }}</strong>
-    </p>
   </div>
 </template>

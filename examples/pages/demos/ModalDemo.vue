@@ -15,8 +15,12 @@ const title = ref('示例模态框')
 const size = ref<ModalSize>('small')
 /** 点遮罩关闭：组件里 maskClosable 与 closable 是「与」关系，任一为 false 都关不掉 */
 const maskClosable = ref(true)
-/** 内置页脚（取消 / 确认）。关掉后只剩关闭按钮与 Esc 两条退出路径 */
-const footer = ref(true)
+/**
+ * 页脚：'default' 用内置两颗按钮，'slot' 用 `#footer` 插槽接管，
+ * 'none' 传 `:footer="false"` 关掉（只剩右上角关闭与 Esc 两条退出路径）。
+ */
+const footerMode = ref<'default' | 'slot' | 'none'>('default')
+const footer = computed(() => footerMode.value !== 'none')
 const confirmLabel = ref('确认')
 const cancelLabel = ref('取消')
 
@@ -45,25 +49,11 @@ function note(event: ModalEvent) {
 
 const eventText = computed(() => (eventLog.value.length ? eventLog.value.join(' → ') : '—'))
 
-// ---- 自定义页脚（第 2 个 block）----
-const slotVisible = ref(false)
-const slotSaved = ref(false)
-
-function confirmSlot() {
-  slotSaved.value = true
-  slotVisible.value = false
-}
-
-function cancelSlot() {
-  slotSaved.value = false
-  slotVisible.value = false
-}
-
 function reset() {
   title.value = '示例模态框'
   size.value = 'small'
   maskClosable.value = true
-  footer.value = true
+  footerMode.value = 'default'
   confirmLabel.value = '确认'
   cancelLabel.value = '取消'
 }
@@ -76,11 +66,20 @@ const snippet = computed(() => {
   // size 默认 medium；maskClosable / footer 默认 true，只在关掉时补属性
   if (size.value !== 'medium') attrs.push(`size="${size.value}"`)
   if (!maskClosable.value) attrs.push(':mask-closable="false"')
-  if (!footer.value) attrs.push(':footer="false"')
+  // 'slot' 时不写 footer 属性，页脚由插槽接管
+  if (footerMode.value === 'none') attrs.push(':footer="false"')
   if (confirmLabel.value !== '确认') attrs.push(`confirm-label="${confirmLabel.value}"`)
   if (cancelLabel.value !== '取消') attrs.push(`cancel-label="${cancelLabel.value}"`)
+  const slotFooter =
+    footerMode.value === 'slot'
+      ? `
+  <template #footer>
+    <NeumorphismButton variant="pressed" size="small">稍后</NeumorphismButton>
+    <NeumorphismButton variant="primary" size="small">保存并关闭</NeumorphismButton>
+  </template>`
+      : ''
   return `<NeumorphismModal ${attrs.join(' ')} @confirm="onConfirm" @cancel="onCancel">
-  <p>正文内容</p>
+  <p>正文内容</p>${slotFooter}
 </NeumorphismModal>`
 })
 </script>
@@ -99,7 +98,7 @@ const snippet = computed(() => {
         size=<b>{{ size }}</b> · title=<b>{{ title || '（无标题）' }}</b> · maskClosable=<b>{{
           maskClosable
         }}</b>
-        · footer=<b>{{ footer }}</b>
+        · footer=<b>{{ footerMode }}</b>
       </template>
 
       <template #hint>
@@ -125,17 +124,23 @@ const snippet = computed(() => {
           <NeumorphismInput v-model="cancelLabel" size="small" placeholder="取消" />
         </DemoField>
 
+        <DemoField label="页脚 footer">
+          <NeumorphismSegmented
+            v-model="footerMode"
+            :options="[
+              { label: '内置', value: 'default' },
+              { label: '#footer 插槽', value: 'slot' },
+              { label: '关闭', value: 'none' },
+            ]"
+            size="small"
+          />
+        </DemoField>
+
         <DemoField label="行为">
-          <div class="demo-row" style="gap: 16px">
-            <label class="demo-toggle">
-              <NeumorphismSwitch v-model="maskClosable" size="small" />
-              <span>maskClosable</span>
-            </label>
-            <label class="demo-toggle">
-              <NeumorphismSwitch v-model="footer" size="small" />
-              <span>footer</span>
-            </label>
-          </div>
+          <label class="demo-toggle">
+            <NeumorphismSwitch v-model="maskClosable" size="small" />
+            <span>maskClosable（与 closable 是与关系）</span>
+          </label>
         </DemoField>
 
         <DemoField label="操作">
@@ -166,31 +171,11 @@ const snippet = computed(() => {
       <div style="margin-top: 12px">
         <NeumorphismInput v-model="modalText" placeholder="在模态框中输入内容..." />
       </div>
-    </NeumorphismModal>
-  </div>
-
-  <div class="demo-block">
-    <h4 class="demo-label">自定义页脚（#footer 插槽）</h4>
-    <NeumorphismButton size="small" @click="slotVisible = true"
-      >打开自定义页脚模态框</NeumorphismButton
-    >
-    <p class="demo-hint">
-      页脚内容完全由插槽接管：这里放「稍后」和主按钮两颗不同变体的按钮。 最近结果：<strong>{{
-        slotSaved ? '已确认' : '未操作'
-      }}</strong>
-    </p>
-
-    <NeumorphismModal v-model="slotVisible" title="自定义页脚" size="medium">
-      <p>需要把「保存并继续」做成主按钮时，直接用 <code>#footer</code> 插槽换掉内置那两颗。</p>
-      <p style="color: var(--nm-text-secondary); font-size: 13px">
-        内置页脚的确认/取消文案仍可由 <code>confirm-label</code> / <code>cancel-label</code>
-        覆盖；插槽一旦提供，两颗内置按钮就不渲染了。
-      </p>
-      <template #footer>
-        <NeumorphismButton variant="pressed" size="small" @click="cancelSlot()">
+      <template v-if="footerMode === 'slot'" #footer>
+        <NeumorphismButton variant="pressed" size="small" @click="note('cancel')">
           稍后
         </NeumorphismButton>
-        <NeumorphismButton variant="primary" size="small" @click="confirmSlot()">
+        <NeumorphismButton variant="primary" size="small" @click="note('confirm')">
           保存并关闭
         </NeumorphismButton>
       </template>

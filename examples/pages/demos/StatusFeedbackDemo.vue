@@ -61,27 +61,6 @@ const segmentedCountOptions = [
   { label: '3 项', value: 3 },
 ]
 
-/**
- * Spinner 的三个档位。
- *
- * 档位只是像素值的别名（见组件里的 SIZE_MAP），几何统一由 `--nm-spinner-size` 驱动；
- * 不传 size 时取全局配置 spinner.size，兜底是 medium。
- */
-const spinnerSizes: { size: 'small' | 'medium' | 'large'; px: number }[] = [
-  { size: 'small', px: 14 },
-  { size: 'medium', px: 20 },
-  { size: 'large', px: 28 },
-]
-
-// 独立的一份分段选择：专供方向键/禁用项演示，不参与上方配置
-const navSegmented = ref<string | number>('day')
-const navSegmentedOptions = [
-  { label: '日', value: 'day' },
-  { label: '周', value: 'week' },
-  { label: '月', value: 'month' },
-  { label: '自定义（未开放）', value: 'custom', disabled: true },
-]
-
 function reset() {
   dotStatus.value = 'online'
   spinnerDiameter.value = 28
@@ -165,43 +144,5 @@ const snippet = computed(() => {
         </DemoField>
       </template>
     </DemoPlayground>
-  </div>
-  <div class="demo-block">
-    <h4 class="demo-label">Spinner 三档尺寸（14 / 20 / 28）</h4>
-    <div class="demo-row" style="gap: 32px; align-items: flex-end">
-      <div
-        v-for="item in spinnerSizes"
-        :key="item.size"
-        style="display: flex; flex-direction: column; align-items: center; gap: 8px"
-      >
-        <NeumorphismSpinner :size="item.size" />
-        <code style="font-size: 12px">{{ item.size }} · {{ item.px }}px</code>
-      </div>
-    </div>
-    <p class="demo-hint">
-      档位只是像素值的别名（<code>small 14 / medium 20 / large 28</code>），几何全部由
-      <code>--nm-spinner-size</code> 驱动。传数字和传档位走同一条路径，没有两套样式。
-    </p>
-  </div>
-
-  <div class="demo-block">
-    <h4 class="demo-label">Segmented 分段选择（方向键可导航）</h4>
-    <div class="demo-row" style="gap: 20px">
-      <NeumorphismSegmented v-model="demoSegmented" :options="demoSegmentedOptions" />
-      <code style="font-size: 13px">当前值: {{ demoSegmented }}</code>
-    </div>
-
-    <div class="demo-row" style="margin-top: 12px">
-      <NeumorphismSegmented v-model="navSegmented" :options="navSegmentedOptions" />
-      <code style="font-size: 13px">当前值: {{ navSegmented }}</code>
-    </div>
-
-    <p class="demo-hint">
-      焦点进组后 <kbd>←</kbd> <kbd>→</kbd>（或 <kbd>↑</kbd> <kbd>↓</kbd>）在
-      <b>可用项之间循环</b>并即时选中，<kbd>Home</kbd> / <kbd>End</kbd> 跳到首尾；<code
-        >disabled</code
-      >
-      项会被 roving tabindex 直接跳过（上面那组「自定义」永远选不中）。
-    </p>
   </div>
 </template>

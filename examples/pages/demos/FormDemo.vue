@@ -70,8 +70,6 @@ const activeRules = computed(() => {
   return enabled.length ? enabled.join(' + ') : '无'
 })
 
-const formJson = computed(() => JSON.stringify(formModel.value))
-
 // ---- 提交 / 清除 ----
 const submittedJson = ref('')
 
@@ -214,18 +212,6 @@ const snippet = computed(() => {
       </template>
     </DemoPlayground>
   </div>
-
-  <div class="demo-block">
-    <h4 class="demo-label">当前表单数据（JSON 读数）</h4>
-    <!-- 复用代码块的凹陷底色当数据面板：页里只有它是「等宽 + 内凹」，为两行 pre 新造一个类不划算 -->
-    <!-- 注意 pre 会保留换行：内容必须紧跟在 <pre> 后面，不能换到下一行 -->
-    <pre class="demo-playground__snippet" style="margin: 0">formModel = {{ formJson }}</pre>
-    <pre class="demo-playground__snippet">submit = {{ submittedJson || '（尚未提交）' }}</pre>
-    <p class="demo-hint">
-      校验通过后点「提交」，第二行会显示 <code>submit</code> 事件的载荷（并弹出一条成功 toast）。
-    </p>
-  </div>
-
   <!-- 演示自己的 toast 容器：原页面是全局单例，拆卡后每张演示卡自带一份 -->
   <NeumorphismToastProvider ref="toastRef" position="top-right" />
 </template>

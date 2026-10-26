@@ -6,9 +6,8 @@ import artImage from '../../assets/images.jpeg'
 /**
  * 试验效果画布（NeumorphismArt）。
  *
- * 卡片里所有参数都收敛到配置台：效果 / 指针交互 / 速度 / 密度 / 高度。
- * `palette`、`seed` 与覆盖层插槽不适合塞进「一行一个值」的表单，放在
- * 第二个 block 里单独演示（横幅用法）。
+ * 组件的全部可调参数都收敛到配置台：效果 / 指针交互 / 速度 / 密度 / 高度 /
+ * 随机种子 / 配色 / 覆盖层文案。
  */
 type ArtEffect = 'pixel-field' | 'particles' | 'waves' | 'goo' | 'ascii'
 
@@ -29,6 +28,16 @@ const artReactive = ref(true)
 const artSpeed = ref(1)
 const artDensity = ref(1)
 const artHeight = ref(280)
+/** 固定种子让同一效果每次渲染出同一张图（不传则每次随机） */
+const artSeed = ref(1)
+/** 配色：默认沿用主题色；「自定义」用一组固定色板，方便截图复现 */
+const artPaletteMode = ref('theme' as 'theme' | 'custom')
+const ART_CUSTOM_PALETTE = ['#5b8def', '#3fb27f', '#f0a04b']
+const artPalette = computed(() =>
+  artPaletteMode.value === 'custom' ? ART_CUSTOM_PALETTE : undefined
+)
+/** 覆盖层文案：画在画布上的标题，证明「图层可自由组合」 */
+const artOverlayText = ref('')
 
 const artEffectOptions: ArtEffectOption[] = [
   { label: '像素场', value: 'pixel-field', title: '像素脉冲场' },
@@ -45,9 +54,6 @@ const artEffectTitle = computed(
 /** 分段控件需要 `{ label, value }` 两项，别把 title 一起传下去 */
 const artSegmentedOptions = artEffectOptions.map(({ label, value }) => ({ label, value }))
 
-// ---- 横幅用法（覆盖层 + 固定种子 + 自定义配色）----
-const bannerPalette = ['#5b8def', '#3fb27f', '#f0a04b']
-
 // ---- 实时代码片段 ----
 const snippet = computed(() => {
   const attrs: string[] = []
@@ -58,6 +64,8 @@ const snippet = computed(() => {
   if (artHeight.value !== ART_DEFAULT_HEIGHT) attrs.push(`:height="${artHeight.value}"`)
   // 只有字符画效果吃图片；其它效果传 src 无害但都是噪音，索性不写
   if (artEffect.value === 'ascii') attrs.push(':src="poster"')
+  if (artSeed.value !== 1) attrs.push(`:seed="${artSeed.value}"`)
+  if (artPaletteMode.value === 'custom') attrs.push(':palette="[...]"')
 
   const attrsText = attrs.length ? ` ${attrs.join(' ')}` : ''
   // 字符画本身就是画面，再压标题会挡住内容——这时给自闭合写法，别留个空的子节点
@@ -79,12 +87,14 @@ const snippet = computed(() => {
         :speed="artSpeed"
         :density="artDensity"
         :height="artHeight"
+        :seed="artSeed"
+        :palette="artPalette"
         :src="artImage"
         aria-label="动态效果预览"
       >
         <!-- 覆盖层 pointer-events: none，不会挡住画布的指针交互 -->
         <h3 v-if="artEffect !== 'ascii'" style="font-weight: 600; opacity: 0.85">
-          {{ artEffectTitle }}
+          {{ artOverlayText || artEffectTitle }}
         </h3>
       </NeumorphismArt>
 
@@ -92,7 +102,10 @@ const snippet = computed(() => {
         effect=<b>{{ artEffect }}</b> · reactive=<b>{{ artReactive ? 'on' : 'off' }}</b> · speed=<b
           >{{ artSpeed.toFixed(1) }}</b
         >
-        · density=<b>{{ artDensity.toFixed(1) }}</b> · height=<b>{{ artHeight }}px</b>
+        · density=<b>{{ artDensity.toFixed(1) }}</b> · height=<b>{{ artHeight }}px</b> · seed=<b>{{
+          artSeed
+        }}</b>
+        · palette=<b>{{ artPaletteMode }}</b>
       </template>
 
       <template #hint>
@@ -118,28 +131,29 @@ const snippet = computed(() => {
           <NeumorphismSlider v-model="artDensity" :min="0.5" :max="3" :step="0.1" size="small" />
         </DemoField>
 
+        <DemoField label="随机种子 seed" :value="String(artSeed)" label-width="88px" grow>
+          <NeumorphismSlider v-model="artSeed" :min="1" :max="60" :step="1" size="small" />
+        </DemoField>
+
+        <DemoField label="配色 palette" label-width="88px">
+          <NeumorphismSegmented
+            v-model="artPaletteMode"
+            :options="[
+              { label: '主题色', value: 'theme' },
+              { label: '自定义', value: 'custom' },
+            ]"
+            size="small"
+          />
+        </DemoField>
+
+        <DemoField label="覆盖层文案" label-width="88px" grow>
+          <NeumorphismInput v-model="artOverlayText" size="small" placeholder="留空则显示效果名" />
+        </DemoField>
+
         <DemoField label="高度 height" :value="`${artHeight}px`" label-width="88px" grow>
           <NeumorphismSlider v-model="artHeight" :min="160" :max="480" :step="20" size="small" />
         </DemoField>
       </template>
     </DemoPlayground>
-  </div>
-
-  <div class="demo-block">
-    <h4 class="demo-label">当横幅底图：覆盖层 + 固定种子 + 自定义配色</h4>
-    <NeumorphismArt
-      effect="waves"
-      :height="180"
-      :seed="42"
-      :palette="bannerPalette"
-      aria-label="波浪横幅示例"
-    >
-      <h3 style="font-weight: 600; opacity: 0.85">把动态效果当横幅底图</h3>
-    </NeumorphismArt>
-    <p class="demo-hint">
-      默认插槽渲染在画布之上且不响应指针（<code>pointer-events: none</code>），适合压标题、水印；
-      <code>:seed</code> 固定后图案可复现（同一份数据每次渲染都长一样），<code>:palette</code>
-      传入后不再跟随主题 token 换色——配色交给使用方，主题切换时画面保持不变。
-    </p>
   </div>
 </template>

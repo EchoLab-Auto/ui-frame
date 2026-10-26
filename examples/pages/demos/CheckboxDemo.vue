@@ -54,14 +54,6 @@ function reset() {
   label.value = '复选框'
 }
 
-// ---- 后续演示块独立状态 ----
-const basicUnchecked = ref(false)
-const basicChecked = ref(true)
-const basicIndeterminate = ref(true)
-const smallOn = ref(true)
-const mediumOn = ref(true)
-const largeOn = ref(true)
-
 // ---- 全选 / 半选联动：indeterminate 的真实用法 ----
 const fruitOptions = [
   { label: '苹果', value: 'apple' },
@@ -173,42 +165,6 @@ const snippet = computed(() => {
       </template>
     </DemoPlayground>
   </div>
-
-  <div class="demo-block">
-    <h4 class="demo-label">基本与半选状态</h4>
-    <div class="demo-row">
-      <NeumorphismCheckbox v-model="basicUnchecked" label="未选中" />
-      <NeumorphismCheckbox v-model="basicChecked" label="已选中" />
-      <NeumorphismCheckbox v-model="basicIndeterminate" :indeterminate="true" label="半选状态" />
-    </div>
-    <p class="demo-hint">
-      半选的语义是「下属项部分选中」：<code>indeterminate</code> 与
-      <code>modelValue</code> 互不推导——勾选它时组件只把
-      <code>modelValue</code> 置反，横杠该不该出现由调用方决定 （典型写法见下方「全选 /
-      半选联动」）。
-    </p>
-  </div>
-
-  <div class="demo-block">
-    <h4 class="demo-label">尺寸档位与禁用</h4>
-    <div class="demo-row">
-      <NeumorphismCheckbox v-model="smallOn" size="small" label="小 18px" />
-      <NeumorphismCheckbox v-model="mediumOn" size="medium" label="中 24px" />
-      <NeumorphismCheckbox v-model="largeOn" size="large" label="大 30px" />
-    </div>
-    <div class="demo-row">
-      <NeumorphismCheckbox :model-value="true" label="已选中禁用" disabled />
-      <NeumorphismCheckbox :model-value="false" label="未选中禁用" disabled />
-      <NeumorphismCheckbox :model-value="true" :indeterminate="true" label="半选禁用" disabled />
-    </div>
-    <p class="demo-hint">
-      原演示里那根 16–36px 的指示器滑块已经搬进上方配置台（走
-      <code>.demo-size-checkbox</code> 桥接）；生产代码请用 <code>size</code> 枚举档，px
-      微调不是组件 API。禁用态除了吃掉点击，还会把整行降到 50%
-      透明度——图标与文案一并变淡，不做「半透明指示器 + 实心文字」的分裂处理。
-    </p>
-  </div>
-
   <div class="demo-block">
     <h4 class="demo-label">全选 / 半选联动（indeterminate 的典型用法）</h4>
     <div class="demo-row" style="align-items: flex-start; gap: 32px">

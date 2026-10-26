@@ -90,27 +90,6 @@ const chartBarData = [
   },
 ]
 
-const chartBarDataStacked = [
-  {
-    name: '线上',
-    data: [
-      { label: '1月', value: 120 },
-      { label: '2月', value: 150 },
-      { label: '3月', value: 180 },
-      { label: '4月', value: 140 },
-    ],
-  },
-  {
-    name: '线下',
-    data: [
-      { label: '1月', value: 80 },
-      { label: '2月', value: 90 },
-      { label: '3月', value: 100 },
-      { label: '4月', value: 110 },
-    ],
-  },
-]
-
 const chartLineData = [
   {
     name: '访问量',
@@ -273,22 +252,6 @@ const chartStockData = [
       </template>
     </DemoPlayground>
   </div>
-
-  <div class="demo-block">
-    <h4 class="demo-label">柱状图（分组）</h4>
-    <NeumorphismChartBar :series="chartBarData" title="季度销售对比" height="280px" />
-  </div>
-
-  <div class="demo-block">
-    <h4 class="demo-label">柱状图（堆叠）</h4>
-    <NeumorphismChartBar
-      :series="chartBarDataStacked"
-      title="月度渠道销售"
-      :stacked="true"
-      height="280px"
-    />
-  </div>
-
   <div class="demo-block">
     <h4 class="demo-label">折线图（平滑曲线 + 面积填充）</h4>
     <div class="demo-row" style="margin-bottom: 12px">

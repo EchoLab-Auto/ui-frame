@@ -19,6 +19,9 @@ const glass = ref<CardGlass>('none')
 const hoverable = ref<CardHover>('none')
 const radius = ref<CardRadius>('large')
 const squircle = ref(false)
+/** 头部 / 底部插槽：卡片只有这两个「结构位」，其余全是材质参数 */
+const showHeader = ref(false)
+const showFooter = ref(false)
 /**
  * 预览台默认彩色。
  *
@@ -87,6 +90,8 @@ function reset() {
   hoverable.value = 'none'
   radius.value = 'large'
   squircle.value = false
+  showHeader.value = false
+  showFooter.value = false
 }
 
 /** 「套用玻璃」：顺手把台面切到彩色，否则玻璃在平面背景上几乎看不出磨砂 */
@@ -104,7 +109,11 @@ const snippet = computed(() => {
   if (radius.value !== 'large') attrs.push(`radius="${radius.value}"`)
   if (squircle.value) attrs.push('squircle')
   const open = attrs.length ? `<NeumorphismCard ${attrs.join(' ')}>` : '<NeumorphismCard>'
-  return `${open}\n  卡片内容\n</NeumorphismCard>`
+  const slots = [
+    showHeader.value ? '  <template #header>卡片标题</template>' : '',
+    showFooter.value ? '  <template #footer>底部信息</template>' : '',
+  ].filter(Boolean)
+  return `${open}\n${slots.length ? slots.join('\n') + '\n' : ''}  卡片内容\n</NeumorphismCard>`
 })
 </script>
 
@@ -120,10 +129,16 @@ const snippet = computed(() => {
         :squircle="squircle"
         style="width: 260px"
       >
+        <template v-if="showHeader" #header>
+          <strong style="font-size: 13px">卡片标题</strong>
+        </template>
         <strong style="font-size: 13px">台阶高度 {{ elevation }}</strong>
         <p style="margin: 4px 0 0; font-size: 12px; color: var(--nm-text-secondary)">
           悬停 {{ hoverText }}
         </p>
+        <template v-if="showFooter" #footer>
+          <span style="font-size: 11px; color: var(--nm-text-placeholder)">底部信息</span>
+        </template>
       </NeumorphismCard>
 
       <template #spec>
@@ -159,6 +174,19 @@ const snippet = computed(() => {
           <NeumorphismSwitch v-model="squircle" size="small" />
         </DemoField>
 
+        <DemoField label="插槽">
+          <div class="demo-row" style="gap: 16px">
+            <label class="demo-toggle">
+              <NeumorphismSwitch v-model="showHeader" size="small" />
+              <span>#header</span>
+            </label>
+            <label class="demo-toggle">
+              <NeumorphismSwitch v-model="showFooter" size="small" />
+              <span>#footer</span>
+            </label>
+          </div>
+        </DemoField>
+
         <DemoField label="操作">
           <NeumorphismButton variant="raised" size="small" @click="reset()"
             >恢复默认</NeumorphismButton
@@ -169,123 +197,5 @@ const snippet = computed(() => {
         </DemoField>
       </template>
     </DemoPlayground>
-  </div>
-
-  <div class="demo-block">
-    <h4 class="demo-label">凸起（1 到 4 级）</h4>
-    <div class="demo-row demo-row--cards">
-      <NeumorphismCard
-        v-for="e in 4"
-        :key="e"
-        :elevation="e"
-        style="width: 140px; text-align: center"
-      >
-        <strong>{{ e }}</strong>
-      </NeumorphismCard>
-    </div>
-  </div>
-
-  <div class="demo-block">
-    <h4 class="demo-label">凹陷（-1 到 -4 级）</h4>
-    <div class="demo-row demo-row--cards">
-      <NeumorphismCard
-        v-for="e in 4"
-        :key="-e"
-        :elevation="-e"
-        style="width: 140px; text-align: center"
-      >
-        <strong>{{ -e }}</strong>
-      </NeumorphismCard>
-    </div>
-  </div>
-
-  <div class="demo-block">
-    <h4 class="demo-label">悬停膨胀（elevation += 2）</h4>
-    <div class="demo-row demo-row--cards">
-      <NeumorphismCard :elevation="1" hoverable="bulge" style="width: 140px; text-align: center"
-        >1 → 3</NeumorphismCard
-      >
-      <NeumorphismCard :elevation="-2" hoverable="bulge" style="width: 140px; text-align: center"
-        >-2 → 0</NeumorphismCard
-      >
-      <NeumorphismCard :elevation="0" hoverable="bulge" style="width: 140px; text-align: center"
-        >0 → 2</NeumorphismCard
-      >
-    </div>
-  </div>
-
-  <div class="demo-block">
-    <h4 class="demo-label">带头部和底部</h4>
-    <NeumorphismCard :elevation="2" style="max-width: 480px">
-      <template #header>
-        <strong>卡片标题</strong>
-      </template>
-      <p style="color: var(--nm-text-secondary); font-size: 13px">
-        这是卡片的主要内容区域。您可以在这里放置任意组件或文字。
-      </p>
-      <template #footer>
-        <span style="color: var(--nm-text-placeholder); font-size: 12px">
-          底部信息 · 2024-01-01
-        </span>
-      </template>
-    </NeumorphismCard>
-  </div>
-
-  <div class="demo-block">
-    <h4 class="demo-label">玻璃拟态（磨砂玻璃：置于彩色背景上可见半透明与模糊，hover 抬升）</h4>
-    <div class="demo-glass-backdrop demo-glass-backdrop--cards">
-      <NeumorphismCard glass style="width: 168px">
-        <div class="demo-glass-card-title">悬浮玻璃</div>
-        <code class="demo-glass-code">glass="float"</code>
-      </NeumorphismCard>
-      <NeumorphismCard glass="raised" :elevation="2" style="width: 168px">
-        <div class="demo-glass-card-title">凸面玻璃</div>
-        <code class="demo-glass-code">glass="raised"</code>
-      </NeumorphismCard>
-      <NeumorphismCard glass="pressed" :elevation="-2" style="width: 168px">
-        <div class="demo-glass-card-title">凹陷玻璃</div>
-        <code class="demo-glass-code">glass="pressed"</code>
-      </NeumorphismCard>
-      <NeumorphismCard glass hoverable style="width: 168px">
-        <div class="demo-glass-card-title">悬停抬升</div>
-        <code class="demo-glass-code">glass + hoverable</code>
-      </NeumorphismCard>
-    </div>
-    <p class="demo-hint" style="margin-top: 10px">
-      玻璃只替换<strong>表面材质</strong>（半透明底 + <code>backdrop-filter</code> 模糊 + 1px
-      高光边），台阶高度模型仍由 <code>elevation</code> 决定—— <code>raised</code> /
-      <code>pressed</code> 的阴影强度跟随 <code>|elevation|</code>；<code>true</code> 等价于
-      <code>'float'</code>（旧布尔语义）。
-    </p>
-  </div>
-
-  <div class="demo-block">
-    <h4 class="demo-label">玻璃档位与高度组合（1–4 级）</h4>
-    <div class="demo-glass-backdrop demo-glass-backdrop--cards">
-      <NeumorphismCard
-        v-for="e in 4"
-        :key="`gr-${e}`"
-        glass="raised"
-        :elevation="e"
-        style="width: 96px; text-align: center"
-      >
-        <strong>{{ e }}</strong>
-      </NeumorphismCard>
-    </div>
-    <div class="demo-glass-backdrop demo-glass-backdrop--cards" style="margin-top: 12px">
-      <NeumorphismCard
-        v-for="e in 4"
-        :key="`gp-${e}`"
-        glass="pressed"
-        :elevation="-e"
-        style="width: 96px; text-align: center"
-      >
-        <strong>{{ -e }}</strong>
-      </NeumorphismCard>
-    </div>
-    <p class="demo-hint">
-      玻璃档位与 <code>elevation</code> 正交：同一档 <code>raised</code> 下 1→4
-      级只是阴影强度递增，材质不变。
-    </p>
   </div>
 </template>

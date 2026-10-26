@@ -86,13 +86,6 @@ function reset() {
   affix.value = false
 }
 
-// ---- 后续演示块独立状态 ----
-const name = ref('')
-const search = ref('')
-const tierSmall = ref('')
-const tierMedium = ref('')
-const tierLarge = ref('')
-
 // ---- 实时代码片段 ----
 const snippet = computed(() => {
   const attrs = ['v-model="value"']
@@ -228,73 +221,5 @@ const snippet = computed(() => {
         </DemoField>
       </template>
     </DemoPlayground>
-  </div>
-
-  <div class="demo-block">
-    <h4 class="demo-label">标签、前缀与后缀</h4>
-    <div class="demo-row demo-row--stacked demo-form-width" style="gap: 18px">
-      <NeumorphismInput v-model="name" label="用户名" placeholder="请输入用户名" :required="true" />
-      <NeumorphismInput v-model="search" placeholder="搜索...">
-        <template #prefix>
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <circle cx="11" cy="11" r="8" />
-            <path d="M21 21l-4.35-4.35" />
-          </svg>
-        </template>
-        <template #suffix>
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <path d="M20 6L9 17l-5-5" />
-          </svg>
-        </template>
-      </NeumorphismInput>
-    </div>
-    <p class="demo-hint">
-      插槽里放什么都可以：上面是原始演示的内联 SVG，配置台用的是
-      <code>&lt;NeumorphismIcon&gt;</code>。带 <code>required</code> 时标签后缀会渲染一个
-      <code>*</code>，同时原生 input 带上 <code>required</code> 参与表单校验。
-    </p>
-  </div>
-
-  <div class="demo-block">
-    <h4 class="demo-label">错误、禁用与只读</h4>
-    <div class="demo-row demo-row--stacked demo-form-width" style="gap: 18px">
-      <NeumorphismInput placeholder="错误状态" error="请输入有效的邮箱地址" />
-      <NeumorphismInput model-value="禁用的输入框" disabled />
-      <NeumorphismInput model-value="只读的内容" readonly />
-    </div>
-    <p class="demo-hint">
-      三种「不可填」是不同的语义：<code>error</code> 只换配色与提示语（仍可继续输入），
-      <code>disabled</code> 不可聚焦、不参与表单提交，<code>readonly</code>
-      可聚焦可复制但不接受修改——所以禁用态比只读态明显更灰。
-    </p>
-  </div>
-
-  <div class="demo-block">
-    <h4 class="demo-label">尺寸三档（Token 驱动）</h4>
-    <div class="demo-row demo-row--stacked demo-form-width" style="gap: 18px">
-      <NeumorphismInput v-model="tierSmall" size="small" label="small · 36px" />
-      <NeumorphismInput v-model="tierMedium" size="medium" label="medium · 48px" />
-      <NeumorphismInput v-model="tierLarge" size="large" label="large · 60px" />
-    </div>
-    <p class="demo-hint">
-      三档的真实差异是四组 token：<code>--nm-field-min-height-*</code>、
-      <code>--nm-field-padding-y-*</code>、<code>--nm-field-padding-x-*</code>、
-      <code>--nm-field-font-*</code
-      >。全局改某一档就覆写这组变量，单点改一个输入框就用上方配置台那种内联写法——两者走的是同一条路径。
-    </p>
   </div>
 </template>

@@ -97,30 +97,4 @@ const snippet = computed(() => {
       </template>
     </DemoPlayground>
   </div>
-
-  <div class="demo-block">
-    <h4 class="demo-label">数字角标、截断与圆点</h4>
-    <div class="demo-row" style="gap: 32px">
-      <NeumorphismBadge :value="5">
-        <NeumorphismButton variant="pressed" size="small">收件箱</NeumorphismButton>
-      </NeumorphismBadge>
-      <NeumorphismBadge :value="120" :max="99">
-        <NeumorphismButton variant="pressed" size="small">消息</NeumorphismButton>
-      </NeumorphismBadge>
-      <!-- dot 模式不显示数字，但组件用「value 是否为空」判断显隐，必须给个值 -->
-      <NeumorphismBadge dot :value="1">
-        <NeumorphismAvatar initials="AB" size="medium" />
-      </NeumorphismBadge>
-      <NeumorphismBadge value="new">
-        <NeumorphismButton variant="pressed" size="small">更新</NeumorphismButton>
-      </NeumorphismBadge>
-      <NeumorphismBadge :value="3" color="var(--nm-color-error)">
-        <NeumorphismButton variant="pressed" size="small">自定义色</NeumorphismButton>
-      </NeumorphismBadge>
-    </div>
-    <p class="demo-hint">
-      <code>value</code> 也接受字符串（如 <code>"new"</code>）——非空即显示，不参与
-      <code>max</code> 截断；<code>color</code> 只覆盖底色，字号与尺寸跟随主题 token。
-    </p>
-  </div>
 </template>

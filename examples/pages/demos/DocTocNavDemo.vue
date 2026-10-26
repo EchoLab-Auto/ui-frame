@@ -51,8 +51,8 @@ const tocItems3: TocNode[] = [
 // ---- 配置台状态 ----
 const tocDepth = ref<TocDepth>('3')
 const tocActiveId = ref('toc-demo-adv')
-/** 第二个演示（固定 3 层）的激活项：落在三级节点上，用来展示"自动展开祖先" */
-const tocDeepActiveId = ref('toc-demo-theme')
+/** false = 只渲染列表：不画卡片、不接管 sticky 滚动定位 */
+const tocFramed = ref(true)
 
 const tocDepthOptions = [
   { label: '2 层', value: '2' },
@@ -88,7 +88,8 @@ watch(tocDepth, () => {
 // ---- 实时代码片段 ----
 const snippet = computed(() => {
   const frame = tocDepth.value === '3' ? '3 层' : '2 层'
-  return `<DocTocNav :items="items" :active-id="activeId" @select="id => (activeId = id)" />
+  const framedAttr = tocFramed.value ? '' : ' :framed="false"'
+  return `<DocTocNav :items="items" :active-id="activeId"${framedAttr} @select="id => (activeId = id)" />
 
 <!-- items 是 TocNode[]：{ level, text, id, children }，当前示例 ${frame} -->
 <!-- activeId 通常由 useScrollSpy() 观测正文标题后回写，这里用点击模拟 -->`
@@ -101,17 +102,26 @@ const snippet = computed(() => {
     <DemoPlayground :snippet="snippet" :stage-switch="false">
       <!-- 目录本体固定 220px 宽（组件自带），外侧用 flex 居中对齐，避免预览台里偏在左边 -->
       <div style="display: flex; justify-content: center; width: 100%">
-        <DocTocNav :items="tocItems" :active-id="tocActiveId" @select="id => (tocActiveId = id)" />
+        <DocTocNav
+          :items="tocItems"
+          :active-id="tocActiveId"
+          :framed="tocFramed"
+          @select="id => (tocActiveId = id)"
+        />
       </div>
 
       <template #spec>
-        depth=<b>{{ tocDepth }}</b> · activeId=<b>{{ tocActiveId }}</b>
+        depth=<b>{{ tocDepth }}</b> · activeId=<b>{{ tocActiveId }}</b> · framed=<b>{{
+          tocFramed
+        }}</b>
       </template>
 
       <template #hint>
         <code>activeId</code> 由宿主持有：真实文档里它来自
-        <code>useScrollSpy()</code>（滚动时回写），这里用 <code>@select</code>
-        点击模拟。激活项若藏在折叠的父节点里，组件会自动把祖先展开——切到 3 层再看三级节点。
+        <code>useScrollSpy()</code>（滚动时回写），这里用
+        <code>@select</code> 点击模拟。激活项若藏在折叠的父节点里，组件会自动把祖先展开——切到 3
+        层、把激活项选成 三级节点即可看到。<code>framed=false</code> 时不画卡片、也不接管 sticky
+        滚动定位（适合塞进移动端抽屉或已有的侧栏容器）。
       </template>
 
       <template #config>
@@ -128,6 +138,10 @@ const snippet = computed(() => {
           />
         </DemoField>
 
+        <DemoField label="卡片边框 framed">
+          <NeumorphismSwitch v-model="tocFramed" size="small" />
+        </DemoField>
+
         <DemoField label="操作">
           <NeumorphismButton
             variant="raised"
@@ -141,39 +155,5 @@ const snippet = computed(() => {
         </DemoField>
       </template>
     </DemoPlayground>
-  </div>
-
-  <div class="demo-block">
-    <h4 class="demo-label">卡片边框 / 裸列表（framed）+ 自动展开祖先</h4>
-    <div class="demo-row" style="gap: 24px; align-items: flex-start">
-      <div style="flex: 0 1 320px; min-width: 260px">
-        <h4 class="demo-label">framed（默认）：带卡片边框</h4>
-        <!-- 激活项是三级节点：挂载时组件会自动展开「指南 › 进阶用法」这条祖先链 -->
-        <DocTocNav
-          :items="tocItems3"
-          :active-id="tocDeepActiveId"
-          @select="id => (tocDeepActiveId = id)"
-        />
-      </div>
-
-      <div style="flex: 0 1 320px; min-width: 260px">
-        <h4 class="demo-label">framed=false：只渲染列表</h4>
-        <DocTocNav
-          :items="tocItems3"
-          :active-id="tocDeepActiveId"
-          :framed="false"
-          @select="id => (tocDeepActiveId = id)"
-        />
-        <p class="demo-hint">
-          当前 activeId：<code>{{ tocDeepActiveId }}</code>
-        </p>
-      </div>
-    </div>
-
-    <p class="demo-hint">
-      <code>framed=false</code> 时组件不画卡片、也不接管滚动定位（不再
-      sticky），适合塞进移动端抽屉或已有的 侧栏容器里。两边共享同一个
-      <code>activeId</code>——这就是「桌面侧栏 + 移动端抽屉」共享同一份 scroll-spy 状态的写法。
-    </p>
   </div>
 </template>

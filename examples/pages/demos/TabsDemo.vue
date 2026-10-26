@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, reactive, computed } from 'vue'
+import { ref, computed } from 'vue'
 import { DemoPlayground, DemoField, type DemoStage } from '../../demo'
 
 type TabsPosition = 'top' | 'left'
@@ -78,23 +78,6 @@ const activeLabel = computed(
   () => tabs.value.find(tab => tab.key === activeModel.value)?.label ?? '—'
 )
 
-// ---- 静态示例（后面两个 block 用，不受配置台影响）----
-/** 原始演示的 4 个页签，末项禁用，保留下来做「尺寸 / 位置」对照 */
-const staticTabs: TabEntry[] = [
-  { key: 'tab1', label: '标签页 1' },
-  { key: 'tab2', label: '标签页 2' },
-  { key: 'tab3', label: '标签页 3' },
-  { key: 'tab4', label: '已禁用', disabled: true },
-]
-
-/** 每一档尺寸各自持有一份选中态，否则点一处三处一起跳，看不出档位差异 */
-const sizeActive = reactive<Record<TabsSize, string>>({
-  small: 'tab1',
-  medium: 'tab1',
-  large: 'tab1',
-})
-const sideActive = reactive<Record<TabsPosition, string>>({ top: 'tab1', left: 'tab1' })
-
 /** 恢复默认：配置台「恢复默认」按钮直接调它 */
 function reset(): void {
   position.value = 'top'
@@ -167,45 +150,5 @@ const snippet = computed(() => {
         </DemoField>
       </template>
     </DemoPlayground>
-  </div>
-
-  <div class="demo-block">
-    <h4 class="demo-label">尺寸档位（small / medium / large）</h4>
-    <div class="demo-row demo-row--stacked" style="gap: 14px">
-      <div v-for="item in sizeOptions" :key="item.value" style="width: 100%; max-width: 520px">
-        <p class="demo-hint" style="margin: 0 0 6px">size="{{ item.value }}"</p>
-        <NeumorphismTabs
-          v-model="sizeActive[item.value]"
-          :tabs="staticTabs"
-          position="top"
-          :size="item.value"
-        >
-          <p style="margin: 0">{{ item.label }}档位下的面板内容。</p>
-        </NeumorphismTabs>
-      </div>
-    </div>
-  </div>
-
-  <div class="demo-block">
-    <h4 class="demo-label">顶部 / 左侧两种位置对照</h4>
-    <div class="demo-row" style="gap: 24px; align-items: flex-start">
-      <div style="flex: 1 1 280px; min-width: 240px">
-        <p class="demo-hint" style="margin: 0 0 6px">position="top"（默认）</p>
-        <NeumorphismTabs v-model="sideActive.top" :tabs="staticTabs" position="top">
-          <p style="margin: 0">顶部导航条：页签横向排布在内容上方。</p>
-        </NeumorphismTabs>
-      </div>
-      <div style="flex: 0 1 360px; min-width: 260px">
-        <p class="demo-hint" style="margin: 0 0 6px">position="left"</p>
-        <NeumorphismTabs v-model="sideActive.left" :tabs="staticTabs" position="left">
-          <p style="margin: 0">左侧导航条：页签竖排，适合设置类面板。</p>
-        </NeumorphismTabs>
-      </div>
-    </div>
-    <p class="demo-hint">
-      <code>position</code> 还支持 <code>right</code>（导航条贴在右侧，与
-      <code>left</code> 对称）；左侧/右侧时 <code>aria-orientation</code> 变为
-      <code>vertical</code>，方向键也随之换成 ↑/↓。
-    </p>
   </div>
 </template>

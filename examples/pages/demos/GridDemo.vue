@@ -98,38 +98,6 @@ const snippet = computed(() => {
       </template>
     </DemoPlayground>
   </div>
-
-  <div class="demo-block">
-    <h4 class="demo-label">基本栅格</h4>
-    <NeumorphismRow :gutter="12">
-      <NeumorphismCol v-for="i in 4" :key="i" :span="6">
-        <NeumorphismCard :elevation="1">
-          <div class="grid-cell">col-6</div>
-        </NeumorphismCard>
-      </NeumorphismCol>
-    </NeumorphismRow>
-  </div>
-
-  <div class="demo-block">
-    <h4 class="demo-label">混合栅格与偏移</h4>
-    <NeumorphismRow :gutter="12">
-      <NeumorphismCol :span="8">
-        <NeumorphismCard :elevation="1">
-          <div class="grid-cell">col-8</div>
-        </NeumorphismCard>
-      </NeumorphismCol>
-      <NeumorphismCol :span="8" :offset="8">
-        <NeumorphismCard :elevation="1">
-          <div class="grid-cell">col-8 offset-8</div>
-        </NeumorphismCard>
-      </NeumorphismCol>
-    </NeumorphismRow>
-    <p class="demo-hint">
-      同一行里 <code>span + offset</code> 超过 24 时，超出的列自动换行。这条规则来自 flex 换行本身，
-      不是栅格在算数，所以 <code>offset</code> 一定要算进「本行已占用格数」。
-    </p>
-  </div>
-
   <div class="demo-block">
     <h4 class="demo-label">响应式栅格（调整浏览器宽度查看效果）</h4>
     <NeumorphismRow :gutter="12">

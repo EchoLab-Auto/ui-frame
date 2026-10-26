@@ -61,12 +61,6 @@ function reset() {
   disabled.value = false
 }
 
-// ---- 后续演示块独立状态 ----
-const radio1 = ref('a')
-const radio2 = ref('a')
-const radio3 = ref('a')
-const tierValue = ref('md')
-
 // ---- 实时代码片段 ----
 const snippet = computed(() => {
   const attrs = ['v-model="radioValue"']
@@ -151,56 +145,5 @@ const snippet = computed(() => {
         </DemoField>
       </template>
     </DemoPlayground>
-  </div>
-
-  <div class="demo-block">
-    <h4 class="demo-label">RadioGroup 水平排列</h4>
-    <NeumorphismRadioGroup v-model="radio1" direction="horizontal">
-      <NeumorphismRadio value="a" label="选项 A" />
-      <NeumorphismRadio value="b" label="选项 B" />
-      <NeumorphismRadio value="c" label="选项 C（已禁用）" :disabled="true" />
-    </NeumorphismRadioGroup>
-    <p class="demo-hint">
-      已选：<strong>{{ radio1 }}</strong
-      >。<code>RadioGroup</code> 通过 <code>name</code> 把子项关联成原生 radio
-      组（方向键在组内循环），<code>v-model</code> 只挂在组上——单个 <code>Radio</code> 不要再写
-      <code>v-model</code>，否则两份状态会打架。
-    </p>
-  </div>
-
-  <div class="demo-block">
-    <h4 class="demo-label">垂直排列 · 尺寸三档</h4>
-    <div class="demo-row" style="align-items: flex-start; gap: 40px">
-      <NeumorphismRadioGroup v-model="radio2" direction="vertical">
-        <NeumorphismRadio value="a" label="选项 A" />
-        <NeumorphismRadio value="b" label="选项 B" />
-        <NeumorphismRadio value="c" label="选项 C" />
-      </NeumorphismRadioGroup>
-      <div class="demo-row" style="flex-direction: column; align-items: flex-start; gap: 12px">
-        <NeumorphismRadio v-model="tierValue" value="sm" size="small" label="小 18px" />
-        <NeumorphismRadio v-model="tierValue" value="md" size="medium" label="中 24px" />
-        <NeumorphismRadio v-model="tierValue" value="lg" size="large" label="大 30px" />
-      </div>
-    </div>
-    <p class="demo-hint">
-      已选：<strong>{{ radio2 }}</strong
-      >。原演示里那根 16–36px 的圆环滑块已搬进上方配置台；脱离
-      <code>RadioGroup</code> 单独使用时，<code>Radio</code> 才需要自己带
-      <code>v-model</code>（右侧三个就是独立单选）。
-    </p>
-  </div>
-
-  <div class="demo-block">
-    <h4 class="demo-label">整组禁用（disabled 下发到每个子项）</h4>
-    <NeumorphismRadioGroup :model-value="radio3" direction="horizontal" disabled>
-      <NeumorphismRadio value="a" label="选项 A" />
-      <NeumorphismRadio value="b" label="选项 B" />
-      <NeumorphismRadio value="c" label="选项 C" />
-    </NeumorphismRadioGroup>
-    <p class="demo-hint">
-      组级 <code>disabled</code> 会与单个 radio 的
-      <code>disabled</code> 取或：任一层为真即不可选。与 <code>Checkbox</code> 一致，禁用只降透明度
-      + 吃掉点击，不做「灰掉文案」这类会牺牲对比度的处理。
-    </p>
   </div>
 </template>

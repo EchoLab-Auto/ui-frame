@@ -120,39 +120,4 @@ const snippet = computed(() => {
       档；选小/大时滑块不生效是有意的。
     </p>
   </div>
-
-  <div class="demo-block">
-    <h4 class="demo-label">三档尺寸（共用同一个 v-model，切换一处三处同步）</h4>
-    <div class="demo-row" style="gap: 28px; align-items: flex-end">
-      <div
-        v-for="option in sizeOptions"
-        :key="option.value"
-        style="display: flex; flex-direction: column; align-items: center; gap: 8px"
-      >
-        <NeumorphismThemeToggle
-          v-model="themeToggleValue"
-          :size="option.value"
-          :disable-auto="disableAuto"
-        />
-        <code style="font-size: 12px">{{ option.value }}</code>
-      </div>
-    </div>
-    <p class="demo-hint">
-      尺寸档位只改外边距/内边距/图标与文字大小，不改选项数量与顺序（<code>light → auto → dark</code
-      >）。三档并排时按钮的相对位置一致，不会出现某一档「跳一格」。
-    </p>
-  </div>
-
-  <div class="demo-block">
-    <h4 class="demo-label">禁用自动模式</h4>
-    <div class="demo-row">
-      <NeumorphismThemeToggle v-model="themeToggleValue" :disable-auto="true" />
-      <code style="font-size: 13px">当前值: {{ themeToggleValue }}</code>
-    </div>
-    <p class="demo-hint">
-      <code>:disable-auto="true"</code> 后只剩两个按钮；如果此时值是 <code>auto</code>
-      （例如由全局配置或其他实例写入），看起来会像「全部未选中」——要么像本演示一样在关闭时把值改成
-      <code>light</code>，要么在初始化时就保证值不是 <code>auto</code>。
-    </p>
-  </div>
 </template>

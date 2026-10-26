@@ -34,17 +34,6 @@ const acceptOptions = [
   { label: 'PDF', value: '.pdf' },
 ]
 
-// ---- Alert 四种类型（原始四种文案原样保留） ----
-const alertExamples: { type: AlertType; message: string }[] = [
-  { type: 'info', message: '信息提示：文档已同步更新' },
-  { type: 'success', message: '成功：级联配置已生效' },
-  { type: 'warning', message: '警告：该操作需要确认' },
-  { type: 'error', message: '错误：提交失败，请重试' },
-]
-
-/** Alert 关闭后 DOM 会被移除；换 key 强制重建，验证「可关闭」又不至于演示一次就没了 */
-const alertKey = ref(0)
-
 // ---- Drawer ----
 const demoDrawerOpen = ref(false)
 const drawerPosition = ref<DrawerPosition>('right')
@@ -154,29 +143,6 @@ const snippet = computed(() => {
       </template>
     </DemoPlayground>
   </div>
-
-  <div class="demo-block">
-    <h4 class="demo-label">Alert 四种类型</h4>
-    <div :key="alertKey" style="display: flex; flex-direction: column; gap: 10px">
-      <NeumorphismAlert
-        v-for="item in alertExamples"
-        :key="item.type"
-        :type="item.type"
-        :message="item.message"
-      />
-    </div>
-    <div class="demo-row" style="margin-top: 12px">
-      <NeumorphismButton variant="pressed" size="small" @click="alertKey++"
-        >重新显示四条</NeumorphismButton
-      >
-    </div>
-    <p class="demo-hint">
-      <code>closable</code> 默认 <code>true</code>：点 × 后提示条淡出、DOM 移除并触发
-      <code>close</code>，所以要「召回」只能靠父级换 key 重建。<br />
-      <code>duration &gt; 0</code> 时还会到期自动关闭（默认 0 = 常驻）。
-    </p>
-  </div>
-
   <div class="demo-block">
     <h4 class="demo-label">Drawer 抽屉</h4>
     <div class="demo-row">
