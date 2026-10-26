@@ -8,11 +8,13 @@ import type { InjectionKey } from 'vue'
 export interface NeumorphismGlobalConfig {
   /** Default button props applied to all NeumorphismButton instances */
   button?: {
-    variant?: 'raised' | 'pressed'
+    /**
+     * 默认视觉预设。玻璃是其中一档（`glass` / `glass-raised` / `glass-pressed`），
+     * 这里一并放开，否则「全站默认玻璃」无从配置。
+     */
+    variant?: 'raised' | 'pressed' | 'primary' | 'glow' | 'glass' | 'glass-raised' | 'glass-pressed'
     size?: 'small' | 'medium' | 'large'
     shape?: 'rounded' | 'pill' | 'circle'
-    /** 默认玻璃拟态档位：true / 'float' / 'raised' / 'pressed' */
-    glass?: boolean | 'float' | 'raised' | 'pressed'
   }
   /** Default input props applied to all NeumorphismInput instances */
   input?: {

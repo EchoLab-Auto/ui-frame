@@ -91,7 +91,7 @@ hover 临时把台阶高度 ±2，且**永不跨越符号边界**（凸起不会
 | --------- | ------------------------------------------ | ------------------------- |
 | `float`   | 环境投影（浮层感），不随 elevation         | `variant="glass"`         |
 | `raised`  | 新拟态凸起双阴影，强度跟随 `\|elevation\|` | `variant="glass-raised"`  |
-| `pressed` | 新拟态凹陷内阴影，强度跟随 `\|elevation\|` | —（卡片独有的"玻璃凹槽"） |
+| `pressed` | 新拟态凹陷内阴影，强度跟随 `\|elevation\|` | `variant="glass-pressed"` |
 
 细节：
 

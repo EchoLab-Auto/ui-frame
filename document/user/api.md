@@ -86,19 +86,17 @@ import type {
   ButtonVariant,
   ButtonSize,
   ButtonShape,
-  GlassValue,
 } from '@echolab-auto/ui-frame'
 ```
 
-| Props    | Type                                                                        | Default     | Description                                                                                                    |
-| -------- | --------------------------------------------------------------------------- | ----------- | -------------------------------------------------------------------------------------------------------------- |
-| variant  | `'raised' \| 'pressed' \| 'primary' \| 'glow' \| 'glass' \| 'glass-raised'` | `'raised'`  | 阴影变体（玻璃两者为旧写法）                                                                                   |
-| glass    | `boolean \| GlassValue`                                                     | —           | 玻璃档位 `float`/`raised`/`pressed`；与 variant 正交；`true` ≡ `float`；旧 `variant="glass(-raised)"` 自动折叠 |
-| size     | `'small' \| 'medium' \| 'large'`                                            | `'medium'`  | 按钮尺寸                                                                                                       |
-| shape    | `'rounded' \| 'pill' \| 'circle'`                                           | `'rounded'` | 按钮形状                                                                                                       |
-| disabled | `boolean`                                                                   | `false`     | 是否禁用                                                                                                       |
-| loading  | `boolean`                                                                   | `false`     | 是否加载中                                                                                                     |
-| type     | `'button' \| 'submit' \| 'reset'`                                           | `'button'`  | 原生按钮类型                                                                                                   |
+| Props    | Type                                                                                           | Default     | Description                                                                                                               |
+| -------- | ---------------------------------------------------------------------------------------------- | ----------- | ------------------------------------------------------------------------------------------------------------------------- |
+| variant  | `'raised' \| 'pressed' \| 'primary' \| 'glow' \| 'glass' \| 'glass-raised' \| 'glass-pressed'` | `'raised'`  | 视觉预设；玻璃是其中三档（`glass` ≡ 档位 `float`、`glass-raised` ≡ `raised`、`glass-pressed` ≡ `pressed`），不是独立 prop |
+| size     | `'small' \| 'medium' \| 'large'`                                                               | `'medium'`  | 按钮尺寸                                                                                                                  |
+| shape    | `'rounded' \| 'pill' \| 'circle'`                                                              | `'rounded'` | 按钮形状                                                                                                                  |
+| disabled | `boolean`                                                                                      | `false`     | 是否禁用                                                                                                                  |
+| loading  | `boolean`                                                                                      | `false`     | 是否加载中                                                                                                                |
+| type     | `'button' \| 'submit' \| 'reset'`                                                              | `'button'`  | 原生按钮类型                                                                                                              |
 
 **Events:** `click`
 
@@ -524,13 +522,13 @@ import type {
 } from '@echolab-auto/ui-frame'
 ```
 
-| Props     | Type                                     | Default   | Description                                                                                                                                                                                |
-| --------- | ---------------------------------------- | --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| elevation | `number`                                 | `2`       | 台阶高度：正=凸起，负=凹陷，0=平齐                                                                                                                                                         |
-| hoverable | `boolean \| 'bulge' \| 'sink'`           | `false`   | 悬停动效模式                                                                                                                                                                               |
-| radius    | `'small' \| 'medium' \| 'large' \| 'xl'` | `'large'` | 圆角大小                                                                                                                                                                                   |
-| noPadding | `boolean`                                | `false`   | 是否移除内边距                                                                                                                                                                             |
-| glass     | `boolean \| CardGlass`                   | `false`   | 玻璃拟态档位：`float`（悬浮磨砂，同按钮 `glass`）/ `raised`（磨砂 + 凸起双阴影，同按钮 `glass-raised`）/ `pressed`（磨砂 + 凹陷内阴影）；`true` 等价 `float`；阴影强度跟随 `\|elevation\|` |
+| Props     | Type                                     | Default   | Description                                                                                                                                                                                                              |
+| --------- | ---------------------------------------- | --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| elevation | `number`                                 | `2`       | 台阶高度：正=凸起，负=凹陷，0=平齐                                                                                                                                                                                       |
+| hoverable | `boolean \| 'bulge' \| 'sink'`           | `false`   | 悬停动效模式                                                                                                                                                                                                             |
+| radius    | `'small' \| 'medium' \| 'large' \| 'xl'` | `'large'` | 圆角大小                                                                                                                                                                                                                 |
+| noPadding | `boolean`                                | `false`   | 是否移除内边距                                                                                                                                                                                                           |
+| glass     | `boolean \| CardGlass`                   | `false`   | 玻璃拟态档位：`float`（悬浮磨砂，同按钮 `variant="glass"`）/ `raised`（磨砂 + 凸起双阴影，同 `"glass-raised"`）/ `pressed`（磨砂 + 凹陷内阴影，同 `"glass-pressed"`）；`true` 等价 `float`；阴影强度跟随 `\|elevation\|` |
 
 **Slots:** `header`, default, `footer`
 

@@ -112,14 +112,14 @@ link:
 
 ### 基础按钮与触发
 
-> [`NeumorphismButton` 有独立的详细文档](./components/button.md)——完整可配置项、六个预设变体的交互动画详解与用法预设。
+> [`NeumorphismButton` 有独立的详细文档](./components/button.md)——完整可配置项、七个预设变体（含玻璃三档）的交互动画详解与用法预设。
 
-| 组件                                                     | 职责                      | 关键 props                                                                                                                | 亮点                                                             |
-| -------------------------------------------------------- | ------------------------- | ------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
-| [`NeumorphismButton`](./components/button.md)            | 新拟态按钮                | `variant`（raised/pressed/primary/glow/glass/glass-raised）、`size`、`shape`（rounded/pill/circle）、`loading`、`pressed` | loading 内置 spinner 并禁用点击；`aria-pressed`/`aria-busy` 完备 |
-| [`NeumorphismThemeToggle`](./components/theme-toggle.md) | 亮/暗/自动三态主题切换    | `modelValue`（light/dark/auto）、`disableAuto`                                                                            | 配合 ThemeProvider 使用                                          |
-| [`NeumorphismSegmented`](./components/segmented.md)      | 分段选择器（单选选项条）  | `modelValue`、`options`、`size`                                                                                           | 方向键键盘导航；文案走 locale                                    |
-| [`NeumorphismLogo`](./components/logo.md)                | 动态像素 Logo（SVG 动画） | `mode`（pulse/liquid/wave/pointer）、`goo`、`autoplay`、`floating`                                                        | `usePixelLogoAnimation` 驱动；pointer 模式跟随指针；gooey 滤镜   |
+| 组件                                                     | 职责                      | 关键 props                                                                                                                              | 亮点                                                             |
+| -------------------------------------------------------- | ------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| [`NeumorphismButton`](./components/button.md)            | 新拟态按钮                | `variant`（raised/pressed/primary/glow/glass/glass-raised/glass-pressed）、`size`、`shape`（rounded/pill/circle）、`loading`、`pressed` | loading 内置 spinner 并禁用点击；`aria-pressed`/`aria-busy` 完备 |
+| [`NeumorphismThemeToggle`](./components/theme-toggle.md) | 亮/暗/自动三态主题切换    | `modelValue`（light/dark/auto）、`disableAuto`                                                                                          | 配合 ThemeProvider 使用                                          |
+| [`NeumorphismSegmented`](./components/segmented.md)      | 分段选择器（单选选项条）  | `modelValue`、`options`、`size`                                                                                                         | 方向键键盘导航；文案走 locale                                    |
+| [`NeumorphismLogo`](./components/logo.md)                | 动态像素 Logo（SVG 动画） | `mode`（pulse/liquid/wave/pointer）、`goo`、`autoplay`、`floating`                                                                      | `usePixelLogoAnimation` 驱动；pointer 模式跟随指针；gooey 滤镜   |
 
 ---
 

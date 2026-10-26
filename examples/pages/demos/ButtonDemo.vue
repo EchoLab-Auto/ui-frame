@@ -2,12 +2,15 @@
 import { ref, computed } from 'vue'
 import { DemoPlayground, DemoField, DemoPresets, type DemoStage, type DemoPreset } from '../../demo'
 
-type ButtonVariant = 'raised' | 'pressed' | 'primary' | 'glow'
-type ButtonGlass = 'none' | 'float' | 'raised' | 'pressed'
+/**
+ * 玻璃是 `variant` 的三档取值，不是独立 prop —— 所以这里只有一个变体状态。
+ * 阴影方向只有一条轴（凸 / 凹），玻璃三档同时决定「材质 + 凸凹」。
+ */
+type ButtonVariant =
+  'raised' | 'pressed' | 'primary' | 'glow' | 'glass' | 'glass-raised' | 'glass-pressed'
 
 // ---- 配置台状态 ----
 const variant = ref<ButtonVariant>('raised')
-const glass = ref<ButtonGlass>('none')
 const size = ref<'small' | 'medium' | 'large'>('medium')
 const shape = ref<'rounded' | 'pill' | 'circle'>('rounded')
 const text = ref('按钮')
@@ -16,17 +19,18 @@ const disabled = ref(false)
 const height = ref(44)
 const stage = ref<DemoStage>('gradient')
 
+/**
+ * 七档平铺在一条分段控件里：玻璃三档与基础四档是同一个 prop 的取值，
+ * 分成两条控件会暗示「可以叠着选」——那正是要消灭的组合。
+ */
 const variantOptions = [
   { label: '凸起', value: 'raised' },
   { label: '凹陷', value: 'pressed' },
   { label: '主色', value: 'primary' },
   { label: '辉光', value: 'glow' },
-]
-const glassOptions = [
-  { label: '关闭', value: 'none' },
-  { label: '悬浮', value: 'float' },
-  { label: '凸面', value: 'raised' },
-  { label: '凹陷', value: 'pressed' },
+  { label: '玻璃', value: 'glass' },
+  { label: '玻璃凸', value: 'glass-raised' },
+  { label: '玻璃凹', value: 'glass-pressed' },
 ]
 const sizeOptions = [
   { label: '小', value: 'small' },
@@ -38,6 +42,10 @@ const shapeOptions = [
   { label: '胶囊', value: 'pill' },
   { label: '圆形', value: 'circle' },
 ]
+
+/** 玻璃变体集合：用于「套用玻璃」与台面自动切换 */
+const GLASS_VARIANTS = new Set<ButtonVariant>(['glass', 'glass-raised', 'glass-pressed'])
+const isGlass = computed(() => GLASS_VARIANTS.has(variant.value))
 
 /**
  * 预览用的高度样式。
@@ -58,111 +66,47 @@ const previewStyle = computed(() => {
   }
 })
 
-/** 传给组件的 glass：'none' 必须显式传 false，否则会走全局配置/旧 variant 语义 */
-const glassValue = computed<false | Exclude<ButtonGlass, 'none'>>(() =>
-  glass.value === 'none' ? false : glass.value
-)
-
 // ---- 变体一览 ----
 interface PresetRow extends DemoPreset {
-  variant: ButtonVariant | 'glass' | 'glass-raised'
-  glass: false | 'float' | 'raised' | 'pressed'
-  /** 点击后载入的状态；旧写法格与 float 档等价，故不参与选中态比对 */
-  target: { variant: ButtonVariant; glass: ButtonGlass }
-  /** false = 不参与选中态比对（等价写法格） */
-  match?: false
+  variant: ButtonVariant
+  /** 格子里的短名：全叫「按钮」分不出是哪个变体 */
+  label: string
 }
 
 const presetRows: PresetRow[] = [
-  {
-    key: 'raised',
-    code: 'variant="raised"',
-    variant: 'raised',
-    glass: false,
-    target: { variant: 'raised', glass: 'none' },
-  },
-  {
-    key: 'pressed',
-    code: 'variant="pressed"',
-    variant: 'pressed',
-    glass: false,
-    target: { variant: 'pressed', glass: 'none' },
-  },
-  {
-    key: 'primary',
-    code: 'variant="primary"',
-    variant: 'primary',
-    glass: false,
-    target: { variant: 'primary', glass: 'none' },
-  },
-  {
-    key: 'glow',
-    code: 'variant="glow"',
-    variant: 'glow',
-    glass: false,
-    target: { variant: 'glow', glass: 'none' },
-  },
-  {
-    key: 'glass-float',
-    code: 'glass="float"',
-    variant: 'raised',
-    glass: 'float',
-    target: { variant: 'raised', glass: 'float' },
-  },
+  { key: 'raised', code: 'variant="raised"', variant: 'raised', label: '凸起' },
+  { key: 'pressed', code: 'variant="pressed"', variant: 'pressed', label: '凹陷' },
+  { key: 'primary', code: 'variant="primary"', variant: 'primary', label: '主色' },
+  { key: 'glow', code: 'variant="glow"', variant: 'glow', label: '辉光' },
+  { key: 'glass', code: 'variant="glass"', variant: 'glass', label: '悬浮玻璃' },
   {
     key: 'glass-raised',
-    code: 'glass="raised"',
-    variant: 'raised',
-    glass: 'raised',
-    target: { variant: 'raised', glass: 'raised' },
+    code: 'variant="glass-raised"',
+    variant: 'glass-raised',
+    label: '凸面玻璃',
   },
   {
     key: 'glass-pressed',
-    code: 'glass="pressed"',
-    variant: 'raised',
-    glass: 'pressed',
-    target: { variant: 'raised', glass: 'pressed' },
-  },
-  {
-    key: 'legacy-glass',
-    code: 'variant="glass"',
-    variant: 'glass',
-    glass: false,
-    target: { variant: 'raised', glass: 'float' },
-    match: false,
+    code: 'variant="glass-pressed"',
+    variant: 'glass-pressed',
+    label: '凹陷玻璃',
   },
 ]
-
-/** 格子里的示例文案：给每个变体起个短名，比全叫「按钮」更容易分辨 */
-const presetLabel: Record<string, string> = {
-  raised: '凸起',
-  pressed: '凹陷',
-  primary: '主色',
-  glow: '辉光',
-  'glass-float': '悬浮玻璃',
-  'glass-raised': '凸面玻璃',
-  'glass-pressed': '凹陷玻璃',
-  'legacy-glass': '旧写法',
-}
 
 const presets = computed<DemoPreset[]>(() =>
   presetRows.map(row => ({
     key: row.key,
     code: row.code,
-    active:
-      row.match !== false &&
-      row.target.variant === variant.value &&
-      row.target.glass === glass.value,
+    active: row.variant === variant.value,
   }))
 )
 
 function applyPreset(key: string) {
   const row = presetRows.find(r => r.key === key)
   if (!row) return
-  variant.value = row.target.variant
-  glass.value = row.target.glass
+  variant.value = row.variant
   // 玻璃只有彩色台面才看得出磨砂，套用时顺手把台面切到彩色
-  if (row.target.glass !== 'none') stage.value = 'gradient'
+  if (GLASS_VARIANTS.has(row.variant)) stage.value = 'gradient'
 }
 
 function rowOf(key: string) {
@@ -171,7 +115,6 @@ function rowOf(key: string) {
 
 function reset() {
   variant.value = 'raised'
-  glass.value = 'none'
   size.value = 'medium'
   shape.value = 'rounded'
   text.value = '按钮'
@@ -184,15 +127,19 @@ function reset() {
 const snippet = computed(() => {
   const attrs: string[] = []
   if (variant.value !== 'raised') attrs.push(`variant="${variant.value}"`)
-  if (glass.value !== 'none') attrs.push(`glass="${glass.value}"`)
   if (size.value !== 'medium') attrs.push(`size="${size.value}"`)
   if (shape.value !== 'rounded') attrs.push(`shape="${shape.value}"`)
   if (loading.value) attrs.push('loading')
   if (disabled.value) attrs.push('disabled')
   const open = attrs.length ? `<NeumorphismButton ${attrs.join(' ')}>` : '<NeumorphismButton>'
-  const heightNote =
-    height.value !== 44 ? `\n  <!-- 高度经 --nm-button-* 变量调整：${height.value}px -->` : ''
-  return `${open}${text.value || '按钮'}</NeumorphismButton>${heightNote}`
+  const notes: string[] = []
+  if (height.value !== 44) {
+    notes.push(`  <!-- 高度经 --nm-button-* 变量调整：${height.value}px -->`)
+  }
+  if (isGlass.value) {
+    notes.push('  <!-- 玻璃需置于彩色/图片背景上，磨砂半透明才可见 -->')
+  }
+  return `${open}${text.value || '按钮'}</NeumorphismButton>\n${notes.join('\n')}`.trimEnd()
 })
 </script>
 
@@ -202,7 +149,6 @@ const snippet = computed(() => {
     <DemoPlayground v-model:stage="stage" :snippet="snippet">
       <NeumorphismButton
         :variant="variant"
-        :glass="glassValue"
         :size="size"
         :shape="shape"
         :loading="loading"
@@ -214,16 +160,17 @@ const snippet = computed(() => {
       </NeumorphismButton>
 
       <template #spec>
-        variant=<b>{{ variant }}</b> · glass=<b>{{ glass }}</b> · size=<b>{{ size }}</b> · shape=<b
-          >{{ shape }}</b
+        variant=<b>{{ variant }}</b> · size=<b>{{ size }}</b> · shape=<b>{{ shape }}</b> · height=<b
+          >{{ height }}px</b
         >
-        · height=<b>{{ height }}px</b>
         <template v-if="loading"> · loading</template>
         <template v-if="disabled"> · disabled</template>
       </template>
 
       <template #hint>
-        玻璃档位需在彩色背景上才看得到磨砂半透明；<code>circle</code> 形状建议配 1–2 字内容。
+        玻璃三档需在彩色背景上才看得到磨砂半透明；<code>circle</code> 形��建议配 1–2 字内容。 玻璃是
+        <code>variant</code> 的一档而非独立开关——它同时决定材质与阴影方向，与
+        <code>pressed</code> 这类凸凹变体本就同轴。
       </template>
 
       <template #config>
@@ -233,10 +180,6 @@ const snippet = computed(() => {
 
         <DemoField label="变体 variant">
           <NeumorphismSegmented v-model="variant" :options="variantOptions" size="small" />
-        </DemoField>
-
-        <DemoField label="玻璃 glass">
-          <NeumorphismSegmented v-model="glass" :options="glassOptions" size="small" />
         </DemoField>
 
         <DemoField label="尺寸 size">
@@ -268,7 +211,7 @@ const snippet = computed(() => {
           <NeumorphismButton variant="raised" size="small" @click="reset()"
             >恢复默认</NeumorphismButton
           >
-          <NeumorphismButton variant="pressed" size="small" @click="glass = 'float'">
+          <NeumorphismButton variant="pressed" size="small" @click="variant = 'glass'">
             套用玻璃
           </NeumorphismButton>
         </DemoField>
@@ -280,21 +223,16 @@ const snippet = computed(() => {
     <h4 class="demo-label">全部变体一览（点击载入到上方预览）</h4>
     <DemoPresets :items="presets" @pick="applyPreset">
       <template #default="{ item }">
-        <NeumorphismButton
-          :variant="rowOf(item.key).variant"
-          :glass="rowOf(item.key).glass"
-          size="small"
-        >
-          {{ presetLabel[item.key] }}
+        <NeumorphismButton :variant="rowOf(item.key).variant" size="small">
+          {{ rowOf(item.key).label }}
         </NeumorphismButton>
       </template>
     </DemoPresets>
     <p class="demo-hint" style="margin-top: 10px">
-      旧 <code>variant="glass"</code> / <code>variant="glass-raised"</code> 等价于
-      <code>glass="float"</code> /
-      <code>glass="raised"</code>，渲染结果不变（同样的类名与计算样式）。 玻璃与
-      <code>variant</code> 正交但会覆盖表面底色——要彩色玻璃请改 <code>--nm-glass-bg</code>，而不是叠
-      <code>variant="primary"</code>。
+      七个变体同属一条轴，因此**不能叠加**：过去的 <code>glass="raised"</code> 已并入
+      <code>variant="glass-raised"</code>。想要彩色玻璃请改 <code>--nm-glass-bg</code>——
+      玻璃表面会覆盖 <code>primary</code> 的底色，叠
+      <code>variant="primary"</code> 只会得到普通玻璃。
     </p>
   </div>
 </template>

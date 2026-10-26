@@ -83,7 +83,7 @@ export const demoCategories: DemoCategory[] = [
         id: 'buttons',
         nav: '按钮 Button',
         title: 'NeumorphismButton 按钮',
-        badge: '展示 + 配置 · 变体 / 玻璃档位 / 尺寸 / 形状 / 状态',
+        badge: '展示 + 配置 · 七个变体（含玻璃三档）/ 尺寸 / 形状 / 状态',
         full: true,
         component: ButtonDemo,
       },

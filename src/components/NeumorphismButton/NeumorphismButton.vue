@@ -1,20 +1,36 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useConfig } from '@/composables/useConfig'
-import { glassClassNames, normalizeGlass, type GlassValue, type GlassVariant } from '@/utils/glass'
+import { glassClassNames, normalizeGlass, type GlassVariant } from '@/utils/glass'
 
-export type ButtonVariant = 'raised' | 'pressed' | 'primary' | 'glow' | 'glass' | 'glass-raised'
+/**
+ * 按钮的视觉预设 —— **玻璃是其中一档，不是独立开关**。
+ *
+ * 阴影方向只有一条轴：`raised` / `pressed` 定凸凹，玻璃三档定「材质 + 凸凹」。
+ * 曾把玻璃做成与 `variant` 正交的 prop，结果是：
+ *
+ * 1. 能配出自相矛盾的组合（`variant="pressed" glass="raised"` = 凹陷外形 + 凸起阴影）；
+ * 2. 那个「正交」本身是假的 —— 玻璃表面会覆盖 `primary` 的底色，所以
+ *    `variant="primary" glass="raised"` 实际渲染的是玻璃色而非主色；
+ *    「主色玻璃」只能靠改 `--nm-glass-bg` 得到。
+ *
+ * 因此玻璃只作为 `variant` 的一个取值存在，不再有 `glass` prop。
+ */
+export type ButtonVariant =
+  'raised' | 'pressed' | 'primary' | 'glow' | 'glass' | 'glass-raised' | 'glass-pressed'
 
-/** 旧玻璃变体 → 等效玻璃档位（`variant` 上的历史写法，保留兼容） */
-const LEGACY_GLASS_VARIANTS: Partial<Record<ButtonVariant, GlassVariant>> = {
+/** 玻璃变体 → 共用档位名（`@/utils/glass` 的 `GlassVariant`） */
+const GLASS_TIER_OF_VARIANT: Partial<Record<ButtonVariant, GlassVariant>> = {
   glass: 'float',
   'glass-raised': 'raised',
+  'glass-pressed': 'pressed',
 }
+
 export type ButtonSize = 'small' | 'medium' | 'large'
 export type ButtonShape = 'rounded' | 'pill' | 'circle'
 
 export interface NeumorphismButtonProps {
-  /** Button display variant */
+  /** 视觉预设：`raised` / `pressed` / `primary` / `glow` / 玻璃三档 */
   variant?: ButtonVariant
   /** Button size */
   size?: ButtonSize
@@ -32,48 +48,38 @@ export interface NeumorphismButtonProps {
   form?: string
   /** Accessible label for the button */
   ariaLabel?: string
-  /**
-   * 玻璃拟态档位（与 `NeumorphismCard` 同一套命名）：
-   *   - `true` / `'float'` — 悬浮磨砂玻璃，hover 抬升（等价旧 `variant="glass"`）
-   *   - `'raised'`         — 磨砂玻璃 + 新拟态凸起双阴影（等价旧 `variant="glass-raised"`）
-   *   - `'pressed'`        — 磨砂玻璃 + 凹陷内阴影
-   *
-   * 与 `variant` 正交：玻璃只换「表面材质」，与 `variant` 同时给时玻璃优先。
-   * 显式传入时覆盖旧 `variant` 里的玻璃语义。
-   */
-  glass?: GlassValue
 }
 
 const props = withDefaults(defineProps<NeumorphismButtonProps>(), {
   disabled: false,
   loading: false,
   type: 'button',
-  // 显式声明默认值：`glass` 的类型含 boolean，Vue 会把「未传的布尔型 prop」
-  // 强制转成 false，从而吃掉全局配置 button.glass 与旧 variant 的玻璃语义
-  glass: undefined,
 })
 
 // Global config overrides defaults (explicit props still take precedence)
 const config = useConfig()
+
+/** 生效变体：显式 prop > 全局配置 `button.variant` > `raised` */
 const resolvedVariant = computed<ButtonVariant>(
   () => props.variant ?? config.value.button?.variant ?? 'raised'
 )
 
-/**
- * 生效的玻璃档位：显式 `glass` prop > 全局配置 `button.glass` > 旧 `variant` 的玻璃语义。
- *
- * 三条来源归一成同一套档位，因此新旧写法渲染出的类名完全一致。
- */
+/** 玻璃档位只由 `variant` 决定，没有第二条来源可供覆盖 */
 const resolvedGlass = computed<GlassVariant | false>(() =>
-  normalizeGlass(
-    props.glass ?? config.value.button?.glass ?? LEGACY_GLASS_VARIANTS[resolvedVariant.value]
-  )
+  normalizeGlass(GLASS_TIER_OF_VARIANT[resolvedVariant.value])
 )
 
-/** 材质变体：旧玻璃变体不再自带材质，改由玻璃档位决定，故回落到 `raised` */
+/**
+ * 类名里的「基础变体」。
+ *
+ * 玻璃三档统一落到 `raised`：玻璃只负责挂 `--glass`（材质）与 `--glass-<档位>`
+ * （阴影），而阴影规则的组合特异性（0,2,0）本就压过基础变体规则，基础档取哪个
+ * 都不影响观感——固定成 `raised` 是为了让类名序列稳定、可预测。
+ */
 const resolvedBaseVariant = computed<ButtonVariant>(() =>
-  LEGACY_GLASS_VARIANTS[resolvedVariant.value] ? 'raised' : resolvedVariant.value
+  GLASS_TIER_OF_VARIANT[resolvedVariant.value] ? 'raised' : resolvedVariant.value
 )
+
 const resolvedSize = computed(() => props.size ?? config.value.button?.size ?? 'medium')
 const resolvedShape = computed(() => props.shape ?? config.value.button?.shape ?? 'rounded')
 
@@ -348,9 +354,8 @@ function handleClick(event: MouseEvent): void {
 //    .nm-button--glass-raised        阴影：新拟态凸起双阴影
 //    .nm-button--glass-pressed       阴影：新拟态凹陷内阴影
 //
-//  旧写法无缝迁移：`variant="glass"` → float、`variant="glass-raised"` → raised，
-//  两者都由 `glassClassNames()` 生成上述类名，渲染结果与旧版一致。
-//
+//  三个档位分别对应 `variant="glass"` / `"glass-raised"` / `"glass-pressed"`
+//  三档变体（玻璃是变体的一档，不是独立 prop），类名由 `glassClassNames()` 生成。
 //  双类选择器（`.x--glass.x--glass-raised`，特异性 0,2,0）保证档位阴影压过
 //  `.nm-button--raised` 等基础变体，不依赖样式表书写顺序。
 // ============================================================
