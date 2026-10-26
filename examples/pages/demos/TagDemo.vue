@@ -37,18 +37,6 @@ const variantLabel: Record<TagVariant, string> = {
   info: '信息',
 }
 
-/**
- * 字号走演示级 CSS 变量桥接。
- *
- * 标签没有字号 prop（`size` 只有 small/medium/large 三档），所以字号是靠 demo.scss 里
- * `.demo-size-tag .nm-tag--medium` 那条规则把 `--demo-tag-f` 映射到高度 / 内边距 / 字号上的。
- * 该规则只命中 `medium` 档，因此预览里不传 `size`（组件默认就是 medium）——传了别的档位
- * 滑块就静默失效。
- */
-const tagStyle = computed<Record<string, string>>(() => ({
-  '--demo-tag-f': `${fontSize.value}px`,
-}))
-
 function reset() {
   variant.value = 'primary'
   closable.value = false
@@ -65,12 +53,10 @@ const snippet = computed(() => {
   if (rounded.value) attrs.push('rounded')
   // closable 只画出关闭按钮，真正的移除逻辑得消费方自己写，片段里一并带上才可粘贴
   if (closable.value) attrs.push('@close="visible = false"')
+  // size 的语义是字号，默认 12px 即 medium 锚点，偏离才写出来
+  if (fontSize.value !== 12) attrs.push(`:size="${fontSize.value}"`)
   const open = attrs.length ? `<NeumorphismTag ${attrs.join(' ')}>` : '<NeumorphismTag>'
-  const note =
-    fontSize.value !== 12
-      ? `\n<!-- 字号没有 prop：用演示级 CSS 调 --demo-tag-f（${fontSize.value}px），或覆盖 --nm-font-* -->`
-      : ''
-  return `${open}${variantLabel[variant.value]}</NeumorphismTag>${note}`
+  return `${open}${variantLabel[variant.value]}</NeumorphismTag>`
 })
 </script>
 
@@ -78,10 +64,11 @@ const snippet = computed(() => {
   <div class="demo-block">
     <h4 class="demo-label">展示 + 配置（左侧实时预览，右侧调整参数）</h4>
     <DemoPlayground :snippet="snippet">
-      <div class="demo-size-tag" :style="tagStyle">
+      <div class="demo-size-tag">
         <NeumorphismTag
           v-if="tagVisible"
           :variant="variant"
+          :size="fontSize"
           :closable="closable"
           :rounded="rounded"
           @close="tagVisible = false"

@@ -239,8 +239,16 @@ const rootStyle = computed(() => {
   }
 }
 
+/**
+ * 字**继承**根节点，不自己定值。
+ *
+ * 这里原先写死 `font-size: var(--nm-font-md)`（固定 13px），把 `.nm-tag--small`
+ * / `--large` 设在根上的 font-size 整个盖掉了 —— 于是 `size` 从来只改内距与
+ * 高度，文字始终 13px。改为 inherit 后：三档在 medium（13px）处与原渲染逐像素
+ * 相同，small / large 恢复成设计意图的 11 / 14px，数字尺寸也一并生效。
+ */
 .nm-tag__text {
-  font-size: var(--nm-font-md);
+  font-size: inherit;
   font-weight: 500;
   line-height: 1;
 }

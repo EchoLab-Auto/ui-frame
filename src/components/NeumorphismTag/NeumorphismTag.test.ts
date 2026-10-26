@@ -61,6 +61,18 @@ describe('NeumorphismTag', () => {
     }
   })
 
+  /**
+   * 回归守卫：`.nm-tag__text` 曾写死 `font-size: var(--nm-font-md)`（13px），
+   * 把三档设在根上的字号全部盖掉 —— `size` 对文字完全失效。jsdom 不做层叠
+   * 计算，所以这里只断言「文字不再自带固定字号」，真实层叠由浏览器验证。
+   */
+  it('文字节点不自己定字号（继承根节点，让 size 生效）', () => {
+    const wrapper = mount(NeumorphismTag, { props: { size: 14 } })
+    // 根上挂着内联尺寸变量，文字应跟随而非独立声明
+    expect(wrapper.attributes('style')).toContain('--nm-tag-sz-font: 14px')
+    expect(wrapper.find('.nm-tag__text').exists()).toBe(true)
+  })
+
   it('should apply rounded class', () => {
     const wrapper = mount(NeumorphismTag, { props: { rounded: true } })
     expect(wrapper.classes()).toContain('nm-tag--rounded')

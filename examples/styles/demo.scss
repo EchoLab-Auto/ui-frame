@@ -305,13 +305,7 @@
   height: calc(var(--demo-radio-size) / 2);
 }
 
-// 标签：高度 / 内边距 / 字号联动
-.demo-size-tag .nm-tag.nm-tag--medium {
-  height: calc(var(--demo-tag-f) * 2.3333);
-  padding: calc(var(--demo-tag-f) / 3) var(--demo-tag-f);
-  font-size: var(--demo-tag-f);
-}
-
+// 标签：`size` 直接收 px 字号后，原本这里「覆盖 medium 档」的联动规则已删除
 // 分页按钮与省略号（字号 14/38 等比）
 .demo-size-pagination .nm-pagination.nm-pagination--medium .nm-pagination__btn,
 .demo-size-pagination .nm-pagination.nm-pagination--medium .nm-pagination__ellipsis {
