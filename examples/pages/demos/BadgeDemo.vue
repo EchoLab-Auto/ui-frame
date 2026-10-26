@@ -1,0 +1,194 @@
+<script setup lang="ts">
+import { ref, computed } from 'vue'
+import { DemoPlayground, DemoField, DemoPresets, type DemoPreset } from '../../demo'
+
+type BadgeHost = 'button' | 'avatar'
+
+// ---- 配置台状态 ----
+const value = ref(5)
+/** 组件默认 `max` = 99，与默认值相同时实时代码片段会省略它 */
+const max = ref(99)
+const dot = ref(false)
+const showZero = ref(false)
+/** 被包裹的宿主：角标是绝对定位浮层，宿主可以是任意元素 */
+const host = ref<BadgeHost>('button')
+
+const hostOptions = [
+  { label: 'Button', value: 'button' },
+  { label: 'Avatar', value: 'avatar' },
+]
+
+function reset() {
+  value.value = 5
+  max.value = 99
+  dot.value = false
+  showZero.value = false
+  host.value = 'button'
+}
+
+// ---- 形态一览 ----
+interface PresetRow extends DemoPreset {
+  value: number
+  max: number
+  dot: boolean
+  showZero: boolean
+}
+
+const presetRows: PresetRow[] = [
+  { key: 'count', code: ':value="5"', value: 5, max: 99, dot: false, showZero: false },
+  {
+    key: 'overflow',
+    code: ':value="120" :max="99"',
+    value: 120,
+    max: 99,
+    dot: false,
+    showZero: false,
+  },
+  { key: 'dot', code: 'dot :value="1"', value: 1, max: 99, dot: true, showZero: false },
+  { key: 'zero', code: ':value="0" show-zero', value: 0, max: 99, dot: false, showZero: true },
+]
+
+const presets = computed<DemoPreset[]>(() =>
+  presetRows.map(row => ({
+    key: row.key,
+    code: row.code,
+    active:
+      row.value === value.value &&
+      row.max === max.value &&
+      row.dot === dot.value &&
+      row.showZero === showZero.value,
+  }))
+)
+
+function applyPreset(key: string) {
+  const row = presetRows.find(r => r.key === key)
+  if (!row) return
+  value.value = row.value
+  max.value = row.max
+  dot.value = row.dot
+  showZero.value = row.showZero
+  host.value = 'button'
+}
+
+function rowOf(key: string) {
+  return presetRows.find(r => r.key === key)!
+}
+
+// ---- 实时代码片段 ----
+const snippet = computed(() => {
+  // value 永远要写：组件靠「value 是否为空」判断显隐，不传（或传 0 且没开 show-zero）就整个隐藏
+  const attrs = [`:value="${value.value}"`]
+  if (max.value !== 99) attrs.push(`:max="${max.value}"`)
+  if (dot.value) attrs.push('dot')
+  if (showZero.value) attrs.push('show-zero')
+  const hostTag =
+    host.value === 'button'
+      ? '  <NeumorphismButton variant="pressed" size="small">收件箱</NeumorphismButton>'
+      : '  <NeumorphismAvatar initials="AB" size="medium" />'
+  return `<NeumorphismBadge ${attrs.join(' ')}>\n${hostTag}\n</NeumorphismBadge>`
+})
+</script>
+
+<template>
+  <div class="demo-block">
+    <h4 class="demo-label">展示 + 配置（左侧实时预览，右侧调整参数）</h4>
+    <DemoPlayground :snippet="snippet">
+      <NeumorphismBadge :value="value" :max="max" :dot="dot" :show-zero="showZero">
+        <NeumorphismButton v-if="host === 'button'" variant="pressed" size="small">
+          收件箱
+        </NeumorphismButton>
+        <NeumorphismAvatar v-else initials="AB" size="medium" />
+      </NeumorphismBadge>
+
+      <template #spec>
+        value=<b>{{ value }}</b> · max=<b>{{ max }}</b> · dot=<b>{{ dot ? '开' : '关' }}</b> ·
+        showZero=<b>{{ showZero ? '开' : '关' }}</b> · 宿主=<b>{{ host }}</b>
+      </template>
+
+      <template #hint>
+        <code>value</code> ≤ 0 且没开 <code>show-zero</code> 时整个角标隐藏；超过
+        <code>max</code> 显示 <code>max+</code>。<code>dot</code> 模式不显示数字，但仍要传
+        <code>value</code>——组件是用「<code>value</code> 是否为空」判断显隐的，不传就整块隐藏。
+      </template>
+
+      <template #config>
+        <DemoField label="数值 value" :value="String(value)" grow>
+          <NeumorphismSlider v-model="value" :min="0" :max="200" :step="1" size="small" />
+        </DemoField>
+
+        <DemoField label="上限 max" :value="String(max)" grow>
+          <NeumorphismSlider v-model="max" :min="1" :max="200" :step="1" size="small" />
+        </DemoField>
+
+        <DemoField label="状态">
+          <div class="demo-row" style="gap: 16px">
+            <label class="demo-toggle">
+              <NeumorphismSwitch v-model="dot" size="small" />
+              <span>dot</span>
+            </label>
+            <label class="demo-toggle">
+              <NeumorphismSwitch v-model="showZero" size="small" />
+              <span>show-zero</span>
+            </label>
+          </div>
+        </DemoField>
+
+        <DemoField label="宿主">
+          <NeumorphismSegmented v-model="host" :options="hostOptions" size="small" />
+        </DemoField>
+
+        <DemoField label="操作">
+          <NeumorphismButton variant="raised" size="small" @click="reset()"
+            >恢复默认</NeumorphismButton
+          >
+        </DemoField>
+      </template>
+    </DemoPlayground>
+  </div>
+
+  <div class="demo-block">
+    <h4 class="demo-label">数字角标、截断与圆点</h4>
+    <div class="demo-row" style="gap: 32px">
+      <NeumorphismBadge :value="5">
+        <NeumorphismButton variant="pressed" size="small">收件箱</NeumorphismButton>
+      </NeumorphismBadge>
+      <NeumorphismBadge :value="120" :max="99">
+        <NeumorphismButton variant="pressed" size="small">消息</NeumorphismButton>
+      </NeumorphismBadge>
+      <!-- dot 模式不显示数字，但组件用「value 是否为空」判断显隐，必须给个值 -->
+      <NeumorphismBadge dot :value="1">
+        <NeumorphismAvatar initials="AB" size="medium" />
+      </NeumorphismBadge>
+      <NeumorphismBadge value="new">
+        <NeumorphismButton variant="pressed" size="small">更新</NeumorphismButton>
+      </NeumorphismBadge>
+      <NeumorphismBadge :value="3" color="var(--nm-color-error)">
+        <NeumorphismButton variant="pressed" size="small">自定义色</NeumorphismButton>
+      </NeumorphismBadge>
+    </div>
+    <p class="demo-hint">
+      <code>value</code> 也接受字符串（如 <code>"new"</code>）——非空即显示，不参与
+      <code>max</code> 截断；<code>color</code> 只覆盖底色，字号与尺寸跟随主题 token。
+    </p>
+  </div>
+
+  <div class="demo-block">
+    <h4 class="demo-label">形态一览（点击载入到上方预览）</h4>
+    <DemoPresets :items="presets" @pick="applyPreset">
+      <template #default="{ item }">
+        <NeumorphismBadge
+          :value="rowOf(item.key).value"
+          :max="rowOf(item.key).max"
+          :dot="rowOf(item.key).dot"
+          :show-zero="rowOf(item.key).showZero"
+        >
+          <NeumorphismButton variant="pressed" size="small">收件箱</NeumorphismButton>
+        </NeumorphismBadge>
+      </template>
+    </DemoPresets>
+    <p class="demo-hint" style="margin-top: 10px">
+      「零值」那格把 <code>value</code> 设为 0 并打开 <code>show-zero</code>：默认配置下 0
+      是不显示的，只有显式开启才会渲染出 <code>0</code>。
+    </p>
+  </div>
+</template>

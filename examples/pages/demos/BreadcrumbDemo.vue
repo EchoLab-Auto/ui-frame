@@ -1,0 +1,169 @@
+<script setup lang="ts">
+import { ref, computed } from 'vue'
+import { DemoPlayground, DemoField, DemoPresets, type DemoPreset } from '../../demo'
+
+type BreadcrumbSize = 'small' | 'medium' | 'large'
+
+interface CrumbItem {
+  label: string
+  to?: string
+  disabled?: boolean
+}
+
+interface DemoOption<T> {
+  label: string
+  value: T
+}
+
+// ---- 配置台状态 ----
+/** 分隔符是纯文本，允许留空（留空 = 不渲染分隔符），也允许一句中文逗号之类的长分隔 */
+const separator = ref('/')
+const size = ref<BreadcrumbSize>('medium')
+
+const sizeOptions: DemoOption<BreadcrumbSize>[] = [
+  { label: '小', value: 'small' },
+  { label: '中', value: 'medium' },
+  { label: '大', value: 'large' },
+]
+
+/** 预览用的层级：前两层可点（带 to），最后一层是当前页 */
+const breadcrumbItems: CrumbItem[] = [
+  { label: '首页', to: '#' },
+  { label: '组件列表', to: '#' },
+  { label: '按钮' },
+]
+
+/** 用来演示 #config 里的分隔符快捷按钮 */
+const separatorPresets = ['/', '>', '·', '→']
+
+// ---- 项类型对照（第 2 个 block）----
+const mixedItems: CrumbItem[] = [
+  { label: '首页', to: '#' },
+  // 没有 to 的中间层：组件不读 to——非末层且未禁用就照样是「链接」样式、照样派发
+  // itemClick；to 只是留给调用方做路由跳转的数据，组件本身不导航
+  { label: '缺 to 的层' },
+  { label: '已禁用层', to: '#', disabled: true },
+  { label: '当前页' },
+]
+
+/** itemClick 只有可点的层才会触发——「禁用项/当前页点了没反应」这件事在这里被看见 */
+const lastClick = ref('—')
+
+function onItemClick(item: CrumbItem, index: number) {
+  lastClick.value = `${item.label}（第 ${index + 1} 层）`
+}
+
+// ---- 变体一览 ----
+interface CrumbPresetRow extends DemoPreset {
+  separator: string
+  size: BreadcrumbSize
+}
+
+const presetRows: CrumbPresetRow[] = [
+  { key: 'slash-medium', code: 'separator="/"', separator: '/', size: 'medium' },
+  { key: 'gt-small', code: 'separator=">" size="small"', separator: '>', size: 'small' },
+  { key: 'dot-medium', code: 'separator="·"', separator: '·', size: 'medium' },
+  { key: 'arrow-large', code: 'separator="→" size="large"', separator: '→', size: 'large' },
+]
+
+const presets = computed<DemoPreset[]>(() =>
+  presetRows.map(row => ({
+    key: row.key,
+    code: row.code,
+    active: row.separator === separator.value && row.size === size.value,
+  }))
+)
+
+function applyPreset(key: string) {
+  const row = presetRows.find(item => item.key === key)
+  if (!row) return
+  separator.value = row.separator
+  size.value = row.size
+}
+
+function rowOf(key: string) {
+  return presetRows.find(item => item.key === key)!
+}
+
+// ---- 实时代码片段 ----
+const snippet = computed(() => {
+  const attrs: string[] = []
+  // 默认分隔符是 '/'，默认尺寸是 medium：只有非默认值才写进片段
+  if (separator.value !== '/') attrs.push(`separator="${separator.value}"`)
+  if (size.value !== 'medium') attrs.push(`size="${size.value}"`)
+  const attrText = attrs.length ? ` ${attrs.join(' ')}` : ''
+  const emptyNote = separator.value === '' ? '\n  <!-- separator="" 表示不渲染分隔符 -->' : ''
+  return `<NeumorphismBreadcrumb :items="items"${attrText} @item-click="onItemClick" />${emptyNote}`
+})
+</script>
+
+<template>
+  <div class="demo-block">
+    <h4 class="demo-label">展示 + 配置（左侧实时预览，右侧调整参数）</h4>
+    <DemoPlayground :snippet="snippet">
+      <NeumorphismBreadcrumb :items="breadcrumbItems" :separator="separator" :size="size" />
+
+      <template #spec>
+        separator=<b>{{ separator === '' ? '（空）' : separator }}</b> · size=<b>{{ size }}</b> ·
+        层级=<b>{{ breadcrumbItems.length }}</b>
+      </template>
+
+      <template #hint>
+        分隔符只是一段文本，<code>/</code> <code>&gt;</code> <code>·</code>
+        <code>→</code> 都可以；末层自动带 <code>aria-current="page"</code> 并加粗，前面的层若给了
+        <code>to</code> 才可点。
+      </template>
+
+      <template #config>
+        <DemoField label="分隔符 separator" grow>
+          <NeumorphismInput v-model="separator" size="small" placeholder="/" :maxlength="4" />
+        </DemoField>
+
+        <DemoField label="快捷分隔符">
+          <NeumorphismButton
+            v-for="symbol in separatorPresets"
+            :key="symbol"
+            variant="pressed"
+            size="small"
+            @click="separator = symbol"
+          >
+            {{ symbol }}
+          </NeumorphismButton>
+        </DemoField>
+
+        <DemoField label="尺寸 size">
+          <NeumorphismSegmented v-model="size" :options="sizeOptions" size="small" />
+        </DemoField>
+
+        <DemoField label="操作">
+          <NeumorphismButton variant="raised" size="small" @click="applyPreset('slash-medium')">
+            恢复默认
+          </NeumorphismButton>
+        </DemoField>
+      </template>
+    </DemoPlayground>
+  </div>
+
+  <div class="demo-block">
+    <h4 class="demo-label">链接 / 缺 to / 禁用项 / 当前页</h4>
+    <NeumorphismBreadcrumb :items="mixedItems" :separator="separator" @item-click="onItemClick" />
+    <p class="demo-hint">
+      最近一次 <code>itemClick</code>：<strong>{{ lastClick }}</strong> —— 「已禁用层」带
+      <code>disabled</code>，点了不派发事件；「缺 to 的层」照样可点， 因为组件不读
+      <code>to</code>（它只是给调用方做路由跳转的数据）。
+    </p>
+  </div>
+
+  <div class="demo-block">
+    <h4 class="demo-label">分隔符 × 尺寸一览（点击载入到上方预览）</h4>
+    <DemoPresets :items="presets" @pick="applyPreset">
+      <template #default="{ item }">
+        <code style="font-size: 13px">{{ rowOf(item.key).separator }}</code>
+      </template>
+    </DemoPresets>
+    <p class="demo-hint" style="margin-top: 10px">
+      尺寸档位只改字号与内边距；点击热区由 <code>nm-touch-min</code> 兜底，小档在触屏上也保持 ≥44px
+      命中高度。
+    </p>
+  </div>
+</template>
