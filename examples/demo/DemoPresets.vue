@@ -35,7 +35,13 @@ defineEmits<{
       :aria-pressed="!!item.active"
       @click="$emit('pick', item.key)"
     >
-      <slot :item="item" />
+      <!-- inert：格子本身是 button，而格子里的演示组件（按钮 / 开关 / 选择器）也是可交互
+           元素。嵌套可交互内容在 HTML 里是非法的，且里层会抢走焦点、把无障碍树弄乱。
+           inert 让这一层既不进焦点顺序也不接收指针事件——点击照旧落到外层格子，
+           视觉不受影响。旧浏览器忽略 inert 时退化为原来的行为，不会更糟。 -->
+      <span class="demo-presets__preview" inert>
+        <slot :item="item" />
+      </span>
       <code class="demo-presets__code">{{ item.code }}</code>
     </button>
   </div>

@@ -86,7 +86,9 @@ const snippet = computed(() => {
   <div class="demo-block">
     <h4 class="demo-label">玻璃托盘 + 聚焦特效（点进输入框看效果）</h4>
     <DemoPlayground v-model:stage="composerStage" :snippet="snippet">
-      <div class="composer-stage" :class="`composer-stage--${composerStage}`" style="width: 100%">
+      <!-- 不再套 .composer-stage：DemoPlayground 本身就是那块彩色台面，
+           两层的渐变叠在一起只会渲染出一圈同色圆角，看不出任何层次 -->
+      <div style="width: 100%">
         <ChatComposer
           v-model="composerValue"
           :glass="composerGlassValue"

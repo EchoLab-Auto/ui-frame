@@ -82,6 +82,12 @@ interface CollapsePresetRow extends DemoPreset {
   label: string
 }
 
+/** 预设格子里的两条短标题：只求「看得出 accordion 与多开的差别」，不要长文案 */
+const cellItems = [
+  { key: 'a', title: '标题 A' },
+  { key: 'b', title: '标题 B' },
+]
+
 const presetRows: CollapsePresetRow[] = [
   {
     key: 'default',
@@ -270,7 +276,13 @@ const snippet = computed(() => {
     <h4 class="demo-label">配置组合一览（点击载入到上方预览）</h4>
     <DemoPresets :items="presets" @pick="applyPreset">
       <template #default="{ item }">
-        <span style="font-size: 12px">{{ rowOf(item.key).label }}</span>
+        <!-- 格子里放真的折叠面板：accordion 与多开的差别只有「能不能同时展开两项」，
+             写成文字标签看不出来，摆两个短标题才是一眼可辨的对比 -->
+        <NeumorphismCollapse
+          :items="cellItems"
+          :model-value="['a', 'b']"
+          :accordion="rowOf(item.key).accordion"
+        />
       </template>
     </DemoPresets>
     <p class="demo-hint" style="margin-top: 10px">

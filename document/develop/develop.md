@@ -129,6 +129,38 @@ document/
 
 ---
 
+## 示例站点结构
+
+`examples/` 是可交互的演示站点（`npm run example` → `http://localhost:5173/ui-frame/components`）。组件总览页按「一个组件一个演示文件」组织，页面外壳与演示内容分离：
+
+```
+examples/
+├── demo/                  # 演示共用原语
+│   ├── DemoCard.vue       #   卡片外壳：锚点 + 标题 + 徽标 + 正文插槽
+│   ├── DemoPlayground.vue #   展示 + 配置台：左预览 / 右参数 / 实时片段
+│   ├── DemoField.vue      #   配置台的一行参数：标签 + 控件 + 读数
+│   └── DemoPresets.vue    #   可点击的变体一览（点击载入回配置台）
+├── styles/demo.scss       # 演示专用类（全局，main.ts 引入一次）
+└── pages/
+    ├── ComponentsPage.vue # 只做外壳：侧栏 / scroll-spy / 分类区块 / 页脚
+    └── demos/
+        ├── index.ts       # 注册表：锚点 id / 侧栏标签 / 卡片标题 / 徽标 / 是否整行
+        └── XxxDemo.vue    # 单个组件的演示内容（不含卡片外壳）
+```
+
+约定：
+
+- **加一个演示** = 写 `demos/XxxDemo.vue` + 在 `demos/index.ts` 登记一行。侧栏、锚点、卡片标题都从注册表派生，不需要在三个地方各改一遍。
+- 演示文件只有 `<script setup>` + `<template>`，不写 `<style>`；需要的类补进 `styles/demo.scss`（演示页不做 CSS 隔离，没有同名冲突的风险，一份样式胜过 40 份拷贝）。
+- 有可调 props 的组件统一走 `DemoPlayground`：左侧实时预览、右侧参数表单、底部自动生成的代码片段——片段必须能直接粘贴使用。
+- 玻璃 / 半透明 / 模糊这类材质演示要把预览背景切到 `gradient`（`DemoPlayground` 自带平面/彩色切换器），否则看不出效果。
+
+---
+
+## 检查清单汇总
+
+---
+
 ## 检查清单汇总
 
 ### 提交前检查
@@ -146,9 +178,10 @@ document/
 
 ```
 □ 创建 composable（逻辑层）+ 测试
+□ 创建 composable（逻辑层）+ 测试
 □ 创建 Vue 组件（视觉层）
 □ 导出到 src/index.ts
-□ 更新示例站点
+□ 更新示例站点（`examples/pages/demos/` 新增 `XxxDemo.vue` + 注册表登记）
 □ 运行完整 pipeline
 ```
 

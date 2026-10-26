@@ -229,7 +229,7 @@ const snippet = computed(() => {
 
   <div class="demo-block">
     <h4 class="demo-label">颜色变体与标签</h4>
-    <div class="progress-rows form-demo-width">
+    <div class="progress-rows demo-form-width">
       <div v-for="v in progressVariants" :key="v" class="progress-row">
         <span class="progress-row__tag">{{ v }}</span>
         <NeumorphismProgress
@@ -262,7 +262,7 @@ const snippet = computed(() => {
 
   <div class="demo-block">
     <h4 class="demo-label">尺寸调参（条体高度）</h4>
-    <div class="demo-row demo-row--stacked form-demo-width">
+    <div class="demo-row demo-row--stacked demo-form-width">
       <div class="demo-row">
         <NeumorphismSlider
           v-model="barHeight"
@@ -289,7 +289,7 @@ const snippet = computed(() => {
 
   <div class="demo-block">
     <h4 class="demo-label">视觉动效</h4>
-    <div class="progress-rows form-demo-width">
+    <div class="progress-rows demo-form-width">
       <div v-for="e in progressEffects" :key="e" class="progress-row">
         <span class="progress-row__tag">{{ e }}</span>
         <NeumorphismProgress
@@ -315,7 +315,7 @@ const snippet = computed(() => {
 
   <div class="demo-block">
     <h4 class="demo-label">不确定模式</h4>
-    <div class="progress-rows form-demo-width">
+    <div class="progress-rows demo-form-width">
       <div class="progress-row">
         <span class="progress-row__tag">medium</span>
         <NeumorphismProgress :indeterminate="true" variant="primary" class="progress-row__bar" />

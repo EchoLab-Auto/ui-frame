@@ -104,6 +104,17 @@
   min-width: 96px;
 }
 
+// 参数表单里的「开关 + 文字」组合（如 loading / disabled）。注意必须是顶层规则：
+// 它服务的是**配置栏**，不是预览台——嵌在 `.demo-playground__stage` 里会全部失效。
+.demo-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--nm-spacing-xs);
+  font-size: 12px;
+  color: var(--nm-text-secondary);
+  cursor: pointer;
+}
+
 // ==========================================
 // 展示 + 配置台（DemoPlayground）
 // ==========================================
@@ -124,20 +135,8 @@
   // box-sizing: 预览台有较宽内边距，content-box 会让它在窄屏溢出卡片
   box-sizing: border-box;
   flex: 1 1 320px;
-  // 允许压缩到容器宽度（0 而非 300px，否则 390px 视口下会横向溢出）
-  // 参数表单里的「开关 + 文字」组合（如 loading / disabled）
-  .demo-toggle {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--nm-spacing-xs);
-    font-size: 12px;
-    color: var(--nm-text-secondary);
-    cursor: pointer;
-  }
-
-  // ==========================================
-  // 展示 + 配置台（DemoPlayground）
-  // ==========================================
+  // 允许压缩到容器宽度（0 而非 300px��否则 390px 视口下会横向溢出）
+  min-width: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -178,10 +177,12 @@
   }
 }
 
-// 彩色台面下读数改白字（深色渐变底上浅灰不可读）
+// 彩色台面下读数改白字（深色渐变底上浅灰不可读）。
+// 末项覆盖「组件自带的浅灰读数」，如输入器的 #meta 插槽。
 .demo-playground__stage--gradient .demo-playground__spec,
 .demo-playground__stage--gradient .demo-playground__bg-label,
-.demo-playground__stage--gradient .demo-playground__hint {
+.demo-playground__stage--gradient .demo-playground__hint,
+.demo-playground__stage--gradient .nm-chat-composer__meta {
   color: rgb(255 255 255 / 88%);
 
   b {
@@ -307,6 +308,11 @@
   &--active {
     border-color: var(--nm-primary-color);
     background-color: color-mix(in srgb, var(--nm-primary-color) 10%, transparent);
+
+    // 格子里的预览内容：只承载视觉，交互交给外层格子（配合模板上的 inert）
+    .demo-presets__preview {
+      display: contents;
+    }
 
     .demo-presets__code {
       color: var(--nm-primary-color);
