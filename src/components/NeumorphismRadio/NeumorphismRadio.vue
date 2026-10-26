@@ -276,10 +276,9 @@ function handleChange(): void {
 }
 
 .nm-radio--sized .nm-radio__dot {
-  // 圆点取圈的 50%：medium 锚点 24 → 12px，与该档位类逐像素一致；
-  // 三档里 small/large 的圆点走 spacing token（8 / 16px），本就在 50% 上下 1px，
-  // 数字路径没有独立的圆点锚点，按比例走既连续又不会在锚点处跳变。
-  width: calc(var(--nm-radio-sz-box) * 0.5);
-  height: calc(var(--nm-radio-sz-box) * 0.5);
+  // 圆点有独立锚点（8 / 12 / 16，三档走 spacing token），不是圆圈的等比缩放——
+  // 取 50% 会在 small / large 各差 1px，锚点等价就断了。
+  width: var(--nm-radio-sz-dot);
+  height: var(--nm-radio-sz-dot);
 }
 </style>

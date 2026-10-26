@@ -189,24 +189,20 @@ function handleChange(event: Event): void {
   height: var(--nm-icon-size-md);
 }
 
-// ---------- 数字尺寸（`:size="20"`）----------
+// ---------- 数字尺寸（`:size="24"`）----------
 // 几何量全部来自内联 CSS 变量（见 utils/controlScale），与三档 class 互斥，
 // 所以不存在覆盖之争。变量挂根节点、规则落在子选择器上——盒子与图标都在内部。
 //
-// 注：`CHECKBOX_SCALE` 的三锚点（12/14/16）取自图标枚举档，而档位类里的盒边长
-// 是 18/24/30（`checkable-sizes` 混基）。按任务约定「引擎与档位类都不动」，数字
-// 路径严格服从锚点表：`:size="14"` 得到 14px 盒，与 `size="medium"`（24px 盒）
-// 并不像素等价，这一点已在交付报告中标出，等锚点表订正后自动对齐。
+// 盒子与图标各有独立锚点（18/24/30 与 12/14/16）：三档里图标并非盒子的等比
+// 缩放（占比 67% / 58% / 53%），用单一比例会在锚点处与档位类对不上。
 .nm-checkbox--sized .nm-checkbox__box {
   width: var(--nm-checkbox-sz-box);
   height: var(--nm-checkbox-sz-box);
 }
 
 .nm-checkbox--sized .nm-checkbox__icon {
-  // 图标随盒等比：三档实测占比 67% / 58% / 53%，取 60% 作为统一比例，
-  // 否则数字路径会落回基础规则的 12px——盒子放大后勾会显得过小。
-  width: calc(var(--nm-checkbox-sz-box) * 0.6);
-  height: calc(var(--nm-checkbox-sz-box) * 0.6);
+  width: var(--nm-checkbox-sz-icon);
+  height: var(--nm-checkbox-sz-icon);
 }
 
 // Checkbox-specific

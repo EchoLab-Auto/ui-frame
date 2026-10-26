@@ -50,7 +50,8 @@ export const SEGMENTED_SCALE: ControlScaleSpec = {
   primary: { sm: 26, md: 32, lg: 38 },
   primaryVar: '--nm-segmented-sz-height',
   metrics: {
-    '--nm-segmented-sz-font': { sm: 12, md: 14, lg: 15 },
+    // medium 档不声明 font-size，继承根上的 --nm-font-md = 13
+    '--nm-segmented-sz-font': { sm: 12, md: 13, lg: 15 },
     '--nm-segmented-sz-pad-y': { sm: 2, md: 4, lg: 8 },
     '--nm-segmented-sz-pad-x': { sm: 8, md: 16, lg: 24 },
   },
@@ -232,18 +233,34 @@ export const EMPTY_SCALE: ControlScaleSpec = {
   },
 }
 
-/** 复选框：`size` 的数字语义 = 勾选框边长 px */
+/**
+ * 复选框：`size` 的数字语义 = **勾选框边长** px。
+ *
+ * 锚点取 `checkable-sizes` 混基给 `.nm-checkbox__box` 的 18 / 24 / 30；
+ * 里面的勾形图标是另一套枚举档（`--nm-icon-size-xs/sm/md` = 12 / 14 / 16），
+ * 单列成 `--nm-checkbox-sz-icon`，不能拿它当主几何量。
+ */
 export const CHECKBOX_SCALE: ControlScaleSpec = {
-  primary: { sm: 12, md: 14, lg: 16 },
+  primary: { sm: 18, md: 24, lg: 30 },
   primaryVar: '--nm-checkbox-sz-box',
-  metrics: {},
+  metrics: {
+    '--nm-checkbox-sz-icon': { sm: 12, md: 14, lg: 16 },
+  },
 }
 
-/** 单选框：`size` 的数字语义 = 圆点直径 px */
+/**
+ * 单选框：`size` 的数字语义 = 圆圈直径 px。
+ *
+ * 锚点取 `checkable-sizes` 混基给 `.nm-radio__circle` 的 18 / 24 / 30；
+ * 内部圆点在三档上走 spacing token（8 / 12 / 16），不是圆圈的等比缩放，
+ * 所以单列成 `--nm-radio-sz-dot`，数字路径才不会在锚点处差 1px。
+ */
 export const RADIO_SCALE: ControlScaleSpec = {
   primary: { sm: 18, md: 24, lg: 30 },
   primaryVar: '--nm-radio-sz-box',
-  metrics: {},
+  metrics: {
+    '--nm-radio-sz-dot': { sm: 8, md: 12, lg: 16 },
+  },
 }
 
 /** 滑块：`size` 的数字语义 = 轨道粗细 px */

@@ -135,7 +135,7 @@ import type { NeumorphismCheckboxProps } from '@echolab-auto/ui-frame'
 | ------------- | --------- | ------- | ---------------- |
 | modelValue    | `boolean` | `false` | 绑定值           |
 | disabled      | `boolean` | `false` | 是否禁用         |
-| size          | `number`  | `14`    | 勾选框边长（px） |
+| size          | `number`  | `24`    | 勾选框边长（px） |
 | label         | `string`  | —       | 标签文字         |
 | indeterminate | `boolean` | `false` | 半选状态         |
 
@@ -157,7 +157,7 @@ import type { NeumorphismRadioProps, NeumorphismRadioGroupProps } from '@echolab
 | value    | `unknown` | —       | 选项值         |
 | label    | `string`  | —       | 标签文字       |
 | disabled | `boolean` | `false` | 是否禁用       |
-| size     | `number`  | `24`    | 圆点直径（px） |
+| size     | `number`  | `24`    | 圆圈直径（px） |
 
 **NeumorphismRadioGroup:**
 
@@ -166,7 +166,7 @@ import type { NeumorphismRadioProps, NeumorphismRadioGroupProps } from '@echolab
 | modelValue | `unknown`                    | —              | 绑定值         |
 | direction  | `'horizontal' \| 'vertical'` | `'horizontal'` | 排列方向       |
 | disabled   | `boolean`                    | `false`        | 是否禁用整组   |
-| size       | `number`                     | `24`           | 圆点直径（px） |
+| size       | `number`                     | `24`           | 圆圈直径（px） |
 
 **Events:** `update:modelValue`, `change`
 

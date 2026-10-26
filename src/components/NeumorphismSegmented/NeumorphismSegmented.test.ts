@@ -68,7 +68,9 @@ describe('NeumorphismSegmented', () => {
       // 变量挂根节点、尺寸施加在内部 item 上
       const style = wrapper.attributes('style')
       expect(style).toContain('--nm-segmented-sz-height: 29px')
-      expect(style).toContain('--nm-segmented-sz-font: 13px')
+      // medium 档不声明 font-size，继承 --nm-font-md = 13，故锚点是 12 / 13 / 15；
+      // 29 落在 26 与 32 正中间 → 字号 12 + (13 − 12) × 0.5 = 12.5
+      expect(style).toContain('--nm-segmented-sz-font: 12.5px')
       expect(style).toContain('--nm-segmented-sz-pad-y: 3px')
     })
 

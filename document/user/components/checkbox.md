@@ -25,7 +25,7 @@ group: 使用
 | `modelValue`    | `boolean` | `false` | v-model 绑定勾选状态                                                  |
 | `disabled`      | `boolean` | `false` | 禁用：透明度 0.5、阻止勾选                                            |
 | `label`         | `string`  | —       | 标签文本（也可用默认插槽）                                            |
-| `size`          | `number`  | `14`    | 勾选框边长 px（锚点 12 / 14 / 16），支持全局配置 `checkbox.size` 级联 |
+| `size`          | `number`  | `24`    | 勾选框边长 px（锚点 18 / 24 / 30），支持全局配置 `checkbox.size` 级联 |
 | `indeterminate` | `boolean` | `false` | 半选态（同步到原生 input 的 `indeterminate` 属性）                    |
 | `name` / `id`   | `string`  | —       | 原生表单属性                                                          |
 
@@ -33,17 +33,15 @@ group: 使用
 
 ### 尺寸：数字是主几何量，档位只是别名
 
-`size` 收数字（px 方盒边长），三锚点 12 / 14 / 16 即旧档位名的别名值：
+`size` 收数字（px 方盒边长），三锚点 18 / 24 / 30 即旧档位名的别名值：
 
-| 锚点 | 旧档位别名 | 方盒边长 | 内置图标（数字路径取盒的 60%） |
-| ---- | ---------- | -------- | ------------------------------ |
-| 12   | `small`    | 12px     | 7.2px                          |
-| 14   | `medium`   | 14px     | 8.4px                          |
-| 16   | `large`    | 16px     | 9.6px                          |
+| 锚点 | 旧档位别名 | 方盒边长 | 内置勾形图标 |
+| ---- | ---------- | -------- | ------------ |
+| 18   | `small`    | 18px     | 12px         |
+| 24   | `medium`   | 24px     | 14px         |
+| 30   | `large`    | 30px     | 16px         |
 
-数字路径把插值结果写成 `--nm-checkbox-sz-box` 内联变量，档位 class 一行未改；落在锚点之间按分段线性插值，超出 12~16 取端点值（不外推），`0` / 负数 / `NaN` 回落到 `14`。
-
-> ⚠️ 现状差异：旧档位类渲染的方盒是 18 / 24 / 30px（`checkable-sizes` 混基），而锚点表 `CHECKBOX_SCALE` 给的是 12 / 14 / 16——所以 `size="medium"` 与 `:size="14"` 目前**不等宽**。数字路径以锚点表为准，锚点表订正后自动对齐。
+方盒与图标**各有独立锚点**：图标在三档上不是方盒的等比缩放（占比 67% / 58% / 53%），用单一比例会在锚点处与档位类差 1~~2px。数字路径分别下发 `--nm-checkbox-sz-box` 与 `--nm-checkbox-sz-icon`，档位 class 一行未改；落在锚点之间按分段线性插值，派生量超出 18~~30 取端点值（不外推），`0` / 负数 / `NaN` 回落到 `24`。
 
 ### Events / Slots
 
@@ -70,7 +68,7 @@ group: 使用
 全局预设：
 
 ```ts
-app.use(NeumorphismUI, { checkbox: { size: 14 } })
+app.use(NeumorphismUI, { checkbox: { size: 24 } })
 ```
 
 ---

@@ -67,10 +67,12 @@ describe('NeumorphismCheckbox', () => {
     expect(wrapper.attributes('style')).toContain('--nm-checkbox-sz-box: 13px')
   })
 
-  it('数字 size 在锚点上与档位别名一致（12 / 14 / 16）', () => {
+  it('数字 size 在锚点上与档位别名一致（盒 18 / 24 / 30）', () => {
     const box = CHECKBOX_SCALE.primary /* --nm-checkbox-sz-box 是主几何量，已提到 primaryVar */
-    // 锚点值只从引擎取一次，测试里不再抄第二份数字
-    expect([box.sm, box.md, box.lg]).toEqual([12, 14, 16])
+    // 锚点值只从引擎取一次，测试里不再抄第二份数字。
+    // 注意主几何量是「盒边长」（`checkable-sizes` 混基的 18/24/30），
+    // 不是内部勾形图标的枚举档（12/14/16）——后者单列在 metrics 里。
+    expect([box.sm, box.md, box.lg]).toEqual([18, 24, 30])
     const anchors = [
       [box.sm, 'small'],
       [box.md, 'medium'],
@@ -87,10 +89,10 @@ describe('NeumorphismCheckbox', () => {
     }
   })
 
-  it('数字 size 容错：0 / 负数 / NaN 回落到 medium 锚点 14', () => {
+  it('数字 size 容错：0 / 负数 / NaN 回落到 medium 锚点 24', () => {
     for (const bad of [0, -12, Number.NaN]) {
       const wrapper = mount(NeumorphismCheckbox, { props: { size: bad } })
-      expect(wrapper.attributes('style')).toContain('--nm-checkbox-sz-box: 14px')
+      expect(wrapper.attributes('style')).toContain('--nm-checkbox-sz-box: 24px')
       // 回落后仍走数字通道，不会掉回档位类
       expect(wrapper.classes()).toContain('nm-checkbox--sized')
     }
