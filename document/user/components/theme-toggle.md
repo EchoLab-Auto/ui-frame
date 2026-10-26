@@ -20,12 +20,12 @@ group: 使用
 
 ### Props
 
-| 名称          | 类型                             | 默认值     | 说明                                                                                       |
-| ------------- | -------------------------------- | ---------- | ------------------------------------------------------------------------------------------ |
-| `modelValue`  | `'light' \| 'dark' \| 'auto'`    | `'auto'`   | 当前主题模式（v-model）                                                                    |
-| `size`        | `'small' \| 'medium' \| 'large'` | `'medium'` | 尺寸档位，支持全局配置 `themeToggle.size` 级联；`small` 时隐藏文字标签（按级联后的值判定） |
-| `disableAuto` | `boolean`                        | `false`    | 隐藏 auto 选项，支持全局配置 `themeToggle.disableAuto` 级联                                |
-| `disabled`    | `boolean`                        | `false`    | 整体禁用（透明度 0.5 + `not-allowed`）                                                     |
+| 名称          | 类型                          | 默认值   | 说明                                                                                                                     |
+| ------------- | ----------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------ |
+| `modelValue`  | `'light' \| 'dark' \| 'auto'` | `'auto'` | 当前主题模式（v-model）                                                                                                  |
+| `size`        | `number`                      | `6`      | 内层按钮上下内距 px（锚点 5 / 6 / 8），支持全局配置 `themeToggle.size` 级联；内距 < 6 时隐藏文字标签（按级联后的值判定） |
+| `disableAuto` | `boolean`                     | `false`  | 隐藏 auto 选项，支持全局配置 `themeToggle.disableAuto` 级联                                                              |
+| `disabled`    | `boolean`                     | `false`  | 整体禁用（透明度 0.5 + `not-allowed`）                                                                                   |
 
 ### Events / Slots
 
@@ -43,16 +43,16 @@ group: 使用
 <!-- 仅明暗两档 -->
 <NeumorphismThemeToggle v-model="theme" disable-auto />
 
-<!-- 小尺寸：只显示图标，隐藏文字标签 -->
-<NeumorphismThemeToggle v-model="theme" size="small" />
+<!-- 小尺寸（内距 < 6px）：只显示图标，隐藏文字标签 -->
+<NeumorphismThemeToggle v-model="theme" :size="5" />
 ```
 
-标签显隐按级联后的 size 判定——全局配置 `themeToggle.size: 'small'` 同样只显示图标。
+标签显隐按级联后的 size 判定——数字路径下以「按钮上下内距 < 6px」（medium 锚点）等价于小档；全局配置 `themeToggle.size: 5` 同样只显示图标。标签显隐是结构性差异（不渲染 `<span>`），因此由 JS 判定而非 CSS 隐藏。
 
 全局预设：
 
 ```ts
-app.use(NeumorphismUI, { themeToggle: { size: 'small', disableAuto: true } })
+app.use(NeumorphismUI, { themeToggle: { size: 5, disableAuto: true } })
 ```
 
 ---

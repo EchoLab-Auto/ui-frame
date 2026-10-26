@@ -20,12 +20,12 @@ group: 使用
 
 ### Props
 
-| 名称         | 类型                             | 默认值     | 说明                                                                 |
-| ------------ | -------------------------------- | ---------- | -------------------------------------------------------------------- |
-| `modelValue` | `string[]`                       | `[]`       | 展开面板的 key 数组（v-model）                                       |
-| `accordion`  | `boolean`                        | `false`    | 手风琴模式（同时只展开一个），支持全局配置 `collapse.accordion` 级联 |
-| `items`      | `CollapseItem[]`                 | `[]`       | 面板项                                                               |
-| `size`       | `'small' \| 'medium' \| 'large'` | `'medium'` | 尺寸档位，支持全局配置 `collapse.size` 级联                          |
+| 名称         | 类型             | 默认值  | 说明                                                                 |
+| ------------ | ---------------- | ------- | -------------------------------------------------------------------- |
+| `modelValue` | `string[]`       | `[]`    | 展开面板的 key 数组（v-model）                                       |
+| `accordion`  | `boolean`        | `false` | 手风琴模式（同时只展开一个），支持全局配置 `collapse.accordion` 级联 |
+| `items`      | `CollapseItem[]` | `[]`    | 面板项                                                               |
+| `size`       | `number`         | `15`    | 标题字号（px，锚点 13 / 15 / 16），支持 `collapse.size` 级联         |
 
 ```ts
 interface CollapseItem {
@@ -75,7 +75,7 @@ const panels = [
 全局预设：
 
 ```ts
-app.use(NeumorphismUI, { collapse: { accordion: true, size: 'medium' } })
+app.use(NeumorphismUI, { collapse: { accordion: true, size: 15 } })
 ```
 
 ---

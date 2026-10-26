@@ -20,13 +20,13 @@ group: 使用
 
 ### Props
 
-| 名称         | 类型                             | 默认值      | 说明                                                    |
-| ------------ | -------------------------------- | ----------- | ------------------------------------------------------- |
-| `modelValue` | `string \| number`               | —           | 选中值（v-model）                                       |
-| `options`    | `SegmentedOption[]`              | —           | 可选项列表（必填）                                      |
-| `size`       | `'small' \| 'medium' \| 'large'` | `'medium'`  | 尺寸档位，支持全局配置 `segmented.size` 级联            |
-| `disabled`   | `boolean`                        | `false`     | 整体禁用，支持全局配置 `segmented.disabled` 级联        |
-| `ariaLabel`  | `string`                         | locale 文案 | radiogroup 无障碍标签（缺省取 locale `segmentedLabel`） |
+| 名称         | 类型                | 默认值      | 说明                                                                     |
+| ------------ | ------------------- | ----------- | ------------------------------------------------------------------------ |
+| `modelValue` | `string \| number`  | —           | 选中值（v-model）                                                        |
+| `options`    | `SegmentedOption[]` | —           | 可选项列表（必填）                                                       |
+| `size`       | `number`            | `32`        | 单段最小高度 px（锚点 26 / 32 / 38），支持全局配置 `segmented.size` 级联 |
+| `disabled`   | `boolean`           | `false`     | 整体禁用，支持全局配置 `segmented.disabled` 级联                         |
+| `ariaLabel`  | `string`            | locale 文案 | radiogroup 无障碍标签（缺省取 locale `segmentedLabel`）                  |
 
 ```ts
 interface SegmentedOption {
@@ -66,7 +66,7 @@ const options = [
 全局预设：
 
 ```ts
-app.use(NeumorphismUI, { segmented: { size: 'medium' } })
+app.use(NeumorphismUI, { segmented: { size: 32 } })
 ```
 
 ---

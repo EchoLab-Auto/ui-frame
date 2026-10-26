@@ -3,9 +3,14 @@ import { computed } from 'vue'
 import { useSteps } from '@/composables/useSteps'
 import type { StepItem, StepStatus } from '@/composables/useSteps'
 import { useNeumorphismSetup } from '@/extensions/createComponent'
+import { normalizeNumericSize, resolveControlScale } from '@/utils/controlScale'
+import { STEPS_SCALE } from '@/utils/controlScales'
 import NeumorphismIcon from '@/components/NeumorphismIcon/NeumorphismIcon.vue'
 
 export type { StepItem, StepStatus }
+
+/** 档位别名（字符串通道）。数字为一等公民，档位仅兼容保留 */
+export type StepsSize = 'small' | 'medium' | 'large'
 
 export interface NeumorphismStepsProps {
   /** Step definitions. */
@@ -14,8 +19,16 @@ export interface NeumorphismStepsProps {
   current?: number
   /** Layout direction. */
   direction?: 'horizontal' | 'vertical'
-  /** Size preset for step circles and fonts. */
-  size?: 'small' | 'medium' | 'large'
+  /**
+   * 尺寸——px 序号圆直径（数字，主几何量），或三档预设名。
+   *
+   * 数字即「序号圆直径」：序号字号按三锚点（28 / 36 / 48）分段线性插值，
+   * 所以 `:size="36"` 与 `size="medium"` 逐像素相同。
+   *
+   * @deprecated 字符串档位（`'small' | 'medium' | 'large'`）仅作兼容别名保留，
+   * 新代码请传数字。
+   */
+  size?: number | StepsSize
   /** When true, title and description are centered below the step circle. */
   center?: boolean
 }
@@ -37,7 +50,30 @@ const { config, resolveProp } = useNeumorphismSetup()
 const resolvedDirection = computed(() =>
   resolveProp(props.direction, config.value.steps?.direction, 'horizontal')
 )
-const resolvedSize = computed(() => resolveProp(props.size, config.value.steps?.size, 'medium'))
+
+/** 数字尺寸的语义是「序号圆直径」，默认值取 medium 锚点 */
+const DEFAULT_SIZE_PX = 36
+
+/** 原始 size：显式 prop > 全局配置 > medium（两个通道共用同一条级联） */
+const rawSize = computed(() => resolveProp(props.size, config.value.steps?.size, 'medium' as const))
+
+/** 数字通道：`undefined` = 走档位 class，有值 = 走内联 CSS 变量 */
+const numericSize = computed(() =>
+  typeof rawSize.value === 'number'
+    ? normalizeNumericSize(rawSize.value, DEFAULT_SIZE_PX)
+    : undefined
+)
+
+/** 档位通道：字符串别名（数字路径下取 medium 占位，实际不挂档位类） */
+const resolvedSize = computed<StepsSize>(() =>
+  typeof rawSize.value === 'string' ? rawSize.value : 'medium'
+)
+
+/** 数字尺寸下发的 CSS 变量（见 utils/controlScale） */
+const sizeStyle = computed(() =>
+  numericSize.value === undefined ? undefined : resolveControlScale(STEPS_SCALE, numericSize.value)
+)
+
 const resolvedCenter = computed(() => resolveProp(props.center, config.value.steps?.center, false))
 
 // Use headless steps composable for all behavioral logic
@@ -72,7 +108,8 @@ function onStepClick(index: number, step: StepItem) {
 const classList = computed(() => [
   'nm-steps',
   `nm-steps--${resolvedDirection.value}`,
-  `nm-steps--${resolvedSize.value}`,
+  // 数字与档位互斥：数字走 `--sized`（变量来自内联样式），字符串走档位类
+  numericSize.value === undefined ? `nm-steps--${resolvedSize.value}` : 'nm-steps--sized',
   { 'nm-steps--center': resolvedCenter.value },
 ])
 
@@ -88,7 +125,7 @@ function showError(index: number): boolean {
 </script>
 
 <template>
-  <div :class="classList" role="list">
+  <div :class="classList" :style="sizeStyle" role="list">
     <template v-for="(step, index) in steps" :key="step.key">
       <!-- Step item wrapper -->
       <div
@@ -306,6 +343,35 @@ function showError(index: number): boolean {
 .nm-steps--large .nm-steps__circle {
   width: 48px;
   height: 48px;
+}
+
+// 数字尺寸（`:size="36"`）：几何量全部来自内联 CSS 变量，见 utils/controlScale。
+// 档位路径把字号写在 `.nm-steps--<档位> &` 的嵌套规则里（__number / __title /
+// __description / __icon），数字路径没有档位类可依附，所以在 `--sized` 下**统一覆盖**
+// 这两处：圆几何 + 受尺寸影响的文字/图标，三档 class 一行未改。
+.nm-steps--sized .nm-steps__circle {
+  width: var(--nm-steps-sz-circle);
+  height: var(--nm-steps-sz-circle);
+}
+
+// 序号与标题：锚点 12 / 14 / 15 与 `--nm-steps-sz-font` 完全一致，直接接上即可
+.nm-steps--sized .nm-steps__number,
+.nm-steps--sized .nm-steps__title {
+  font-size: var(--nm-steps-sz-font);
+}
+
+// 描述：档位取值是 font-xs/sm/md（11/12/13），spec 未为它单列锚点，因此由 sz-font
+// 推导并在 11px 处夹住 —— 三个锚点上恰好还原档位值（12-2→11、14-2→12、15-2→13），
+// 中间值随主几何量单调变化，不会出现「圆变大、描述字不变」的错位
+.nm-steps--sized .nm-steps__description {
+  font-size: max(calc(var(--nm-steps-sz-font) - 2px), 11px);
+}
+
+// 完成/错误图标：档位是 icon-size-sm/lg/xl（14/18/20）。同理取圆直径的一半并夹在 20px，
+// 在 28/36/48 三个锚点上分别得到 14/18/20，与档位逐像素一致
+.nm-steps--sized .nm-steps__icon {
+  width: min(calc(var(--nm-steps-sz-circle) * 0.5), 20px);
+  height: min(calc(var(--nm-steps-sz-circle) * 0.5), 20px);
 }
 
 // ==========================================

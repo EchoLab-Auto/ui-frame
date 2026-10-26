@@ -11,7 +11,7 @@ group: 使用
 > 头像——凸出小圆块（raised 2px 5px），图片加载失败自动回退到 initials / alt 首字母 / `?` 三级占位；图片淡入缩放进场，hover 放大、按压回缩。源码：`src/components/NeumorphismAvatar/`。
 
 ```vue
-<NeumorphismAvatar src="/me.png" alt="张三" size="large" />
+<NeumorphismAvatar src="/me.png" alt="张三" :size="64" />
 ```
 
 ---
@@ -20,14 +20,14 @@ group: 使用
 
 ### Props
 
-| 名称       | 类型                             | 默认值     | 说明                                                                      |
-| ---------- | -------------------------------- | ---------- | ------------------------------------------------------------------------- |
-| `src`      | `string`                         | —          | 图片地址；加载失败自动切回退内容并触发 `error`                            |
-| `alt`      | `string`                         | —          | 图片替代文本；无 initials 时取其首字母作回退                              |
-| `initials` | `string`                         | —          | 首字母回退（取前 2 位转大写，优先于 alt）                                 |
-| `size`     | `'small' \| 'medium' \| 'large'` | `'medium'` | 尺寸档位（`--nm-avatar-size-*`），支持全局配置 `avatar.size` 级联         |
-| `shape`    | `'circle' \| 'rounded'`          | `'circle'` | 圆形 / 圆角矩形，支持 `avatar.shape` 级联                                 |
-| `icon`     | `string`                         | —          | 提供时（或传了 fallback 插槽）走图标分支，配合 `#fallback` 自定义回退内容 |
+| 名称       | 类型                    | 默认值     | 说明                                                                          |
+| ---------- | ----------------------- | ---------- | ----------------------------------------------------------------------------- |
+| `src`      | `string`                | —          | 图片地址；加载失败自动切回退内容并触发 `error`                                |
+| `alt`      | `string`                | —          | 图片替代文本；无 initials 时取其首字母作回退                                  |
+| `initials` | `string`                | —          | 首字母回退（取前 2 位转大写，优先于 alt）                                     |
+| `size`     | `number`                | `44`       | 直径（px）；字号按三锚点（32 / 44 / 64）插值，支持全局配置 `avatar.size` 级联 |
+| `shape`    | `'circle' \| 'rounded'` | `'circle'` | 圆形 / 圆角矩形，支持 `avatar.shape` 级联                                     |
+| `icon`     | `string`                | —          | 提供时（或传了 fallback 插槽）走图标分支，配合 `#fallback` 自定义回退内容     |
 
 ### Events / Slots
 
@@ -45,7 +45,7 @@ group: 使用
 <NeumorphismAvatar initials="ev" />
 
 <!-- 圆角矩形 + 大图 -->
-<NeumorphismAvatar src="/team/a.png" alt="Alice" shape="rounded" size="large" />
+<NeumorphismAvatar src="/team/a.png" alt="Alice" shape="rounded" :size="64" />
 
 <!-- 自定义回退（图标、徽章等） -->
 <NeumorphismAvatar icon>
@@ -59,7 +59,7 @@ group: 使用
 全局预设：
 
 ```ts
-app.use(NeumorphismUI, { avatar: { size: 'medium', shape: 'circle' } })
+app.use(NeumorphismUI, { avatar: { size: 44, shape: 'circle' } })
 ```
 
 ---

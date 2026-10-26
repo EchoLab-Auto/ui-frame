@@ -3,15 +3,28 @@ import { computed, inject, useAttrs } from 'vue'
 import { useCheckable } from '@/composables/useCheckable'
 import { RadioGroupKey } from '@/composables/injectionKeys'
 import { useNeumorphismSetup } from '@/extensions/createComponent'
+import { normalizeNumericSize, resolveControlScale } from '@/utils/controlScale'
+import { RADIO_SCALE } from '@/utils/controlScales'
 
 defineOptions({ inheritAttrs: false })
+
+export type RadioSize = 'small' | 'medium' | 'large'
 
 export interface NeumorphismRadioProps {
   modelValue?: unknown
   value: unknown
   disabled?: boolean
   label?: string
-  size?: 'small' | 'medium' | 'large'
+  /**
+   * 尺寸——圆圈（radio 圆点整体）直径 px（数字，主几何量），或三档预设名。
+   *
+   * 数字即「圆圈直径」：按锚点表（18 / 24 / 30）插值，内部圆点取圈的 50%，
+   * 所以 `:size="24"` 与 `size="medium"` 逐像素一致。
+   *
+   * @deprecated 字符串档位（`'small' | 'medium' | 'large'`）仅作兼容别名保留，
+   * 新代码请传数字。
+   */
+  size?: number | RadioSize
   name?: string
   id?: string
 }
@@ -47,18 +60,41 @@ const isChecked = computed(() => {
 })
 
 const isDisabled = computed(() => props.disabled || radioGroup?.disabled.value || false)
-const resolvedSize = computed<'small' | 'medium' | 'large'>(
-  () => resolveProp(props.size, config.value.radio?.size, 'medium') as 'small' | 'medium' | 'large'
+/**
+ * 尺寸原始取值：Group 级联 > 自身 prop > 全局配置 `radio.size` > 档位默认 medium。
+ *
+ * 级联优先级放在最前面，是为了让 `RadioGroup size` 真的能「覆盖子项」——
+ * 数字也走同一条路，子项收到后自己按 `RADIO_SCALE` 插值。
+ */
+const rawSize = computed<number | RadioSize>(() => {
+  const own = resolveProp(props.size, config.value.radio?.size, 'medium' as number | RadioSize)
+  return (radioGroup?.size.value || own) as number | RadioSize
+})
+
+/** 数字通道：`undefined` = 走档位 class，有值 = 走内联 CSS 变量 */
+const numericSize = computed(() =>
+  typeof rawSize.value === 'number'
+    ? normalizeNumericSize(rawSize.value, RADIO_SCALE.primary.md)
+    : undefined
 )
-const radioSize = computed<'small' | 'medium' | 'large'>(
-  () => (radioGroup?.size.value || resolvedSize.value) as 'small' | 'medium' | 'large'
+
+/** 字符串通道：数字路径下不挂档位类，这里只用于档位类名与语义兜底 */
+const resolvedSize = computed<RadioSize>(() =>
+  typeof rawSize.value === 'string' ? rawSize.value : 'medium'
+)
+
+/** 数字尺寸下发的 CSS 变量（见 utils/controlScale） */
+const sizeStyle = computed(() =>
+  numericSize.value === undefined ? undefined : resolveControlScale(RADIO_SCALE, numericSize.value)
 )
 
 const { inputId, classList } = useCheckable(() => ({
   prefix: 'radio',
   isChecked: isChecked.value,
   isDisabled: isDisabled.value,
-  size: radioSize.value,
+  // 数字路径不挂档位类：几何全由内联 `--nm-radio-sz-*` 决定，两条通道互斥
+  size: numericSize.value === undefined ? resolvedSize.value : undefined,
+  extraClasses: { 'nm-radio--sized': numericSize.value !== undefined },
 }))
 
 function handleChange(): void {
@@ -73,7 +109,7 @@ function handleChange(): void {
 </script>
 
 <template>
-  <label :class="[classList, attrs.class]" :style="attrs.style" :for="inputId">
+  <label :class="[classList, attrs.class]" :style="[attrs.style, sizeStyle]" :for="inputId">
     <span class="nm-radio__input-wrapper">
       <input
         :id="inputId"
@@ -229,5 +265,21 @@ function handleChange(): void {
     width: var(--nm-spacing-md);
     height: var(--nm-spacing-md);
   }
+}
+
+// ---------- 数字尺寸（`:size="20"`）----------
+// 变量由根节点内联下发（见 utils/controlScale），规则落在子选择器上：
+// 圈与圆点都在内部。与三档 class 互斥，不存在覆盖之争。
+.nm-radio--sized .nm-radio__circle {
+  width: var(--nm-radio-sz-box);
+  height: var(--nm-radio-sz-box);
+}
+
+.nm-radio--sized .nm-radio__dot {
+  // 圆点取圈的 50%：medium 锚点 24 → 12px，与该档位类逐像素一致；
+  // 三档里 small/large 的圆点走 spacing token（8 / 16px），本就在 50% 上下 1px，
+  // 数字路径没有独立的圆点锚点，按比例走既连续又不会在锚点处跳变。
+  width: calc(var(--nm-radio-sz-box) * 0.5);
+  height: calc(var(--nm-radio-sz-box) * 0.5);
 }
 </style>

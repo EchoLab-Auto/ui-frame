@@ -20,19 +20,19 @@ group: 使用
 
 ### Props
 
-| 名称              | 类型                             | 默认值     | 说明                                                                                                            |
-| ----------------- | -------------------------------- | ---------- | --------------------------------------------------------------------------------------------------------------- |
-| `modelValue`      | `number`                         | `1`        | 当前页码（v-model，1-based）                                                                                    |
-| `total`           | `number`                         | `0`        | 总记录数                                                                                                        |
-| `pageSize`        | `number`                         | `10`       | 每页条数，支持全局配置 `pagination.pageSize` 级联                                                               |
-| `size`            | `'small' \| 'medium' \| 'large'` | `'medium'` | 尺寸档位，支持全局配置 `pagination.size` 级联                                                                   |
-| `showTotal`       | `boolean`                        | `false`    | 显示总数文案，支持 `pagination.showTotal` 级联                                                                  |
-| `showJumper`      | `boolean`                        | `false`    | 显示跳页输入框，支持 `pagination.showJumper` 级联                                                               |
-| `maxVisiblePages` | `number`                         | `7`        | 最大可见页码数（超出折叠为 `...`），支持 `pagination.maxVisiblePages` 级联                                      |
-| `disabled`        | `boolean`                        | `false`    | 整体禁用                                                                                                        |
-| `prevLabel`       | `string`                         | `'上一页'` | 上一页按钮 `aria-label`                                                                                         |
-| `nextLabel`       | `string`                         | `'下一页'` | 下一页按钮 `aria-label`                                                                                         |
-| `totalLabel`      | `string`                         | —          | 覆盖总数文案模板（支持 `{total}` 占位符，如 `'共 {total} 条记录'`）；未设置时使用 locale `paginationTotal` 文案 |
+| 名称              | 类型      | 默认值     | 说明                                                                                                            |
+| ----------------- | --------- | ---------- | --------------------------------------------------------------------------------------------------------------- |
+| `modelValue`      | `number`  | `1`        | 当前页码（v-model，1-based）                                                                                    |
+| `total`           | `number`  | `0`        | 总记录数                                                                                                        |
+| `pageSize`        | `number`  | `10`       | 每页条数，支持全局配置 `pagination.pageSize` 级联                                                               |
+| `size`            | `number`  | `38`       | 页码按钮高（px，锚点 30 / 38 / 46），支持 `pagination.size` 级联                                                |
+| `showTotal`       | `boolean` | `false`    | 显示总数文案，支持 `pagination.showTotal` 级联                                                                  |
+| `showJumper`      | `boolean` | `false`    | 显示跳页输入框，支持 `pagination.showJumper` 级联                                                               |
+| `maxVisiblePages` | `number`  | `7`        | 最大可见页码数（超出折叠为 `...`），支持 `pagination.maxVisiblePages` 级联                                      |
+| `disabled`        | `boolean` | `false`    | 整体禁用                                                                                                        |
+| `prevLabel`       | `string`  | `'上一页'` | 上一页按钮 `aria-label`                                                                                         |
+| `nextLabel`       | `string`  | `'下一页'` | 下一页按钮 `aria-label`                                                                                         |
+| `totalLabel`      | `string`  | —          | 覆盖总数文案模板（支持 `{total}` 占位符，如 `'共 {total} 条记录'`）；未设置时使用 locale `paginationTotal` 文案 |
 
 ### Events / Slots
 
@@ -54,7 +54,7 @@ group: 使用
   :max-visible-pages="5"
   show-total
   show-jumper
-  size="large"
+  :size="46"
 />
 
 <!-- 自定义页码项 -->

@@ -20,18 +20,18 @@ group: 使用
 
 ### Props
 
-| 名称          | 类型                                               | 默认值     | 说明                                                           |
-| ------------- | -------------------------------------------------- | ---------- | -------------------------------------------------------------- |
-| `modelValue`  | `string \| number`                                 | —          | 绑定值（v-model，选中项的 value）                              |
-| `options`     | `AutoCompleteOption[]`                             | `[]`       | 本地选项数据（按 label 过滤）                                  |
-| `placeholder` | `string`                                           | `''`       | 占位文本                                                       |
-| `disabled`    | `boolean`                                          | `false`    | 禁用（透明度 0.6 + 屏蔽指针）                                  |
-| `size`        | `'small' \| 'medium' \| 'large'`                   | `'medium'` | 尺寸档位，支持全局配置 `autoComplete.size` 级联                |
-| `clearable`   | `boolean`                                          | `true`     | 有值时显示清空按钮，支持全局配置 `autoComplete.clearable` 级联 |
-| `loading`     | `boolean`                                          | `false`    | 外部加载状态（异步搜索时传入，显示旋转指示）                   |
-| `label`       | `string`                                           | —          | 输入框标签（透传给内部 Input）                                 |
-| `debounce`    | `number`                                           | `300`      | 异步搜索防抖延迟（ms）                                         |
-| `searchFn`    | `(query: string) => Promise<AutoCompleteOption[]>` | —          | 异步搜索函数（传入后替代本地过滤）                             |
+| 名称          | 类型                                               | 默认值  | 说明                                                                                                          |
+| ------------- | -------------------------------------------------- | ------- | ------------------------------------------------------------------------------------------------------------- |
+| `modelValue`  | `string \| number`                                 | —       | 绑定值（v-model，选中项的 value）                                                                             |
+| `options`     | `AutoCompleteOption[]`                             | `[]`    | 本地选项数据（按 label 过滤）                                                                                 |
+| `placeholder` | `string`                                           | `''`    | 占位文本                                                                                                      |
+| `disabled`    | `boolean`                                          | `false` | 禁用（透明度 0.6 + 屏蔽指针）                                                                                 |
+| `size`        | `number`                                           | `48`    | 最小高度（px）；字号与内距按三锚点（36 / 48 / 60）插值后交给内嵌 Input，支持全局配置 `autoComplete.size` 级联 |
+| `clearable`   | `boolean`                                          | `true`  | 有值时显示清空按钮，支持全局配置 `autoComplete.clearable` 级联                                                |
+| `loading`     | `boolean`                                          | `false` | 外部加载状态（异步搜索时传入，显示旋转指示）                                                                  |
+| `label`       | `string`                                           | —       | 输入框标签（透传给内部 Input）                                                                                |
+| `debounce`    | `number`                                           | `300`   | 异步搜索防抖延迟（ms）                                                                                        |
+| `searchFn`    | `(query: string) => Promise<AutoCompleteOption[]>` | —       | 异步搜索函数（传入后替代本地过滤）                                                                            |
 
 ```ts
 interface AutoCompleteOption {
@@ -72,7 +72,7 @@ interface AutoCompleteOption {
 全局预设：
 
 ```ts
-app.use(NeumorphismUI, { autoComplete: { size: 'medium', clearable: true } })
+app.use(NeumorphismUI, { autoComplete: { size: 48, clearable: true } })
 ```
 
 ---

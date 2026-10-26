@@ -3,9 +3,13 @@ import { computed, watch } from 'vue'
 import { useLocale } from '@/composables/useLocale'
 import { useAlert, type AlertType } from '@/composables/useAlert'
 import { useNeumorphismSetup } from '@/extensions/createComponent'
+import { normalizeNumericSize, resolveControlScale } from '@/utils/controlScale'
+import { ALERT_SCALE } from '@/utils/controlScales'
 import NeumorphismIcon from '@/components/NeumorphismIcon/NeumorphismIcon.vue'
 
 export type { AlertType }
+
+export type AlertSize = 'small' | 'medium' | 'large'
 
 export interface NeumorphismAlertProps {
   type?: AlertType
@@ -15,7 +19,16 @@ export interface NeumorphismAlertProps {
   duration?: number
   icon?: boolean
   bordered?: boolean
-  size?: 'small' | 'medium' | 'large'
+  /**
+   * 尺寸——px 正文字号（数字，主几何量），或三档预设名。
+   *
+   * 数字即「正文字号」：标题字号与四周内距按三锚点（12 / 13 / 14）分段线性插值，
+   * 所以 `:size="13"` 与 `size="medium"` 逐像素相同，`:size="12.5"` 落在两者之间。
+   *
+   * @deprecated 字符串档位（`'small' | 'medium' | 'large'`）仅作兼容别名保留，
+   * 新代码请传数字。
+   */
+  size?: number | AlertSize
   /** Accessible label for the close button */
   closeLabel?: string
 }
@@ -48,7 +61,29 @@ const resolvedIcon = computed(() => resolveProp(props.icon, config.value.alert?.
 const resolvedBordered = computed(() =>
   resolveProp(props.bordered, config.value.alert?.bordered, true)
 )
-const resolvedSize = computed(() => resolveProp(props.size, config.value.alert?.size, 'medium'))
+/**
+ * 数字尺寸的语义是「正文字号」，默认值取 medium 锚点。
+ *
+ * 0 / 负数 / NaN 回落到这里：正文字号 0 等于内容不可读，负内距则会写出无效声明。
+ */
+const DEFAULT_SIZE_PX = 13
+
+/** 数字通道：`undefined` = 走档位 class，有值 = 走内联 CSS 变量 */
+const numericSize = computed(() => {
+  const raw = props.size ?? config.value.alert?.size
+  return typeof raw === 'number' ? normalizeNumericSize(raw, DEFAULT_SIZE_PX) : undefined
+})
+
+/** 字符串通道：只认档位别名（显式传数字时它不参与渲染） */
+const resolvedSize = computed<AlertSize>(() => {
+  const raw = props.size ?? config.value.alert?.size
+  return typeof raw === 'string' ? raw : 'medium'
+})
+
+/** 数字尺寸下发的 CSS 变量（见 utils/controlScale） */
+const sizeStyle = computed(() =>
+  numericSize.value === undefined ? undefined : resolveControlScale(ALERT_SCALE, numericSize.value)
+)
 
 const { t } = useLocale()
 const resolvedCloseLabel = computed(() => props.closeLabel || t('alertClose'))
@@ -82,7 +117,7 @@ function handleClose() {
 const classList = computed(() => [
   'nm-alert',
   `nm-alert--${resolvedType.value}`,
-  `nm-alert--${resolvedSize.value}`,
+  numericSize.value === undefined ? `nm-alert--${resolvedSize.value}` : 'nm-alert--sized',
   {
     'nm-alert--bordered': resolvedBordered.value,
     'nm-alert--leaving': leaving.value,
@@ -104,6 +139,7 @@ const ALERT_ICON: Record<AlertType, 'circle-info' | 'check' | 'warning' | 'circl
     <div
       v-if="isVisible"
       :class="classList"
+      :style="sizeStyle"
       role="alert"
       :aria-live="resolvedType === 'error' ? 'assertive' : 'polite'"
     >
@@ -309,6 +345,17 @@ const ALERT_ICON: Record<AlertType, 'circle-info' | 'check' | 'warning' | 'circl
   --nm-alert-padding-x: var(--nm-alert-padding-x-lg);
   --nm-alert-font: var(--nm-alert-font-lg);
   --nm-alert-title-font: var(--nm-alert-title-font-lg);
+}
+
+// 数字尺寸（`:size="13"`）：几何量全部来自内联 CSS 变量，见 utils/controlScale。
+// 与三档 class 互斥——数字路径不会同时挂档位类，所以不存在覆盖之争。
+// 这里只重接上面那组**间接变量**：消费侧（根 padding、`.nm-alert__title/message`
+// 的 font-size）仍只认这四个名字，不重复声明，也就不会出现两套来源打架。
+.nm-alert--sized {
+  --nm-alert-padding-y: var(--nm-alert-sz-pad-y);
+  --nm-alert-padding-x: var(--nm-alert-sz-pad-x);
+  --nm-alert-font: var(--nm-alert-sz-font);
+  --nm-alert-title-font: var(--nm-alert-sz-title-font);
 }
 
 // ==========================================

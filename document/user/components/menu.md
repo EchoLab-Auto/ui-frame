@@ -20,16 +20,16 @@ group: 使用
 
 ### Props
 
-| 名称              | 类型                             | 默认值       | 说明                                                      |
-| ----------------- | -------------------------------- | ------------ | --------------------------------------------------------- |
-| `items`           | `MenuItem[]`                     | `[]`         | 菜单项（`children` 嵌套子菜单，模板最多渲染三级）         |
-| `mode`            | `'vertical' \| 'horizontal'`     | `'vertical'` | 布局方向，支持全局配置 `menu.mode` 级联                   |
-| `defaultActive`   | `string`                         | —            | 默认激活项 key（非受控，内部维护 activeKey）              |
-| `defaultExpanded` | `string[]`                       | `[]`         | 默认展开的子菜单 keys（非受控）                           |
-| `collapsed`       | `boolean`                        | `false`      | 折叠模式：仅显示图标，标签经右侧 Tooltip 展示，子菜单隐藏 |
-| `selectable`      | `boolean`                        | `true`       | 是否可选中（跟踪 activeKey），支持 `menu.selectable` 级联 |
-| `theme`           | `'light' \| 'dark'`              | 跟随全局主题 | 主题覆盖                                                  |
-| `size`            | `'small' \| 'medium' \| 'large'` | `'medium'`   | 尺寸档位，支持全局配置 `menu.size` 级联                   |
+| 名称              | 类型                         | 默认值       | 说明                                                             |
+| ----------------- | ---------------------------- | ------------ | ---------------------------------------------------------------- |
+| `items`           | `MenuItem[]`                 | `[]`         | 菜单项（`children` 嵌套子菜单，模板最多渲染三级）                |
+| `mode`            | `'vertical' \| 'horizontal'` | `'vertical'` | 布局方向，支持全局配置 `menu.mode` 级联                          |
+| `defaultActive`   | `string`                     | —            | 默认激活项 key（非受控，内部维护 activeKey）                     |
+| `defaultExpanded` | `string[]`                   | `[]`         | 默认展开的子菜单 keys（非受控）                                  |
+| `collapsed`       | `boolean`                    | `false`      | 折叠模式：仅显示图标，标签经右侧 Tooltip 展示，子菜单隐藏        |
+| `selectable`      | `boolean`                    | `true`       | 是否可选中（跟踪 activeKey），支持 `menu.selectable` 级联        |
+| `theme`           | `'light' \| 'dark'`          | 跟随全局主题 | 主题覆盖                                                         |
+| `size`            | `number`                     | `14`         | 菜单项字号（px）；内距、图标与项间距按三锚点（11 / 14 / 15）插值 |
 
 ```ts
 interface MenuItem {
@@ -81,7 +81,7 @@ const menus: MenuItem[] = [
 全局预设：
 
 ```ts
-app.use(NeumorphismUI, { menu: { mode: 'vertical', selectable: true, size: 'medium' } })
+app.use(NeumorphismUI, { menu: { mode: 'vertical', selectable: true, size: 14 } })
 ```
 
 ---

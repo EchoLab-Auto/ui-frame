@@ -2,6 +2,10 @@
 import { computed, useSlots } from 'vue'
 import { useLocale } from '@/composables/useLocale'
 import { useNeumorphismSetup } from '@/extensions/createComponent'
+import { normalizeNumericSize, resolveControlScale } from '@/utils/controlScale'
+import { LIST_SCALE } from '@/utils/controlScales'
+
+export type ListSize = 'small' | 'medium' | 'large'
 
 export interface NeumorphismListProps<T> {
   /** Data array to render (when not using manual slot) */
@@ -10,8 +14,16 @@ export interface NeumorphismListProps<T> {
   bordered?: boolean
   /** Show dividers between items */
   split?: boolean
-  /** Size variant controlling padding and font */
-  size?: 'small' | 'medium' | 'large'
+  /**
+   * 尺寸——px 字号（数字，主几何量），或三档预设名。
+   *
+   * 数字即「字号」：行内距与头尾内距按三锚点（12 / 14 / 15）分段线性插值，
+   * 所以 `:size="14"` 与 `size="medium"` 逐像素相同，`:size="14.5"` 落在两者之间。
+   *
+   * @deprecated 字符串档位（`'small' | 'medium' | 'large'`）仅作兼容别名保留，
+   * 新代码请传数字。
+   */
+  size?: number | ListSize
   /** Enable hover effect on items */
   hoverable?: boolean
   /** Show loading state */
@@ -30,7 +42,25 @@ const slots = useSlots()
 
 const { config, resolveProp } = useNeumorphismSetup()
 
-const resolvedSize = computed(() => resolveProp(props.size, config.value.list?.size, 'medium'))
+/** 数字尺寸的语义是「字号」，默认值取 medium 锚点 */
+const DEFAULT_SIZE_PX = 14
+
+/** 数字通道：`undefined` = 走档位 class，有值 = 走内联 CSS 变量 */
+const numericSize = computed(() => {
+  const raw = props.size ?? config.value.list?.size
+  return typeof raw === 'number' ? normalizeNumericSize(raw, DEFAULT_SIZE_PX) : undefined
+})
+
+/** 字符串通道：只认档位别名（显式传数字时它不参与渲染） */
+const resolvedSize = computed<ListSize>(() => {
+  const raw = props.size ?? config.value.list?.size
+  return typeof raw === 'string' ? raw : 'medium'
+})
+
+/** 数字尺寸下发的 CSS 变量（见 utils/controlScale） */
+const sizeStyle = computed(() =>
+  numericSize.value === undefined ? undefined : resolveControlScale(LIST_SCALE, numericSize.value)
+)
 const resolvedBordered = computed(() =>
   resolveProp(props.bordered, config.value.list?.bordered, true)
 )
@@ -49,7 +79,7 @@ const isEmpty = computed(() => !props.loading && props.items.length === 0)
 
 const classList = computed(() => [
   'nm-list',
-  `nm-list--${resolvedSize.value}`,
+  numericSize.value === undefined ? `nm-list--${resolvedSize.value}` : 'nm-list--sized',
   {
     'nm-list--bordered': resolvedBordered.value,
     'nm-list--split': resolvedSplit.value,
@@ -70,7 +100,7 @@ function getItemKey(item: T, index: number): string | number {
 </script>
 
 <template>
-  <div :class="classList" role="list" :aria-label="t('listLabel')">
+  <div :class="classList" :style="sizeStyle" role="list" :aria-label="t('listLabel')">
     <!-- Header slot -->
     <div v-if="$slots.header" class="nm-list__header">
       <slot name="header" />
@@ -181,6 +211,24 @@ function getItemKey(item: T, index: number): string | number {
   .nm-list__footer {
     padding: var(--nm-spacing-md) var(--nm-spacing-lg);
     font-size: var(--nm-font-lg);
+  }
+}
+
+// 数字尺寸（`:size="14.5"`）：几何量全部来自内联 CSS 变量，见 utils/controlScale。
+// 与三档 class 互斥——数字路径不会同时挂档位类，所以不存在覆盖之争。
+// 选择器结构与上面三档类逐一对应：字号落在根节点（行内元素继承），
+// 内距落在行/头/尾——换了层级就会多出「档位改了数字没改」的偏差。
+.nm-list--sized {
+  font-size: var(--nm-list-sz-font);
+
+  .nm-list__item {
+    padding: var(--nm-list-sz-pad-y) var(--nm-list-sz-pad-x);
+  }
+
+  .nm-list__header,
+  .nm-list__footer {
+    padding: var(--nm-list-sz-pad-y) var(--nm-list-sz-pad-x);
+    font-size: var(--nm-list-sz-font);
   }
 }
 

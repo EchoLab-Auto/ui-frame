@@ -20,14 +20,14 @@ group: 使用
 
 ### Props
 
-| 名称            | 类型                             | 默认值         | 说明                                                |
-| --------------- | -------------------------------- | -------------- | --------------------------------------------------- |
-| `items`         | `MenuItem[]`                     | `[]`           | 导航菜单项（`children` 作为一级下拉子菜单）         |
-| `defaultActive` | `string`                         | —              | 默认激活项 key（非受控，内部维护 activeKey）        |
-| `mode`          | `'horizontal' \| 'vertical'`     | `'horizontal'` | 布局方向，支持全局配置 `navMenu.mode` 级联          |
-| `showIndicator` | `boolean`                        | `true`         | 激活项底部指示条，支持 `navMenu.showIndicator` 级联 |
-| `theme`         | `'light' \| 'dark'`              | 跟随全局主题   | 主题覆盖                                            |
-| `size`          | `'small' \| 'medium' \| 'large'` | `'medium'`     | 尺寸档位，支持全局配置 `navMenu.size` 级联          |
+| 名称            | 类型                         | 默认值         | 说明                                                             |
+| --------------- | ---------------------------- | -------------- | ---------------------------------------------------------------- |
+| `items`         | `MenuItem[]`                 | `[]`           | 导航菜单项（`children` 作为一级下拉子菜单）                      |
+| `defaultActive` | `string`                     | —              | 默认激活项 key（非受控，内部维护 activeKey）                     |
+| `mode`          | `'horizontal' \| 'vertical'` | `'horizontal'` | 布局方向，支持全局配置 `navMenu.mode` 级联                       |
+| `showIndicator` | `boolean`                    | `true`         | 激活项底部指示条，支持 `navMenu.showIndicator` 级联              |
+| `theme`         | `'light' \| 'dark'`          | 跟随全局主题   | 主题覆盖                                                         |
+| `size`          | `number`                     | `14`           | 导航项字号（px）；内距、图标与指示条按三锚点（11 / 14 / 15）插值 |
 
 ```ts
 interface MenuItem {

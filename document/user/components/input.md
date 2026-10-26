@@ -20,20 +20,20 @@ group: 使用
 
 ### Props
 
-| 名称                                 | 类型                             | 默认值     | 说明                                            |
-| ------------------------------------ | -------------------------------- | ---------- | ----------------------------------------------- |
-| `modelValue`                         | `string`                         | `''`       | v-model 绑定值                                  |
-| `type`                               | `string`                         | `'text'`   | 原生 type（text / password / email……）          |
-| `placeholder`                        | `string`                         | —          | 占位文本                                        |
-| `label`                              | `string`                         | —          | 字段标签（经 FieldLabel 渲染，关联 input id）   |
-| `floatingLabel`                      | `boolean`                        | `false`    | 浮动标签模式：label 从输入位上浮到字段顶边      |
-| `error`                              | `string \| boolean`              | —          | 错误态：字符串为错误文案，`true` 仅显示错误样式 |
-| `size`                               | `'small' \| 'medium' \| 'large'` | `'medium'` | 尺寸档位，支持全局配置 `input.size` 级联        |
-| `disabled` / `readonly` / `required` | `boolean`                        | `false`    | 禁用 / 只读 / 必填（必填显示红色 \*）           |
-| `maxlength` / `minlength`            | `number \| string`               | —          | 原生长度约束                                    |
-| `autocomplete`                       | `string`                         | `'off'`    | 原生自动完成                                    |
-| `inputmode`                          | 枚举                             | —          | 移动端虚拟键盘类型（numeric / tel / email……）   |
-| `name` / `id`                        | `string`                         | —          | 原生表单属性；id 缺省自动生成并关联 label/error |
+| 名称                                 | 类型                | 默认值   | 说明                                                                                                 |
+| ------------------------------------ | ------------------- | -------- | ---------------------------------------------------------------------------------------------------- |
+| `modelValue`                         | `string`            | `''`     | v-model 绑定值                                                                                       |
+| `type`                               | `string`            | `'text'` | 原生 type（text / password / email……）                                                               |
+| `placeholder`                        | `string`            | —        | 占位文本                                                                                             |
+| `label`                              | `string`            | —        | 字段标签（经 FieldLabel 渲染，关联 input id）                                                        |
+| `floatingLabel`                      | `boolean`           | `false`  | 浮动标签模式：label 从输入位上浮到字段顶边                                                           |
+| `error`                              | `string \| boolean` | —        | 错误态：字符串为错误文案，`true` 仅显示错误样式                                                      |
+| `size`                               | `number`            | `48`     | 最小高度（px）；字号 / 内距 / 前后缀内距按三锚点（36 / 48 / 60）插值，支持全局配置 `input.size` 级联 |
+| `disabled` / `readonly` / `required` | `boolean`           | `false`  | 禁用 / 只读 / 必填（必填显示红色 \*）                                                                |
+| `maxlength` / `minlength`            | `number \| string`  | —        | 原生长度约束                                                                                         |
+| `autocomplete`                       | `string`            | `'off'`  | 原生自动完成                                                                                         |
+| `inputmode`                          | 枚举                | —        | 移动端虚拟键盘类型（numeric / tel / email……）                                                        |
+| `name` / `id`                        | `string`            | —        | 原生表单属性；id 缺省自动生成并关联 label/error                                                      |
 
 透传说明：`inheritAttrs: false`，除 `class` / `style` 外的 attrs 透传到原生 `<input>`。
 
@@ -65,12 +65,15 @@ group: 使用
 
 <!-- 密码 + Enter 提交 -->
 <NeumorphismInput v-model="pwd" type="password" @enter="submit" />
+
+<!-- 数字尺寸：42 是 36(small) 与 48(medium) 之间的插值档 -->
+<NeumorphismInput v-model="kw" :size="42" />
 ```
 
 全局预设：
 
 ```ts
-app.use(NeumorphismUI, { input: { size: 'medium' } })
+app.use(NeumorphismUI, { input: { size: 48 } })
 ```
 
 ---

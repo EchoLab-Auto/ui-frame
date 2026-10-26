@@ -3,6 +3,8 @@ import { computed, ref } from 'vue'
 import { useNeumorphismSetup } from '@/extensions/createComponent'
 import { useLocale } from '@/composables/useLocale'
 import { useSlider, coordinateToValue } from '@/composables/useSlider'
+import { normalizeNumericSize, resolveControlScale } from '@/utils/controlScale'
+import { SLIDER_SCALE } from '@/utils/controlScales'
 
 export type SliderSize = 'small' | 'medium' | 'large'
 
@@ -23,8 +25,16 @@ export interface NeumorphismSliderProps {
   showStops?: boolean
   /** Vertical orientation */
   vertical?: boolean
-  /** Slider size */
-  size?: SliderSize
+  /**
+   * 尺寸——轨道粗细 px（数字，主几何量），或三档预设名。
+   *
+   * 数字即「轨道粗细」：拇指按 `3 × 轨道 − 2px` 同步推导（三档 16/22/28 与
+   * 6/8/10 恰好是这条仿射关系），所以锚点处与档位别名逐像素一致。
+   *
+   * @deprecated 字符串档位（`'small' | 'medium' | 'large'`）仅作兼容别名保留，
+   * 新代码请传数字。
+   */
+  size?: number | SliderSize
 }
 
 const props = withDefaults(defineProps<NeumorphismSliderProps>(), {
@@ -40,8 +50,26 @@ const props = withDefaults(defineProps<NeumorphismSliderProps>(), {
 
 const { config, resolveProp } = useNeumorphismSetup()
 
+/** 尺寸原始取值：显式 prop > 全局配置 `slider.size` > 档位默认 medium */
+const rawSize = computed<number | SliderSize>(() =>
+  resolveProp(props.size, config.value.slider?.size, 'medium' as number | SliderSize)
+)
+
+/** 数字通道：`undefined` = 走档位 class，有值 = 走内联 CSS 变量 */
+const numericSize = computed(() =>
+  typeof rawSize.value === 'number'
+    ? normalizeNumericSize(rawSize.value, SLIDER_SCALE.primary.md)
+    : undefined
+)
+
+/** 字符串通道：数字路径下不挂档位类，这里只用于档位类名与语义兜底 */
 const resolvedSize = computed<SliderSize>(() =>
-  resolveProp(props.size, config.value.slider?.size, 'medium')
+  typeof rawSize.value === 'string' ? rawSize.value : 'medium'
+)
+
+/** 数字尺寸下发的 CSS 变量（见 utils/controlScale） */
+const sizeStyle = computed(() =>
+  numericSize.value === undefined ? undefined : resolveControlScale(SLIDER_SCALE, numericSize.value)
 )
 
 // Whether to show tooltip
@@ -228,7 +256,8 @@ const ariaValueText = computed(() => `${sliderValue.value}`)
 
 const classList = computed(() => [
   'nm-slider',
-  `nm-slider--${resolvedSize.value}`,
+  // 数字与档位类互斥：几何全由内联 `--nm-slider-sz-*` 决定
+  numericSize.value === undefined ? `nm-slider--${resolvedSize.value}` : 'nm-slider--sized',
   {
     'nm-slider--disabled': props.disabled,
     'nm-slider--vertical': props.vertical,
@@ -239,7 +268,7 @@ const classList = computed(() => [
 </script>
 
 <template>
-  <div :class="classList" role="group" :aria-label="'Slider'">
+  <div :class="classList" :style="sizeStyle" role="group" :aria-label="'Slider'">
     <div
       ref="railRef"
       class="nm-slider__rail"
@@ -639,6 +668,21 @@ $slider-thumb-spring: cubic-bezier(0.34, 1.1, 0.64, 1);
   .nm-slider__thumb {
     width: 28px;
     height: 28px;
+  }
+}
+
+// ---------- 数字尺寸（`:size="12"`）----------
+// 三档只动间接变量 `--nm-slider-rail-size`，数字路径把它接到内联的 `sz-rail` 上，
+// 轨道与 thumb 既有的 var() 消费链路完全不用改。
+.nm-slider--sized {
+  --nm-slider-rail-size: var(--nm-slider-sz-rail);
+
+  .nm-slider__thumb {
+    // thumb 与轨道粗细是三档里唯一的硬编码几何（16/22/28 对 6/8/10），
+    // 恰好是仿射关系 thumb = 3 × rail − 2，用 calc 表达才能让锚点处逐像素一致；
+    // 换成固定倍率（如 2.75×）会在 small/large 两侧各差 0.5px。
+    width: calc(var(--nm-slider-sz-rail) * 3 - 2px);
+    height: calc(var(--nm-slider-sz-rail) * 3 - 2px);
   }
 }
 

@@ -4,10 +4,14 @@ import { useTable } from '@/composables/useTable'
 import type { TableColumn, SortDirection } from '@/composables/useTable'
 import { useConfig } from '@/composables/useConfig'
 import { useLocale } from '@/composables/useLocale'
+import { normalizeNumericSize, resolveControlScale } from '@/utils/controlScale'
+import { TABLE_SCALE } from '@/utils/controlScales'
 import NeumorphismCheckbox from '@/components/NeumorphismCheckbox/NeumorphismCheckbox.vue'
 import NeumorphismIcon from '@/components/NeumorphismIcon/NeumorphismIcon.vue'
 
 export type { TableColumn }
+
+export type TableSize = 'small' | 'medium' | 'large'
 
 export interface NeumorphismTableProps {
   data?: Record<string, unknown>[]
@@ -17,7 +21,17 @@ export interface NeumorphismTableProps {
   selectedKeys?: string[]
   loading?: boolean
   emptyText?: string
-  size?: 'small' | 'medium' | 'large'
+  /**
+   * 尺寸——px 单元格上下内距（数字，行密度），或三档预设名。
+   *
+   * 数字即「行密度」：上下内距是主几何量，左右内距与单元格字号按三锚点
+   * （8 / 12 / 16）分段线性插值，所以 `:size="12"` 与 `size="medium"` 逐像素
+   * 相同，`:size="10"` 落在 small / medium 之间。
+   *
+   * @deprecated 字符串档位（`'small' | 'medium' | 'large'`）仅作兼容别名保留，
+   * 新代码请传数字。
+   */
+  size?: number | TableSize
   striped?: boolean
   hoverable?: boolean
   showHeader?: boolean
@@ -46,7 +60,25 @@ const emit = defineEmits<{
 const { t } = useLocale()
 
 const config = useConfig()
-const resolvedSize = computed(() => props.size ?? config.value.table?.size ?? 'medium')
+/** 数字尺寸的语义是「单元格上下内距」，默认值取 medium 锚点 */
+const DEFAULT_SIZE_PX = 12
+
+/** 数字通道：`undefined` = 走档位 class，有值 = 走内联 CSS 变量 */
+const numericSize = computed(() => {
+  const raw = props.size ?? config.value.table?.size
+  return typeof raw === 'number' ? normalizeNumericSize(raw, DEFAULT_SIZE_PX) : undefined
+})
+
+/** 字符串通道：只认档位别名（显式传数字时它不参与渲染） */
+const resolvedSize = computed<TableSize>(() => {
+  const raw = props.size ?? config.value.table?.size
+  return typeof raw === 'string' ? raw : 'medium'
+})
+
+/** 数字尺寸下发的 CSS 变量（见 utils/controlScale）；变量在根节点，消费在单元格上 */
+const sizeStyle = computed(() =>
+  numericSize.value === undefined ? undefined : resolveControlScale(TABLE_SCALE, numericSize.value)
+)
 const resolvedStriped = computed(() => props.striped ?? config.value.table?.striped ?? false)
 const resolvedHoverable = computed(() => props.hoverable ?? config.value.table?.hoverable ?? true)
 const resolvedEmptyText = computed(() => props.emptyText || t('tableEmpty'))
@@ -108,7 +140,7 @@ function columnWidthStyle(column: TableColumn): Record<string, string> | undefin
 
 const classList = computed(() => [
   'nm-table',
-  `nm-table--${resolvedSize.value}`,
+  numericSize.value === undefined ? `nm-table--${resolvedSize.value}` : 'nm-table--sized',
   {
     'nm-table--striped': resolvedStriped.value,
     'nm-table--hoverable': resolvedHoverable.value,
@@ -122,7 +154,7 @@ const showSelectionColumn = computed(
 </script>
 
 <template>
-  <div :class="classList">
+  <div :class="classList" :style="sizeStyle">
     <div class="nm-table__wrapper">
       <table class="nm-table__inner">
         <!-- Header -->
@@ -448,6 +480,18 @@ const showSelectionColumn = computed(
   .nm-table__td {
     padding: var(--nm-table-cell-padding-y-lg) var(--nm-table-cell-padding-x-lg);
     font-size: var(--nm-font-lg);
+  }
+}
+
+// 数字尺寸（`:size="10"`）：几何量全部来自内联 CSS 变量，见 utils/controlScale。
+// 与三档 class 互斥——数字路径不会同时挂档位类，所以不存在覆盖之争。
+// 表格没有 `--medium` 档位类（medium 就是 `.nm-table__th/td` 的基础规则），所以
+// 这条规则同时承担 medium 的「数值版」：选择器结构、声明与 small/large 完全一致。
+.nm-table--sized {
+  .nm-table__th,
+  .nm-table__td {
+    padding: var(--nm-table-sz-pad-y) var(--nm-table-sz-pad-x);
+    font-size: var(--nm-table-sz-font);
   }
 }
 

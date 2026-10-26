@@ -83,10 +83,10 @@ export type { NeumorphismEmptyProps } from './NeumorphismEmpty'
 
 // Navigation
 export { default as NeumorphismMenu } from './NeumorphismMenu'
-export type { NeumorphismMenuProps } from './NeumorphismMenu'
+export type { NeumorphismMenuProps, MenuSize } from './NeumorphismMenu'
 
 export { default as NeumorphismNavMenu } from './NeumorphismNavMenu'
-export type { NeumorphismNavMenuProps } from './NeumorphismNavMenu'
+export type { NeumorphismNavMenuProps, NavMenuSize } from './NeumorphismNavMenu'
 
 export { default as NeumorphismTabs } from './NeumorphismTabs'
 export type { NeumorphismTabsProps, TabItem } from './NeumorphismTabs'
@@ -193,7 +193,7 @@ export { default as NeumorphismInputNumber } from './NeumorphismInputNumber'
 export type { NeumorphismInputNumberProps } from './NeumorphismInputNumber'
 
 export { default as NeumorphismSteps } from './NeumorphismSteps'
-export type { NeumorphismStepsProps, StepItem, StepStatus } from './NeumorphismSteps'
+export type { NeumorphismStepsProps, StepItem, StepStatus, StepsSize } from './NeumorphismSteps'
 
 export { NeumorphismForm, NeumorphismFormItem } from './NeumorphismForm'
 export type { NeumorphismFormProps, NeumorphismFormItemProps, FormRule } from './NeumorphismForm'

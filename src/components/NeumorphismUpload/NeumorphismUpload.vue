@@ -4,9 +4,13 @@ import { useUpload } from '@/composables/useUpload'
 import type { UploadFile, UploadStatus } from '@/composables/useUpload'
 import { useNeumorphismSetup } from '@/extensions/createComponent'
 import { useLocale } from '@/composables/useLocale'
+import { normalizeNumericSize, resolveControlScale } from '@/utils/controlScale'
+import { UPLOAD_SCALE } from '@/utils/controlScales'
 import NeumorphismIcon from '@/components/NeumorphismIcon/NeumorphismIcon.vue'
 
 export type { UploadFile, UploadStatus }
+
+export type UploadSize = 'small' | 'medium' | 'large'
 
 export interface NeumorphismUploadProps {
   /** v-model bound file list */
@@ -27,8 +31,16 @@ export interface NeumorphismUploadProps {
   listType?: 'text' | 'picture' | 'picture-card'
   /** Whether to show the file list */
   showUploadList?: boolean
-  /** Component size */
-  size?: 'small' | 'medium' | 'large'
+  /**
+   * 尺寸——拖拽触发区的最小高度 px（数字，主几何量），或三档预设名。
+   *
+   * 数字即「触发区最小高度」：锚点表里 Upload 只有这一个指标（72 / 100 / 140），
+   * 所以数字路径只影响拖拽区，非拖拽的按钮触发区仍按 medium 档的内距渲染。
+   *
+   * @deprecated 字符串档位（`'small' | 'medium' | 'large'`）仅作兼容别名保留，
+   * 新代码请传数字。
+   */
+  size?: number | UploadSize
   /** Whether to auto upload after file selection */
   autoUpload?: boolean
   /** Override trigger label text */
@@ -70,7 +82,28 @@ const emit = defineEmits<{
 const { config, resolveProp } = useNeumorphismSetup()
 const { t } = useLocale()
 
-const resolvedSize = computed(() => resolveProp(props.size, config.value.upload?.size, 'medium'))
+/** 尺寸原始取值：显式 prop > 全局配置 `upload.size` > 档位默认 medium */
+const rawSize = computed<number | UploadSize>(() =>
+  resolveProp(props.size, config.value.upload?.size, 'medium' as number | UploadSize)
+)
+
+/** 数字通道：`undefined` = 走档位 class，有值 = 走内联 CSS 变量 */
+const numericSize = computed(() =>
+  typeof rawSize.value === 'number'
+    ? normalizeNumericSize(rawSize.value, UPLOAD_SCALE.primary.md)
+    : undefined
+)
+
+/** 字符串通道：数字路径下不挂档位类，这里只用于档位类名与语义兜底 */
+const resolvedSize = computed<UploadSize>(() =>
+  typeof rawSize.value === 'string' ? rawSize.value : 'medium'
+)
+
+/** 数字尺寸下发的 CSS 变量（见 utils/controlScale） */
+const sizeStyle = computed(() =>
+  numericSize.value === undefined ? undefined : resolveControlScale(UPLOAD_SCALE, numericSize.value)
+)
+
 const resolvedDrag = computed(() => resolveProp(props.drag, config.value.upload?.drag, true))
 const resolvedShowUploadList = computed(() =>
   resolveProp(props.showUploadList, config.value.upload?.showUploadList, true)
@@ -191,7 +224,8 @@ function onTriggerClick() {
 
 const classList = computed(() => [
   'nm-upload',
-  `nm-upload--${resolvedSize.value}`,
+  // 数字与档位类互斥：几何全由内联 `--nm-upload-sz-*` 决定
+  numericSize.value === undefined ? `nm-upload--${resolvedSize.value}` : 'nm-upload--sized',
   `nm-upload--list-${resolvedListType.value}`,
   {
     'nm-upload--disabled': props.disabled,
@@ -208,7 +242,7 @@ function formatFileSize(bytes: number): string {
 </script>
 
 <template>
-  <div :class="classList" role="group" aria-label="file upload">
+  <div :class="classList" :style="sizeStyle" role="group" aria-label="file upload">
     <!-- ===================== Hidden file input ====================== -->
     <input
       ref="fileInputRef"
@@ -899,6 +933,13 @@ function formatFileSize(bytes: number): string {
     padding: var(--nm-button-padding-y-lg) var(--nm-button-padding-x-lg);
     font-size: var(--nm-button-font-lg);
   }
+}
+
+// ---------- 数字尺寸（`:size="120"`）----------
+// 锚点表里 Upload 只有一个指标（触发区最小高度），所以数字路径只影响拖拽区。
+// 非拖拽的按钮触发区没有对应锚点，就不臆造插值——保持 medium 档的内距。
+.nm-upload--sized .nm-upload__trigger {
+  min-height: var(--nm-upload-sz-trigger-height);
 }
 
 // ==========================================

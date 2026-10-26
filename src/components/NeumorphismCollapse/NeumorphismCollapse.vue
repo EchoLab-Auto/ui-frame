@@ -4,15 +4,28 @@ import { useCollapse } from '@/composables/useCollapse'
 import type { CollapseItem } from '@/composables/useCollapse'
 import { generateId } from '@/utils'
 import { useNeumorphismSetup } from '@/extensions/createComponent'
+import { normalizeNumericSize, resolveControlScale } from '@/utils/controlScale'
+import { COLLAPSE_SCALE } from '@/utils/controlScales'
 import NeumorphismIcon from '@/components/NeumorphismIcon/NeumorphismIcon.vue'
 
 export type { CollapseItem }
+
+export type CollapseSize = 'small' | 'medium' | 'large'
 
 export interface NeumorphismCollapseProps {
   modelValue?: string[]
   accordion?: boolean
   items?: CollapseItem[]
-  size?: 'small' | 'medium' | 'large'
+  /**
+   * 尺寸——px 标题字号（数字，主几何量），或三档预设名。
+   *
+   * 数字即「标题字号」：标题内距按三锚点（13 / 15 / 16）分段线性插值，
+   * 所以 `:size="15"` 与 `size="medium"` 逐像素相同，`:size="14"` 落在两者之间。
+   *
+   * @deprecated 字符串档位（`'small' | 'medium' | 'large'`）仅作兼容别名保留，
+   * 新代码请传数字。
+   */
+  size?: number | CollapseSize
 }
 
 const props = withDefaults(defineProps<NeumorphismCollapseProps>(), {
@@ -23,7 +36,27 @@ const props = withDefaults(defineProps<NeumorphismCollapseProps>(), {
 
 const { config, resolveProp } = useNeumorphismSetup()
 
-const resolvedSize = computed(() => resolveProp(props.size, config.value.collapse?.size, 'medium'))
+/** 数字尺寸的语义是「标题字号」，默认值取 medium 锚点 */
+const DEFAULT_SIZE_PX = 15
+
+/** 数字通道：`undefined` = 走档位 class，有值 = 走内联 CSS 变量 */
+const numericSize = computed(() => {
+  const raw = props.size ?? config.value.collapse?.size
+  return typeof raw === 'number' ? normalizeNumericSize(raw, DEFAULT_SIZE_PX) : undefined
+})
+
+/** 字符串通道：只认档位别名（显式传数字时它不参与渲染） */
+const resolvedSize = computed<CollapseSize>(() => {
+  const raw = props.size ?? config.value.collapse?.size
+  return typeof raw === 'string' ? raw : 'medium'
+})
+
+/** 数字尺寸下发的 CSS 变量（见 utils/controlScale）；变量在根节点，消费在标题按钮上 */
+const sizeStyle = computed(() =>
+  numericSize.value === undefined
+    ? undefined
+    : resolveControlScale(COLLAPSE_SCALE, numericSize.value)
+)
 const resolvedAccordion = computed(() =>
   resolveProp(props.accordion, config.value.collapse?.accordion, false)
 )
@@ -50,11 +83,15 @@ const { toggle, isActive } = useCollapse({
 
 const collapseId = generateId('nm-collapse')
 
-const classList = computed(() => ['nm-collapse', `nm-collapse--${resolvedSize.value}`])
+// 数字与档位类互斥：数字路径统一挂 `--sized`，几何量全部来自内联变量
+const classList = computed(() => [
+  'nm-collapse',
+  numericSize.value === undefined ? `nm-collapse--${resolvedSize.value}` : 'nm-collapse--sized',
+])
 </script>
 
 <template>
-  <div :class="classList">
+  <div :class="classList" :style="sizeStyle">
     <div
       v-for="item in items"
       :key="item.key"
@@ -230,5 +267,15 @@ const classList = computed(() => ['nm-collapse', `nm-collapse--${resolvedSize.va
 .nm-collapse--large .nm-collapse__trigger {
   padding: var(--nm-collapse-trigger-padding-y-lg) var(--nm-collapse-trigger-padding-x-lg);
   font-size: var(--nm-collapse-trigger-font-lg);
+}
+
+// 数字尺寸（`:size="14"`）：几何量全部来自内联 CSS 变量，见 utils/controlScale。
+// 与三档 class 互斥——数字路径不会同时挂档位类，所以不存在覆盖之争。
+// medium 档没有独立 class（就是 `.nm-collapse__trigger` 的基础规则），所以这条
+// `--sized` 规则一并承担 medium 的「数值版」：选择器与 small/large 同层级，
+// 声明与基础规则 + 三档类一致（内距 + 标题字号）。
+.nm-collapse--sized .nm-collapse__trigger {
+  padding: var(--nm-collapse-sz-pad-y) var(--nm-collapse-sz-pad-x);
+  font-size: var(--nm-collapse-sz-font);
 }
 </style>

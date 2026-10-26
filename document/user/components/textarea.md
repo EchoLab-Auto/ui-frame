@@ -27,20 +27,20 @@ group: 使用
 
 ### Props
 
-| 名称                                 | 类型                             | 默认值     | 说明                                          |
-| ------------------------------------ | -------------------------------- | ---------- | --------------------------------------------- |
-| `modelValue`                         | `string`                         | `''`       | v-model 绑定值                                |
-| `placeholder`                        | `string`                         | —          | 占位文本                                      |
-| `label`                              | `string`                         | —          | 字段标签                                      |
-| `error`                              | `string \| boolean`              | —          | 错误态（字符串为错误文案）                    |
-| `rows`                               | `number \| string`               | `4`        | 初始行数                                      |
-| `autoResize`                         | `boolean`                        | `false`    | 高度随内容自动增长（见下文机制）              |
-| `showCount`                          | `boolean`                        | `false`    | 显示字数统计（配合 `maxlength` 显示 `n/max`） |
-| `maxlength` / `minlength`            | `number \| string`               | —          | 原生长度约束                                  |
-| `size`                               | `'small' \| 'medium' \| 'large'` | `'medium'` | 尺寸档位，支持全局配置 `textarea.size` 级联   |
-| `disabled` / `readonly` / `required` | `boolean`                        | `false`    | 禁用 / 只读 / 必填                            |
-| `inputmode`                          | `'none' \| 'text' \| 'search'`   | —          | 移动端虚拟键盘类型                            |
-| `name` / `id`                        | `string`                         | —          | 原生表单属性；id 缺省自动生成                 |
+| 名称                                 | 类型                           | 默认值  | 说明                                                                                      |
+| ------------------------------------ | ------------------------------ | ------- | ----------------------------------------------------------------------------------------- |
+| `modelValue`                         | `string`                       | `''`    | v-model 绑定值                                                                            |
+| `placeholder`                        | `string`                       | —       | 占位文本                                                                                  |
+| `label`                              | `string`                       | —       | 字段标签                                                                                  |
+| `error`                              | `string \| boolean`            | —       | 错误态（字符串为错误文案）                                                                |
+| `rows`                               | `number \| string`             | `4`     | 初始行数                                                                                  |
+| `autoResize`                         | `boolean`                      | `false` | 高度随内容自动增长（见下文机制）                                                          |
+| `showCount`                          | `boolean`                      | `false` | 显示字数统计（配合 `maxlength` 显示 `n/max`）                                             |
+| `maxlength` / `minlength`            | `number \| string`             | —       | 原生长度约束                                                                              |
+| `size`                               | `number`                       | `48`    | 最小高度（px）；字号与内距按三锚点（36 / 48 / 60）插值，支持全局配置 `textarea.size` 级联 |
+| `disabled` / `readonly` / `required` | `boolean`                      | `false` | 禁用 / 只读 / 必填                                                                        |
+| `inputmode`                          | `'none' \| 'text' \| 'search'` | —       | 移动端虚拟键盘类型                                                                        |
+| `name` / `id`                        | `string`                       | —       | 原生表单属性；id 缺省自动生成                                                             |
 
 透传说明：`inheritAttrs: false`，除 `class` / `style` 外的 attrs 透传到原生 `<textarea>`。
 
@@ -70,7 +70,7 @@ group: 使用
 全局预设：
 
 ```ts
-app.use(NeumorphismUI, { textarea: { size: 'medium' } })
+app.use(NeumorphismUI, { textarea: { size: 48 } })
 ```
 
 ---

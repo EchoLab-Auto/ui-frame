@@ -20,16 +20,16 @@ group: 使用
 
 ### Props
 
-| 名称          | 类型                             | 默认值      | 说明                                                                     |
-| ------------- | -------------------------------- | ----------- | ------------------------------------------------------------------------ |
-| `modelValue`  | `number`                         | `0`         | 绑定值（v-model）                                                        |
-| `min` / `max` | `number`                         | `0` / `100` | 取值范围                                                                 |
-| `step`        | `number`                         | `1`         | 步长（坐标换算与键盘步进共用）                                           |
-| `disabled`    | `boolean`                        | `false`     | 禁用（透明度 0.5，拇指移出 Tab 序）                                      |
-| `showTooltip` | `boolean`                        | `true`      | 拖拽时显示当前值气泡，支持全局配置 `slider.showTooltip` 级联             |
-| `showStops`   | `boolean`                        | `false`     | 轨道显示步长刻度点，支持全局配置 `slider.showStops` 级联                 |
-| `vertical`    | `boolean`                        | `false`     | 垂直方向（高 200px，刻度与填充自下而上）                                 |
-| `size`        | `'small' \| 'medium' \| 'large'` | `'medium'`  | 轨道 6 / 8 / 10px + 拇指 16 / 22 / 28px，支持全局配置 `slider.size` 级联 |
+| 名称          | 类型      | 默认值      | 说明                                                                                        |
+| ------------- | --------- | ----------- | ------------------------------------------------------------------------------------------- |
+| `modelValue`  | `number`  | `0`         | 绑定值（v-model）                                                                           |
+| `min` / `max` | `number`  | `0` / `100` | 取值范围                                                                                    |
+| `step`        | `number`  | `1`         | 步长（坐标换算与键盘步进共用）                                                              |
+| `disabled`    | `boolean` | `false`     | 禁用（透明度 0.5，拇指移出 Tab 序）                                                         |
+| `showTooltip` | `boolean` | `true`      | 拖拽时显示当前值气泡，支持全局配置 `slider.showTooltip` 级联                                |
+| `showStops`   | `boolean` | `false`     | 轨道显示步长刻度点，支持全局配置 `slider.showStops` 级联                                    |
+| `vertical`    | `boolean` | `false`     | 垂直方向（高 200px，刻度与填充自下而上）                                                    |
+| `size`        | `number`  | `8`         | 轨道粗细 px（锚点 6 / 8 / 10），拇指按 `3 × 轨道 − 2` 推导；支持全局配置 `slider.size` 级联 |
 
 ### Events / Slots
 
@@ -54,7 +54,7 @@ group: 使用
 全局预设：
 
 ```ts
-app.use(NeumorphismUI, { slider: { size: 'medium', showTooltip: true, showStops: false } })
+app.use(NeumorphismUI, { slider: { size: 8, showTooltip: true, showStops: false } })
 ```
 
 ---

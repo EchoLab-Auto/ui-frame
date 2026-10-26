@@ -20,13 +20,13 @@ group: 使用
 
 ### Props
 
-| 名称         | 类型                             | 默认值                | 说明                                          |
-| ------------ | -------------------------------- | --------------------- | --------------------------------------------- |
-| `modelValue` | `string`                         | `''`                  | 当前激活 tab 的 key（v-model）                |
-| `tabs`       | `TabItem[]`                      | `[]`                  | 标签页数据                                    |
-| `position`   | `'top' \| 'left' \| 'right'`     | `'top'`               | 标签栏位置，支持全局配置 `tabs.position` 级联 |
-| `size`       | `'small' \| 'medium' \| 'large'` | `'medium'`            | 尺寸档位，支持全局配置 `tabs.size` 级联       |
-| `navLabel`   | `string`                         | locale `tabsNavLabel` | 标签栏 `aria-label`                           |
+| 名称         | 类型                         | 默认值                | 说明                                                     |
+| ------------ | ---------------------------- | --------------------- | -------------------------------------------------------- |
+| `modelValue` | `string`                     | `''`                  | 当前激活 tab 的 key（v-model）                           |
+| `tabs`       | `TabItem[]`                  | `[]`                  | 标签页数据                                               |
+| `position`   | `'top' \| 'left' \| 'right'` | `'top'`               | 标签栏位置，支持全局配置 `tabs.position` 级联            |
+| `size`       | `number`                     | `14`                  | 标签字号（px，锚点 12 / 14 / 16），支持 `tabs.size` 级联 |
+| `navLabel`   | `string`                     | locale `tabsNavLabel` | 标签栏 `aria-label`                                      |
 
 ```ts
 interface TabItem {
@@ -74,7 +74,7 @@ const tabs = [
 全局预设：
 
 ```ts
-app.use(NeumorphismUI, { tabs: { position: 'top', size: 'medium' } })
+app.use(NeumorphismUI, { tabs: { position: 'top', size: 14 } })
 ```
 
 ---

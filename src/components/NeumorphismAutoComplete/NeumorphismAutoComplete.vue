@@ -10,6 +10,8 @@ import NeumorphismIcon from '@/components/NeumorphismIcon/NeumorphismIcon.vue'
 
 export type { AutoCompleteOption as NeumorphismAutoCompleteOption }
 
+export type AutoCompleteSize = 'small' | 'medium' | 'large'
+
 export interface NeumorphismAutoCompleteProps {
   /** v-model value (the selected option's value) */
   modelValue?: string | number
@@ -19,8 +21,16 @@ export interface NeumorphismAutoCompleteProps {
   placeholder?: string
   /** Whether the autocomplete is disabled */
   disabled?: boolean
-  /** Size variant */
-  size?: 'small' | 'medium' | 'large'
+  /**
+   * 尺寸——px 最小高度（数字，主几何量），或三档预设名。
+   *
+   * 几何量由内嵌的 `NeumorphismInput` 按三锚点（36 / 48 / 60）分段线性插值，
+   * 所以 `:size="36"` 与 `size="small"` 逐像素相同，`:size="42"` 落在两者之间。
+   *
+   * @deprecated 字符串档位（`'small' | 'medium' | 'large'`）仅作兼容别名保留，
+   * 新代码请传数字。
+   */
+  size?: number | AutoCompleteSize
   /** Show a clear button when there is a value */
   clearable?: boolean
   /** External loading state (for async search) */
@@ -56,9 +66,16 @@ const emit = defineEmits<{
 // ---- Config cascade via useNeumorphismSetup ----
 const { config, resolveProp } = useNeumorphismSetup()
 
-const resolvedSize = computed(() =>
-  resolveProp<'small' | 'medium' | 'large'>(props.size, config.value.autoComplete?.size, 'medium')
-)
+/**
+ * 尺寸解析：数字原样下发（数字是主几何量，由 Input 插值），字符串落档位。
+ *
+ * AutoComplete 自身不画几何量——高度、内距、字号全在内嵌 Input 上，
+ * 所以这里不做插值，只负责把同一个值透传下去。
+ */
+const resolvedSize = computed<number | AutoCompleteSize>(() => {
+  const raw = props.size ?? config.value.autoComplete?.size
+  return typeof raw === 'number' ? raw : (raw ?? 'medium')
+})
 const resolvedClearable = computed(() =>
   resolveProp(props.clearable, config.value.autoComplete?.clearable, true)
 )
@@ -232,7 +249,9 @@ function onSearch(value: string) {
 // ---- Class list ----
 const wrapperClass = computed(() => [
   'nm-autocomplete',
-  `nm-autocomplete--${resolvedSize.value}`,
+  typeof resolvedSize.value === 'number'
+    ? 'nm-autocomplete--sized'
+    : `nm-autocomplete--${resolvedSize.value}`,
   {
     'nm-autocomplete--disabled': props.disabled,
     'nm-autocomplete--open': isOpen.value,

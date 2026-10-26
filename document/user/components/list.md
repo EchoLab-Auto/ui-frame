@@ -20,14 +20,14 @@ group: 使用
 
 ### Props
 
-| 名称        | 类型                             | 默认值     | 说明                                                                |
-| ----------- | -------------------------------- | ---------- | ------------------------------------------------------------------- |
-| `items`     | `T[]`                            | `[]`       | 数据源数组（不使用手动插槽内容时逐项渲染）                          |
-| `bordered`  | `boolean`                        | `true`     | 外框凸出阴影（`raised 3px 8px`），支持全局配置 `list.bordered` 级联 |
-| `split`     | `boolean`                        | `true`     | 项间分割线（末项除外），支持 `list.split` 级联                      |
-| `size`      | `'small' \| 'medium' \| 'large'` | `'medium'` | 尺寸档位（项与头尾的 padding、字号），支持 `list.size` 级联         |
-| `hoverable` | `boolean`                        | `true`     | 项悬停浮起效果，支持 `list.hoverable` 级联                          |
-| `loading`   | `boolean`                        | `false`    | 加载态：替换列表体为旋转指示器                                      |
+| 名称        | 类型      | 默认值  | 说明                                                                |
+| ----------- | --------- | ------- | ------------------------------------------------------------------- |
+| `items`     | `T[]`     | `[]`    | 数据源数组（不使用手动插槽内容时逐项渲染）                          |
+| `bordered`  | `boolean` | `true`  | 外框凸出阴影（`raised 3px 8px`），支持全局配置 `list.bordered` 级联 |
+| `split`     | `boolean` | `true`  | 项间分割线（末项除外），支持 `list.split` 级联                      |
+| `size`      | `number`  | `14`    | 字号（px，锚点 12 / 14 / 15），支持 `list.size` 级联                |
+| `hoverable` | `boolean` | `true`  | 项悬停浮起效果，支持 `list.hoverable` 级联                          |
+| `loading`   | `boolean` | `false` | 加载态：替换列表体为旋转指示器                                      |
 
 ### Events / Slots
 
@@ -72,7 +72,7 @@ const files: FileItem[] = [
 全局预设：
 
 ```ts
-app.use(NeumorphismUI, { list: { size: 'medium', bordered: true, split: true, hoverable: true } })
+app.use(NeumorphismUI, { list: { size: 14, bordered: true, split: true, hoverable: true } })
 ```
 
 ---

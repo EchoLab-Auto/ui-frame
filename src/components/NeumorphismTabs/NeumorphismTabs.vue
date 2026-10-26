@@ -3,15 +3,28 @@ import { computed, ref, nextTick } from 'vue'
 import { useTabs } from '@/composables/useTabs'
 import { useConfig } from '@/composables/useConfig'
 import { useLocale } from '@/composables/useLocale'
+import { normalizeNumericSize, resolveControlScale } from '@/utils/controlScale'
+import { TABS_SCALE } from '@/utils/controlScales'
 import type { TabItem } from '@/composables/useTabs'
 
 export type { TabItem }
+
+export type TabsSize = 'small' | 'medium' | 'large'
 
 export interface NeumorphismTabsProps {
   modelValue?: string
   tabs?: TabItem[]
   position?: 'top' | 'left' | 'right'
-  size?: 'small' | 'medium' | 'large'
+  /**
+   * 尺寸——px 标签字号（数字，主几何量），或三档预设名。
+   *
+   * 数字即「标签字号」：标签内距按三锚点（12 / 14 / 16）分段线性插值，
+   * 所以 `:size="14"` 与 `size="medium"` 逐像素相同，`:size="15"` 落在两者之间。
+   *
+   * @deprecated 字符串档位（`'small' | 'medium' | 'large'`）仅作兼容别名保留，
+   * 新代码请传数字。
+   */
+  size?: number | TabsSize
   navLabel?: string
 }
 
@@ -23,7 +36,25 @@ const props = withDefaults(defineProps<NeumorphismTabsProps>(), {
 
 const config = useConfig()
 const resolvedPosition = computed(() => props.position ?? config.value.tabs?.position ?? 'top')
-const resolvedSize = computed(() => props.size ?? config.value.tabs?.size ?? 'medium')
+/** 数字尺寸的语义是「标签字号」，默认值取 medium 锚点 */
+const DEFAULT_SIZE_PX = 14
+
+/** 数字通道：`undefined` = 走档位 class，有值 = 走内联 CSS 变量 */
+const numericSize = computed(() => {
+  const raw = props.size ?? config.value.tabs?.size
+  return typeof raw === 'number' ? normalizeNumericSize(raw, DEFAULT_SIZE_PX) : undefined
+})
+
+/** 字符串通道：只认档位别名（显式传数字时它不参与渲染） */
+const resolvedSize = computed<TabsSize>(() => {
+  const raw = props.size ?? config.value.tabs?.size
+  return typeof raw === 'string' ? raw : 'medium'
+})
+
+/** 数字尺寸下发的 CSS 变量（见 utils/controlScale）；变量在根节点，消费在标签按钮上 */
+const sizeStyle = computed(() =>
+  numericSize.value === undefined ? undefined : resolveControlScale(TABS_SCALE, numericSize.value)
+)
 
 const { t } = useLocale()
 const resolvedNavLabel = computed(() => props.navLabel || t('tabsNavLabel'))
@@ -76,12 +107,12 @@ function handleKeydown(event: KeyboardEvent, key: string) {
 const classList = computed(() => [
   'nm-tabs',
   `nm-tabs--${resolvedPosition.value}`,
-  `nm-tabs--${resolvedSize.value}`,
+  numericSize.value === undefined ? `nm-tabs--${resolvedSize.value}` : 'nm-tabs--sized',
 ])
 </script>
 
 <template>
-  <div :class="classList">
+  <div :class="classList" :style="sizeStyle">
     <div
       class="nm-tabs__nav"
       role="tablist"
@@ -280,6 +311,15 @@ const classList = computed(() => [
 .nm-tabs--large .nm-tabs__tab {
   padding: var(--nm-tabs-tab-padding-y-lg) var(--nm-tabs-tab-padding-x-lg);
   font-size: var(--nm-tabs-tab-font-lg);
+}
+
+// 数字尺寸（`:size="15"`）：几何量全部来自内联 CSS 变量，见 utils/controlScale。
+// 与三档 class 互斥——数字路径不会同时挂档位类，所以不存在覆盖之争。
+// 变量挂在根节点（`:style`），但消费方是标签按钮：选择器必须与三档类同层级
+// （`.nm-tabs--sized .nm-tabs__tab`），声明也与三档类一一对应。
+.nm-tabs--sized .nm-tabs__tab {
+  padding: var(--nm-tabs-sz-pad-y) var(--nm-tabs-sz-pad-x);
+  font-size: var(--nm-tabs-sz-font);
 }
 
 @keyframes nm-tab-active {

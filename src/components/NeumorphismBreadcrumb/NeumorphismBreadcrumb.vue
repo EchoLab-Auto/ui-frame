@@ -2,6 +2,10 @@
 import { computed } from 'vue'
 import { useLocale } from '@/composables/useLocale'
 import { useNeumorphismSetup } from '@/extensions/createComponent'
+import { normalizeNumericSize, resolveControlScale } from '@/utils/controlScale'
+import { BREADCRUMB_SCALE } from '@/utils/controlScales'
+
+export type BreadcrumbSize = 'small' | 'medium' | 'large'
 
 export interface BreadcrumbItem {
   label: string
@@ -12,7 +16,16 @@ export interface BreadcrumbItem {
 export interface NeumorphismBreadcrumbProps {
   items?: BreadcrumbItem[]
   separator?: string
-  size?: 'small' | 'medium' | 'large'
+  /**
+   * 尺寸——px 字号（数字，主几何量），或三档预设名。
+   *
+   * 数字即「字号」：按三锚点（12 / 14 / 16）定位，所以 `:size="14"` 与
+   * `size="medium"` 逐像素相同，`:size="15"` 落在 medium / large 之间。
+   *
+   * @deprecated 字符串档位（`'small' | 'medium' | 'large'`）仅作兼容别名保留，
+   * 新代码请传数字。
+   */
+  size?: number | BreadcrumbSize
 }
 
 const props = withDefaults(defineProps<NeumorphismBreadcrumbProps>(), {
@@ -20,10 +33,29 @@ const props = withDefaults(defineProps<NeumorphismBreadcrumbProps>(), {
   separator: '/',
 })
 
-const { config, resolveProp } = useNeumorphismSetup()
+// 尺寸走数字/档位双通道（见下），这里只需全局配置，用不到 resolveProp
+const { config } = useNeumorphismSetup()
 
-const resolvedSize = computed(() =>
-  resolveProp(props.size, config.value.breadcrumb?.size, 'medium')
+/** 数字尺寸的语义是「字号」，默认值取 medium 锚点 */
+const DEFAULT_SIZE_PX = 14
+
+/** 数字通道：`undefined` = 走档位 class，有值 = 走内联 CSS 变量 */
+const numericSize = computed(() => {
+  const raw = props.size ?? config.value.breadcrumb?.size
+  return typeof raw === 'number' ? normalizeNumericSize(raw, DEFAULT_SIZE_PX) : undefined
+})
+
+/** 字符串通道：只认档位别名（显式传数字时它不参与渲染） */
+const resolvedSize = computed<BreadcrumbSize>(() => {
+  const raw = props.size ?? config.value.breadcrumb?.size
+  return typeof raw === 'string' ? raw : 'medium'
+})
+
+/** 数字尺寸下发的 CSS 变量（见 utils/controlScale） */
+const sizeStyle = computed(() =>
+  numericSize.value === undefined
+    ? undefined
+    : resolveControlScale(BREADCRUMB_SCALE, numericSize.value)
 )
 
 const { t } = useLocale()
@@ -32,7 +64,11 @@ const emit = defineEmits<{
   (e: 'itemClick', item: BreadcrumbItem, index: number): void
 }>()
 
-const classList = computed(() => ['nm-breadcrumb', `nm-breadcrumb--${resolvedSize.value}`])
+// 数字与档位类互斥：数字路径统一挂 `--sized`，几何量全部来自内联变量
+const classList = computed(() => [
+  'nm-breadcrumb',
+  numericSize.value === undefined ? `nm-breadcrumb--${resolvedSize.value}` : 'nm-breadcrumb--sized',
+])
 
 function handleClick(item: BreadcrumbItem, index: number) {
   if (item.disabled) return
@@ -41,7 +77,7 @@ function handleClick(item: BreadcrumbItem, index: number) {
 </script>
 
 <template>
-  <nav :class="classList" :aria-label="t('breadcrumbLabel')">
+  <nav :class="classList" :style="sizeStyle" :aria-label="t('breadcrumbLabel')">
     <ol class="nm-breadcrumb__list">
       <li
         v-for="(item, index) in items"
@@ -166,6 +202,13 @@ function handleClick(item: BreadcrumbItem, index: number) {
 }
 .nm-breadcrumb--large {
   font-size: var(--nm-font-xl);
+}
+
+// 数字尺寸（`:size="15"`）：字号来自内联 CSS 变量，见 utils/controlScale。
+// 与三档 class 互斥——数字路径不会同时挂档位类；声明与上面三档类保持一致，
+// 锚点处 `:size="14"` 才与 `size="medium"` 逐像素相同。
+.nm-breadcrumb--sized {
+  font-size: var(--nm-breadcrumb-sz-font);
 }
 
 @media (prefers-reduced-motion: reduce) {

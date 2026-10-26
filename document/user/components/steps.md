@@ -20,13 +20,13 @@ group: 使用
 
 ### Props
 
-| 名称        | 类型                             | 默认值         | 说明                                                     |
-| ----------- | -------------------------------- | -------------- | -------------------------------------------------------- |
-| `steps`     | `StepItem[]`                     | `[]`           | 步骤项列表                                               |
-| `current`   | `number`                         | `0`            | 当前步骤索引（0-based，`v-model:current`）               |
-| `direction` | `'horizontal' \| 'vertical'`     | `'horizontal'` | 布局方向，支持全局配置 `steps.direction` 级联            |
-| `size`      | `'small' \| 'medium' \| 'large'` | `'medium'`     | 圆点直径与字号档位（28/36/48px），支持 `steps.size` 级联 |
-| `center`    | `boolean`                        | `false`        | 标题与描述在圆点下方居中，支持 `steps.center` 级联       |
+| 名称        | 类型                         | 默认值         | 说明                                                                           |
+| ----------- | ---------------------------- | -------------- | ------------------------------------------------------------------------------ |
+| `steps`     | `StepItem[]`                 | `[]`           | 步骤项列表                                                                     |
+| `current`   | `number`                     | `0`            | 当前步骤索引（0-based，`v-model:current`）                                     |
+| `direction` | `'horizontal' \| 'vertical'` | `'horizontal'` | 布局方向，支持全局配置 `steps.direction` 级联                                  |
+| `size`      | `number`                     | `36`           | 序号圆直径（px）；序号字号按三锚点（28 / 36 / 48）插值，支持 `steps.size` 级联 |
+| `center`    | `boolean`                    | `false`        | 标题与描述在圆点下方居中，支持 `steps.center` 级联                             |
 
 ```ts
 type StepStatus = 'wait' | 'process' | 'finish' | 'error'
@@ -84,7 +84,7 @@ const steps: StepItem[] = [
 全局预设：
 
 ```ts
-app.use(NeumorphismUI, { steps: { direction: 'horizontal', center: false, size: 'medium' } })
+app.use(NeumorphismUI, { steps: { direction: 'horizontal', center: false, size: 36 } })
 ```
 
 ---

@@ -139,4 +139,65 @@ describe('NeumorphismProgress', () => {
     expect(wrapper.classes()).toContain('nm-progress--indeterminate')
     expect(wrapper.find('.nm-progress-circle__fill--indeterminate').exists()).toBe(true)
   })
+
+  // ---- 数字 size（px 线形条厚度）----
+
+  it('数字 size：走 --sized 类 + 线性条厚度变量，不挂档位类', () => {
+    const wrapper = mount(NeumorphismProgress, { props: { modelValue: 40, size: 6 } })
+    expect(wrapper.classes()).toContain('nm-progress--sized')
+    expect(wrapper.classes().some(c => /^nm-progress--(small|medium|large)$/.test(c))).toBe(false)
+    // 6 落在 4(sm) 与 8(md) 之间：位置 0.5
+    expect(wrapper.attributes('style')).toContain('--nm-progress-sz-height: 6px')
+  })
+
+  it('数字 size 时环形几何随之插值（直径 / 描边 / 半径）', () => {
+    const wrapper = mount(NeumorphismProgress, {
+      props: { modelValue: 40, type: 'circle', size: 6 },
+    })
+    // 位置 0.5：直径 64→120 的中点 92，描边 4→7 的中点 5.5，半径 (92-5.5)/2
+    expect(wrapper.attributes('style')).toContain('width: 92px')
+    expect(wrapper.attributes('style')).toContain('height: 92px')
+    const track = wrapper.find('.nm-progress-circle__track')
+    expect(track.attributes('stroke-width')).toBe('5.5')
+    expect(track.attributes('r')).toBe('43.25')
+    // 进度芯与轨道共用同一份描边宽度
+    expect(wrapper.find('.nm-progress-circle__fill').attributes('stroke-width')).toBe('5.5')
+  })
+
+  it('数字 size 在锚点上与档位别名逐像素一致（线性条与环形）', () => {
+    const anchors = [
+      [4, 'small'],
+      [8, 'medium'],
+      [12, 'large'],
+    ] as const
+    for (const [px, tier] of anchors) {
+      const byNumber = mount(NeumorphismProgress, { props: { modelValue: 40, size: px } })
+      expect(byNumber.attributes('style')).toContain(`--nm-progress-sz-height: ${px}px`)
+      const byTier = mount(NeumorphismProgress, { props: { modelValue: 40, size: tier } })
+      expect(byTier.classes()).toContain(`nm-progress--${tier}`)
+      expect(byTier.attributes('style')).toBeUndefined()
+    }
+
+    // 环形：数字 8 ≡ medium（直径 120 / 描边 7 / 半径 56.5）
+    const ring = mount(NeumorphismProgress, {
+      props: { modelValue: 40, type: 'circle', size: 8 },
+    })
+    expect(ring.attributes('style')).toContain('width: 120px')
+    const track = ring.find('.nm-progress-circle__track')
+    expect(track.attributes('stroke-width')).toBe('7')
+    expect(track.attributes('r')).toBe('56.5')
+  })
+
+  it('数字 size 容错：0 / 负数 / NaN 回落到 medium 锚点 8', () => {
+    for (const bad of [0, -3, Number.NaN]) {
+      const bar = mount(NeumorphismProgress, { props: { modelValue: 40, size: bad } })
+      expect(bar.attributes('style')).toContain('--nm-progress-sz-height: 8px')
+
+      const ring = mount(NeumorphismProgress, {
+        props: { modelValue: 40, type: 'circle', size: bad },
+      })
+      expect(ring.attributes('style')).toContain('width: 120px')
+      expect(ring.find('.nm-progress-circle__track').attributes('stroke-width')).toBe('7')
+    }
+  })
 })

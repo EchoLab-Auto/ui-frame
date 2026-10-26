@@ -29,7 +29,7 @@ group: 使用
 | `duration`   | `number`                                      | `0`                 | 自动关闭延迟（ms），`0` 需手动关闭，支持 `alert.duration` 级联     |
 | `icon`       | `boolean`                                     | `true`              | 显示类型图标，支持 `alert.icon` 级联                               |
 | `bordered`   | `boolean`                                     | `true`              | 显示左侧 3px 色条，支持 `alert.bordered` 级联                      |
-| `size`       | `'small' \| 'medium' \| 'large'`              | `'medium'`          | 尺寸档位（内边距与字号三档），支持 `alert.size` 级联               |
+| `size`       | `number`                                      | `13`                | 正文字号（px，锚点 12 / 13 / 14），支持 `alert.size` 级联          |
 | `closeLabel` | `string`                                      | locale `alertClose` | 关闭按钮的 `aria-label`                                            |
 
 ### Events / Slots
@@ -65,7 +65,7 @@ group: 使用
 全局预设：
 
 ```ts
-app.use(NeumorphismUI, { alert: { closable: true, duration: 5000, size: 'medium' } })
+app.use(NeumorphismUI, { alert: { closable: true, duration: 5000, size: 13 } })
 ```
 
 ---

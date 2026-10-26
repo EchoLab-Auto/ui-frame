@@ -11,12 +11,12 @@ type ButtonVariant =
 
 // ---- 配置台状态 ----
 const variant = ref<ButtonVariant>('raised')
-const size = ref<'small' | 'medium' | 'large'>('medium')
 const shape = ref<'rounded' | 'pill' | 'circle'>('rounded')
 const text = ref('按钮')
 const loading = ref(false)
 const disabled = ref(false)
-const height = ref(44)
+/** 尺寸（px 最小高度）。数字是一等公民：任意高度都行，不必在四档之间跳 */
+const sizePx = ref(44)
 const stage = ref<DemoStage>('gradient')
 
 /**
@@ -32,11 +32,6 @@ const variantOptions = [
   { label: '玻璃凸', value: 'glass-raised' },
   { label: '玻璃凹', value: 'glass-pressed' },
 ]
-const sizeOptions = [
-  { label: '小', value: 'small' },
-  { label: '中', value: 'medium' },
-  { label: '大', value: 'large' },
-]
 const shapeOptions = [
   { label: '圆角', value: 'rounded' },
   { label: '胶囊', value: 'pill' },
@@ -48,23 +43,10 @@ const GLASS_VARIANTS = new Set<ButtonVariant>(['glass', 'glass-raised', 'glass-p
 const isGlass = computed(() => GLASS_VARIANTS.has(variant.value))
 
 /**
- * 预览用的高度样式。
- *
- * 组件的尺寸档位分别消费 `--nm-button-*-sm/md/lg`，所以滑块必须写到**当前档位**
- * 对应的那组 token 上——否则选 small / large 时滑块会静默失效。
+ * 以前这里靠覆盖 `--nm-button-*-md/sm/lg` 三套 token 来模拟任意高度——
+ * 选错档位就静默失效。现在 `size` 直接收 px，字号与内距按三锚点插值，
+ * 这个 hack 整段删掉了。
  */
-const previewStyle = computed(() => {
-  const h = height.value
-  const suffix = size.value === 'small' ? 'sm' : size.value === 'large' ? 'lg' : 'md'
-  // 以 md 档为基准按比例缩放内边距与字号，保持视觉比例不变
-  const k = h / 44
-  return {
-    [`--nm-button-min-height-${suffix}`]: `${h}px`,
-    [`--nm-button-padding-y-${suffix}`]: `${Math.round(12 * k)}px`,
-    [`--nm-button-padding-x-${suffix}`]: `${Math.round(24 * k)}px`,
-    [`--nm-button-font-${suffix}`]: `${Math.max(11, Math.round(14 * k))}px`,
-  }
-})
 
 /**
  * 切到玻璃变体时把台面切成彩色。
@@ -78,27 +60,23 @@ watch(variant, next => {
 
 function reset() {
   variant.value = 'raised'
-  size.value = 'medium'
+  sizePx.value = 44
   shape.value = 'rounded'
   text.value = '按钮'
   loading.value = false
   disabled.value = false
-  height.value = 44
 }
 
 // ---- 实时代码片段 ----
 const snippet = computed(() => {
   const attrs: string[] = []
   if (variant.value !== 'raised') attrs.push(`variant="${variant.value}"`)
-  if (size.value !== 'medium') attrs.push(`size="${size.value}"`)
+  if (sizePx.value !== 44) attrs.push(`:size="${sizePx.value}"`)
   if (shape.value !== 'rounded') attrs.push(`shape="${shape.value}"`)
   if (loading.value) attrs.push('loading')
   if (disabled.value) attrs.push('disabled')
   const open = attrs.length ? `<NeumorphismButton ${attrs.join(' ')}>` : '<NeumorphismButton>'
   const notes: string[] = []
-  if (height.value !== 44) {
-    notes.push(`  <!-- 高度经 --nm-button-* 变量调整：${height.value}px -->`)
-  }
   if (isGlass.value) {
     notes.push('  <!-- 玻璃需置于彩色/图片背景上，磨砂半透明才可见 -->')
   }
@@ -112,20 +90,17 @@ const snippet = computed(() => {
     <DemoPlayground v-model:stage="stage" :snippet="snippet">
       <NeumorphismButton
         :variant="variant"
-        :size="size"
+        :size="sizePx"
         :shape="shape"
         :loading="loading"
         :disabled="disabled"
-        :style="previewStyle"
         aria-label="预览按钮"
       >
         {{ text || '按钮' }}
       </NeumorphismButton>
 
       <template #spec>
-        variant=<b>{{ variant }}</b> · size=<b>{{ size }}</b> · shape=<b>{{ shape }}</b> · height=<b
-          >{{ height }}px</b
-        >
+        variant=<b>{{ variant }}</b> · size=<b>{{ sizePx }}px</b> · shape=<b>{{ shape }}</b>
         <template v-if="loading"> · loading</template>
         <template v-if="disabled"> · disabled</template>
       </template>
@@ -146,16 +121,12 @@ const snippet = computed(() => {
           <NeumorphismSegmented v-model="variant" :options="variantOptions" size="small" />
         </DemoField>
 
-        <DemoField label="尺寸 size">
-          <NeumorphismSegmented v-model="size" :options="sizeOptions" size="small" />
+        <DemoField label="尺寸 size" :value="`${sizePx}px`" grow>
+          <NeumorphismSlider v-model="sizePx" :min="28" :max="64" :step="2" size="small" />
         </DemoField>
 
         <DemoField label="形状 shape">
           <NeumorphismSegmented v-model="shape" :options="shapeOptions" size="small" />
-        </DemoField>
-
-        <DemoField label="高度 height" :value="`${height}px`" grow>
-          <NeumorphismSlider v-model="height" :min="28" :max="64" :step="2" size="small" />
         </DemoField>
 
         <DemoField label="状态">

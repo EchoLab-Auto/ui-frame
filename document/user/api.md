@@ -92,7 +92,7 @@ import type {
 | Props    | Type                                                                                           | Default     | Description                                                                                                               |
 | -------- | ---------------------------------------------------------------------------------------------- | ----------- | ------------------------------------------------------------------------------------------------------------------------- |
 | variant  | `'raised' \| 'pressed' \| 'primary' \| 'glow' \| 'glass' \| 'glass-raised' \| 'glass-pressed'` | `'raised'`  | 视觉预设；玻璃是其中三档（`glass` ≡ 档位 `float`、`glass-raised` ≡ `raised`、`glass-pressed` ≡ `pressed`），不是独立 prop |
-| size     | `'small' \| 'medium' \| 'large'`                                                               | `'medium'`  | 按钮尺寸                                                                                                                  |
+| size     | `number`                                                                                       | `44`        | 控件最小高度（px）                                                                                                        |
 | shape    | `'rounded' \| 'pill' \| 'circle'`                                                              | `'rounded'` | 按钮形状                                                                                                                  |
 | disabled | `boolean`                                                                                      | `false`     | 是否禁用                                                                                                                  |
 | loading  | `boolean`                                                                                      | `false`     | 是否加载中                                                                                                                |
@@ -131,13 +131,13 @@ import { NeumorphismCheckbox } from '@echolab-auto/ui-frame'
 import type { NeumorphismCheckboxProps } from '@echolab-auto/ui-frame'
 ```
 
-| Props         | Type                             | Default    | Description |
-| ------------- | -------------------------------- | ---------- | ----------- |
-| modelValue    | `boolean`                        | `false`    | 绑定值      |
-| disabled      | `boolean`                        | `false`    | 是否禁用    |
-| size          | `'small' \| 'medium' \| 'large'` | `'medium'` | 尺寸        |
-| label         | `string`                         | —          | 标签文字    |
-| indeterminate | `boolean`                        | `false`    | 半选状态    |
+| Props         | Type      | Default | Description      |
+| ------------- | --------- | ------- | ---------------- |
+| modelValue    | `boolean` | `false` | 绑定值           |
+| disabled      | `boolean` | `false` | 是否禁用         |
+| size          | `number`  | `14`    | 勾选框边长（px） |
+| label         | `string`  | —       | 标签文字         |
+| indeterminate | `boolean` | `false` | 半选状态         |
 
 **Events:** `update:modelValue`, `change`
 
@@ -152,21 +152,21 @@ import type { NeumorphismRadioProps, NeumorphismRadioGroupProps } from '@echolab
 
 **NeumorphismRadio:**
 
-| Props    | Type                             | Default    | Description |
-| -------- | -------------------------------- | ---------- | ----------- |
-| value    | `unknown`                        | —          | 选项值      |
-| label    | `string`                         | —          | 标签文字    |
-| disabled | `boolean`                        | `false`    | 是否禁用    |
-| size     | `'small' \| 'medium' \| 'large'` | `'medium'` | 尺寸        |
+| Props    | Type      | Default | Description    |
+| -------- | --------- | ------- | -------------- |
+| value    | `unknown` | —       | 选项值         |
+| label    | `string`  | —       | 标签文字       |
+| disabled | `boolean` | `false` | 是否禁用       |
+| size     | `number`  | `24`    | 圆点直径（px） |
 
 **NeumorphismRadioGroup:**
 
-| Props      | Type                             | Default        | Description    |
-| ---------- | -------------------------------- | -------------- | -------------- |
-| modelValue | `unknown`                        | —              | 绑定值         |
-| direction  | `'horizontal' \| 'vertical'`     | `'horizontal'` | 排列方向       |
-| disabled   | `boolean`                        | `false`        | 是否禁用整组   |
-| size       | `'small' \| 'medium' \| 'large'` | `'medium'`     | 组内单选框尺寸 |
+| Props      | Type                         | Default        | Description    |
+| ---------- | ---------------------------- | -------------- | -------------- |
+| modelValue | `unknown`                    | —              | 绑定值         |
+| direction  | `'horizontal' \| 'vertical'` | `'horizontal'` | 排列方向       |
+| disabled   | `boolean`                    | `false`        | 是否禁用整组   |
+| size       | `number`                     | `24`           | 圆点直径（px） |
 
 **Events:** `update:modelValue`, `change`
 
@@ -179,17 +179,17 @@ import { NeumorphismInput } from '@echolab-auto/ui-frame'
 import type { NeumorphismInputProps, InputSize } from '@echolab-auto/ui-frame'
 ```
 
-| Props       | Type                             | Default    | Description    |
-| ----------- | -------------------------------- | ---------- | -------------- |
-| modelValue  | `string`                         | `''`       | 绑定值         |
-| type        | `string`                         | `'text'`   | 输入类型       |
-| placeholder | `string`                         | —          | 占位符         |
-| disabled    | `boolean`                        | `false`    | 是否禁用       |
-| readonly    | `boolean`                        | `false`    | 是否只读       |
-| required    | `boolean`                        | `false`    | 是否必填       |
-| size        | `'small' \| 'medium' \| 'large'` | `'medium'` | 输入框尺寸     |
-| label       | `string`                         | —          | 标签文字       |
-| error       | `string \| boolean`              | —          | 错误信息或状态 |
+| Props       | Type                | Default  | Description        |
+| ----------- | ------------------- | -------- | ------------------ |
+| modelValue  | `string`            | `''`     | 绑定值             |
+| type        | `string`            | `'text'` | 输入类型           |
+| placeholder | `string`            | —        | 占位符             |
+| disabled    | `boolean`           | `false`  | 是否禁用           |
+| readonly    | `boolean`           | `false`  | 是否只读           |
+| required    | `boolean`           | `false`  | 是否必填           |
+| size        | `number`            | `48`     | 控件最小高度（px） |
+| label       | `string`            | —        | 标签文字           |
+| error       | `string \| boolean` | —        | 错误信息或状态     |
 
 **Slots:** `prefix`, `suffix`
 
@@ -204,20 +204,20 @@ import { NeumorphismTextarea } from '@echolab-auto/ui-frame'
 import type { NeumorphismTextareaProps } from '@echolab-auto/ui-frame'
 ```
 
-| Props       | Type                             | Default    | Description      |
-| ----------- | -------------------------------- | ---------- | ---------------- |
-| modelValue  | `string`                         | `''`       | 绑定值           |
-| placeholder | `string`                         | —          | 占位符           |
-| disabled    | `boolean`                        | `false`    | 是否禁用         |
-| readonly    | `boolean`                        | `false`    | 是否只读         |
-| required    | `boolean`                        | `false`    | 是否必填         |
-| size        | `'small' \| 'medium' \| 'large'` | `'medium'` | 尺寸             |
-| label       | `string`                         | —          | 标签文字         |
-| error       | `string \| boolean`              | —          | 错误信息或状态   |
-| rows        | `number`                         | `4`        | 行数             |
-| maxlength   | `number`                         | —          | 最大长度         |
-| showCount   | `boolean`                        | `false`    | 是否显示字数统计 |
-| autoResize  | `boolean`                        | `false`    | 是否自动调整高度 |
+| Props       | Type                | Default | Description        |
+| ----------- | ------------------- | ------- | ------------------ |
+| modelValue  | `string`            | `''`    | 绑定值             |
+| placeholder | `string`            | —       | 占位符             |
+| disabled    | `boolean`           | `false` | 是否禁用           |
+| readonly    | `boolean`           | `false` | 是否只读           |
+| required    | `boolean`           | `false` | 是否必填           |
+| size        | `number`            | `48`    | 控件最小高度（px） |
+| label       | `string`            | —       | 标签文字           |
+| error       | `string \| boolean` | —       | 错误信息或状态     |
+| rows        | `number`            | `4`     | 行数               |
+| maxlength   | `number`            | —       | 最大长度           |
+| showCount   | `boolean`           | `false` | 是否显示字数统计   |
+| autoResize  | `boolean`           | `false` | 是否自动调整高度   |
 
 **Events:** `update:modelValue`, `focus`, `blur`, `input`, `change`, `keydown`, `enter`
 
@@ -236,7 +236,7 @@ import type { NeumorphismSelectProps, NeumorphismSelectOption } from '@echolab-a
 | options         | `SelectOption[]`                           | `[]`        | 选项列表                                                    |
 | placeholder     | `string`                                   | —           | 占位符                                                      |
 | disabled        | `boolean`                                  | `false`     | 是否禁用                                                    |
-| size            | `'small' \| 'medium' \| 'large'`           | `'medium'`  | 尺寸                                                        |
+| size            | `number`                                   | `48`        | 控件最小高度（px）                                          |
 | clearable       | `boolean`                                  | `false`     | 是否可清空                                                  |
 | label           | `string`                                   | —           | 标签文字                                                    |
 | error           | `string \| boolean`                        | —           | 错误信息或状态                                              |
@@ -284,13 +284,13 @@ import type {
 } from '@echolab-auto/ui-frame'
 ```
 
-| Props      | Type                             | Default     | Description                    |
-| ---------- | -------------------------------- | ----------- | ------------------------------ |
-| modelValue | `string \| number`               | `undefined` | 选中值（v-model）              |
-| options    | `SegmentedOption[]`              | —           | 可选项（label/value/disabled） |
-| size       | `'small' \| 'medium' \| 'large'` | `'medium'`  | 尺寸                           |
-| disabled   | `boolean`                        | `false`     | 整体禁用                       |
-| ariaLabel  | `string`                         | locale 文案 | radiogroup 无障碍标签          |
+| Props      | Type                | Default     | Description                    |
+| ---------- | ------------------- | ----------- | ------------------------------ |
+| modelValue | `string \| number`  | `undefined` | 选中值（v-model）              |
+| options    | `SegmentedOption[]` | —           | 可选项（label/value/disabled） |
+| size       | `number`            | `32`        | 单段最小高度（px）             |
+| disabled   | `boolean`           | `false`     | 整体禁用                       |
+| ariaLabel  | `string`            | locale 文案 | radiogroup 无障碍标签          |
 
 **Events:** `update:modelValue`, `change`
 
@@ -313,13 +313,13 @@ import type {
 
 **NeumorphismForm:**
 
-| Props      | Type                             | Default      | Description                  |
-| ---------- | -------------------------------- | ------------ | ---------------------------- |
-| model      | `Record<string, unknown>`        | `{}`         | 表单数据                     |
-| rules      | `Record<string, FormRule[]>`     | `{}`         | 字段验证规则                 |
-| labelWidth | `string`                         | —            | 标签宽度（级联 form 段）     |
-| size       | `'small' \| 'medium' \| 'large'` | —            | 表单控件尺寸（级联 form 段） |
-| direction  | `'vertical' \| 'horizontal'`     | `'vertical'` | 排列方向（级联 form 段）     |
+| Props      | Type                         | Default      | Description                  |
+| ---------- | ---------------------------- | ------------ | ---------------------------- |
+| model      | `Record<string, unknown>`    | `{}`         | 表单数据                     |
+| rules      | `Record<string, FormRule[]>` | `{}`         | 字段验证规则                 |
+| labelWidth | `string`                     | —            | 标签宽度（级联 form 段）     |
+| size       | `number`                     | `48`         | 级联给子控件的控件高度（px） |
+| direction  | `'vertical' \| 'horizontal'` | `'vertical'` | 排列方向（级联 form 段）     |
 
 **NeumorphismFormItem:**
 
@@ -358,17 +358,17 @@ import { NeumorphismSlider } from '@echolab-auto/ui-frame'
 import type { NeumorphismSliderProps, SliderSize } from '@echolab-auto/ui-frame'
 ```
 
-| Props       | Type                             | Default    | Description          |
-| ----------- | -------------------------------- | ---------- | -------------------- |
-| modelValue  | `number`                         | `0`        | 绑定值               |
-| min         | `number`                         | `0`        | 最小值               |
-| max         | `number`                         | `100`      | 最大值               |
-| step        | `number`                         | `1`        | 步长                 |
-| disabled    | `boolean`                        | `false`    | 是否禁用             |
-| showTooltip | `boolean`                        | `true`     | 拖拽时显示当前值提示 |
-| showStops   | `boolean`                        | `false`    | 显示刻度标记         |
-| vertical    | `boolean`                        | `false`    | 垂直方向             |
-| size        | `'small' \| 'medium' \| 'large'` | `'medium'` | 滑块尺寸             |
+| Props       | Type      | Default | Description          |
+| ----------- | --------- | ------- | -------------------- |
+| modelValue  | `number`  | `0`     | 绑定值               |
+| min         | `number`  | `0`     | 最小值               |
+| max         | `number`  | `100`   | 最大值               |
+| step        | `number`  | `1`     | 步长                 |
+| disabled    | `boolean` | `false` | 是否禁用             |
+| showTooltip | `boolean` | `true`  | 拖拽时显示当前值提示 |
+| showStops   | `boolean` | `false` | 显示刻度标记         |
+| vertical    | `boolean` | `false` | 垂直方向             |
+| size        | `number`  | `8`     | 轨道粗细（px）       |
 
 **Events:** `update:modelValue`, `change`
 
@@ -381,18 +381,18 @@ import { NeumorphismInputNumber } from '@echolab-auto/ui-frame'
 import type { NeumorphismInputNumberProps, NumberInputSize } from '@echolab-auto/ui-frame'
 ```
 
-| Props       | Type                             | Default     | Description  |
-| ----------- | -------------------------------- | ----------- | ------------ |
-| modelValue  | `number`                         | `undefined` | 绑定值       |
-| min         | `number`                         | `undefined` | 最小值       |
-| max         | `number`                         | `undefined` | 最大值       |
-| step        | `number`                         | `1`         | 步长         |
-| precision   | `number`                         | `undefined` | 小数精度     |
-| disabled    | `boolean`                        | `false`     | 是否禁用     |
-| size        | `'small' \| 'medium' \| 'large'` | `'medium'`  | 尺寸         |
-| placeholder | `string`                         | `''`        | 占位符       |
-| controls    | `boolean`                        | `true`      | 显示增减按钮 |
-| label       | `string`                         | —           | 标签文字     |
+| Props       | Type      | Default     | Description        |
+| ----------- | --------- | ----------- | ------------------ |
+| modelValue  | `number`  | `undefined` | 绑定值             |
+| min         | `number`  | `undefined` | 最小值             |
+| max         | `number`  | `undefined` | 最大值             |
+| step        | `number`  | `1`         | 步长               |
+| precision   | `number`  | `undefined` | 小数精度           |
+| disabled    | `boolean` | `false`     | 是否禁用           |
+| size        | `number`  | `48`        | 控件最小高度（px） |
+| placeholder | `string`  | `''`        | 占位符             |
+| controls    | `boolean` | `true`      | 显示增减按钮       |
+| label       | `string`  | —           | 标签文字           |
 
 **Events:** `update:modelValue`, `change`, `focus`, `blur`
 
@@ -414,7 +414,7 @@ import type {
 | options     | `AutoCompleteOption[]`                             | `[]`        | 本地选项数据         |
 | placeholder | `string`                                           | `''`        | 占位符               |
 | disabled    | `boolean`                                          | `false`     | 是否禁用             |
-| size        | `'small' \| 'medium' \| 'large'`                   | `'medium'`  | 尺寸                 |
+| size        | `number`                                           | `48`        | 控件最小高度（px）   |
 | clearable   | `boolean`                                          | `true`      | 是否可清空           |
 | loading     | `boolean`                                          | `false`     | 外部加载状态         |
 | label       | `string`                                           | —           | 标签文字             |
@@ -440,22 +440,22 @@ import { NeumorphismDatePicker } from '@echolab-auto/ui-frame'
 import type { NeumorphismDatePickerProps } from '@echolab-auto/ui-frame'
 ```
 
-| Props          | Type                             | Default        | Description                                          |
-| -------------- | -------------------------------- | -------------- | ---------------------------------------------------- |
-| modelValue     | `Date \| null`                   | `null`         | 绑定值                                               |
-| placeholder    | `string`                         | `''`           | 占位符                                               |
-| format         | `string`                         | `'yyyy-MM-dd'` | 显示格式                                             |
-| disabled       | `boolean`                        | `false`        | 是否禁用                                             |
-| clearable      | `boolean`                        | `true`         | 是否可清空                                           |
-| size           | `'small' \| 'medium' \| 'large'` | `'medium'`     | 尺寸                                                 |
-| minDate        | `Date`                           | —              | 最小可选日期                                         |
-| maxDate        | `Date`                           | —              | 最大可选日期                                         |
-| firstDayOfWeek | `number`                         | `0`            | 每周起始日(0=周日)                                   |
-| label          | `string`                         | —              | 标签文字                                             |
-| required       | `boolean`                        | `false`        | 是否必填                                             |
-| error          | `string \| boolean`              | —              | 错误信息或状态                                       |
-| name           | `string`                         | —              | 表单字段名（经 hidden input 透传，值为格式化日期串） |
-| id             | `string`                         | —              | 自定义 ID                                            |
+| Props          | Type                | Default        | Description                                          |
+| -------------- | ------------------- | -------------- | ---------------------------------------------------- |
+| modelValue     | `Date \| null`      | `null`         | 绑定值                                               |
+| placeholder    | `string`            | `''`           | 占位符                                               |
+| format         | `string`            | `'yyyy-MM-dd'` | 显示格式                                             |
+| disabled       | `boolean`           | `false`        | 是否禁用                                             |
+| clearable      | `boolean`           | `true`         | 是否可清空                                           |
+| size           | `number`            | `48`           | 控件最小高度（px）                                   |
+| minDate        | `Date`              | —              | 最小可选日期                                         |
+| maxDate        | `Date`              | —              | 最大可选日期                                         |
+| firstDayOfWeek | `number`            | `0`            | 每周起始日(0=周日)                                   |
+| label          | `string`            | —              | 标签文字                                             |
+| required       | `boolean`           | `false`        | 是否必填                                             |
+| error          | `string \| boolean` | —              | 错误信息或状态                                       |
+| name           | `string`            | —              | 表单字段名（经 hidden input 透传，值为格式化日期串） |
+| id             | `string`            | —              | 自定义 ID                                            |
 
 **Events:** `update:modelValue`, `change`, `focus`, `blur`
 
@@ -468,23 +468,23 @@ import { NeumorphismUpload } from '@echolab-auto/ui-frame'
 import type { NeumorphismUploadProps, UploadFile, UploadStatus } from '@echolab-auto/ui-frame'
 ```
 
-| Props          | Type                                    | Default    | Description                 |
-| -------------- | --------------------------------------- | ---------- | --------------------------- |
-| modelValue     | `UploadFile[]`                          | `[]`       | 绑定文件列表                |
-| accept         | `string`                                | —          | 接受的文件类型(MIME/扩展名) |
-| maxSize        | `number`                                | —          | 最大文件大小(字节)          |
-| maxCount       | `number`                                | —          | 最大文件数量                |
-| multiple       | `boolean`                               | `false`    | 允许多选                    |
-| disabled       | `boolean`                               | `false`    | 是否禁用                    |
-| drag           | `boolean`                               | `true`     | 启用拖拽上传区域            |
-| listType       | `'text' \| 'picture' \| 'picture-card'` | `'text'`   | 文件列表展示样式            |
-| showUploadList | `boolean`                               | `true`     | 是否显示文件列表            |
-| size           | `'small' \| 'medium' \| 'large'`        | `'medium'` | 尺寸                        |
-| autoUpload     | `boolean`                               | `false`    | 选择文件后自动上传          |
-| triggerText    | `string`                                | —          | 上传触发按钮文本            |
-| dropText       | `string`                                | —          | 拖拽提示文本                |
-| removeLabel    | `string`                                | —          | 移除按钮 aria-label         |
-| previewLabel   | `string`                                | —          | 预览按钮 aria-label         |
+| Props          | Type                                    | Default  | Description                 |
+| -------------- | --------------------------------------- | -------- | --------------------------- |
+| modelValue     | `UploadFile[]`                          | `[]`     | 绑定文件列表                |
+| accept         | `string`                                | —        | 接受的文件类型(MIME/扩展名) |
+| maxSize        | `number`                                | —        | 最大文件大小(字节)          |
+| maxCount       | `number`                                | —        | 最大文件数量                |
+| multiple       | `boolean`                               | `false`  | 允许多选                    |
+| disabled       | `boolean`                               | `false`  | 是否禁用                    |
+| drag           | `boolean`                               | `true`   | 启用拖拽上传区域            |
+| listType       | `'text' \| 'picture' \| 'picture-card'` | `'text'` | 文件列表展示样式            |
+| showUploadList | `boolean`                               | `true`   | 是否显示文件列表            |
+| size           | `number`                                | `100`    | 触发区最小高度（px）        |
+| autoUpload     | `boolean`                               | `false`  | 选择文件后自动上传          |
+| triggerText    | `string`                                | —        | 上传触发按钮文本            |
+| dropText       | `string`                                | —        | 拖拽提示文本                |
+| removeLabel    | `string`                                | —        | 移除按钮 aria-label         |
+| previewLabel   | `string`                                | —        | 预览按钮 aria-label         |
 
 ```ts
 interface UploadFile {
@@ -555,14 +555,14 @@ import { NeumorphismAvatar } from '@echolab-auto/ui-frame'
 import type { NeumorphismAvatarProps, AvatarSize } from '@echolab-auto/ui-frame'
 ```
 
-| Props    | Type                             | Default    | Description  |
-| -------- | -------------------------------- | ---------- | ------------ |
-| src      | `string`                         | —          | 图片地址     |
-| alt      | `string`                         | —          | 替代文本     |
-| initials | `string`                         | —          | 首字母回退   |
-| icon     | `string`                         | —          | 图标字符回退 |
-| size     | `'small' \| 'medium' \| 'large'` | `'medium'` | 尺寸         |
-| shape    | `'circle' \| 'rounded'`          | `'circle'` | 形状         |
+| Props    | Type                    | Default    | Description  |
+| -------- | ----------------------- | ---------- | ------------ |
+| src      | `string`                | —          | 图片地址     |
+| alt      | `string`                | —          | 替代文本     |
+| initials | `string`                | —          | 首字母回退   |
+| icon     | `string`                | —          | 图标字符回退 |
+| size     | `number`                | `44`       | 直径（px）   |
+| shape    | `'circle' \| 'rounded'` | `'circle'` | 形状         |
 
 **Slots:** `fallback`（图片加载失败或无 src 时的回退内容，优先于 icon / initials）
 
@@ -597,7 +597,7 @@ import type { NeumorphismTagProps, TagVariant } from '@echolab-auto/ui-frame'
 | Props      | Type                                                                    | Default     | Description                                     |
 | ---------- | ----------------------------------------------------------------------- | ----------- | ----------------------------------------------- |
 | variant    | `'default' \| 'primary' \| 'success' \| 'warning' \| 'error' \| 'info'` | `'default'` | 颜色变体                                        |
-| size       | `'small' \| 'medium' \| 'large'`                                        | `'medium'`  | 尺寸                                            |
+| size       | `number`                                                                | `12`        | 字号（px）                                      |
 | closable   | `boolean`                                                               | `false`     | 是否可关闭                                      |
 | disabled   | `boolean`                                                               | `false`     | 是否禁用                                        |
 | rounded    | `boolean`                                                               | `false`     | 是否圆角                                        |
@@ -619,7 +619,7 @@ import type { NeumorphismProgressProps, ProgressVariant } from '@echolab-auto/ui
 | modelValue    | `number`                                                             | `0`         | 当前值                               |
 | max           | `number`                                                             | `100`       | 最大值                               |
 | variant       | `'primary' \| 'success' \| 'warning' \| 'error' \| 'default'`        | `'primary'` | 颜色变体                             |
-| size          | `'small' \| 'medium' \| 'large'`                                     | `'medium'`  | 尺寸                                 |
+| size          | `number`                                                             | `8`         | 线形条厚度（px）                     |
 | type          | `'line' \| 'circle'`                                                 | `'line'`    | 形态：线性进度条或 SVG 环形进度      |
 | showLabel     | `boolean`                                                            | `false`     | 是否显示百分比（数字随进度平滑滚动） |
 | indeterminate | `boolean`                                                            | `false`     | 不确定模式                           |
@@ -660,7 +660,7 @@ import type { NeumorphismTableProps } from '@echolab-auto/ui-frame'
 | selectedKeys | `string[]`                          | `[]`         | 选中行的 keys                                     |
 | loading      | `boolean`                           | `false`      | 加载状态                                          |
 | emptyText    | `string`                            | `'暂无数据'` | 空数据提示                                        |
-| size         | `'small' \| 'medium' \| 'large'`    | `'medium'`   | 尺寸                                              |
+| size         | `number`                            | `12`         | 单元格上下内距（px，行密度）                      |
 | striped      | `boolean`                           | `false`      | 斑马纹                                            |
 | hoverable    | `boolean`                           | `true`       | 悬停高亮                                          |
 | showHeader   | `boolean`                           | `true`       | 是否显示表头                                      |
@@ -715,14 +715,14 @@ import { NeumorphismList } from '@echolab-auto/ui-frame'
 import type { NeumorphismListProps } from '@echolab-auto/ui-frame'
 ```
 
-| Props     | Type                             | Default    | Description      |
-| --------- | -------------------------------- | ---------- | ---------------- |
-| items     | `any[]`                          | `[]`       | 数据源列表       |
-| bordered  | `boolean`                        | `true`     | 是否显示边框     |
-| split     | `boolean`                        | `true`     | 是否显示分割线   |
-| size      | `'small' \| 'medium' \| 'large'` | `'medium'` | 尺寸             |
-| hoverable | `boolean`                        | `true`     | 是否启用悬停效果 |
-| loading   | `boolean`                        | `false`    | 是否加载中       |
+| Props     | Type      | Default | Description      |
+| --------- | --------- | ------- | ---------------- |
+| items     | `any[]`   | `[]`    | 数据源列表       |
+| bordered  | `boolean` | `true`  | 是否显示边框     |
+| split     | `boolean` | `true`  | 是否显示分割线   |
+| size      | `number`  | `14`    | 字号（px）       |
+| hoverable | `boolean` | `true`  | 是否启用悬停效果 |
+| loading   | `boolean` | `false` | 是否加载中       |
 
 **Slots:** default (scope: `{ item, index }`), `header`, `footer`, `loading`, `empty`
 
@@ -904,17 +904,17 @@ import { NeumorphismAlert } from '@echolab-auto/ui-frame'
 import type { NeumorphismAlertProps, AlertType } from '@echolab-auto/ui-frame'
 ```
 
-| Props      | Type                                          | Default    | Description                    |
-| ---------- | --------------------------------------------- | ---------- | ------------------------------ |
-| type       | `'info' \| 'success' \| 'warning' \| 'error'` | `'info'`   | 提示类型                       |
-| title      | `string`                                      | `''`       | 标题                           |
-| message    | `string`                                      | `''`       | 描述内容                       |
-| closable   | `boolean`                                     | `true`     | 是否可关闭                     |
-| duration   | `number`                                      | `0`        | 自动关闭延迟(ms)，0 需手动关闭 |
-| icon       | `boolean`                                     | `true`     | 是否显示类型图标               |
-| bordered   | `boolean`                                     | `true`     | 是否显示左侧色条               |
-| size       | `'small' \| 'medium' \| 'large'`              | `'medium'` | 尺寸                           |
-| closeLabel | `string`                                      | `''`       | 关闭按钮 aria-label            |
+| Props      | Type                                          | Default  | Description                    |
+| ---------- | --------------------------------------------- | -------- | ------------------------------ |
+| type       | `'info' \| 'success' \| 'warning' \| 'error'` | `'info'` | 提示类型                       |
+| title      | `string`                                      | `''`     | 标题                           |
+| message    | `string`                                      | `''`     | 描述内容                       |
+| closable   | `boolean`                                     | `true`   | 是否可关闭                     |
+| duration   | `number`                                      | `0`      | 自动关闭延迟(ms)，0 需手动关闭 |
+| icon       | `boolean`                                     | `true`   | 是否显示类型图标               |
+| bordered   | `boolean`                                     | `true`   | 是否显示左侧色条               |
+| size       | `number`                                      | `13`     | 正文字号（px）                 |
+| closeLabel | `string`                                      | `''`     | 关闭按钮 aria-label            |
 
 **Slots:** `icon`, default（覆盖 title + message）
 
@@ -929,11 +929,11 @@ import { NeumorphismEmpty } from '@echolab-auto/ui-frame'
 import type { NeumorphismEmptyProps, EmptySize } from '@echolab-auto/ui-frame'
 ```
 
-| Props       | Type                             | Default    | Description  |
-| ----------- | -------------------------------- | ---------- | ------------ |
-| image       | `string`                         | —          | 自定义占位图 |
-| description | `string`                         | —          | 描述文字     |
-| size        | `'small' \| 'medium' \| 'large'` | `'medium'` | 尺寸         |
+| Props       | Type     | Default | Description    |
+| ----------- | -------- | ------- | -------------- |
+| image       | `string` | —       | 自定义占位图   |
+| description | `string` | —       | 描述文字       |
+| size        | `number` | `100`   | 插图边长（px） |
 
 **Slots:** `image`, default（底部操作区）
 
@@ -982,13 +982,13 @@ import { NeumorphismTabs } from '@echolab-auto/ui-frame'
 import type { NeumorphismTabsProps, TabItem } from '@echolab-auto/ui-frame'
 ```
 
-| Props      | Type                             | Default    | Description    |
-| ---------- | -------------------------------- | ---------- | -------------- |
-| modelValue | `string`                         | `''`       | 当前激活 key   |
-| tabs       | `TabItem[]`                      | `[]`       | 标签页数据     |
-| position   | `'top' \| 'left' \| 'right'`     | `'top'`    | 标签位置       |
-| size       | `'small' \| 'medium' \| 'large'` | `'medium'` | 尺寸           |
-| navLabel   | `string`                         | —          | 导航 ARIA 标签 |
+| Props      | Type                         | Default | Description    |
+| ---------- | ---------------------------- | ------- | -------------- |
+| modelValue | `string`                     | `''`    | 当前激活 key   |
+| tabs       | `TabItem[]`                  | `[]`    | 标签页数据     |
+| position   | `'top' \| 'left' \| 'right'` | `'top'` | 标签位置       |
+| size       | `number`                     | `14`    | 标签字号（px） |
+| navLabel   | `string`                     | —       | 导航 ARIA 标签 |
 
 ```ts
 interface TabItem {
@@ -1010,11 +1010,11 @@ import { NeumorphismBreadcrumb } from '@echolab-auto/ui-frame'
 import type { NeumorphismBreadcrumbProps, BreadcrumbItem } from '@echolab-auto/ui-frame'
 ```
 
-| Props     | Type                             | Default    | Description |
-| --------- | -------------------------------- | ---------- | ----------- |
-| items     | `BreadcrumbItem[]`               | `[]`       | 面包屑项    |
-| separator | `string`                         | `'/'`      | 分隔符      |
-| size      | `'small' \| 'medium' \| 'large'` | `'medium'` | 尺寸        |
+| Props     | Type               | Default | Description |
+| --------- | ------------------ | ------- | ----------- |
+| items     | `BreadcrumbItem[]` | `[]`    | 面包屑项    |
+| separator | `string`           | `'/'`   | 分隔符      |
+| size      | `number`           | `14`    | 字号（px）  |
 
 ```ts
 interface BreadcrumbItem {
@@ -1036,19 +1036,19 @@ import { NeumorphismPagination } from '@echolab-auto/ui-frame'
 import type { NeumorphismPaginationProps } from '@echolab-auto/ui-frame'
 ```
 
-| Props           | Type                             | Default    | Description                                                                |
-| --------------- | -------------------------------- | ---------- | -------------------------------------------------------------------------- |
-| modelValue      | `number`                         | `1`        | 当前页码                                                                   |
-| total           | `number`                         | `0`        | 总记录数                                                                   |
-| pageSize        | `number`                         | `10`       | 每页条数                                                                   |
-| size            | `'small' \| 'medium' \| 'large'` | `'medium'` | 尺寸                                                                       |
-| showTotal       | `boolean`                        | `false`    | 是否显示总数                                                               |
-| showJumper      | `boolean`                        | `false`    | 是否显示跳转                                                               |
-| maxVisiblePages | `number`                         | `7`        | 最大可见页码数                                                             |
-| disabled        | `boolean`                        | `false`    | 是否禁用                                                                   |
-| prevLabel       | `string`                         | `'上一页'` | 上一页按钮 aria-label                                                      |
-| nextLabel       | `string`                         | `'下一页'` | 下一页按钮 aria-label                                                      |
-| totalLabel      | `string`                         | —          | 总数文案覆盖模板（支持 `{total}` 占位符）；缺省走 locale `paginationTotal` |
+| Props           | Type      | Default    | Description                                                                |
+| --------------- | --------- | ---------- | -------------------------------------------------------------------------- |
+| modelValue      | `number`  | `1`        | 当前页码                                                                   |
+| total           | `number`  | `0`        | 总记录数                                                                   |
+| pageSize        | `number`  | `10`       | 每页条数                                                                   |
+| size            | `number`  | `38`       | 页码按钮高（px）                                                           |
+| showTotal       | `boolean` | `false`    | 是否显示总数                                                               |
+| showJumper      | `boolean` | `false`    | 是否显示跳转                                                               |
+| maxVisiblePages | `number`  | `7`        | 最大可见页码数                                                             |
+| disabled        | `boolean` | `false`    | 是否禁用                                                                   |
+| prevLabel       | `string`  | `'上一页'` | 上一页按钮 aria-label                                                      |
+| nextLabel       | `string`  | `'下一页'` | 下一页按钮 aria-label                                                      |
+| totalLabel      | `string`  | —          | 总数文案覆盖模板（支持 `{total}` 占位符）；缺省走 locale `paginationTotal` |
 
 **Slots:** `page-item` (scope: `{ page, active }`)
 
@@ -1065,16 +1065,16 @@ import { NeumorphismMenu } from '@echolab-auto/ui-frame'
 import type { NeumorphismMenuProps, MenuItem } from '@echolab-auto/ui-frame'
 ```
 
-| Props           | Type                             | Default      | Description                  |
-| --------------- | -------------------------------- | ------------ | ---------------------------- |
-| items           | `MenuItem[]`                     | `[]`         | 菜单项（支持子菜单）         |
-| mode            | `'vertical' \| 'horizontal'`     | `'vertical'` | 布局方向                     |
-| defaultActive   | `string`                         | —            | 默认激活项 key               |
-| defaultExpanded | `string[]`                       | `[]`         | 默认展开的子菜单 keys        |
-| collapsed       | `boolean`                        | `false`      | 折叠模式（仅显示图标）       |
-| selectable      | `boolean`                        | `true`       | 是否可选中（跟踪 activeKey） |
-| theme           | `'light' \| 'dark'`              | —            | 主题覆盖（默认跟随全局主题） |
-| size            | `'small' \| 'medium' \| 'large'` | `'medium'`   | 尺寸                         |
+| Props           | Type                         | Default      | Description                  |
+| --------------- | ---------------------------- | ------------ | ---------------------------- |
+| items           | `MenuItem[]`                 | `[]`         | 菜单项（支持子菜单）         |
+| mode            | `'vertical' \| 'horizontal'` | `'vertical'` | 布局方向                     |
+| defaultActive   | `string`                     | —            | 默认激活项 key               |
+| defaultExpanded | `string[]`                   | `[]`         | 默认展开的子菜单 keys        |
+| collapsed       | `boolean`                    | `false`      | 折叠模式（仅显示图标）       |
+| selectable      | `boolean`                    | `true`       | 是否可选中（跟踪 activeKey） |
+| theme           | `'light' \| 'dark'`          | —            | 主题覆盖（默认跟随全局主题） |
+| size            | `number`                     | `14`         | 菜单项字号（px）             |
 
 ```ts
 interface MenuItem {
@@ -1100,14 +1100,14 @@ import { NeumorphismNavMenu } from '@echolab-auto/ui-frame'
 import type { NeumorphismNavMenuProps, MenuItem } from '@echolab-auto/ui-frame'
 ```
 
-| Props         | Type                             | Default        | Description                  |
-| ------------- | -------------------------------- | -------------- | ---------------------------- |
-| items         | `MenuItem[]`                     | `[]`           | 导航菜单项（支持下拉子菜单） |
-| defaultActive | `string`                         | —              | 默认激活项 key               |
-| mode          | `'horizontal' \| 'vertical'`     | `'horizontal'` | 布局方向                     |
-| showIndicator | `boolean`                        | `true`         | 是否显示激活指示条           |
-| theme         | `'light' \| 'dark'`              | —              | 主题覆盖                     |
-| size          | `'small' \| 'medium' \| 'large'` | `'medium'`     | 尺寸                         |
+| Props         | Type                         | Default        | Description                  |
+| ------------- | ---------------------------- | -------------- | ---------------------------- |
+| items         | `MenuItem[]`                 | `[]`           | 导航菜单项（支持下拉子菜单） |
+| defaultActive | `string`                     | —              | 默认激活项 key               |
+| mode          | `'horizontal' \| 'vertical'` | `'horizontal'` | 布局方向                     |
+| showIndicator | `boolean`                    | `true`         | 是否显示激活指示条           |
+| theme         | `'light' \| 'dark'`          | —              | 主题覆盖                     |
+| size          | `number`                     | `14`           | 导航项字号（px）             |
 
 **Events:** `select`, `item-click`
 
@@ -1286,12 +1286,12 @@ import { NeumorphismCollapse } from '@echolab-auto/ui-frame'
 import type { NeumorphismCollapseProps, CollapseItem } from '@echolab-auto/ui-frame'
 ```
 
-| Props      | Type                             | Default    | Description |
-| ---------- | -------------------------------- | ---------- | ----------- |
-| modelValue | `string[]`                       | `[]`       | 展开的 keys |
-| items      | `CollapseItem[]`                 | `[]`       | 面板项      |
-| accordion  | `boolean`                        | `false`    | 手风琴模式  |
-| size       | `'small' \| 'medium' \| 'large'` | `'medium'` | 尺寸        |
+| Props      | Type             | Default | Description    |
+| ---------- | ---------------- | ------- | -------------- |
+| modelValue | `string[]`       | `[]`    | 展开的 keys    |
+| items      | `CollapseItem[]` | `[]`    | 面板项         |
+| accordion  | `boolean`        | `false` | 手风琴模式     |
+| size       | `number`         | `15`    | 标题字号（px） |
 
 ```ts
 interface CollapseItem {
@@ -1395,12 +1395,12 @@ import { NeumorphismThemeToggle } from '@echolab-auto/ui-frame'
 import type { NeumorphismThemeToggleProps } from '@echolab-auto/ui-frame'
 ```
 
-| Props       | Type                             | Default    | Description      |
-| ----------- | -------------------------------- | ---------- | ---------------- |
-| modelValue  | `'light' \| 'dark' \| 'auto'`    | `'auto'`   | 当前主题模式     |
-| size        | `'small' \| 'medium' \| 'large'` | `'medium'` | 尺寸             |
-| disableAuto | `boolean`                        | `false`    | 禁用自动模式选项 |
-| disabled    | `boolean`                        | `false`    | 是否禁用         |
+| Props       | Type                          | Default  | Description            |
+| ----------- | ----------------------------- | -------- | ---------------------- |
+| modelValue  | `'light' \| 'dark' \| 'auto'` | `'auto'` | 当前主题模式           |
+| size        | `number`                      | `6`      | 内层按钮上下内距（px） |
+| disableAuto | `boolean`                     | `false`  | 禁用自动模式选项       |
+| disabled    | `boolean`                     | `false`  | 是否禁用               |
 
 **Events:** `update:modelValue`, `change`
 

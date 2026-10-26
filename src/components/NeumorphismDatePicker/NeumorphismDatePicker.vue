@@ -4,10 +4,14 @@ import { useDatePicker } from '@/composables/useDatePicker'
 import { useFormField } from '@/composables/useFormField'
 import { useNeumorphismSetup } from '@/extensions/createComponent'
 import { useLocale } from '@/composables/useLocale'
+import { normalizeNumericSize, resolveControlScale } from '@/utils/controlScale'
+import { FIELD_SCALE } from '@/utils/controlScales'
 import NeumorphismFieldLabel from '@/components/NeumorphismField/NeumorphismFieldLabel.vue'
 import NeumorphismFieldError from '@/components/NeumorphismField/NeumorphismFieldError.vue'
 import NeumorphismPopover from '@/components/NeumorphismPopover/NeumorphismPopover.vue'
 import NeumorphismIcon from '@/components/NeumorphismIcon/NeumorphismIcon.vue'
+
+export type DatePickerSize = 'small' | 'medium' | 'large'
 
 export interface NeumorphismDatePickerProps {
   modelValue?: Date | null
@@ -15,7 +19,16 @@ export interface NeumorphismDatePickerProps {
   format?: string
   disabled?: boolean
   clearable?: boolean
-  size?: 'small' | 'medium' | 'large'
+  /**
+   * 尺寸——px 最小高度（数字，主几何量），或三档预设名。
+   *
+   * 数字即「最小高度」：字号与内距按三锚点（36 / 48 / 60）分段线性插值，
+   * 所以 `:size="36"` 与 `size="small"` 逐像素相同，`:size="42"` 落在两者之间。
+   *
+   * @deprecated 字符串档位（`'small' | 'medium' | 'large'`）仅作兼容别名保留，
+   * 新代码请传数字。
+   */
+  size?: number | DatePickerSize
   minDate?: Date
   maxDate?: Date
   firstDayOfWeek?: number
@@ -44,8 +57,23 @@ const emit = defineEmits<{
 const { config, resolveProp } = useNeumorphismSetup()
 const { t } = useLocale()
 
-const resolvedSize = computed(() =>
-  resolveProp(props.size, config.value.datePicker?.size, 'medium')
+/** 数字尺寸的语义是「最小高度」，默认值取 medium 锚点 */
+const DEFAULT_SIZE_PX = 48
+
+/** 数字通道：`undefined` = 走档位 class，有值 = 走内联 CSS 变量 */
+const numericSize = computed(() => {
+  const raw = props.size ?? config.value.datePicker?.size
+  return typeof raw === 'number' ? normalizeNumericSize(raw, DEFAULT_SIZE_PX) : undefined
+})
+
+const resolvedSize = computed<DatePickerSize>(() => {
+  const raw = props.size ?? config.value.datePicker?.size
+  return typeof raw === 'string' ? raw : 'medium'
+})
+
+/** 数字尺寸下发的 CSS 变量（见 utils/controlScale） */
+const sizeStyle = computed(() =>
+  numericSize.value === undefined ? undefined : resolveControlScale(FIELD_SCALE, numericSize.value)
 )
 const resolvedFormat = computed(() =>
   resolveProp(props.format, config.value.datePicker?.format, 'yyyy-MM-dd')
@@ -97,7 +125,8 @@ const {
 // ---- Form field integration ----
 const { fieldId, errorMessage, baseClassList, handleFocus, handleBlur } = useFormField(() => ({
   id: props.id,
-  size: resolvedSize.value,
+  // 数字直接交给 useFormField 判 `--sized` 档；它只决定 class，几何量在内联变量里
+  size: numericSize.value ?? resolvedSize.value,
   disabled: props.disabled,
   error: props.error,
   prefix: 'datepicker',
@@ -287,6 +316,7 @@ function handleCalendarKeydown(event: KeyboardEvent) {
       <div
         ref="triggerRef"
         :class="classList"
+        :style="sizeStyle"
         :tabindex="disabled ? -1 : 0"
         :aria-label="label || resolvedPlaceholder"
         role="combobox"
@@ -483,6 +513,17 @@ function handleCalendarKeydown(event: KeyboardEvent) {
 
   .nm-datepicker__value {
     font-size: var(--nm-field-font-lg);
+  }
+}
+
+// 数字尺寸（`:size="42"`）：几何量全部来自内联 CSS 变量，见 utils/controlScale。
+// 与三档 class 互斥——数字路径不会同时挂档位类，所以不存在覆盖之争。
+.nm-datepicker--sized {
+  min-height: var(--nm-field-sz-height);
+  padding: var(--nm-field-sz-pad-y) var(--nm-field-sz-pad-x);
+
+  .nm-datepicker__value {
+    font-size: var(--nm-field-sz-font);
   }
 }
 

@@ -8,6 +8,8 @@ import {
   type ComputedRef,
 } from 'vue'
 import { useReducedMotion } from './useReducedMotion'
+import { interpolateAnchor, normalizeNumericSize, positionOf } from '@/utils/controlScale'
+import { CONTROL_SCALES } from '@/utils/controlScales'
 
 export type ProgressSize = 'small' | 'medium' | 'large'
 
@@ -18,8 +20,13 @@ export interface UseProgressOptions {
   max: Ref<number>
   /** Whether the progress is in indeterminate mode. */
   indeterminate: Ref<boolean>
-  /** Resolved size — drives the circular geometry. */
-  size: Ref<ProgressSize>
+  /**
+   * 尺寸 —— 数字 = 线形条厚度 px（主几何量），字符串为三档兼容别名。
+   *
+   * 环形几何（直径 / 描边）也由它推导：数字与档位走**同一条**三锚点插值，
+   * 所以 `:size="8"` 与 `size="medium"` 的环完全一致。
+   */
+  size: Ref<ProgressSize | number>
 }
 
 export interface UseProgressReturn {
@@ -52,17 +59,28 @@ export interface UseProgressReturn {
   stop: () => void
 }
 
-const CIRCLE_SIZE_MAP: Record<ProgressSize, number> = {
-  small: 64,
-  medium: 120,
-  large: 160,
-}
+/**
+ * 环形几何不再手写映射表，而是复用 `CONTROL_SCALES.progress` 的锚点：
+ *
+ * - 档位别名固定落在三锚点轴上（0 = sm / 1 = md / 2 = lg）
+ * - 数字按「线形条厚度」在 primary 轴上定位，超出两端夹取（不外推）
+ *
+ * 两条路径共用 `interpolateAnchor`，于是 `:size="8"` 与 `size="medium"`
+ * 得到的直径/描边天然逐像素一致——两套映射表则迟早漂移。
+ */
+const PROGRESS_SPEC = CONTROL_SCALES.progress
 
-const STROKE_WIDTH_MAP: Record<ProgressSize, number> = {
-  small: 4,
-  medium: 7,
-  large: 10,
-}
+/** 档位别名在三锚点轴上的位置 */
+const TIER_POSITION: Record<ProgressSize, number> = { small: 0, medium: 1, large: 2 }
+
+/** 0 / 负数 / NaN 的回落值：medium 锚点（线形条 8px 厚） */
+const DEFAULT_THICKNESS = PROGRESS_SPEC.primary.md
+
+/** 环形直径锚点（64 / 120 / 160） */
+const CIRCLE_ANCHOR = PROGRESS_SPEC.metrics['--nm-progress-sz-circle']
+
+/** 环形描边锚点（4 / 7 / 10） */
+const STROKE_ANCHOR = PROGRESS_SPEC.metrics['--nm-progress-sz-stroke']
 
 /** Label count-up duration — mirrors the CSS width transition. */
 const LABEL_ANIMATION_DURATION = 650
@@ -129,8 +147,15 @@ export function useProgress(options: UseProgressOptions): UseProgressReturn {
   const displayPercentage = computed(() => Math.round(displayed.value))
 
   // ---- Circular ring geometry ----
-  const circleSize = computed(() => CIRCLE_SIZE_MAP[size.value])
-  const strokeWidth = computed(() => STROKE_WIDTH_MAP[size.value])
+  /** 三锚点轴上的位置：字符串档位取固定位置，数字按厚度定位 */
+  const scalePosition = computed(() => {
+    const raw = size.value
+    if (typeof raw === 'string') return TIER_POSITION[raw] ?? 1
+    return positionOf(PROGRESS_SPEC.primary, normalizeNumericSize(raw, DEFAULT_THICKNESS))
+  })
+
+  const circleSize = computed(() => interpolateAnchor(CIRCLE_ANCHOR, scalePosition.value))
+  const strokeWidth = computed(() => interpolateAnchor(STROKE_ANCHOR, scalePosition.value))
   const radius = computed(() => (circleSize.value - strokeWidth.value) / 2)
   const circumference = computed(() => 2 * Math.PI * radius.value)
   const dashOffset = computed(

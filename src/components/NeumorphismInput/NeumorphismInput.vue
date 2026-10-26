@@ -3,6 +3,8 @@ import { computed, useSlots, useAttrs } from 'vue'
 import { useFormField } from '@/composables/useFormField'
 import { useConfig } from '@/composables/useConfig'
 import { isImeComposing } from '@/composables/useChatInput'
+import { normalizeNumericSize, resolveControlScale } from '@/utils/controlScale'
+import { FIELD_SCALE } from '@/utils/controlScales'
 import NeumorphismFieldLabel from '@/components/NeumorphismField/NeumorphismFieldLabel.vue'
 import NeumorphismFieldError from '@/components/NeumorphismField/NeumorphismFieldError.vue'
 
@@ -17,7 +19,17 @@ export interface NeumorphismInputProps {
   disabled?: boolean
   readonly?: boolean
   required?: boolean
-  size?: InputSize
+  /**
+   * 尺寸——px 最小高度（数字，主几何量），或三档预设名。
+   *
+   * 数字即「最小高度」：字号、内距与前后缀内距按三锚点（36 / 48 / 60）
+   * 分段线性插值，所以 `:size="36"` 与 `size="small"` 逐像素相同，
+   * `:size="42"` 落在两者之间。
+   *
+   * @deprecated 字符串档位（`'small' | 'medium' | 'large'`）仅作兼容别名保留，
+   * 新代码请传数字。
+   */
+  size?: number | InputSize
   maxlength?: number | string
   minlength?: number | string
   name?: string
@@ -40,7 +52,25 @@ const props = withDefaults(defineProps<NeumorphismInputProps>(), {
 })
 
 const config = useConfig()
-const resolvedSize = computed(() => props.size ?? config.value.input?.size ?? 'medium')
+
+/** 数字尺寸的语义是「最小高度」，默认值取 medium 锚点 */
+const DEFAULT_SIZE_PX = 48
+
+/** 数字通道：`undefined` = 走档位 class，有值 = 走内联 CSS 变量 */
+const numericSize = computed(() => {
+  const raw = props.size ?? config.value.input?.size
+  return typeof raw === 'number' ? normalizeNumericSize(raw, DEFAULT_SIZE_PX) : undefined
+})
+
+const resolvedSize = computed<InputSize>(() => {
+  const raw = props.size ?? config.value.input?.size
+  return typeof raw === 'string' ? raw : 'medium'
+})
+
+/** 数字尺寸下发的 CSS 变量（见 utils/controlScale） */
+const sizeStyle = computed(() =>
+  numericSize.value === undefined ? undefined : resolveControlScale(FIELD_SCALE, numericSize.value)
+)
 
 const emit = defineEmits<{
   (e: 'update:modelValue', value: string): void
@@ -68,7 +98,8 @@ const inputAttrs = computed(() => {
 const { fieldId, isFocused, errorMessage, baseClassList, handleFocus, handleBlur } = useFormField(
   () => ({
     id: props.id,
-    size: resolvedSize.value,
+    // 数字直接交给 useFormField 判 `--sized` 档；它只决定 class，几何量在内联变量里
+    size: numericSize.value ?? resolvedSize.value,
     disabled: props.disabled,
     error: props.error,
     prefix: 'input',
@@ -119,7 +150,7 @@ function handleKeydown(event: KeyboardEvent): void {
       :for-id="fieldId"
     />
 
-    <div :class="classList">
+    <div :class="classList" :style="sizeStyle">
       <!-- Floating label: animates from placeholder position to above the field -->
       <span
         v-if="isFloatingLabel"
@@ -335,6 +366,20 @@ function handleKeydown(event: KeyboardEvent): void {
   }
 }
 
+// 数字尺寸（`:size="42"`）：几何量全部来自内联 CSS 变量，见 utils/controlScale。
+// 与三档 class 互斥——数字路径不会同时挂档位类，所以不存在覆盖之争。
+.nm-input--sized {
+  min-height: var(--nm-field-sz-height);
+  .nm-input__field {
+    padding: var(--nm-field-sz-pad-y) var(--nm-field-sz-pad-x);
+    font-size: var(--nm-field-sz-font);
+  }
+  .nm-input__prefix,
+  .nm-input__suffix {
+    padding: var(--nm-field-sz-pad-y) var(--nm-field-sz-affix-x);
+  }
+}
+
 .nm-input__prefix,
 .nm-input__suffix {
   display: flex;
@@ -405,6 +450,23 @@ function handleKeydown(event: KeyboardEvent): void {
 }
 .nm-input--large.nm-input--floating .nm-input__field {
   padding-top: calc(var(--nm-field-padding-y-lg) + var(--nm-spacing-sm));
+}
+
+// 数字尺寸下的浮动标签：横向起点与「标签带」留白都跟着 sz 变量走
+.nm-input--sized .nm-input__floating-label {
+  left: var(--nm-field-sz-pad-x);
+}
+
+// 档位里这段留白恒等于 1.5 × pad-y + 1px（6 / 10 / 14 → 10 / 16 / 22），
+// 按同一关系由 sz 变量重算，锚点处与三档逐像素一致
+.nm-input--sized.nm-input--floating .nm-input__field {
+  padding-top: calc(var(--nm-field-sz-pad-y) * 1.5 + 1px);
+}
+
+// 上浮位置在三档上是 2 / 6 / 8，对 pad-y（6 / 10 / 14）不是一条直线（前段斜率 1、
+// 后段 0.5），用两段线性取小拼出分段插值——小尺寸下标签才不会压住输入文字
+.nm-input--sized .nm-input__floating-label--active {
+  top: min(calc(var(--nm-field-sz-pad-y) - 4px), calc(var(--nm-field-sz-pad-y) * 0.5 + 1px));
 }
 
 .nm-input--error .nm-input__floating-label--active {

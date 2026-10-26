@@ -34,7 +34,7 @@ group: 使用
 | `selectedKeys` | `string[]`                          | `[]`                | 选中行 keys，配合 `v-model:selected-keys`                           |
 | `loading`      | `boolean`                           | `false`             | 加载态：毛玻璃遮罩 + 旋转指示器                                     |
 | `emptyText`    | `string`                            | locale `tableEmpty` | 空数据文案（缺省取语言包，如「暂无数据」）                          |
-| `size`         | `'small' \| 'medium' \| 'large'`    | `'medium'`          | 尺寸档位（单元格 padding 与字号），支持全局配置 `table.size` 级联   |
+| `size`         | `number`                            | `12`                | 单元格上下内距（px，锚点 8 / 12 / 16），支持 `table.size` 级联      |
 | `striped`      | `boolean`                           | `false`             | 斑马纹（偶数行浅底），支持 `table.striped` 级联                     |
 | `hoverable`    | `boolean`                           | `true`              | 行悬停高亮（浅凹陷），支持 `table.hoverable` 级联                   |
 | `showHeader`   | `boolean`                           | `true`              | 是否渲染表头                                                        |
@@ -107,7 +107,7 @@ const selected = ref<string[]>([])
 全局预设：
 
 ```ts
-app.use(NeumorphismUI, { table: { size: 'small', striped: true, hoverable: true } })
+app.use(NeumorphismUI, { table: { size: 8, striped: true, hoverable: true } })
 ```
 
 ---

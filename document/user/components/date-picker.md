@@ -20,20 +20,20 @@ group: 使用
 
 ### Props
 
-| 名称                  | 类型                             | 默认值         | 说明                                                                                                                                   |
-| --------------------- | -------------------------------- | -------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| `modelValue`          | `Date \| null`                   | `null`         | 绑定值（v-model）                                                                                                                      |
-| `placeholder`         | `string`                         | `''`           | 占位文本，支持全局配置 `datePicker.placeholder` 级联（再兜底 locale）                                                                  |
-| `format`              | `string`                         | `'yyyy-MM-dd'` | 显示格式，支持全局配置 `datePicker.format` 级联                                                                                        |
-| `disabled`            | `boolean`                        | `false`        | 禁用（透明度 0.6 + `not-allowed`）                                                                                                     |
-| `clearable`           | `boolean`                        | `true`         | 有值时显示清空按钮，支持全局配置 `datePicker.clearable` 级联                                                                           |
-| `size`                | `'small' \| 'medium' \| 'large'` | `'medium'`     | 尺寸档位，支持全局配置 `datePicker.size` 级联                                                                                          |
-| `minDate` / `maxDate` | `Date`                           | —              | 可选日期区间（越界日期格禁用）                                                                                                         |
-| `firstDayOfWeek`      | `number`                         | `0`            | 每周起始日（0=周日），支持全局配置 `datePicker.firstDayOfWeek` 级联                                                                    |
-| `label`               | `string`                         | —              | 字段标签（经 FieldLabel 渲染，关联触发器 id）                                                                                          |
-| `required`            | `boolean`                        | `false`        | 必填（label 旁显示红色 \*）                                                                                                            |
-| `error`               | `string \| boolean`              | —              | 错误态：字符串为错误文案，`true` 仅显示错误样式                                                                                        |
-| `name` / `id`         | `string`                         | —              | 表单属性；传入 `name` 时渲染 hidden input 携带格式化日期串参与表单提交（无值提交空串）；id 缺省自动生成并关联 label / error / 日历网格 |
+| 名称                  | 类型                | 默认值         | 说明                                                                                                                                   |
+| --------------------- | ------------------- | -------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| `modelValue`          | `Date \| null`      | `null`         | 绑定值（v-model）                                                                                                                      |
+| `placeholder`         | `string`            | `''`           | 占位文本，支持全局配置 `datePicker.placeholder` 级联（再兜底 locale）                                                                  |
+| `format`              | `string`            | `'yyyy-MM-dd'` | 显示格式，支持全局配置 `datePicker.format` 级联                                                                                        |
+| `disabled`            | `boolean`           | `false`        | 禁用（透明度 0.6 + `not-allowed`）                                                                                                     |
+| `clearable`           | `boolean`           | `true`         | 有值时显示清空按钮，支持全局配置 `datePicker.clearable` 级联                                                                           |
+| `size`                | `number`            | `48`           | 最小高度（px）；字号与内距按三锚点（36 / 48 / 60）插值，支持全局配置 `datePicker.size` 级联                                            |
+| `minDate` / `maxDate` | `Date`              | —              | 可选日期区间（越界日期格禁用）                                                                                                         |
+| `firstDayOfWeek`      | `number`            | `0`            | 每周起始日（0=周日），支持全局配置 `datePicker.firstDayOfWeek` 级联                                                                    |
+| `label`               | `string`            | —              | 字段标签（经 FieldLabel 渲染，关联触发器 id）                                                                                          |
+| `required`            | `boolean`           | `false`        | 必填（label 旁显示红色 \*）                                                                                                            |
+| `error`               | `string \| boolean` | —              | 错误态：字符串为错误文案，`true` 仅显示错误样式                                                                                        |
+| `name` / `id`         | `string`            | —              | 表单属性；传入 `name` 时渲染 hidden input 携带格式化日期串参与表单提交（无值提交空串）；id 缺省自动生成并关联 label / error / 日历网格 |
 
 ### Events / Slots
 
@@ -66,7 +66,7 @@ group: 使用
 
 ```ts
 app.use(NeumorphismUI, {
-  datePicker: { size: 'medium', format: 'yyyy-MM-dd', firstDayOfWeek: 1, clearable: true },
+  datePicker: { size: 48, format: 'yyyy-MM-dd', firstDayOfWeek: 1, clearable: true },
 })
 ```
 

@@ -77,6 +77,46 @@ describe('NeumorphismSelect', () => {
     }
   })
 
+  it('数字 size：走 --sized 类 + 内联 CSS 变量，不挂档位类', () => {
+    const wrapper = mountSelect({ size: 42 })
+    const box = wrapper.find('.nm-select')
+    expect(box.classes()).toContain('nm-select--sized')
+    expect(box.classes().some(c => /--(small|medium|large)$/.test(c))).toBe(false)
+    // 42 落在 36(sm) 与 48(md) 之间：位置 0.5
+    expect(box.attributes('style')).toContain('--nm-field-sz-height: 42px')
+    expect(box.attributes('style')).toContain('--nm-field-sz-font: 13.5px')
+    expect(box.attributes('style')).toContain('--nm-field-sz-pad-y: 8px')
+    expect(box.attributes('style')).toContain('--nm-field-sz-pad-x: 14px')
+    expect(box.attributes('style')).toContain('--nm-field-sz-affix-x: 12px')
+  })
+
+  it('数字 size 在锚点上与档位别名逐像素一致', () => {
+    const anchors = [
+      [36, 'small', 13, 6, 12, 10],
+      [48, 'medium', 14, 10, 16, 14],
+      [60, 'large', 16, 14, 20, 16],
+    ] as const
+    for (const [px, tier, font, padY, padX, affixX] of anchors) {
+      const style = mountSelect({ size: px }).find('.nm-select').attributes('style')
+      expect(style).toContain(`--nm-field-sz-height: ${px}px`)
+      expect(style).toContain(`--nm-field-sz-font: ${font}px`)
+      expect(style).toContain(`--nm-field-sz-pad-y: ${padY}px`)
+      expect(style).toContain(`--nm-field-sz-pad-x: ${padX}px`)
+      expect(style).toContain(`--nm-field-sz-affix-x: ${affixX}px`)
+      const byTier = mountSelect({ size: tier })
+      expect(byTier.find('.nm-select').classes()).toContain(`nm-select--${tier}`)
+      expect(byTier.find('.nm-select').attributes('style')).toBeUndefined()
+    }
+  })
+
+  it('数字 size 容错：0 / 负数 / NaN 回落到 medium 锚点 48', () => {
+    for (const bad of [0, -12, Number.NaN]) {
+      const style = mountSelect({ size: bad }).find('.nm-select').attributes('style')
+      expect(style).toContain('--nm-field-sz-height: 48px')
+      expect(style).toContain('--nm-field-sz-font: 14px')
+    }
+  })
+
   it('should display label', () => {
     const wrapper = mountSelect({ label: 'Country' })
     expect(wrapper.text()).toContain('Country')

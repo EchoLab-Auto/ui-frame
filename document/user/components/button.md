@@ -11,7 +11,7 @@ group: 使用
 > 新拟态按钮——库中最基础的交互元素，也是「材质高度」隐喻的基准实现：hover 抬升、active 压下、loading 不塌陷布局。源码：`src/components/NeumorphismButton/`。
 
 ```vue
-<NeumorphismButton variant="raised" size="medium">点击我</NeumorphismButton>
+<NeumorphismButton variant="raised" :size="44">点击我</NeumorphismButton>
 ```
 
 ---
@@ -23,7 +23,7 @@ group: 使用
 | 名称        | 类型                                                                                           | 默认值      | 说明                                                        |
 | ----------- | ---------------------------------------------------------------------------------------------- | ----------- | ----------------------------------------------------------- |
 | `variant`   | `'raised' \| 'pressed' \| 'primary' \| 'glow' \| 'glass' \| 'glass-raised' \| 'glass-pressed'` | `'raised'`  | 视觉预设变体，见下文[预设变体](#预设变体)；玻璃是其中三档   |
-| `size`      | `'small' \| 'medium' \| 'large'`                                                               | `'medium'`  | 尺寸档位（数值见下表）                                      |
+| `size`      | `number`                                                                                       | `44`        | 最小高度（px）；字号与内距按三锚点插值（见下表）            |
 | `shape`     | `'rounded' \| 'pill' \| 'circle'`                                                              | `'rounded'` | 圆角形状；`circle` 为正方形图标按钮（宽 = 高 = 最小高度）   |
 | `disabled`  | `boolean`                                                                                      | `false`     | 禁用：透明度 0.6、`not-allowed` 光标、屏蔽全部 hover/active |
 | `loading`   | `boolean`                                                                                      | `false`     | 加载态：显示 spinner 并**隐含禁用**点击                     |
@@ -36,13 +36,27 @@ group: 使用
 
 > 玻璃是 `variant` 的一个取值，**不是独立 prop**：阴影方向只有一条轴（凸 / 凹），玻璃三档同时决定了「材质 + 凸凹」，拆成两个 prop 会允许 `variant="pressed"` + 凸起玻璃这类自相矛盾的组合；而且玻璃表面会覆盖 `primary` 的底色，所谓「正交」并不成立。
 
-### 尺寸档位的实际数值（token）
+### 尺寸：数字是主几何量，档位只是别名
 
-| size   | padding     | 字号 | 最小高度                   |
-| ------ | ----------- | ---- | -------------------------- |
-| small  | 8px / 16px  | 13px | 32px                       |
-| medium | 12px / 24px | 14px | 44px（满足触屏最小命中区） |
-| large  | 16px / 32px | 16px | 56px                       |
+`size` 收数字（px 最小高度）。三个锚点与旧档位逐像素一致，档位名降级为兼容别名：
+
+| 锚点 | 旧档位别名 | padding（y / x） | 字号 | 最小高度                   |
+| ---- | ---------- | ---------------- | ---- | -------------------------- |
+| 32   | `small`    | 8px / 16px       | 13px | 32px                       |
+| 44   | `medium`   | 12px / 24px      | 14px | 44px（满足触屏最小命中区） |
+| 56   | `large`    | 16px / 32px      | 16px | 56px                       |
+
+落在锚点之间时，字号与内距按分段线性插值。例如 `:size="38"`：
+
+- 高度 38px（就是传进去的数）
+- 位置 = (38 − 32) / (44 − 32) = 0.5 → 字号 13 + (14 − 13) × 0.5 = **13.5px**
+- 上下内距 8 + (12 − 8) × 0.5 = **10px**，左右内距 16 + (24 − 16) × 0.5 = **20px**
+
+超出 32~56 时取端点值（不外推）；0 / 负数 / `NaN` 回落到 44。
+
+```vue
+<NeumorphismButton :size="38">锚点之间</NeumorphismButton>
+```
 
 ### Events / Slots
 
@@ -104,7 +118,7 @@ group: 使用
 
 ```ts
 app.use(NeumorphismUI, {
-  button: { variant: 'raised', size: 'medium', shape: 'rounded' },
+  button: { variant: 'raised', size: 44, shape: 'rounded' },
 })
 ```
 
@@ -176,7 +190,7 @@ raised 的全部行为 + 常驻 `0 0 12px` 主色辉光（30% 浓度），hover 
 `examples/pages/demos/ButtonDemo.vue` 的按钮区是**预览 + 调参**工作台（与其他演示同款结构）：
 
 - **左侧实时预览台**：单个按钮承载全部参数；台面可在「平面 / 彩色」间切换——玻璃档位只有在彩色背景上才看得出半透明与模糊
-- **右侧参数表单**：内容文本、`variant`（含玻璃三档）、`size`、`shape`、高度（28–64px）、`loading` / `disabled` 状态，外加「恢复默认 / 套用玻璃」两个动作
+- **右侧参数表单**：内容文本、`variant`（含玻璃三档）、`size`（滑块直接调节 28–64px）、`shape`、`loading` / `disabled` 状态，外加「恢复默认 / 套用玻璃」两个动作
 - **实时代码片段**：面板底部按当前配置生成对应的 `<NeumorphismButton>` 片段（只列出非默认属性），可直接照抄
 - **变体一览**：7 格网格（4 个基础变体 + 3 个玻璃变体）各自渲染真实按钮，**点击即载入到上方预览**，当前配置对应的那一格高亮
 

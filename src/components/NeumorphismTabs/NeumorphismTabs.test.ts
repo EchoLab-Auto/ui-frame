@@ -73,6 +73,40 @@ describe('NeumorphismTabs', () => {
     }
   })
 
+  it('数字 size：走 --sized 类 + 内联 CSS 变量，不挂档位类', () => {
+    const wrapper = mountTabs({ size: 15 })
+    expect(wrapper.classes()).toContain('nm-tabs--sized')
+    expect(wrapper.classes().some(c => /^nm-tabs--(small|medium|large)$/.test(c))).toBe(false)
+    // 15 落在 14(md) 与 16(lg) 之间：位置 1.5
+    expect(wrapper.attributes('style')).toContain('--nm-tabs-sz-font: 15px')
+    expect(wrapper.attributes('style')).toContain('--nm-tabs-sz-pad-y: 12px')
+    expect(wrapper.attributes('style')).toContain('--nm-tabs-sz-pad-x: 24px')
+  })
+
+  it('数字 size 在锚点上与档位别名等价（同一组 px）', () => {
+    // 锚点：small 12 / medium 14 / large 16（标签字号）
+    const anchors = [
+      [12, 'small'],
+      [14, 'medium'],
+      [16, 'large'],
+    ] as const
+    for (const [px, tier] of anchors) {
+      const byNumber = mountTabs({ size: px })
+      const byTier = mountTabs({ size: tier })
+      expect(byNumber.attributes('style')).toContain(`--nm-tabs-sz-font: ${px}px`)
+      expect(byTier.classes()).toContain(`nm-tabs--${tier}`)
+      expect(byTier.classes()).not.toContain('nm-tabs--sized')
+      expect(byTier.attributes('style')).toBeUndefined()
+    }
+  })
+
+  it('数字 size 容错：0 / 负数 / NaN 回落到 medium 锚点 14', () => {
+    for (const bad of [0, -14, Number.NaN]) {
+      const wrapper = mountTabs({ size: bad })
+      expect(wrapper.attributes('style')).toContain('--nm-tabs-sz-font: 14px')
+    }
+  })
+
   it('should render panel', () => {
     const wrapper = mountTabs({}, { default: 'Panel content' })
     expect(wrapper.find('.nm-tabs__panel').exists()).toBe(true)

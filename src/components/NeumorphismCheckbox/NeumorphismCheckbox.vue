@@ -2,13 +2,29 @@
 import { computed, ref, watch, useAttrs } from 'vue'
 import { useCheckable } from '@/composables/useCheckable'
 import { useNeumorphismSetup } from '@/extensions/createComponent'
+import { normalizeNumericSize, resolveControlScale } from '@/utils/controlScale'
+import { CHECKBOX_SCALE } from '@/utils/controlScales'
 import NeumorphismIcon from '@/components/NeumorphismIcon/NeumorphismIcon.vue'
+
+export type CheckboxSize = 'small' | 'medium' | 'large'
 
 export interface NeumorphismCheckboxProps {
   modelValue?: boolean
   disabled?: boolean
   label?: string
-  size?: 'small' | 'medium' | 'large'
+  /**
+   * 尺寸——勾选框边长 px（数字，主几何量），或三档预设名。
+   *
+   * 数字即「方盒边长」：`--nm-checkbox-sz-*` 由锚点表按三档分段线性插值后
+   * 内联下发（见 `utils/controlScale`）——锚点 12 / 14 / 16 依次是
+   * `small` / `medium` / `large` 的别名值，`:size="15"` 落在后两档之间。
+   * （注意：档位类当前渲染的盒边长是 18 / 24 / 30，与锚点表存在历史差异，
+   * 见样式区 `--sized` 注释。）
+   *
+   * @deprecated 字符串档位（`'small' | 'medium' | 'large'`）仅作兼容别名保留，
+   * 新代码请传数字。
+   */
+  size?: number | CheckboxSize
   name?: string
   id?: string
   indeterminate?: boolean
@@ -22,7 +38,34 @@ const props = withDefaults(defineProps<NeumorphismCheckboxProps>(), {
 
 const { config, resolveProp } = useNeumorphismSetup()
 
-const resolvedSize = computed(() => resolveProp(props.size, config.value.checkbox?.size, 'medium'))
+/** 尺寸原始取值：显式 prop > 全局配置 `checkbox.size` > 档位默认 medium */
+const rawSize = computed<number | CheckboxSize>(() =>
+  resolveProp(props.size, config.value.checkbox?.size, 'medium' as number | CheckboxSize)
+)
+
+/**
+ * 数字通道：`undefined` = 走档位 class，有值 = 走内联 CSS 变量。
+ *
+ * 容错兜底直接取锚点表的 medium 值，而不是再写一遍 14——锚点表调整时兜底
+ * 自动跟随，不会留下「表改了、兜底还停在老值」的漂移。
+ */
+const numericSize = computed(() =>
+  typeof rawSize.value === 'number'
+    ? normalizeNumericSize(rawSize.value, CHECKBOX_SCALE.primary.md)
+    : undefined
+)
+
+/** 字符串通道：数字路径下不挂档位类，这里只用于档位类名与语义兜底 */
+const resolvedSize = computed<CheckboxSize>(() =>
+  typeof rawSize.value === 'string' ? rawSize.value : 'medium'
+)
+
+/** 数字尺寸下发的 CSS 变量（见 utils/controlScale） */
+const sizeStyle = computed(() =>
+  numericSize.value === undefined
+    ? undefined
+    : resolveControlScale(CHECKBOX_SCALE, numericSize.value)
+)
 
 const emit = defineEmits<{
   (e: 'update:modelValue', value: boolean): void
@@ -57,8 +100,13 @@ const { inputId, classList } = useCheckable(() => ({
   prefix: 'checkbox',
   isChecked: isChecked.value,
   isDisabled: props.disabled,
-  size: resolvedSize.value,
-  extraClasses: { 'nm-checkbox--indeterminate': props.indeterminate },
+  // 数字路径不挂档位类：几何全由内联 `--nm-checkbox-sz-*` 决定，与档位类互斥，
+  // 避免两套尺寸声明同时命中时靠顺序取胜
+  size: numericSize.value === undefined ? resolvedSize.value : undefined,
+  extraClasses: {
+    'nm-checkbox--indeterminate': props.indeterminate,
+    'nm-checkbox--sized': numericSize.value !== undefined,
+  },
 }))
 
 // Sync native indeterminate property for accessibility
@@ -80,7 +128,7 @@ function handleChange(event: Event): void {
 </script>
 
 <template>
-  <label :class="[classList, attrs.class]" :style="attrs.style" :for="inputId">
+  <label :class="[classList, attrs.class]" :style="[attrs.style, sizeStyle]" :for="inputId">
     <span class="nm-checkbox__input-wrapper">
       <input
         :id="inputId"
@@ -139,6 +187,26 @@ function handleChange(event: Event): void {
 .nm-checkbox--large .nm-checkbox__icon {
   width: var(--nm-icon-size-md);
   height: var(--nm-icon-size-md);
+}
+
+// ---------- 数字尺寸（`:size="20"`）----------
+// 几何量全部来自内联 CSS 变量（见 utils/controlScale），与三档 class 互斥，
+// 所以不存在覆盖之争。变量挂根节点、规则落在子选择器上——盒子与图标都在内部。
+//
+// 注：`CHECKBOX_SCALE` 的三锚点（12/14/16）取自图标枚举档，而档位类里的盒边长
+// 是 18/24/30（`checkable-sizes` 混基）。按任务约定「引擎与档位类都不动」，数字
+// 路径严格服从锚点表：`:size="14"` 得到 14px 盒，与 `size="medium"`（24px 盒）
+// 并不像素等价，这一点已在交付报告中标出，等锚点表订正后自动对齐。
+.nm-checkbox--sized .nm-checkbox__box {
+  width: var(--nm-checkbox-sz-box);
+  height: var(--nm-checkbox-sz-box);
+}
+
+.nm-checkbox--sized .nm-checkbox__icon {
+  // 图标随盒等比：三档实测占比 67% / 58% / 53%，取 60% 作为统一比例，
+  // 否则数字路径会落回基础规则的 12px——盒子放大后勾会显得过小。
+  width: calc(var(--nm-checkbox-sz-box) * 0.6);
+  height: calc(var(--nm-checkbox-sz-box) * 0.6);
 }
 
 // Checkbox-specific

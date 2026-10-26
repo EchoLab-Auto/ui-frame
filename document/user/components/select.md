@@ -20,19 +20,19 @@ group: 使用
 
 ### Props
 
-| 名称                                                                 | 类型                                       | 默认值           | 说明                                                                |
-| -------------------------------------------------------------------- | ------------------------------------------ | ---------------- | ------------------------------------------------------------------- |
-| `modelValue`                                                         | `string \| number \| (string \| number)[]` | `''`             | 单选为标量，多选为数组                                              |
-| `options`                                                            | `SelectOption[]`                           | `[]`             | 选项（`{ label, value, disabled?, group? }`，`group` 同名归组展示） |
-| `multiple`                                                           | `boolean`                                  | `false`          | 多选模式                                                            |
-| `filterable`                                                         | `boolean`                                  | `false`          | 可搜索：触发器内嵌输入框，输入即过滤                                |
-| `clearable`                                                          | `boolean`                                  | `false`          | 显示清空按钮                                                        |
-| `collapseTags`                                                       | `boolean`                                  | `false`          | 多选标签折叠，超出显示 +N                                           |
-| `maxCollapseTags`                                                    | `number`                                   | `1`              | 折叠前展示的标签数                                                  |
-| `variant`                                                            | `'default' \| 'outlined'`                  | `'default'`      | 视觉变体：凹陷触发器 / 描边连体下拉                                 |
-| `loading` / `loadingText`                                            | `boolean` / `string`                       | `false` / locale | 远程数据加载态                                                      |
-| `placeholder` / `emptyText` / `clearLabel` / `listLabel`             | `string`                                   | locale           | 文案，缺省走 locale                                                 |
-| `label` / `required` / `error` / `size` / `disabled` / `name` / `id` | —                                          | —                | 字段通用项；`size` 支持全局配置级联                                 |
+| 名称                                                                 | 类型                                       | 默认值           | 说明                                                                                     |
+| -------------------------------------------------------------------- | ------------------------------------------ | ---------------- | ---------------------------------------------------------------------------------------- |
+| `modelValue`                                                         | `string \| number \| (string \| number)[]` | `''`             | 单选为标量，多选为数组                                                                   |
+| `options`                                                            | `SelectOption[]`                           | `[]`             | 选项（`{ label, value, disabled?, group? }`，`group` 同名归组展示）                      |
+| `multiple`                                                           | `boolean`                                  | `false`          | 多选模式                                                                                 |
+| `filterable`                                                         | `boolean`                                  | `false`          | 可搜索：触发器内嵌输入框，输入即过滤                                                     |
+| `clearable`                                                          | `boolean`                                  | `false`          | 显示清空按钮                                                                             |
+| `collapseTags`                                                       | `boolean`                                  | `false`          | 多选标签折叠，超出显示 +N                                                                |
+| `maxCollapseTags`                                                    | `number`                                   | `1`              | 折叠前展示的标签数                                                                       |
+| `variant`                                                            | `'default' \| 'outlined'`                  | `'default'`      | 视觉变体：凹陷触发器 / 描边连体下拉                                                      |
+| `loading` / `loadingText`                                            | `boolean` / `string`                       | `false` / locale | 远程数据加载态                                                                           |
+| `placeholder` / `emptyText` / `clearLabel` / `listLabel`             | `string`                                   | locale           | 文案，缺省走 locale                                                                      |
+| `label` / `required` / `error` / `size` / `disabled` / `name` / `id` | —                                          | —                | 字段通用项；`size` 为最小高度 px（数字，默认 48，三锚点 36 / 48 / 60），支持全局配置级联 |
 
 `multiple` / `filterable` / `collapseTags` / `variant` / `size` 均支持三级级联：显式 prop > 全局配置 `select.*` > 默认关闭/默认值。
 
@@ -79,7 +79,7 @@ group: 使用
 
 ```ts
 app.use(NeumorphismUI, {
-  select: { size: 'medium', clearable: true, variant: 'default' },
+  select: { size: 48, clearable: true, variant: 'default' },
 })
 ```
 

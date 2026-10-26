@@ -20,11 +20,11 @@ group: 使用
 
 ### Props
 
-| 名称          | 类型                             | 默认值     | 说明                                                          |
-| ------------- | -------------------------------- | ---------- | ------------------------------------------------------------- |
-| `image`       | `string`                         | —          | 自定义占位图地址（`object-fit: contain`，alt 取 description） |
-| `description` | `string`                         | —          | 描述文字（次级文字色，最大宽 320px 居中）                     |
-| `size`        | `'small' \| 'medium' \| 'large'` | `'medium'` | 尺寸档位，支持全局配置 `empty.size` 级联                      |
+| 名称          | 类型     | 默认值 | 说明                                                                           |
+| ------------- | -------- | ------ | ------------------------------------------------------------------------------ |
+| `image`       | `string` | —      | 自定义占位图地址（`object-fit: contain`，alt 取 description）                  |
+| `description` | `string` | —      | 描述文字（次级文字色，最大宽 320px 居中）                                      |
+| `size`        | `number` | `100`  | 插图边长（px）；描述字号按三锚点（60 / 100 / 140）插值，支持 `empty.size` 级联 |
 
 ### Events / Slots
 
@@ -37,11 +37,11 @@ group: 使用
 
 ## 尺寸规格
 
-| size     | 插画尺寸 | 描述字号         |
-| -------- | -------- | ---------------- |
-| `small`  | 60px     | `--nm-font-sm`   |
-| `medium` | 100px    | `--nm-font-base` |
-| `large`  | 140px    | `--nm-font-lg`   |
+| 锚点（插图边长） | 旧档位别名 | 插画尺寸 | 描述字号          |
+| ---------------- | ---------- | -------- | ----------------- |
+| 60               | `small`    | 60px     | 12px（font-sm）   |
+| 100              | `medium`   | 100px    | 14px（font-base） |
+| 140              | `large`    | 140px    | 15px（font-lg）   |
 
 ```vue
 <!-- 自定义图片 + 操作按钮 -->
@@ -58,7 +58,7 @@ group: 使用
 全局预设：
 
 ```ts
-app.use(NeumorphismUI, { empty: { size: 'small' } })
+app.use(NeumorphismUI, { empty: { size: 60 } })
 ```
 
 ---

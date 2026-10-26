@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
 import NeumorphismCheckbox from './NeumorphismCheckbox.vue'
-
+import { CHECKBOX_SCALE } from '@/utils/controlScales'
 describe('NeumorphismCheckbox', () => {
   it('should render unchecked by default', () => {
     const wrapper = mount(NeumorphismCheckbox)
@@ -55,6 +55,44 @@ describe('NeumorphismCheckbox', () => {
     for (const size of sizes) {
       const wrapper = mount(NeumorphismCheckbox, { props: { size } })
       expect(wrapper.classes()).toContain(`nm-checkbox--${size}`)
+    }
+  })
+
+  it('数字 size：走 --sized 类 + 内联 CSS 变量，不挂档位类', () => {
+    // 13 落在锚点 12(sm) 与 14(md) 之间：值就是传进去的 px，不做倍率换算
+    const wrapper = mount(NeumorphismCheckbox, { props: { size: 13 } })
+    expect(wrapper.classes()).toContain('nm-checkbox--sized')
+    // 数字与档位类互斥：同时存在就变成「两套声明比顺序」
+    expect(wrapper.classes().some(c => /^nm-checkbox--(small|medium|large)$/.test(c))).toBe(false)
+    expect(wrapper.attributes('style')).toContain('--nm-checkbox-sz-box: 13px')
+  })
+
+  it('数字 size 在锚点上与档位别名一致（12 / 14 / 16）', () => {
+    const box = CHECKBOX_SCALE.primary /* --nm-checkbox-sz-box 是主几何量，已提到 primaryVar */
+    // 锚点值只从引擎取一次，测试里不再抄第二份数字
+    expect([box.sm, box.md, box.lg]).toEqual([12, 14, 16])
+    const anchors = [
+      [box.sm, 'small'],
+      [box.md, 'medium'],
+      [box.lg, 'large'],
+    ] as const
+    for (const [px, tier] of anchors) {
+      const byNumber = mount(NeumorphismCheckbox, { props: { size: px } })
+      expect(byNumber.attributes('style')).toContain(`--nm-checkbox-sz-box: ${px}px`)
+
+      const byTier = mount(NeumorphismCheckbox, { props: { size: tier } })
+      expect(byTier.classes()).toContain(`nm-checkbox--${tier}`)
+      // 档位路径不写内联变量：两条通道互不干扰
+      expect(byTier.attributes('style')).toBeUndefined()
+    }
+  })
+
+  it('数字 size 容错：0 / 负数 / NaN 回落到 medium 锚点 14', () => {
+    for (const bad of [0, -12, Number.NaN]) {
+      const wrapper = mount(NeumorphismCheckbox, { props: { size: bad } })
+      expect(wrapper.attributes('style')).toContain('--nm-checkbox-sz-box: 14px')
+      // 回落后仍走数字通道，不会掉回档位类
+      expect(wrapper.classes()).toContain('nm-checkbox--sized')
     }
   })
 

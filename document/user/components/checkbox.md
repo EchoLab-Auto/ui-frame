@@ -20,20 +20,30 @@ group: 使用
 
 ### Props
 
-| 名称            | 类型                             | 默认值     | 说明                                               |
-| --------------- | -------------------------------- | ---------- | -------------------------------------------------- |
-| `modelValue`    | `boolean`                        | `false`    | v-model 绑定勾选状态                               |
-| `disabled`      | `boolean`                        | `false`    | 禁用：透明度 0.5、阻止勾选                         |
-| `label`         | `string`                         | —          | 标签文本（也可用默认插槽）                         |
-| `size`          | `'small' \| 'medium' \| 'large'` | `'medium'` | 尺寸档位，支持全局配置 `checkbox.size` 级联        |
-| `indeterminate` | `boolean`                        | `false`    | 半选态（同步到原生 input 的 `indeterminate` 属性） |
-| `name` / `id`   | `string`                         | —          | 原生表单属性                                       |
+| 名称            | 类型      | 默认值  | 说明                                                                  |
+| --------------- | --------- | ------- | --------------------------------------------------------------------- |
+| `modelValue`    | `boolean` | `false` | v-model 绑定勾选状态                                                  |
+| `disabled`      | `boolean` | `false` | 禁用：透明度 0.5、阻止勾选                                            |
+| `label`         | `string`  | —       | 标签文本（也可用默认插槽）                                            |
+| `size`          | `number`  | `14`    | 勾选框边长 px（锚点 12 / 14 / 16），支持全局配置 `checkbox.size` 级联 |
+| `indeterminate` | `boolean` | `false` | 半选态（同步到原生 input 的 `indeterminate` 属性）                    |
+| `name` / `id`   | `string`  | —       | 原生表单属性                                                          |
 
 透传说明：`inheritAttrs: false`，除 `class` / `style` 外的其余 attrs（如 `required`、`data-*`）全部透传到原生 `<input type="checkbox">`。
 
-### 尺寸档位的实际数值
+### 尺寸：数字是主几何量，档位只是别名
 
-方盒（box）：small 18px、medium 24px、large 30px 见方；内置图标为盒子的 65%。
+`size` 收数字（px 方盒边长），三锚点 12 / 14 / 16 即旧档位名的别名值：
+
+| 锚点 | 旧档位别名 | 方盒边长 | 内置图标（数字路径取盒的 60%） |
+| ---- | ---------- | -------- | ------------------------------ |
+| 12   | `small`    | 12px     | 7.2px                          |
+| 14   | `medium`   | 14px     | 8.4px                          |
+| 16   | `large`    | 16px     | 9.6px                          |
+
+数字路径把插值结果写成 `--nm-checkbox-sz-box` 内联变量，档位 class 一行未改；落在锚点之间按分段线性插值，超出 12~16 取端点值（不外推），`0` / 负数 / `NaN` 回落到 `14`。
+
+> ⚠️ 现状差异：旧档位类渲染的方盒是 18 / 24 / 30px（`checkable-sizes` 混基），而锚点表 `CHECKBOX_SCALE` 给的是 12 / 14 / 16——所以 `size="medium"` 与 `:size="14"` 目前**不等宽**。数字路径以锚点表为准，锚点表订正后自动对齐。
 
 ### Events / Slots
 
@@ -60,7 +70,7 @@ group: 使用
 全局预设：
 
 ```ts
-app.use(NeumorphismUI, { checkbox: { size: 'medium' } })
+app.use(NeumorphismUI, { checkbox: { size: 14 } })
 ```
 
 ---

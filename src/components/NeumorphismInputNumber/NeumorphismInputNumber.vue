@@ -2,6 +2,8 @@
 import { computed, onBeforeUnmount } from 'vue'
 import { useNeumorphismSetup } from '@/extensions/createComponent'
 import { useNumberInput } from '@/composables/useNumberInput'
+import { normalizeNumericSize, resolveControlScale } from '@/utils/controlScale'
+import { FIELD_SCALE } from '@/utils/controlScales'
 import NeumorphismFieldLabel from '@/components/NeumorphismField/NeumorphismFieldLabel.vue'
 import NeumorphismIcon from '@/components/NeumorphismIcon/NeumorphismIcon.vue'
 
@@ -22,8 +24,17 @@ export interface NeumorphismInputNumberProps {
   precision?: number
   /** Whether the input is disabled */
   disabled?: boolean
-  /** Size variant */
-  size?: NumberInputSize
+  /**
+   * 尺寸——px 最小高度（数字，主几何量），或三档预设名。
+   *
+   * 数字即「最小高度」：字号、内距与两侧步进按钮宽度按三锚点（36 / 48 / 60）
+   * 分段线性插值，所以 `:size="36"` 与 `size="small"` 逐像素相同，
+   * `:size="42"` 落在两者之间。
+   *
+   * @deprecated 字符串档位（`'small' | 'medium' | 'large'`）仅作兼容别名保留，
+   * 新代码请传数字。
+   */
+  size?: number | NumberInputSize
   /** Placeholder text */
   placeholder?: string
   /** Show increment/decrement buttons */
@@ -51,11 +62,26 @@ const emit = defineEmits<{
   (e: 'blur', event: FocusEvent): void
 }>()
 
-const { config, resolveProp } = useNeumorphismSetup()
+const { config } = useNeumorphismSetup()
+
+/** 数字尺寸的语义是「最小高度」，默认值取 medium 锚点 */
+const DEFAULT_SIZE_PX = 48
+
+/** 数字通道：`undefined` = 走档位 class，有值 = 走内联 CSS 变量 */
+const numericSize = computed(() => {
+  const raw = props.size ?? config.value.inputNumber?.size
+  return typeof raw === 'number' ? normalizeNumericSize(raw, DEFAULT_SIZE_PX) : undefined
+})
 
 // Resolve size via cascade: explicit prop > global config > hardcoded default
-const resolvedSize = computed<NumberInputSize>(() =>
-  resolveProp(props.size, config.value.inputNumber?.size, 'medium')
+const resolvedSize = computed<NumberInputSize>(() => {
+  const raw = props.size ?? config.value.inputNumber?.size
+  return typeof raw === 'string' ? raw : 'medium'
+})
+
+/** 数字尺寸下发的 CSS 变量（见 utils/controlScale） */
+const sizeStyle = computed(() =>
+  numericSize.value === undefined ? undefined : resolveControlScale(FIELD_SCALE, numericSize.value)
 )
 
 // Resolve disabled
@@ -130,7 +156,9 @@ onBeforeUnmount(stopRepeat)
 
 const classList = computed(() => [
   'nm-input-number',
-  `nm-input-number--${resolvedSize.value}`,
+  numericSize.value === undefined
+    ? `nm-input-number--${resolvedSize.value}`
+    : 'nm-input-number--sized',
   {
     'nm-input-number--disabled': props.disabled,
     'nm-input-number--has-controls': props.controls,
@@ -152,7 +180,7 @@ function onFocus(event: FocusEvent): void {
 </script>
 
 <template>
-  <div :class="classList">
+  <div :class="classList" :style="sizeStyle">
     <NeumorphismFieldLabel :label="label" :for-id="undefined" />
 
     <div class="nm-input-number__body">
@@ -441,6 +469,24 @@ $number-ambient: cubic-bezier(0.4, 0, 0.2, 1);
   .nm-input-number__btn-icon svg {
     width: var(--nm-icon-size-lg);
     height: var(--nm-icon-size-lg);
+  }
+}
+
+// 数字尺寸（`:size="42"`）：几何量全部来自内联 CSS 变量，见 utils/controlScale。
+// 与三档 class 互斥——数字路径不会同时挂档位类，所以不存在覆盖之争。
+// 步进按钮内的图标没有对应的 sz 变量（不随 field 锚点走），保持基础档
+.nm-input-number--sized {
+  .nm-input-number__input-wrapper {
+    min-height: var(--nm-field-sz-height);
+  }
+
+  .nm-input-number__input {
+    padding: var(--nm-field-sz-pad-y) var(--nm-field-sz-pad-x);
+    font-size: var(--nm-field-sz-font);
+  }
+
+  .nm-input-number__btn {
+    width: var(--nm-field-sz-height);
   }
 }
 

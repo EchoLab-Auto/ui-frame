@@ -60,4 +60,38 @@ describe('NeumorphismAvatar', () => {
     await wrapper.find('img').trigger('error')
     expect(wrapper.emitted('error')).toBeDefined()
   })
+
+  // ---- 数字 size（px 直径）----
+
+  it('数字 size：走 --sized 类 + 内联 CSS 变量，不挂档位类', () => {
+    const wrapper = mount(NeumorphismAvatar, { props: { src: '', size: 38 } })
+    expect(wrapper.classes()).toContain('nm-avatar--sized')
+    expect(wrapper.classes().some(c => /^nm-avatar--(small|medium|large)$/.test(c))).toBe(false)
+    // 38 落在 32(sm) 与 44(md) 之间：位置 0.5 → 字号 12→16 的中点 14
+    const style = wrapper.attributes('style')
+    expect(style).toContain('--nm-avatar-sz-size: 38px')
+    expect(style).toContain('--nm-avatar-sz-font: 14px')
+  })
+
+  it('数字 size 在锚点上与档位别名逐像素一致', () => {
+    const anchors = [
+      [32, 'small'],
+      [44, 'medium'],
+      [64, 'large'],
+    ] as const
+    for (const [px, tier] of anchors) {
+      const byNumber = mount(NeumorphismAvatar, { props: { src: '', size: px } })
+      expect(byNumber.attributes('style')).toContain(`--nm-avatar-sz-size: ${px}px`)
+      const byTier = mount(NeumorphismAvatar, { props: { src: '', size: tier } })
+      expect(byTier.classes()).toContain(`nm-avatar--${tier}`)
+      expect(byTier.attributes('style')).toBeUndefined()
+    }
+  })
+
+  it('数字 size 容错：0 / 负数 / NaN 回落到 medium 锚点 44', () => {
+    for (const bad of [0, -20, Number.NaN]) {
+      const wrapper = mount(NeumorphismAvatar, { props: { src: '', size: bad } })
+      expect(wrapper.attributes('style')).toContain('--nm-avatar-sz-size: 44px')
+    }
+  })
 })

@@ -20,23 +20,23 @@ group: 使用
 
 ### Props
 
-| 名称             | 类型                                    | 默认值     | 说明                                                                |
-| ---------------- | --------------------------------------- | ---------- | ------------------------------------------------------------------- |
-| `modelValue`     | `UploadFile[]`                          | `[]`       | 绑定文件列表（v-model，双向同步）                                   |
-| `accept`         | `string`                                | —          | 接受的类型，如 `"image/*,.pdf"`（MIME / 扩展名，逗号分隔）          |
-| `maxSize`        | `number`                                | —          | 单文件大小上限（字节）                                              |
-| `maxCount`       | `number`                                | —          | 文件数量上限（超出触发 `exceed` 事件）                              |
-| `multiple`       | `boolean`                               | `false`    | 允许多选（关闭时新选择替换旧文件）                                  |
-| `disabled`       | `boolean`                               | `false`    | 禁用（透明度 0.5 + 屏蔽交互）                                       |
-| `drag`           | `boolean`                               | `true`     | 拖拽上传区；`false` 退化为凸起按钮，支持全局配置 `upload.drag` 级联 |
-| `listType`       | `'text' \| 'picture' \| 'picture-card'` | `'text'`   | 文件列表形态，支持全局配置 `upload.listType` 级联                   |
-| `showUploadList` | `boolean`                               | `true`     | 是否显示文件列表，支持全局配置 `upload.showUploadList` 级联         |
-| `size`           | `'small' \| 'medium' \| 'large'`        | `'medium'` | 尺寸档位，支持全局配置 `upload.size` 级联                           |
-| `autoUpload`     | `boolean`                               | `false`    | 选择后自动开始上传，支持全局配置 `upload.autoUpload` 级联           |
-| `triggerText`    | `string`                                | —          | 覆盖触发器文案（缺省取 locale `uploadSelectFile`）                  |
-| `dropText`       | `string`                                | —          | 覆盖拖入悬停提示（缺省取 locale `uploadDropFile`）                  |
-| `removeLabel`    | `string`                                | —          | 移除按钮 aria-label（缺省取 locale `uploadRemove`）                 |
-| `previewLabel`   | `string`                                | —          | 预览按钮 aria-label（缺省取 locale `uploadPreview`）                |
+| 名称             | 类型                                    | 默认值   | 说明                                                                          |
+| ---------------- | --------------------------------------- | -------- | ----------------------------------------------------------------------------- |
+| `modelValue`     | `UploadFile[]`                          | `[]`     | 绑定文件列表（v-model，双向同步）                                             |
+| `accept`         | `string`                                | —        | 接受的类型，如 `"image/*,.pdf"`（MIME / 扩展名，逗号分隔）                    |
+| `maxSize`        | `number`                                | —        | 单文件大小上限（字节）                                                        |
+| `maxCount`       | `number`                                | —        | 文件数量上限（超出触发 `exceed` 事件）                                        |
+| `multiple`       | `boolean`                               | `false`  | 允许多选（关闭时新选择替换旧文件）                                            |
+| `disabled`       | `boolean`                               | `false`  | 禁用（透明度 0.5 + 屏蔽交互）                                                 |
+| `drag`           | `boolean`                               | `true`   | 拖拽上传区；`false` 退化为凸起按钮，支持全局配置 `upload.drag` 级联           |
+| `listType`       | `'text' \| 'picture' \| 'picture-card'` | `'text'` | 文件列表形态，支持全局配置 `upload.listType` 级联                             |
+| `showUploadList` | `boolean`                               | `true`   | 是否显示文件列表，支持全局配置 `upload.showUploadList` 级联                   |
+| `size`           | `number`                                | `100`    | 拖拽触发区最小高度 px（锚点 72 / 100 / 140），支持全局配置 `upload.size` 级联 |
+| `autoUpload`     | `boolean`                               | `false`  | 选择后自动开始上传，支持全局配置 `upload.autoUpload` 级联                     |
+| `triggerText`    | `string`                                | —        | 覆盖触发器文案（缺省取 locale `uploadSelectFile`）                            |
+| `dropText`       | `string`                                | —        | 覆盖拖入悬停提示（缺省取 locale `uploadDropFile`）                            |
+| `removeLabel`    | `string`                                | —        | 移除按钮 aria-label（缺省取 locale `uploadRemove`）                           |
+| `previewLabel`   | `string`                                | —        | 预览按钮 aria-label（缺省取 locale `uploadPreview`）                          |
 
 ```ts
 interface UploadFile {

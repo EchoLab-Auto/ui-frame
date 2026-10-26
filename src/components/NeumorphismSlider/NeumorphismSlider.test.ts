@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, afterEach } from 'vitest'
 import { mount } from '@vue/test-utils'
 import NeumorphismSlider from './NeumorphismSlider.vue'
+import { SLIDER_SCALE } from '@/utils/controlScales'
 
 describe('NeumorphismSlider', () => {
   it('renders slider with correct ARIA attributes', () => {
@@ -72,6 +73,45 @@ describe('NeumorphismSlider', () => {
     wrapper.find('[role="slider"]').trigger('keydown', { key: 'ArrowRight' })
     expect(wrapper.emitted('update:modelValue')?.[0]).toEqual([60])
     expect(wrapper.emitted('change')).toEqual([[60]])
+  })
+
+  describe('size（数字是一等公民）', () => {
+    it('数字 size：走 --sized 类 + 内联 CSS 变量，不挂档位类', () => {
+      // 7 落在锚点 6(sm) 与 8(md) 之间：值就是「轨道粗细」px
+      const wrapper = mount(NeumorphismSlider, { props: { modelValue: 50, size: 7 } })
+      expect(wrapper.classes()).toContain('nm-slider--sized')
+      expect(wrapper.classes().some(c => /^nm-slider--(small|medium|large)$/.test(c))).toBe(false)
+      expect(wrapper.attributes('style')).toContain('--nm-slider-sz-rail: 7px')
+    })
+
+    it('数字 size 在锚点上与档位别名一致（6 / 8 / 10）', () => {
+      const rail = SLIDER_SCALE.primary /* --nm-slider-sz-rail 是主几何量，已提到 primaryVar */
+      // 锚点值只从引擎取一次，测试里不再抄第二份数字
+      expect([rail.sm, rail.md, rail.lg]).toEqual([6, 8, 10])
+      const anchors = [
+        [rail.sm, 'small'],
+        [rail.md, 'medium'],
+        [rail.lg, 'large'],
+      ] as const
+      for (const [px, tier] of anchors) {
+        const byNumber = mount(NeumorphismSlider, { props: { modelValue: 0, size: px } })
+        expect(byNumber.attributes('style')).toContain(`--nm-slider-sz-rail: ${px}px`)
+
+        const byTier = mount(NeumorphismSlider, { props: { modelValue: 0, size: tier } })
+        expect(byTier.classes()).toContain(`nm-slider--${tier}`)
+        // 档位路径不写内联变量：两条通道互不干扰
+        expect(byTier.attributes('style')).toBeUndefined()
+      }
+    })
+
+    it('数字 size 容错：0 / 负数 / NaN 回落到 medium 锚点 8', () => {
+      for (const bad of [0, -12, Number.NaN]) {
+        const wrapper = mount(NeumorphismSlider, { props: { modelValue: 0, size: bad } })
+        expect(wrapper.attributes('style')).toContain('--nm-slider-sz-rail: 8px')
+        // 回落后仍走数字通道，不会掉回档位类
+        expect(wrapper.classes()).toContain('nm-slider--sized')
+      }
+    })
   })
 
   describe('drag interaction', () => {

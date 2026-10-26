@@ -59,6 +59,40 @@ describe('NeumorphismPagination', () => {
     }
   })
 
+  it('数字 size：走 --sized 类 + 内联 CSS 变量，不挂档位类', () => {
+    const wrapper = mount(NeumorphismPagination, { props: { size: 42 } })
+    expect(wrapper.classes()).toContain('nm-pagination--sized')
+    expect(wrapper.classes().some(c => /^nm-pagination--(small|medium|large)$/.test(c))).toBe(false)
+    // 42 落在 38(md) 与 46(lg) 之间：位置 1.5
+    expect(wrapper.attributes('style')).toContain('--nm-pagination-sz-height: 42px')
+    expect(wrapper.attributes('style')).toContain('--nm-pagination-sz-min-width: 42px')
+    expect(wrapper.attributes('style')).toContain('--nm-pagination-sz-font: 15px')
+  })
+
+  it('数字 size 在锚点上与档位别名等价（同一组 px）', () => {
+    // 锚点：small 30 / medium 38 / large 46（页码按钮高）；medium 走基础规则，无独立 class
+    const anchors = [
+      [30, 'small'],
+      [38, 'medium'],
+      [46, 'large'],
+    ] as const
+    for (const [px, tier] of anchors) {
+      const byNumber = mount(NeumorphismPagination, { props: { size: px } })
+      const byTier = mount(NeumorphismPagination, { props: { size: tier } })
+      expect(byNumber.attributes('style')).toContain(`--nm-pagination-sz-height: ${px}px`)
+      expect(byTier.classes()).toContain(`nm-pagination--${tier}`)
+      expect(byTier.classes()).not.toContain('nm-pagination--sized')
+      expect(byTier.attributes('style')).toBeUndefined()
+    }
+  })
+
+  it('数字 size 容错：0 / 负数 / NaN 回落到 medium 锚点 38', () => {
+    for (const bad of [0, -38, Number.NaN]) {
+      const wrapper = mount(NeumorphismPagination, { props: { size: bad } })
+      expect(wrapper.attributes('style')).toContain('--nm-pagination-sz-height: 38px')
+    }
+  })
+
   it('should show total when showTotal is true', () => {
     const wrapper = mount(NeumorphismPagination, {
       props: { total: 100, showTotal: true },

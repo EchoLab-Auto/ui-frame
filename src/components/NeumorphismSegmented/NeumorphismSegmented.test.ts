@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
 import NeumorphismSegmented from './NeumorphismSegmented.vue'
+import { SEGMENTED_SCALE } from '@/utils/controlScales'
 
 const OPTIONS = [
   { label: '无约束', value: 'none' },
@@ -54,5 +55,51 @@ describe('NeumorphismSegmented', () => {
       props: { options: OPTIONS, size: 'small' },
     })
     expect(wrapper.classes()).toContain('nm-segmented--small')
+  })
+
+  describe('size（数字是一等公民）', () => {
+    it('数字 size：走 --sized 类 + 内联 CSS 变量，不挂档位类', () => {
+      // 29 落在锚点 26(sm) 与 32(md) 之间：值就是「单段最小高度」px
+      const wrapper = mount(NeumorphismSegmented, { props: { options: OPTIONS, size: 29 } })
+      expect(wrapper.classes()).toContain('nm-segmented--sized')
+      expect(wrapper.classes().some(c => /^nm-segmented--(small|medium|large)$/.test(c))).toBe(
+        false
+      )
+      // 变量挂根节点、尺寸施加在内部 item 上
+      const style = wrapper.attributes('style')
+      expect(style).toContain('--nm-segmented-sz-height: 29px')
+      expect(style).toContain('--nm-segmented-sz-font: 13px')
+      expect(style).toContain('--nm-segmented-sz-pad-y: 3px')
+    })
+
+    it('数字 size 在锚点上与档位别名一致（26 / 32 / 38）', () => {
+      const height =
+        SEGMENTED_SCALE.primary /* --nm-segmented-sz-height 是主几何量，已提到 primaryVar */
+      // 锚点值只从引擎取一次，测试里不再抄第二份数字
+      expect([height.sm, height.md, height.lg]).toEqual([26, 32, 38])
+      const anchors = [
+        [height.sm, 'small'],
+        [height.md, 'medium'],
+        [height.lg, 'large'],
+      ] as const
+      for (const [px, tier] of anchors) {
+        const byNumber = mount(NeumorphismSegmented, { props: { options: OPTIONS, size: px } })
+        expect(byNumber.attributes('style')).toContain(`--nm-segmented-sz-height: ${px}px`)
+
+        const byTier = mount(NeumorphismSegmented, { props: { options: OPTIONS, size: tier } })
+        expect(byTier.classes()).toContain(`nm-segmented--${tier}`)
+        // 档位路径不写内联变量：两条通道互不干扰
+        expect(byTier.attributes('style')).toBeUndefined()
+      }
+    })
+
+    it('数字 size 容错：0 / 负数 / NaN 回落到 medium 锚点 32', () => {
+      for (const bad of [0, -12, Number.NaN]) {
+        const wrapper = mount(NeumorphismSegmented, { props: { options: OPTIONS, size: bad } })
+        expect(wrapper.attributes('style')).toContain('--nm-segmented-sz-height: 32px')
+        // 回落后仍走数字通道，不会掉回档位类
+        expect(wrapper.classes()).toContain('nm-segmented--sized')
+      }
+    })
   })
 })

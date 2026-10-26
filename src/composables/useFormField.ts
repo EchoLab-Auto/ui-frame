@@ -1,12 +1,18 @@
 import { computed, ref } from 'vue'
 import { generateId } from '@/utils'
 
-export type FieldSize = 'small' | 'medium' | 'large'
+/**
+ * 字段尺寸：数字 = 主几何量（最小高度）px，字符串 = 兼容档位别名。
+ *
+ * 数字与档位是两条互斥的渲染路径：数字走 `--sized` 类 + 内联 CSS 变量
+ * （见 `utils/controlScale`），档位继续用三档 class，锚点处两者逐像素一致。
+ */
+export type FieldSize = number | 'small' | 'medium' | 'large'
 
 export interface FormFieldConfig {
   /** 组件 props */
   id?: string
-  size: 'small' | 'medium' | 'large'
+  size: FieldSize
   disabled: boolean
   error?: string | boolean
   /** generateId 前缀  */
@@ -32,7 +38,11 @@ export function useFormField(config: () => FormFieldConfig) {
   function baseClassList(baseClass: string) {
     return computed(() => [
       baseClass,
-      `${baseClass}--${cfg.value.size}`,
+      // 数字尺寸挂 `--sized` 而不是 `--<数字>`：几何量全部来自组件根节点的
+      // 内联 CSS 变量，档位 class 一行不动，两条路径互不覆盖
+      typeof cfg.value.size === 'number'
+        ? `${baseClass}--sized`
+        : `${baseClass}--${cfg.value.size}`,
       {
         [`${baseClass}--focused`]: isFocused.value,
         [`${baseClass}--disabled`]: cfg.value.disabled,

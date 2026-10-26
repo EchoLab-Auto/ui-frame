@@ -79,4 +79,51 @@ describe('NeumorphismNavMenu', () => {
     await nextTick()
     expect(wrapper.find('.nm-nav-menu__submenu').exists()).toBe(false)
   })
+
+  // ---- 数字 size（px 导航项字号）----
+
+  /** 尺寸断言只需要最简一个叶子项（vertical 模式不产生 Popover 浮层） */
+  function mountPlain(props: Record<string, unknown> = {}) {
+    const wrapper = mount(NeumorphismNavMenu, {
+      props: { items: [{ key: 'docs', label: 'Docs' }], mode: 'vertical', ...props },
+      attachTo: document.body,
+    })
+    mountedWrappers.push(wrapper)
+    return wrapper
+  }
+
+  it('数字 size：走 --sized 类 + 内联 CSS 变量，不挂档位类', () => {
+    const root = mountPlain({ size: 12 }).find('.nm-nav-menu')
+    expect(root.classes()).toContain('nm-nav-menu--sized')
+    expect(root.classes().some(c => /^nm-nav-menu--(small|medium|large)$/.test(c))).toBe(false)
+    // 12 落在 11(sm) 与 14(md) 之间：位置 1/3
+    const style = root.attributes('style')
+    expect(style).toContain('--nm-nav-sz-font: 12px')
+    expect(style).toContain('--nm-nav-sz-pad-x: 10.7px')
+    expect(style).toContain('--nm-nav-sz-pad-y: 6.7px')
+    // 指示条高度两锚点同为 2px，中间值也应是 2px（不被无意义地放大）
+    expect(style).toContain('--nm-nav-sz-indicator: 2px')
+  })
+
+  it('数字 size 在锚点上与档位别名逐像素一致', () => {
+    const anchors = [
+      [11, 'small'],
+      [14, 'medium'],
+      [15, 'large'],
+    ] as const
+    for (const [px, tier] of anchors) {
+      const byNumber = mountPlain({ size: px }).find('.nm-nav-menu')
+      expect(byNumber.attributes('style')).toContain(`--nm-nav-sz-font: ${px}px`)
+      const byTier = mountPlain({ size: tier }).find('.nm-nav-menu')
+      expect(byTier.classes()).toContain(`nm-nav-menu--${tier}`)
+      expect(byTier.attributes('style')).toBeUndefined()
+    }
+  })
+
+  it('数字 size 容错：0 / 负数 / NaN 回落到 medium 锚点 14', () => {
+    for (const bad of [0, -12, Number.NaN]) {
+      const root = mountPlain({ size: bad }).find('.nm-nav-menu')
+      expect(root.attributes('style')).toContain('--nm-nav-sz-font: 14px')
+    }
+  })
 })

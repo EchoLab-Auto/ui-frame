@@ -135,6 +135,40 @@ describe('NeumorphismButton', () => {
     }
   })
 
+  it('数字 size：走 --sized 类 + 内联 CSS 变量，不挂档位类', () => {
+    const wrapper = mount(NeumorphismButton, { props: { size: 40 } })
+    const btn = wrapper.find('button')
+    expect(btn.classes()).toContain('nm-button--sized')
+    expect(btn.classes().some(c => /--(small|medium|large)$/.test(c))).toBe(false)
+    // 40 落在 32(sm) 与 44(md) 之间：位置 0.667
+    expect(btn.attributes('style')).toContain('--nm-button-sz-height: 40px')
+    expect(btn.attributes('style')).toContain('--nm-button-sz-font: 13.7px')
+  })
+
+  it('数字 size 在锚点上与档位别名逐像素一致', () => {
+    const anchors = [
+      [32, 'small'],
+      [44, 'medium'],
+      [56, 'large'],
+    ] as const
+    for (const [px, tier] of anchors) {
+      const byNumber = mount(NeumorphismButton, { props: { size: px } })
+      const byTier = mount(NeumorphismButton, { props: { size: tier } })
+      expect(byNumber.attributes('style')).toContain(`--nm-button-sz-height: ${px}px`)
+      // 反查档位 class 对应的 token，确认两者指向同一个 px
+      const tokenPx = { small: 32, medium: 44, large: 56 }[tier]
+      expect(tokenPx).toBe(px)
+      expect(byTier.classes()).toContain(`nm-button--${tier}`)
+    }
+  })
+
+  it('数字 size 容错：0 / 负数 / NaN 回落到 medium 锚点 44', () => {
+    for (const bad of [0, -12, Number.NaN]) {
+      const wrapper = mount(NeumorphismButton, { props: { size: bad } })
+      expect(wrapper.find('button').attributes('style')).toContain('--nm-button-sz-height: 44px')
+    }
+  })
+
   it('should apply shape classes', () => {
     const shapes = ['rounded', 'pill', 'circle'] as const
     for (const shape of shapes) {

@@ -9,12 +9,13 @@ function withProgress(options: {
   modelValue?: number
   max?: number
   indeterminate?: boolean
-  size?: ProgressSize
+  /** 数字 = 线形条厚度 px；字符串为三档别名 */
+  size?: ProgressSize | number
 }) {
   const modelValue = ref(options.modelValue ?? 0)
   const max = ref(options.max ?? 100)
   const indeterminate = ref(options.indeterminate ?? false)
-  const size = ref<ProgressSize>(options.size ?? 'medium')
+  const size = ref<ProgressSize | number>(options.size ?? 'medium')
 
   let result: UseProgressReturn | null = null
   const Comp = defineComponent({
@@ -143,5 +144,35 @@ describe('useProgress', () => {
     const { api } = withProgress({ modelValue: 25 })
     const c = api().circumference.value
     expect(api().dashOffset.value).toBeCloseTo(c * 0.75)
+  })
+
+  // ---- 数字 size：环形几何按「线形条厚度」锚点插值 ----
+  it('should interpolate ring geometry from a numeric size (thickness)', () => {
+    const { api, size } = withProgress({ size: 8 })
+    // 锚点上与 medium 档逐像素一致
+    expect(api().circleSize.value).toBe(120)
+    expect(api().strokeWidth.value).toBe(7)
+
+    // 6 落在 4(sm) 与 8(md) 之间：位置 0.5
+    size.value = 6
+    expect(api().circleSize.value).toBe(92)
+    expect(api().strokeWidth.value).toBe(5.5)
+    expect(api().radius.value).toBe(43.25)
+
+    // 超出两端夹取（不外推），与字符串档位端点一致
+    size.value = 100
+    expect(api().circleSize.value).toBe(160)
+    expect(api().strokeWidth.value).toBe(10)
+    size.value = 1
+    expect(api().circleSize.value).toBe(64)
+    expect(api().strokeWidth.value).toBe(4)
+  })
+
+  it('should fall back to the medium anchor for invalid numeric sizes', () => {
+    for (const bad of [0, -5, Number.NaN]) {
+      const { api } = withProgress({ size: bad })
+      expect(api().circleSize.value).toBe(120)
+      expect(api().strokeWidth.value).toBe(7)
+    }
   })
 })

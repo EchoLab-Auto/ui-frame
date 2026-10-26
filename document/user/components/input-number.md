@@ -20,17 +20,17 @@ group: 使用
 
 ### Props
 
-| 名称          | 类型                             | 默认值     | 说明                                                         |
-| ------------- | -------------------------------- | ---------- | ------------------------------------------------------------ |
-| `modelValue`  | `number`                         | —          | 绑定值（v-model），`undefined` 表示空                        |
-| `min` / `max` | `number`                         | —          | 最小 / 最大值（缺省 ±Infinity）                              |
-| `step`        | `number`                         | `1`        | 步进量；未设 `precision` 时由 step 推断小数位数              |
-| `precision`   | `number`                         | —          | 小数精度（显式传入优先于 step 推断）                         |
-| `disabled`    | `boolean`                        | `false`    | 禁用整组（输入槽与按钮统一透明度 0.6）                       |
-| `size`        | `'small' \| 'medium' \| 'large'` | `'medium'` | 尺寸档位，支持全局配置 `inputNumber.size` 级联（独立配置段） |
-| `placeholder` | `string`                         | `''`       | 占位文本                                                     |
-| `controls`    | `boolean`                        | `true`     | 是否显示增减按钮                                             |
-| `label`       | `string`                         | —          | 字段标签（经 FieldLabel 渲染）                               |
+| 名称          | 类型      | 默认值  | 说明                                                                                                                      |
+| ------------- | --------- | ------- | ------------------------------------------------------------------------------------------------------------------------- |
+| `modelValue`  | `number`  | —       | 绑定值（v-model），`undefined` 表示空                                                                                     |
+| `min` / `max` | `number`  | —       | 最小 / 最大值（缺省 ±Infinity）                                                                                           |
+| `step`        | `number`  | `1`     | 步进量；未设 `precision` 时由 step 推断小数位数                                                                           |
+| `precision`   | `number`  | —       | 小数精度（显式传入优先于 step 推断）                                                                                      |
+| `disabled`    | `boolean` | `false` | 禁用整组（输入槽与按钮统一透明度 0.6）                                                                                    |
+| `size`        | `number`  | `48`    | 最小高度（px）；字号 / 内距与两侧按钮宽度按三锚点（36 / 48 / 60）插值，支持全局配置 `inputNumber.size` 级联（独立配置段） |
+| `placeholder` | `string`  | `''`    | 占位文本                                                                                                                  |
+| `controls`    | `boolean` | `true`  | 是否显示增减按钮                                                                                                          |
+| `label`       | `string`  | —       | 字段标签（经 FieldLabel 渲染）                                                                                            |
 
 透传说明：`inheritAttrs: false`，attrs 落在组件根节点上。
 
@@ -57,7 +57,7 @@ group: 使用
 全局预设（独立的 `inputNumber` 配置段，与 Input 的 `input` 段互不影响）：
 
 ```ts
-app.use(NeumorphismUI, { inputNumber: { size: 'medium' } })
+app.use(NeumorphismUI, { inputNumber: { size: 48 } })
 ```
 
 ---

@@ -25,13 +25,13 @@ group: 使用
 
 ### NeumorphismForm Props
 
-| 名称         | 类型                             | 默认值       | 说明                                                                |
-| ------------ | -------------------------------- | ------------ | ------------------------------------------------------------------- |
-| `model`      | `Record<string, unknown>`        | `{}`         | 表单数据对象，校验时按 `name` 取值                                  |
-| `rules`      | `Record<string, FormRule[]>`     | `{}`         | 按字段名组织的校验规则                                              |
-| `labelWidth` | `string`                         | —            | FormItem 标签宽度，支持全局配置 `form.labelWidth` 级联              |
-| `size`       | `'small' \| 'medium' \| 'large'` | —            | 字段尺寸，下发给子字段，支持 `form.size` 级联                       |
-| `direction`  | `'horizontal' \| 'vertical'`     | `'vertical'` | 排列方向（horizontal 为 flex 横向换行），支持 `form.direction` 级联 |
+| 名称         | 类型                         | 默认值       | 说明                                                                                        |
+| ------------ | ---------------------------- | ------------ | ------------------------------------------------------------------------------------------- |
+| `model`      | `Record<string, unknown>`    | `{}`         | 表单数据对象，校验时按 `name` 取值                                                          |
+| `rules`      | `Record<string, FormRule[]>` | `{}`         | 按字段名组织的校验规则                                                                      |
+| `labelWidth` | `string`                     | —            | FormItem 标签宽度，支持全局配置 `form.labelWidth` 级联                                      |
+| `size`       | `number`                     | `48`         | 子字段最小高度（px，三锚点 36 / 48 / 60）；Form 只做级联透传、不插值，支持 `form.size` 级联 |
+| `direction`  | `'horizontal' \| 'vertical'` | `'vertical'` | 排列方向（horizontal 为 flex 横向换行），支持 `form.direction` 级联                         |
 
 ### NeumorphismFormItem Props
 
@@ -125,7 +125,7 @@ async function onSubmit(m: Record<string, unknown>) {
 全局预设：
 
 ```ts
-app.use(NeumorphismUI, { form: { direction: 'vertical', labelWidth: '96px', size: 'medium' } })
+app.use(NeumorphismUI, { form: { direction: 'vertical', labelWidth: '96px', size: 48 } })
 ```
 
 ---

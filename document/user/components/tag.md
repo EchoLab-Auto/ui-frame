@@ -23,7 +23,7 @@ group: 使用
 | 名称         | 类型                                                                    | 默认值      | 说明                                                         |
 | ------------ | ----------------------------------------------------------------------- | ----------- | ------------------------------------------------------------ |
 | `variant`    | `'default' \| 'primary' \| 'success' \| 'warning' \| 'error' \| 'info'` | `'default'` | 颜色变体，支持全局配置 `tag.variant` 级联                    |
-| `size`       | `'small' \| 'medium' \| 'large'`                                        | `'medium'`  | 尺寸档位（高 22 / 28 / 34px），支持 `tag.size` 级联          |
+| `size`       | `number`                                                                | `12`        | 字号（px，锚点 11 / 12 / 14），支持 `tag.size` 级联          |
 | `closable`   | `boolean`                                                               | `false`     | 显示关闭按钮（内嵌 12px SVG 叉号）                           |
 | `disabled`   | `boolean`                                                               | `false`     | 禁用：透明度 0.5 + `not-allowed`，且关闭按钮不再触发 `close` |
 | `rounded`    | `boolean`                                                               | `false`     | 全圆角（pill）造型，支持 `tag.rounded` 级联                  |
@@ -53,7 +53,7 @@ group: 使用
 | `info`    | `--nm-color-info`    | 信息提示      |
 
 ```vue
-<NeumorphismTag variant="warning" size="small">待审核</NeumorphismTag>
+<NeumorphismTag variant="warning" :size="11">待审核</NeumorphismTag>
 <NeumorphismTag variant="primary" rounded>精选</NeumorphismTag>
 
 <!-- 可关闭的标签组 -->
@@ -68,7 +68,7 @@ group: 使用
 全局预设：
 
 ```ts
-app.use(NeumorphismUI, { tag: { variant: 'primary', size: 'small', rounded: true } })
+app.use(NeumorphismUI, { tag: { variant: 'primary', size: 11, rounded: true } })
 ```
 
 ---

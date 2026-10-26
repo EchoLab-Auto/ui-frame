@@ -23,30 +23,42 @@ group: 使用
 
 ### NeumorphismRadio Props
 
-| 名称          | 类型                             | 默认值     | 说明                                                                     |
-| ------------- | -------------------------------- | ---------- | ------------------------------------------------------------------------ |
-| `value`       | `unknown`                        | **必填**   | 选中时对外暴露的值                                                       |
-| `modelValue`  | `unknown`                        | —          | 独立使用（不在 Group 内）时的 v-model；选中条件为 `modelValue === value` |
-| `disabled`    | `boolean`                        | `false`    | 禁用单个选项（Group 的 disabled 会级联到全部子项）                       |
-| `label`       | `string`                         | —          | 标签文本（也可用默认插槽）                                               |
-| `size`        | `'small' \| 'medium' \| 'large'` | `'medium'` | 尺寸档位；Group 的 size 优先于单个 Radio 的设置                          |
-| `name` / `id` | `string`                         | —          | 原生表单属性；Group 的 name 优先                                         |
+| 名称          | 类型      | 默认值   | 说明                                                                     |
+| ------------- | --------- | -------- | ------------------------------------------------------------------------ |
+| `value`       | `unknown` | **必填** | 选中时对外暴露的值                                                       |
+| `modelValue`  | `unknown` | —        | 独立使用（不在 Group 内）时的 v-model；选中条件为 `modelValue === value` |
+| `disabled`    | `boolean` | `false`  | 禁用单个选项（Group 的 disabled 会级联到全部子项）                       |
+| `label`       | `string`  | —        | 标签文本（也可用默认插槽）                                               |
+| `size`        | `number`  | `24`     | 圆圈直径 px（锚点 18 / 24 / 30）；Group 的 size 优先于单个 Radio 的设置  |
+| `name` / `id` | `string`  | —        | 原生表单属性；Group 的 name 优先                                         |
 
 ### NeumorphismRadioGroup Props
 
-| 名称         | 类型                             | 默认值         | 说明                                |
-| ------------ | -------------------------------- | -------------- | ----------------------------------- |
-| `modelValue` | `unknown`                        | —              | v-model 绑定当前选中项的 `value`    |
-| `direction`  | `'horizontal' \| 'vertical'`     | `'horizontal'` | 排列方向，同步 `aria-orientation`   |
-| `disabled`   | `boolean`                        | `false`        | 整组禁用                            |
-| `size`       | `'small' \| 'medium' \| 'large'` | `'medium'`     | 整组尺寸（覆盖子项）                |
-| `name`       | `string`                         | 自动生成       | 原生 name；缺省时自动生成组内唯一值 |
+| 名称         | 类型                         | 默认值         | 说明                                         |
+| ------------ | ---------------------------- | -------------- | -------------------------------------------- |
+| `modelValue` | `unknown`                    | —              | v-model 绑定当前选中项的 `value`             |
+| `direction`  | `'horizontal' \| 'vertical'` | `'horizontal'` | 排列方向，同步 `aria-orientation`            |
+| `disabled`   | `boolean`                    | `false`        | 整组禁用                                     |
+| `size`       | `number`                     | `24`           | 整组尺寸（覆盖子项）；数字原样级联给子 Radio |
+| `name`       | `string`                     | 自动生成       | 原生 name；缺省时自动生成组内唯一值          |
 
 两者均支持全局配置级联（`radio.size`、`radioGroup.size` / `radioGroup.direction`）。
 
-### 尺寸档位的实际数值
+### 尺寸：数字是主几何量，档位只是别名
 
-圆圈（circle）：small 18px、medium 24px、large 30px；圆点（dot）：small 8px、medium 12px、large 16px。
+`size` 收数字（px 圆圈直径），三锚点 18 / 24 / 30 即旧档位名的别名值；内部圆点（dot）取圈的 50%，因此锚点处与旧档位的 medium 逐像素一致（12px）：
+
+| 锚点 | 旧档位别名 | 圆圈直径 | 内部圆点（50%） |
+| ---- | ---------- | -------- | --------------- |
+| 18   | `small`    | 18px     | 9px             |
+| 24   | `medium`   | 24px     | 12px            |
+| 30   | `large`    | 30px     | 15px            |
+
+数字路径把插值结果写成 `--nm-radio-sz-box` 内联变量，档位 class 一行未改；落在锚点之间按分段线性插值，超出 18~30 取端点值（不外推），`0` / 负数 / `NaN` 回落到 `24`。
+
+> 说明：small / large 档位的圆点走 spacing token（8 / 16px），与「圈的 50%」（9 / 15px）相差约 1px——数字路径没有独立的圆点锚点，按比例走更连续。
+
+`RadioGroup` 的 `size` 只是级联通道：数字会原样传给子 `Radio`，由子项各自按锚点表插值。
 
 ### Events / Slots
 
@@ -62,7 +74,7 @@ group: 使用
 
 ```vue
 <!-- 垂直排列的整组 -->
-<NeumorphismRadioGroup v-model="plan" direction="vertical" size="large">
+<NeumorphismRadioGroup v-model="plan" direction="vertical" :size="30">
   <NeumorphismRadio value="free" label="免费版" />
   <NeumorphismRadio value="pro" label="专业版" />
   <NeumorphismRadio value="enterprise" label="企业版" disabled />
@@ -83,7 +95,7 @@ const group = inject(RadioGroupKey) // { modelValue, name, disabled, size, setVa
 全局预设：
 
 ```ts
-app.use(NeumorphismUI, { radioGroup: { direction: 'vertical', size: 'medium' } })
+app.use(NeumorphismUI, { radioGroup: { direction: 'vertical', size: 24 } })
 ```
 
 ---

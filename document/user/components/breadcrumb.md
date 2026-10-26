@@ -20,11 +20,11 @@ group: 使用
 
 ### Props
 
-| 名称        | 类型                             | 默认值     | 说明                                          |
-| ----------- | -------------------------------- | ---------- | --------------------------------------------- |
-| `items`     | `BreadcrumbItem[]`               | `[]`       | 面包屑项（最后一项视为当前页）                |
-| `separator` | `string`                         | `'/'`      | 分隔符文本（`aria-hidden`，不进读屏）         |
-| `size`      | `'small' \| 'medium' \| 'large'` | `'medium'` | 尺寸档位，支持全局配置 `breadcrumb.size` 级联 |
+| 名称        | 类型               | 默认值 | 说明                                                       |
+| ----------- | ------------------ | ------ | ---------------------------------------------------------- |
+| `items`     | `BreadcrumbItem[]` | `[]`   | 面包屑项（最后一项视为当前页）                             |
+| `separator` | `string`           | `'/'`  | 分隔符文本（`aria-hidden`，不进读屏）                      |
+| `size`      | `number`           | `14`   | 字号（px，锚点 12 / 14 / 16），支持 `breadcrumb.size` 级联 |
 
 ```ts
 interface BreadcrumbItem {
@@ -70,7 +70,7 @@ function go(item: BreadcrumbItem) {
 全局预设：
 
 ```ts
-app.use(NeumorphismUI, { breadcrumb: { size: 'medium' } })
+app.use(NeumorphismUI, { breadcrumb: { size: 14 } })
 ```
 
 ---

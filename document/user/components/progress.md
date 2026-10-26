@@ -20,16 +20,16 @@ group: 使用
 
 ### Props
 
-| 名称            | 类型                                                                 | 默认值      | 说明                                                                 |
-| --------------- | -------------------------------------------------------------------- | ----------- | -------------------------------------------------------------------- |
-| `modelValue`    | `number`                                                             | `0`         | 当前值（与 `max` 换算为百分比，自动钳制在 0–100）                    |
-| `max`           | `number`                                                             | `100`       | 最大值                                                               |
-| `variant`       | `'default' \| 'primary' \| 'success' \| 'warning' \| 'error'`        | `'primary'` | 颜色变体，支持全局配置 `progress.variant` 级联                       |
-| `size`          | `'small' \| 'medium' \| 'large'`                                     | `'medium'`  | 尺寸档位，支持 `progress.size` 级联                                  |
-| `type`          | `'line' \| 'circle'`                                                 | `'line'`    | 形态：线性进度条或 SVG 环形进度                                      |
-| `showLabel`     | `boolean`                                                            | `false`     | 显示百分比文字（数字随进度平滑滚动），支持 `progress.showLabel` 级联 |
-| `indeterminate` | `boolean`                                                            | `false`     | 不确定模式：忽略数值，播放往复追逐动画                               |
-| `effect`        | `'default' \| 'pulse' \| 'flow' \| 'wave' \| 'stripes' \| 'sparkle'` | `'default'` | 线性进度条的流动动效，支持 `progress.effect` 级联                    |
+| 名称            | 类型                                                                 | 默认值      | 说明                                                                   |
+| --------------- | -------------------------------------------------------------------- | ----------- | ---------------------------------------------------------------------- |
+| `modelValue`    | `number`                                                             | `0`         | 当前值（与 `max` 换算为百分比，自动钳制在 0–100）                      |
+| `max`           | `number`                                                             | `100`       | 最大值                                                                 |
+| `variant`       | `'default' \| 'primary' \| 'success' \| 'warning' \| 'error'`        | `'primary'` | 颜色变体，支持全局配置 `progress.variant` 级联                         |
+| `size`          | `number`                                                             | `8`         | 线形条厚度（px）；环形直径/描边按三锚点插值，支持 `progress.size` 级联 |
+| `type`          | `'line' \| 'circle'`                                                 | `'line'`    | 形态：线性进度条或 SVG 环形进度                                        |
+| `showLabel`     | `boolean`                                                            | `false`     | 显示百分比文字（数字随进度平滑滚动），支持 `progress.showLabel` 级联   |
+| `indeterminate` | `boolean`                                                            | `false`     | 不确定模式：忽略数值，播放往复追逐动画                                 |
+| `effect`        | `'default' \| 'pulse' \| 'flow' \| 'wave' \| 'stripes' \| 'sparkle'` | `'default'` | 线性进度条的流动动效，支持 `progress.effect` 级联                      |
 
 ### Events / Slots
 
@@ -39,18 +39,20 @@ group: 使用
 
 ## 尺寸规格
 
-| size     | 线性轨道高度 | 环形 SVG 边长 / 描边宽 |
-| -------- | ------------ | ---------------------- |
-| `small`  | 6px          | 64px / 4px             |
-| `medium` | 12px         | 120px / 7px            |
-| `large`  | 18px         | 160px / 10px           |
+| 锚点（厚度） | 旧档位别名 | 线性轨道高度 | 环形 SVG 边长 / 描边宽 |
+| ------------ | ---------- | ------------ | ---------------------- |
+| 4            | `small`    | 4px          | 64px / 4px             |
+| 8            | `medium`   | 8px          | 120px / 7px            |
+| 12           | `large`    | 12px         | 160px / 10px           |
+
+落在锚点之间时环形几何按同一位置插值：例如 `:size="6"`（位置 0.5）→ 线性条 6px、环形直径 92px、描边 5.5px。
 
 ```vue
 <!-- 成功态 + 标签 -->
 <NeumorphismProgress :model-value="100" variant="success" show-label />
 
 <!-- 环形进度 -->
-<NeumorphismProgress type="circle" :model-value="72" size="large" show-label />
+<NeumorphismProgress type="circle" :model-value="72" :size="12" show-label />
 
 <!-- 不确定模式（等待远端响应） -->
 <NeumorphismProgress indeterminate variant="warning" />

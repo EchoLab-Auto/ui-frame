@@ -90,4 +90,52 @@ describe('NeumorphismMenu', () => {
     expect(document.body.querySelector('.nm-menu__submenu--floating')).toBeNull()
     expect(wrapper.element.contains(submenu.element)).toBe(true)
   })
+
+  // ---- 数字 size（px 菜单项字号）----
+
+  it('数字 size：走 --sized 类 + 内联 CSS 变量，不挂档位类', () => {
+    const root = mountMenu({ size: 12 }).find('.nm-menu')
+    expect(root.classes()).toContain('nm-menu--sized')
+    expect(root.classes().some(c => /^nm-menu--(small|medium|large)$/.test(c))).toBe(false)
+    // 12 落在 11(sm) 与 14(md) 之间：位置 1/3
+    const style = root.attributes('style')
+    expect(style).toContain('--nm-menu-sz-font: 12px')
+    expect(style).toContain('--nm-menu-sz-pad-x: 10.7px')
+    expect(style).toContain('--nm-menu-sz-pad-y: 5.7px')
+  })
+
+  it('数字 size 在锚点上与档位别名逐像素一致', () => {
+    const anchors = [
+      [11, 'small'],
+      [14, 'medium'],
+      [15, 'large'],
+    ] as const
+    for (const [px, tier] of anchors) {
+      const byNumber = mountMenu({ size: px }).find('.nm-menu')
+      expect(byNumber.attributes('style')).toContain(`--nm-menu-sz-font: ${px}px`)
+      // 档位别名仍走原档位类，且不产生内联变量（两条路径不重叠）
+      const byTier = mountMenu({ size: tier }).find('.nm-menu')
+      expect(byTier.classes()).toContain(`nm-menu--${tier}`)
+      expect(byTier.attributes('style')).toBeUndefined()
+    }
+  })
+
+  it('数字 size 容错：0 / 负数 / NaN 回落到 medium 锚点 14', () => {
+    for (const bad of [0, -12, Number.NaN]) {
+      const root = mountMenu({ size: bad }).find('.nm-menu')
+      expect(root.attributes('style')).toContain('--nm-menu-sz-font: 14px')
+    }
+  })
+
+  it('水平浮层子菜单也拿到尺寸变量（teleport 后不再继承根节点内联变量）', async () => {
+    const wrapper = mountMenu({ mode: 'horizontal', size: 12 })
+
+    await wrapper.findAll('.nm-menu__item')[0].trigger('mouseenter')
+    await nextTick()
+
+    const submenu = document.body.querySelector<HTMLElement>('.nm-menu__submenu')
+    expect(submenu).not.toBeNull()
+    expect(submenu!.className).toContain('nm-menu--sized')
+    expect(submenu!.style.getPropertyValue('--nm-menu-sz-font')).toBe('12px')
+  })
 })

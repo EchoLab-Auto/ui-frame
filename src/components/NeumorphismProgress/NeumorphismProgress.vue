@@ -2,7 +2,10 @@
 import { computed, toRef } from 'vue'
 import { useLocale } from '@/composables/useLocale'
 import { useProgress } from '@/composables/useProgress'
+import type { ProgressSize } from '@/composables/useProgress'
 import { useNeumorphismSetup } from '@/extensions/createComponent'
+import { normalizeNumericSize, resolveControlScale } from '@/utils/controlScale'
+import { PROGRESS_SCALE } from '@/utils/controlScales'
 
 export type ProgressVariant = 'default' | 'primary' | 'success' | 'warning' | 'error'
 export type ProgressEffect = 'default' | 'pulse' | 'flow' | 'wave' | 'stripes' | 'sparkle'
@@ -11,7 +14,17 @@ export interface NeumorphismProgressProps {
   modelValue?: number
   max?: number
   variant?: ProgressVariant
-  size?: 'small' | 'medium' | 'large'
+  /**
+   * 尺寸——px 线形条厚度（数字，主几何量），或三档预设名。
+   *
+   * 数字即「线形条厚度」：环形直径与描边按三锚点（厚度 4 / 8 / 12）分段线性插值
+   * （直径 64 / 120 / 160、描边 4 / 7 / 10），所以 `:size="8"` 与 `size="medium"`
+   * 的线性条与环形都逐像素相同。
+   *
+   * @deprecated 字符串档位（`'small' | 'medium' | 'large'`）仅作兼容别名保留，
+   * 新代码请传数字。
+   */
+  size?: number | ProgressSize
   /** Progress shape: linear bar (default) or circular SVG ring */
   type?: 'line' | 'circle'
   showLabel?: boolean
@@ -28,10 +41,39 @@ const props = withDefaults(defineProps<NeumorphismProgressProps>(), {
 
 const { config, resolveProp } = useNeumorphismSetup()
 
+/** 数字尺寸的语义是「线形条厚度」，默认值取 medium 锚点 */
+const DEFAULT_SIZE_PX = 8
+
+/** 原始 size：显式 prop > 全局配置 > medium（两个通道共用同一条级联） */
+const rawSize = computed(() =>
+  resolveProp(props.size, config.value.progress?.size, 'medium' as const)
+)
+
+/** 数字通道：`undefined` = 走档位 class，有值 = 走内联 CSS 变量 */
+const numericSize = computed(() =>
+  typeof rawSize.value === 'number'
+    ? normalizeNumericSize(rawSize.value, DEFAULT_SIZE_PX)
+    : undefined
+)
+
+/** 档位通道：字符串别名（数字路径下取 medium 占位，实际不挂档位类） */
+const resolvedSize = computed<ProgressSize>(() =>
+  typeof rawSize.value === 'string' ? rawSize.value : 'medium'
+)
+
+/** 数字尺寸下发的 CSS 变量（线性条厚度；环形几何见 useProgress） */
+const sizeStyle = computed(() =>
+  numericSize.value === undefined
+    ? undefined
+    : resolveControlScale(PROGRESS_SCALE, numericSize.value)
+)
+
+/** 传给 headless 层的尺寸：数字优先，字符串回落到档位别名 */
+const progressSize = computed<ProgressSize | number>(() => numericSize.value ?? resolvedSize.value)
+
 const resolvedVariant = computed(() =>
   resolveProp(props.variant, config.value.progress?.variant, 'primary')
 )
-const resolvedSize = computed(() => resolveProp(props.size, config.value.progress?.size, 'medium'))
 const resolvedShowLabel = computed(() =>
   resolveProp(props.showLabel, config.value.progress?.showLabel, false)
 )
@@ -55,12 +97,13 @@ const {
   modelValue: toRef(props, 'modelValue'),
   max: toRef(props, 'max'),
   indeterminate: toRef(props, 'indeterminate'),
-  size: resolvedSize,
+  size: progressSize,
 })
 
 const classList = computed(() => [
   'nm-progress',
-  `nm-progress--${resolvedSize.value}`,
+  // 数字与档位互斥：数字走 `--sized`（变量来自内联样式），字符串走档位类
+  numericSize.value === undefined ? `nm-progress--${resolvedSize.value}` : 'nm-progress--sized',
   `nm-progress--${resolvedVariant.value}`,
   `nm-progress--effect-${resolvedEffect.value}`,
   {
@@ -87,6 +130,17 @@ const circleStyle = computed(() => ({
   height: `${circleSize.value}px`,
   '--nm-progress-c': `${circumference.value}px`,
 }))
+
+/**
+ * 根节点内联样式 = 尺寸变量（线性条厚度等）+ 环形几何。
+ *
+ * 两者合并：数字 size 下线性条要 `--nm-progress-sz-height`，环形要具体 px 的
+ * width/height（SVG 的 width/viewBox 必须是数字，不能用 var()），所以不能只留一份。
+ */
+const rootStyle = computed(() => ({
+  ...(sizeStyle.value ?? {}),
+  ...(props.type === 'circle' ? circleStyle.value : {}),
+}))
 </script>
 
 <template>
@@ -101,7 +155,7 @@ const circleStyle = computed(() => ({
     :aria-label="
       resolvedShowLabel ? undefined : t('progressLabel', { percentage: displayPercentage })
     "
-    :style="type === 'circle' ? circleStyle : undefined"
+    :style="rootStyle"
   >
     <!-- Linear bar -->
     <template v-if="type !== 'circle'">
@@ -435,6 +489,13 @@ const circleStyle = computed(() => ({
 }
 .nm-progress--large .nm-progress__track {
   height: var(--nm-progress-height-lg, 18px);
+}
+
+// 数字尺寸（`:size="8"`）：线性轨道厚度直接接内联变量，见 utils/controlScale。
+// 环形几何不在这里——SVG 的 width / viewBox / stroke-width 必须是具体数字，
+// 由 useProgress 按同一批锚点插值后绑定，CSS 侧无需重复一份。
+.nm-progress--sized .nm-progress__track {
+  height: var(--nm-progress-sz-height);
 }
 
 // The sweep translates its own width (45% of the bar): -120% hides it left,
