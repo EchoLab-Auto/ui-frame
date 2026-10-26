@@ -7,7 +7,8 @@ import {
   POINTER_DIST,
   POINTER_DIST2,
   buildCenters,
-  buildPhase,
+  buildPhaseTrigs,
+  breatheAt,
   inkFor,
 } from './shared'
 
@@ -64,7 +65,11 @@ export function dotRadiusFor(v: number, geom: DotGeometry): number {
 }
 
 interface DotScratch {
+  /** 每格呼吸相位 (col+row)*0.12 */
   phase: Float32Array
+  /** 相位的 sin/cos 预分解（每帧只算一次 sin(ωt)，逐格退化为乘加） */
+  cosPhase: Float32Array
+  sinPhase: Float32Array
   colX: Float32Array
   rowY: Float32Array
   /** 分档坐标缓冲（每帧复用，避免逐帧 GC） */
@@ -75,6 +80,8 @@ interface DotScratch {
 function emptyScratch(): DotScratch {
   return {
     phase: new Float32Array(0),
+    cosPhase: new Float32Array(0),
+    sinPhase: new Float32Array(0),
     colX: new Float32Array(0),
     rowY: new Float32Array(0),
     lvX: [],
@@ -105,7 +112,10 @@ export const dotMask: ImageMask = {
 
   build(grid, scratch) {
     const s = scratch as DotScratch
-    s.phase = buildPhase(grid.cols, grid.rows)
+    const trigs = buildPhaseTrigs(grid.cols, grid.rows)
+    s.phase = trigs.phase
+    s.cosPhase = trigs.cosPhase
+    s.sinPhase = trigs.sinPhase
     const centers = buildCenters(grid)
     s.colX = centers.colX
     s.rowY = centers.rowY
@@ -124,13 +134,18 @@ export const dotMask: ImageMask = {
     }
     const geom = dotGeometry(state)
     const tt = t * state.speed
+    // 每帧只算一次 sin/cos(ωt)，逐格用和角公式展开（见 buildPhaseTrigs）
+    const th = tt * BREATH_FREQ
+    const sinT = Math.sin(th)
+    const cosT = Math.cos(th)
+    const cosPhase = s.cosPhase
+    const sinPhase = s.sinPhase
     const usePointer = state.reactive && state.pointer.active
     const pointerX = state.pointer.x
     const pointerY = state.pointer.y
     const cols = grid.cols
     const rows = grid.rows
     const lum = grid.lum
-    const phase = s.phase
     const colX = s.colX
     const rowY = s.rowY
 
@@ -143,7 +158,7 @@ export const dotMask: ImageMask = {
     for (let row = 0; row < rows; row++) {
       const y = rowY[row]
       for (let col = 0; col < cols; col++, idx++) {
-        let v = lum[idx] * (0.85 + 0.15 * Math.sin(tt * BREATH_FREQ + phase[idx]))
+        let v = lum[idx] * breatheAt(sinT, cosT, cosPhase, sinPhase, idx)
         if (usePointer) {
           const x = colX[col]
           const dx = x - pointerX

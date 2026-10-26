@@ -100,14 +100,50 @@ export function sampleLuminance(
   return lum
 }
 
-/** 每格呼吸相位（(col+row)·步长） */
-export function buildPhase(cols: number, rows: number): Float32Array {
+/** 呼吸相位的三角预分解 */
+export interface PhaseTrigs {
+  /** (col+row)·步长 */
+  phase: Float32Array
+  cosPhase: Float32Array
+  sinPhase: Float32Array
+}
+
+/**
+ * 预计算每格的呼吸相位，并把 sin/cos 一并存下。
+ *
+ * 呼吸是 `sin(ω·t + phase)`，逐格算 sin 意味着每帧几千次三角调用。用和角公式
+ * 展开成 `sin(ωt)·cos(phase) + cos(ωt)·sin(phase)` 后，每帧只需算一次
+ * `sin(ωt)`/`cos(ωt)`，逐格退化为两次乘法一次加法——省掉 99.9% 的三角运算，
+ * 且数学上完全等价（Float32 存储带来约 1e-7 的相位误差，肉眼不可见）。
+ */
+export function buildPhaseTrigs(cols: number, rows: number): PhaseTrigs {
   const n = Math.max(1, cols * rows)
   const phase = new Float32Array(n)
+  const cosPhase = new Float32Array(n)
+  const sinPhase = new Float32Array(n)
   for (let r = 0, i = 0; r < rows; r++) {
-    for (let c = 0; c < cols; c++, i++) phase[i] = (c + r) * BREATH_PHASE_STEP
+    for (let c = 0; c < cols; c++, i++) {
+      const p = (c + r) * BREATH_PHASE_STEP
+      phase[i] = p
+      cosPhase[i] = Math.cos(p)
+      sinPhase[i] = Math.sin(p)
+    }
   }
-  return phase
+  return { phase, cosPhase, sinPhase }
+}
+
+/**
+ * 呼吸系数：`0.85 + 0.15·sin(ωt + phase)`。
+ * `sinT`/`cosT` 是当前帧的 `sin(ωt)`/`cos(ωt)`，逐格只做乘加（见 buildPhaseTrigs）。
+ */
+export function breatheAt(
+  sinT: number,
+  cosT: number,
+  cosPhase: Float32Array,
+  sinPhase: Float32Array,
+  i: number
+): number {
+  return 0.85 + 0.15 * (sinT * cosPhase[i] + cosT * sinPhase[i])
 }
 
 /** 每列 / 每行的中心坐标（px） */

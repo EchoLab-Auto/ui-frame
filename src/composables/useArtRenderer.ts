@@ -33,11 +33,13 @@ export interface UseArtRendererOptions {
    */
   idleFps?: number
   /**
-   * 滚动期间的帧率上限（默认 20）。滚动时**降帧而非停摆**——动画仍在走，
-   * 只是挪得慢一些；停摆会让持续数秒的滚动把「呼吸流光」截断成一个静止画面，
-   * 停下后再突然接上，观感上就是「滑一下就停了」。
+   * 滚动期间的帧率上限。**默认不设**——滚动时动画与静止同速，不做任何节流。
    *
-   * 传 `0`（或负值）则恢复成滚动期间完全冻结（重效果可选用）。
+   * 实测（独立长列表页 + 400×500@DPR2 的字符画满帧绘制）滚动全程 60fps、零掉帧，
+   * 说明画布绘制本身不会拖累滚动；早先「滚动期间停绘 / 降帧」是错的解法，
+   * 它把不存在的瓶颈当成理由，代价是动画在滚动中被截断。
+   *
+   * 只有特别重的自绘效果才需要显式给一个上限；传 `0` 表示滚动期间完全停绘。
    */
   scrollFps?: number
 }
@@ -49,14 +51,10 @@ const THEME_PALETTE_VARS = [
   '--nm-color-warning',
 ]
 
-/** 滚动窗口（ms）：收到 scroll 后进入「滚动中」，该窗口内无新 scroll 即回落。
- *  这段时间内**降低帧率**（见 scrollFps）而不是停止重绘——之前是完全冻结，
- *  结果是持续几秒的滚动会把动画截断成静止画面，用户看到的就是「一滑就停」。 */
+/** 滚动窗口（ms）：仅在使用方显式配置 `scrollFps` 时才需要。
+ *  收到 scroll 后进入「滚动中」，该窗口内无新 scroll 即回落。
+ *  默认不注册 scroll 监听、也不做任何滚动节流（见 scrollFps 文档）。 */
 const SCROLL_IDLE_MS = 140
-
-/** 滚动期间默认帧率上限：约为显示器刷新率的 1/3，逐帧贴图上传量随之降到 1/3，
- *  滚动流畅度基本不退化，而动画仍然肉眼可见地连续。 */
-const DEFAULT_SCROLL_FPS = 20
 
 /** ResizeObserver 防抖（ms）：移动端 URL bar 折叠 / 窗口拖拽会产生 resize 风暴，
  *  每次都重采样图片代价高；静置后统一处理。 */
@@ -73,10 +71,9 @@ const INTERSECT_ROOT_MARGIN = '80px'
  * 调度门控（2026-10，修滚动卡顿）：
  * - 视口外停摆（IntersectionObserver）：元素滚出视口即停 rAF，
  *   屏幕外不再消耗 CPU/合成资源；
- * - 滚动降帧（window capture 监听）：页面或任意祖先滚动容器滚动期间
- *   把帧率压到 scrollFps（默认 20），滚动停止 SCROLL_IDLE_MS 后回落。
- *   （最初这里是「滚动期间完全停绘」，代价是可感知的：滚动时间一长，
- *   呼吸流光就被截断成静止画面。）
+ * - 滚动：**默认不干预**。画布绘制不是滚动的瓶颈（400×500@DPR2 满帧绘制时
+ *   滚动实测 60fps / 零掉帧），所以不再为了「省」而停绘或降帧——那只会让动画
+ *   在滚动中卡住。确实需要时可用 `scrollFps` 显式节流。
  * - 空闲降帧（idleFps）：指针未激活时按上限节流。
  */
 export function useArtRenderer(opts: UseArtRendererOptions) {
@@ -95,12 +92,20 @@ export function useArtRenderer(opts: UseArtRendererOptions) {
   let scrolling = false
   let scrollIdleTimer: ReturnType<typeof setTimeout> | undefined
   let resizeTimer: ReturnType<typeof setTimeout> | undefined
-  let lastDrawAt = 0
+  /** 下一次允许绘制的时刻（节拍器；见 tick 里的说明） */
+  let nextDrawAt = 0
   let lastDpr = 0
   const frameInterval = opts.idleFps && opts.idleFps > 0 ? 1000 / opts.idleFps : 0
-  // 滚动期间的最小帧间隔；Infinity = 滚动期间不重绘（scrollFps <= 0 的冻结模式）
-  const scrollFps = opts.scrollFps ?? DEFAULT_SCROLL_FPS
-  const scrollFrameInterval = scrollFps > 0 ? 1000 / scrollFps : Infinity
+  /**
+   * 滚动期间的最小帧间隔。默认「不限制」（0）——滚动时保持与静止相同的节奏。
+   * 只有调用方显式给 `scrollFps` 才生效：> 0 降帧，<= 0 停绘。
+   */
+  const scrollThrottled = opts.scrollFps !== undefined
+  const scrollFrameInterval = scrollThrottled
+    ? opts.scrollFps! > 0
+      ? 1000 / opts.scrollFps!
+      : Infinity
+    : 0
 
   const isCoarsePointer =
     typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches
@@ -169,13 +174,21 @@ export function useArtRenderer(opts: UseArtRendererOptions) {
     if (!running) return
     // 视口外完全停摆（IntersectionObserver 已停 rAF，这里再兜一层）
     if (intersecting) {
-      // 帧间隔：空闲用 idleFps；滚动期间取两者较大值（降帧但仍继续画）。
-      // scrollFps <= 0 时 scrollFrameInterval = Infinity → 间隔恒不满足 → 冻结。
-      const interval = scrolling ? Math.max(frameInterval, scrollFrameInterval) : frameInterval
+      // 帧间隔：空闲用 idleFps；滚动期间默认不变，仅当显式配置了 scrollFps 才取较大值
+      const interval =
+        scrolling && scrollThrottled ? Math.max(frameInterval, scrollFrameInterval) : frameInterval
       // 指针交互中不节流（跟手）
-      if (state.pointer.active || !interval || now - lastDrawAt >= interval - 1) {
+      const force = state.pointer.active || !interval
+      // 节拍器而不是「距上次多久」：
+      // 后者在 rAF 抖动（16.7/33.4ms 交错）时会漏拍——33.4ms 的间隔刚好卡在
+      // 阈值边缘，一抖就少画一帧，实测让 30fps 目标掉到 25fps。改成累计计划
+      // 时刻后，漏掉的那一帧下一拍就补上，长期帧率稳定在目标值。
+      // interval = Infinity 表示「停绘」（scrollFps <= 0 的显式选择），此时永不满足
+      if (force || (Number.isFinite(interval) && now >= nextDrawAt)) {
         drawFrame((now - startTime) / 1000)
-        lastDrawAt = now
+        // 落后太多（掉帧/切回前台）时重置节拍，不连画多帧追赶
+        nextDrawAt = force ? now + (interval || 0) : nextDrawAt + interval
+        if (nextDrawAt < now) nextDrawAt = now + interval
       }
     }
     rafId = requestAnimationFrame(tick)
@@ -189,6 +202,7 @@ export function useArtRenderer(opts: UseArtRendererOptions) {
     // 拨回 0，观感上是动画停顿后从同一处重新开始（跳一下）。保持单调后，
     // 离屏期间只是不画，回到视口时相位正好接上。
     if (!startTime) startTime = performance.now()
+    nextDrawAt = 0 // 立即画第一帧，之后由节拍器接管
     rafId = requestAnimationFrame(tick)
   }
 
@@ -234,9 +248,9 @@ export function useArtRenderer(opts: UseArtRendererOptions) {
     el.removeEventListener('pointerleave', onPointerLeave)
   }
 
-  // ---- 滚动降帧：任意滚动容器（含页面内层容器；scroll 事件在 capture
-  //  阶段可达 window）滚动期间把帧率压到 scrollFps；SCROLL_IDLE_MS 无
-  //  滚动后回落。时间轴连续（drawFrame 用绝对时间），所以降帧不掉帧序。 ----
+  // ---- 可选的滚动节流：仅当调用方显式配置 scrollFps 时才走到这里。
+  //  任意滚动容器（含页面内层容器；scroll 事件在 capture 阶段可达 window）
+  //  滚动期间按 scrollFps 节流；SCROLL_IDLE_MS 无滚动后回落。
   function onScroll() {
     scrolling = true
     if (scrollIdleTimer !== undefined) clearTimeout(scrollIdleTimer)
@@ -261,8 +275,9 @@ export function useArtRenderer(opts: UseArtRendererOptions) {
       initEffect()
     }, RESIZE_DEBOUNCE_MS)
   }
-
-  if (typeof window !== 'undefined') {
+  // 只有显式配置 scrollFps 时才需要监听滚动（默认路径零开销：
+  // 不为「不存在的节流需求」在 capture 阶段挂一堆 scroll 回调）
+  if (typeof window !== 'undefined' && scrollThrottled) {
     window.addEventListener('scroll', onScroll, { capture: true, passive: true })
   }
 
@@ -368,7 +383,7 @@ export function useArtRenderer(opts: UseArtRendererOptions) {
     resizeObserver?.disconnect()
     intersectionObserver?.disconnect()
     themeObserver?.disconnect()
-    if (typeof window !== 'undefined') {
+    if (typeof window !== 'undefined' && scrollThrottled) {
       window.removeEventListener('scroll', onScroll, { capture: true })
     }
     if (opts.canvas.value) unbindPointer(opts.canvas.value)

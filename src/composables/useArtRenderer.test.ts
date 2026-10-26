@@ -1,8 +1,9 @@
-//! useArtRenderer 调度门控契约测试（2026-10 滚动卡顿优化；2026-11 滚动改为降帧）：
-//! 1. 滚动降帧——页面或任意祖先滚动容器滚动期间把帧率压到 scrollFps（默认 20），
-//!    但仍持续重绘（不能停摆：停了动画就被截断成静止画面）；scrollFps: 0 才冻结；
-//! 2. 视口门控——IntersectionObserver isIntersecting=false 完全停 rAF，回视口恢复；
-//! 3. 空闲降帧——idleFps 时节流到 ~50%，指针激活后逐帧跟手。
+//! useArtRenderer 调度门控契约测试：
+//! 1. 滚动默认不干预——滚动期间与静止同速（画布绘制不是滚动的瓶颈，实测
+//!    400×500@DPR2 满帧绘制时滚动 60fps 零掉帧）；且默认不注册 scroll 监听；
+//! 2. 可选节流——只有显式给 scrollFps 才生效（>0 降帧、0 停绘）；
+//! 3. 视口门控——IntersectionObserver isIntersecting=false 完全停 rAF，回视口恢复；
+//! 4. 空闲降帧——idleFps 时节流到 ~50%，指针激活后逐帧跟手。
 //!
 //! 手法：rAF 桩成手动驱动队列（tick 自注册，driveFrame 推进一拍）；
 //! canvas 2D 上下文用记录型 Proxy——无 src 的 ascii 效果每帧恰好一次 fillRect，
@@ -134,40 +135,63 @@ describe('useArtRenderer 调度门控', () => {
     expect(drawn()).toBe(base + 5)
   })
 
-  it('滚动降帧：滚动期间继续重绘，但压到 scrollFps（默认 20fps）', async () => {
+  it('滚动默认不干预：与静止同速，一帧不少', async () => {
     await mountHarness()
     driveFrames(2)
     const base = drawn()
     window.dispatchEvent(new Event('scroll'))
-    // 10 帧 × 16.7ms ≈ 167ms；50ms 间隔（20fps）→ 3~4 帧。
-    // 关键：既不是 10 帧（没降）也不是 0 帧（停摆）——动画必须还在走。
-    driveFrames(10)
-    const during = drawn() - base
-    expect(during).toBeGreaterThanOrEqual(3)
-    expect(during).toBeLessThanOrEqual(4)
-
-    // 滚动停止 SCROLL_IDLE_MS 后回到满帧
-    await new Promise(r => setTimeout(r, 160))
-    const after = drawn()
-    driveFrames(3)
-    expect(drawn() - after).toBe(3)
+    // 滚动中照样每帧都画——早先「滚动降帧/停摆」把不存在的瓶颈当理由，
+    // 代价是动画在滚动中被截断，用户看到的就是「一滑就停」。
+    driveFrames(5)
+    expect(drawn()).toBe(base + 5)
   })
 
-  it('滚动降帧：内层滚动容器的 scroll 经 capture 阶段同样生效', async () => {
+  it('滚动默认不干预：内层滚动容器的 scroll 也不改变节奏', async () => {
     await mountHarness()
     const scroller = document.createElement('div')
     document.body.appendChild(scroller)
     driveFrames(2)
     const base = drawn()
     scroller.dispatchEvent(new Event('scroll'))
-    driveFrames(10)
-    const during = drawn() - base
-    expect(during).toBeGreaterThan(0) // 仍在画
-    expect(during).toBeLessThanOrEqual(4) // 但明显降频
+    driveFrames(4)
+    expect(drawn()).toBe(base + 4)
     scroller.remove()
   })
 
-  it('scrollFps: 0 时恢复成滚动期间完全冻结（重效果可选逃生口）', async () => {
+  it('默认不注册 window scroll 监听（不为不存在的节流需求挂 capture 回调）', async () => {
+    const addSpy = vi.spyOn(window, 'addEventListener')
+    await mountHarness()
+    const scrollRegs = addSpy.mock.calls.filter(([type]) => type === 'scroll')
+    expect(scrollRegs).toHaveLength(0)
+  })
+
+  it('显式 scrollFps 才降帧：区间内落笔明显少于满帧', async () => {
+    await mountHarness(0, 20)
+    driveFrames(2)
+    const base = drawn()
+    window.dispatchEvent(new Event('scroll'))
+    driveFrames(10) // ≈167ms；20fps → 50ms 间隔 → 3~4 帧
+    const during = drawn() - base
+    expect(during).toBeGreaterThanOrEqual(3)
+    expect(during).toBeLessThanOrEqual(4)
+
+    // 滚动停止 SCROLL_IDLE_MS 后回落满帧
+    await new Promise(r => setTimeout(r, 160))
+    const after = drawn()
+    driveFrames(3)
+    expect(drawn() - after).toBe(3)
+  })
+
+  it('显式 scrollFps 时才注册 scroll 监听，卸载时移除', async () => {
+    const addSpy = vi.spyOn(window, 'addEventListener')
+    const removeSpy = vi.spyOn(window, 'removeEventListener')
+    const wrapper = await mountHarness(0, 20)
+    expect(addSpy.mock.calls.filter(([type]) => type === 'scroll')).toHaveLength(1)
+    wrapper.unmount()
+    expect(removeSpy.mock.calls.filter(([type]) => type === 'scroll')).toHaveLength(1)
+  })
+
+  it('scrollFps: 0 时滚动期间完全停绘（重效果可选逃生口）', async () => {
     await mountHarness(0, 0)
     driveFrames(2)
     const base = drawn()
@@ -201,6 +225,7 @@ describe('useArtRenderer 调度门控', () => {
     driveFrames(10)
     await new Promise(r => setTimeout(r, 160))
     driveFrames(3)
+    // 滚动期间不再节流，但时间戳仍必须严格单调（跳帧不等于回拨）
 
     // 时间轴单调不减（跳帧不等于回拨）。开头两笔是 init / prepare 后的
     // 立绘帧，此刻 rAF 还没推进过，时间戳同为 0，所以用「不减」而非「递增」。

@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest'
 import type { ArtState } from './types'
 import { imageMaskEffect } from './image-mask'
 import { ART_MASKS, resolveMask } from './masks'
-import { fitGrid } from './masks/shared'
+import { BREATH_FREQ, buildPhaseTrigs, breatheAt, fitGrid } from './masks/shared'
 import {
   DEFAULT_DOT_MAX,
   DEFAULT_DOT_MIN,
@@ -116,6 +116,32 @@ describe('fitGrid（contain 适配）', () => {
     const { cols, rows } = fitGrid(0.8, cellW, cellH, 40, 22)
     expect(cols).toBeLessThanOrEqual(40)
     expect(rows).toBeLessThanOrEqual(22)
+  })
+})
+
+describe('呼吸相位分解（热路径优化）', () => {
+  it('和角展开与直接 sin 等价（误差在 Float32 精度内）', () => {
+    const cols = 6
+    const rows = 5
+    const { phase, cosPhase, sinPhase } = buildPhaseTrigs(cols, rows)
+    for (const t of [0, 0.37, 1.9, 5.2, 17.4]) {
+      const th = t * BREATH_FREQ
+      const sinT = Math.sin(th)
+      const cosT = Math.cos(th)
+      for (let i = 0; i < cols * rows; i++) {
+        const direct = 0.85 + 0.15 * Math.sin(th + phase[i])
+        const viaTrig = breatheAt(sinT, cosT, cosPhase, sinPhase, i)
+        expect(Math.abs(viaTrig - direct)).toBeLessThan(1e-4)
+      }
+    }
+  })
+
+  it('相位按 (col+row) 递增，相邻格错开（流光来自这个差值）', () => {
+    const { phase } = buildPhaseTrigs(4, 3)
+    // 首行相邻列差值 = BREATH_PHASE_STEP
+    expect(phase[1] - phase[0]).toBeCloseTo(0.12, 5)
+    // 同一列相邻行差值相同
+    expect(phase[4] - phase[0]).toBeCloseTo(0.12, 5)
   })
 })
 
