@@ -1,5 +1,6 @@
-//! useArtRenderer 调度门控契约测试（2026-10 滚动卡顿优化）：
-//! 1. 滚动冻结——页面或任意祖先滚动容器滚动期间跳过重绘，SCROLL_IDLE_MS 后回落；
+//! useArtRenderer 调度门控契约测试（2026-10 滚动卡顿优化；2026-11 滚动改为降帧）：
+//! 1. 滚动降帧——页面或任意祖先滚动容器滚动期间把帧率压到 scrollFps（默认 20），
+//!    但仍持续重绘（不能停摆：停了动画就被截断成静止画面）；scrollFps: 0 才冻结；
 //! 2. 视口门控——IntersectionObserver isIntersecting=false 完全停 rAF，回视口恢复；
 //! 3. 空闲降帧——idleFps 时节流到 ~50%，指针激活后逐帧跟手。
 //!
@@ -59,7 +60,11 @@ let ctxCalls: CtxCalls
 let ioMock: ReturnType<typeof createIntersectionObserverMock>
 
 const Harness = defineComponent({
-  props: { idleFps: { type: Number, default: 0 } },
+  props: {
+    idleFps: { type: Number, default: 0 },
+    /** undefined = 用 composable 的默认值；0 = 冻结模式 */
+    scrollFps: { type: Number, default: undefined },
+  },
   setup(props) {
     const canvasRef = ref<HTMLCanvasElement | null>(null)
     useArtRenderer({
@@ -72,6 +77,7 @@ const Harness = defineComponent({
       seed: ref(undefined),
       src: ref(undefined), // 无图：每帧 = 背景 fillRect 一次
       idleFps: props.idleFps || undefined,
+      scrollFps: props.scrollFps,
     })
     return () => h('canvas', { ref: canvasRef })
   },
@@ -111,8 +117,8 @@ describe('useArtRenderer 调度门控', () => {
     vi.restoreAllMocks()
   })
 
-  async function mountHarness(idleFps = 0) {
-    const wrapper = mount(Harness, { props: { idleFps } })
+  async function mountHarness(idleFps = 0, scrollFps?: number) {
+    const wrapper = mount(Harness, { props: { idleFps, scrollFps } })
     await nextTick()
     // 异步 prepare（无 src → 立即 resolve）后的补绘帧落定
     await new Promise(r => setTimeout(r, 0))
@@ -128,28 +134,81 @@ describe('useArtRenderer 调度门控', () => {
     expect(drawn()).toBe(base + 5)
   })
 
-  it('滚动冻结：window 滚动事件期间跳过重绘，空闲后回落', async () => {
+  it('滚动降帧：滚动期间继续重绘，但压到 scrollFps（默认 20fps）', async () => {
     await mountHarness()
     driveFrames(2)
     const base = drawn()
     window.dispatchEvent(new Event('scroll'))
-    driveFrames(5)
-    expect(drawn()).toBe(base) // 滚动中不重绘（上一帧保持可见）
-    await new Promise(r => setTimeout(r, 160)) // SCROLL_IDLE_MS=140
-    driveFrames(2)
-    expect(drawn()).toBe(base + 2)
+    // 10 帧 × 16.7ms ≈ 167ms；50ms 间隔（20fps）→ 3~4 帧。
+    // 关键：既不是 10 帧（没降）也不是 0 帧（停摆）——动画必须还在走。
+    driveFrames(10)
+    const during = drawn() - base
+    expect(during).toBeGreaterThanOrEqual(3)
+    expect(during).toBeLessThanOrEqual(4)
+
+    // 滚动停止 SCROLL_IDLE_MS 后回到满帧
+    await new Promise(r => setTimeout(r, 160))
+    const after = drawn()
+    driveFrames(3)
+    expect(drawn() - after).toBe(3)
   })
 
-  it('滚动冻结：内层滚动容器的 scroll 经 capture 阶段同样触发冻结', async () => {
+  it('滚动降帧：内层滚动容器的 scroll 经 capture 阶段同样生效', async () => {
     await mountHarness()
     const scroller = document.createElement('div')
     document.body.appendChild(scroller)
     driveFrames(2)
     const base = drawn()
     scroller.dispatchEvent(new Event('scroll'))
-    driveFrames(4)
-    expect(drawn()).toBe(base)
+    driveFrames(10)
+    const during = drawn() - base
+    expect(during).toBeGreaterThan(0) // 仍在画
+    expect(during).toBeLessThanOrEqual(4) // 但明显降频
     scroller.remove()
+  })
+
+  it('scrollFps: 0 时恢复成滚动期间完全冻结（重效果可选逃生口）', async () => {
+    await mountHarness(0, 0)
+    driveFrames(2)
+    const base = drawn()
+    window.dispatchEvent(new Event('scroll'))
+    driveFrames(5)
+    expect(drawn()).toBe(base) // 一帧都不画
+    await new Promise(r => setTimeout(r, 160))
+    driveFrames(2)
+    expect(drawn()).toBe(base + 2)
+  })
+
+  it('滚动时期的降帧不会让时间轴倒退（呼吸相位连续，不平移）', async () => {
+    // 记录每帧传入的时间戳：降帧只跳过帧，不改变 drawFrame 的时间基准
+    const times: number[] = []
+    const ctx = new Proxy(
+      {},
+      {
+        get: (_, prop) => {
+          if (prop === 'canvas') return undefined
+          if (prop === 'fillRect') return () => times.push(rafTime)
+          return () => {}
+        },
+        set: () => true,
+      }
+    ) as unknown as CanvasRenderingContext2D
+    vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(ctx)
+
+    await mountHarness()
+    driveFrames(3)
+    window.dispatchEvent(new Event('scroll'))
+    driveFrames(10)
+    await new Promise(r => setTimeout(r, 160))
+    driveFrames(3)
+
+    // 时间轴单调不减（跳帧不等于回拨）。开头两笔是 init / prepare 后的
+    // 立绘帧，此刻 rAF 还没推进过，时间戳同为 0，所以用「不减」而非「递增」。
+    expect(times.length).toBeGreaterThan(5)
+    for (let i = 1; i < times.length; i++) expect(times[i]).toBeGreaterThanOrEqual(times[i - 1])
+    // 滚动期间确实有落笔（降帧 ≠ 停摆）
+    const duringScroll = times.filter(t => t > 0 && t < rafTime).length
+    expect(duringScroll).toBeGreaterThan(0)
   })
 
   it('视口门控：IntersectionObserver 离屏停循环，回视口恢复', async () => {
@@ -188,6 +247,36 @@ describe('useArtRenderer 调度门控', () => {
     const base2 = drawn()
     driveFrames(6)
     expect(drawn() - base2).toBe(6)
+  })
+
+  it('离屏再回视口：时间基准不重置（呼吸相位接上，不跳回 0）', async () => {
+    const times: number[] = []
+    const ctx = new Proxy(
+      {},
+      {
+        get: (_, prop) => {
+          if (prop === 'canvas') return undefined
+          if (prop === 'fillRect') return () => times.push(rafTime)
+          return () => {}
+        },
+        set: () => true,
+      }
+    ) as unknown as CanvasRenderingContext2D
+    vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(ctx)
+
+    await mountHarness()
+    driveFrames(4)
+    const before = times[times.length - 1]
+
+    ioMock.IntersectionObserver.trigger([{ isIntersecting: false }])
+    driveFrames(5) // 离屏：不画
+    const countWhileHidden = times.length
+
+    ioMock.IntersectionObserver.trigger([{ isIntersecting: true }])
+    driveFrames(3)
+    // 回视口后第一笔的时间戳必须继续往前，不能回落到 0 附近
+    expect(times.length).toBeGreaterThan(countWhileHidden)
+    expect(times[countWhileHidden]).toBeGreaterThanOrEqual(before)
   })
 
   it('卸载后不再响应滚动事件（监听已移除）', async () => {

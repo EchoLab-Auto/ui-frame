@@ -32,6 +32,14 @@ export interface UseArtRendererOptions {
    * 缺省 = 跟随显示器刷新率。
    */
   idleFps?: number
+  /**
+   * 滚动期间的帧率上限（默认 20）。滚动时**降帧而非停摆**——动画仍在走，
+   * 只是挪得慢一些；停摆会让持续数秒的滚动把「呼吸流光」截断成一个静止画面，
+   * 停下后再突然接上，观感上就是「滑一下就停了」。
+   *
+   * 传 `0`（或负值）则恢复成滚动期间完全冻结（重效果可选用）。
+   */
+  scrollFps?: number
 }
 
 const THEME_PALETTE_VARS = [
@@ -41,10 +49,14 @@ const THEME_PALETTE_VARS = [
   '--nm-color-warning',
 ]
 
-/** 页面滚动冻结窗口（ms）：滚动中跳过重绘，滚动停止后回落。滚动手势里动画
- *  已在高速位移中，冻结不可感知；相反每个 vsync 都叠加画布重绘会让滚动手感
- *  卡顿（实测滚动中帧间隔从 16ms 恶化到 40ms+）。 */
+/** 滚动窗口（ms）：收到 scroll 后进入「滚动中」，该窗口内无新 scroll 即回落。
+ *  这段时间内**降低帧率**（见 scrollFps）而不是停止重绘——之前是完全冻结，
+ *  结果是持续几秒的滚动会把动画截断成静止画面，用户看到的就是「一滑就停」。 */
 const SCROLL_IDLE_MS = 140
+
+/** 滚动期间默认帧率上限：约为显示器刷新率的 1/3，逐帧贴图上传量随之降到 1/3，
+ *  滚动流畅度基本不退化，而动画仍然肉眼可见地连续。 */
+const DEFAULT_SCROLL_FPS = 20
 
 /** ResizeObserver 防抖（ms）：移动端 URL bar 折叠 / 窗口拖拽会产生 resize 风暴，
  *  每次都重采样图片代价高；静置后统一处理。 */
@@ -61,8 +73,10 @@ const INTERSECT_ROOT_MARGIN = '80px'
  * 调度门控（2026-10，修滚动卡顿）：
  * - 视口外停摆（IntersectionObserver）：元素滚出视口即停 rAF，
  *   屏幕外不再消耗 CPU/合成资源；
- * - 滚动冻结（window capture 监听）：页面或任意祖先滚动容器滚动期间
- *   跳过重绘（上一帧保持可见），停止后回落；
+ * - 滚动降帧（window capture 监听）：页面或任意祖先滚动容器滚动期间
+ *   把帧率压到 scrollFps（默认 20），滚动停止 SCROLL_IDLE_MS 后回落。
+ *   （最初这里是「滚动期间完全停绘」，代价是可感知的：滚动时间一长，
+ *   呼吸流光就被截断成静止画面。）
  * - 空闲降帧（idleFps）：指针未激活时按上限节流。
  */
 export function useArtRenderer(opts: UseArtRendererOptions) {
@@ -84,6 +98,9 @@ export function useArtRenderer(opts: UseArtRendererOptions) {
   let lastDrawAt = 0
   let lastDpr = 0
   const frameInterval = opts.idleFps && opts.idleFps > 0 ? 1000 / opts.idleFps : 0
+  // 滚动期间的最小帧间隔；Infinity = 滚动期间不重绘（scrollFps <= 0 的冻结模式）
+  const scrollFps = opts.scrollFps ?? DEFAULT_SCROLL_FPS
+  const scrollFrameInterval = scrollFps > 0 ? 1000 / scrollFps : Infinity
 
   const isCoarsePointer =
     typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches
@@ -150,10 +167,13 @@ export function useArtRenderer(opts: UseArtRendererOptions) {
 
   function tick(now: number) {
     if (!running) return
-    // 滚动中 / 视口外：跳过重绘（上一帧保持可见，恢复后按节拍续画）
-    if (!scrolling && intersecting) {
-      // 空闲降帧：指针交互中不节流（跟手）；否则按 idleFps 间隔节流
-      if (!frameInterval || state.pointer.active || now - lastDrawAt >= frameInterval - 1) {
+    // 视口外完全停摆（IntersectionObserver 已停 rAF，这里再兜一层）
+    if (intersecting) {
+      // 帧间隔：空闲用 idleFps；滚动期间取两者较大值（降帧但仍继续画）。
+      // scrollFps <= 0 时 scrollFrameInterval = Infinity → 间隔恒不满足 → 冻结。
+      const interval = scrolling ? Math.max(frameInterval, scrollFrameInterval) : frameInterval
+      // 指针交互中不节流（跟手）
+      if (state.pointer.active || !interval || now - lastDrawAt >= interval - 1) {
         drawFrame((now - startTime) / 1000)
         lastDrawAt = now
       }
@@ -164,7 +184,11 @@ export function useArtRenderer(opts: UseArtRendererOptions) {
   function start() {
     if (running || isReducedMotion.value) return
     running = true
-    startTime = performance.now()
+    // 时间基准只在首次启动时固定。
+    // 之前每次 start() 都重置 startTime，于是「滚出视口 → 滚回来」会把呼吸相位
+    // 拨回 0，观感上是动画停顿后从同一处重新开始（跳一下）。保持单调后，
+    // 离屏期间只是不画，回到视口时相位正好接上。
+    if (!startTime) startTime = performance.now()
     rafId = requestAnimationFrame(tick)
   }
 
@@ -210,8 +234,9 @@ export function useArtRenderer(opts: UseArtRendererOptions) {
     el.removeEventListener('pointerleave', onPointerLeave)
   }
 
-  // ---- 滚动冻结：任意滚动容器（含页面内层容器；scroll 事件在 capture
-  //  阶段可达 window）滚动期间跳过重绘；SCROLL_IDLE_MS 无滚动后回落。 ----
+  // ---- 滚动降帧：任意滚动容器（含页面内层容器；scroll 事件在 capture
+  //  阶段可达 window）滚动期间把帧率压到 scrollFps；SCROLL_IDLE_MS 无
+  //  滚动后回落。时间轴连续（drawFrame 用绝对时间），所以降帧不掉帧序。 ----
   function onScroll() {
     scrolling = true
     if (scrollIdleTimer !== undefined) clearTimeout(scrollIdleTimer)

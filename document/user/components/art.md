@@ -86,6 +86,7 @@ app.use(NeumorphismUI, { art: { effect: 'waves', reactive: true } })
 
 - 开启后监听画布 pointermove/leave，指针位置进入效果的渲染状态
 - **触屏自动禁用**（`pointer: coarse`），reduced-motion 下同样禁用
+- **滚动期间降帧**：页面（或任意祖先滚动容器）滚动时帧率压到 20fps，滚动停止约 140ms 后回落——滚动时动画不停，只是慢一些；滚出视口才完全停摆（`IntersectionObserver`，提前 80px 恢复）
 - 覆盖层（slot 内容）`pointer-events: none`，不遮挡画布交互
 
 ### Reduced-motion 降级
