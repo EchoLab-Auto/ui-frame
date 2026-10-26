@@ -23,12 +23,13 @@ const squircle = ref(false)
 const showHeader = ref(false)
 const showFooter = ref(false)
 /**
- * 预览台默认彩色。
+ * 预览台默认平面。
  *
- * 玻璃档位的观感来自半透明底 + `backdrop-filter` 磨砂 + 1px 高光边，平面（纯色）背景
- * 上几乎看不出层次；默认给彩色渐变，切回「彩色 / 平面」可以对照。
+ * 玻璃档位的观感来自半透明底 + `backdrop-filter` 磨砂 + 1px 高光边，平面（纯色）
+ * 背景上层次偏弱——但那正是绝大多数真实页面的底色，默认就该按它看。
+ * 选玻璃时（`useGlass`）或手动切换可临时换成彩色对照。
  */
-const stage = ref<DemoStage>('gradient')
+const stage = ref<DemoStage>('plane')
 
 const glassOptions = [
   { label: '关闭', value: 'none' },

@@ -17,7 +17,8 @@ const loading = ref(false)
 const disabled = ref(false)
 /** 尺寸（px 最小高度）。数字是一等公民：任意高度都行，不必在四档之间跳 */
 const sizePx = ref(44)
-const stage = ref<DemoStage>('gradient')
+/** 预览台默认平面——和组件自身的中性底一致，彩色只在需要看玻璃时手动切 */
+const stage = ref<DemoStage>('plane')
 
 /**
  * 七档平铺在一条分段控件里：玻璃三档与基础四档是同一个 prop 的取值，

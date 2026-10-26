@@ -14,8 +14,8 @@ const composerEvent = ref('')
 const composerGlass = ref<ComposerGlass>('raised')
 const composerFocusEffect = ref<ChatComposerFocusEffect>('glow')
 const composerCancelable = ref(true)
-/** 玻璃是半透明材质，默认落在彩色台面上才看得出磨砂 */
-const composerStage = ref<DemoStage>('gradient')
+/** 预览台默认平面；玻璃的磨砂想看清时可切「彩色」对照 */
+const composerStage = ref<DemoStage>('plane')
 
 const composerGlassOptions = [
   { label: '关闭', value: 'none' },
@@ -54,7 +54,7 @@ function reset() {
   composerGlass.value = 'raised'
   composerFocusEffect.value = 'glow'
   composerCancelable.value = true
-  composerStage.value = 'gradient'
+  composerStage.value = 'plane'
 }
 
 // ---- 实时代码片段 ----
