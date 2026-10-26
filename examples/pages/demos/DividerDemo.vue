@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { DemoPlayground, DemoField, DemoPresets, type DemoPreset } from '../../demo'
+import { DemoPlayground, DemoField } from '../../demo'
 
 type DividerDirection = 'horizontal' | 'vertical'
 type DividerAlign = 'left' | 'center' | 'right'
@@ -28,80 +28,6 @@ function reset() {
   dashed.value = false
   inset.value = false
   text.value = '分区 A'
-}
-
-// ---- 变体一览 ----
-interface PresetRow {
-  key: string
-  code: string
-  target: { direction: DividerDirection; align: DividerAlign; dashed: boolean; inset: boolean }
-}
-
-/**
- * 垂直分割线不吃 align（组件只在 horizontal 时才拼 `nm-divider--<align>`），
- * 所以垂直格的 target.align 一律回落到 center，点按时顺手把无效配置清掉。
- */
-const presetRows: PresetRow[] = [
-  {
-    key: 'center',
-    code: '默认（居中 + 实线）',
-    target: { direction: 'horizontal', align: 'center', dashed: false, inset: false },
-  },
-  {
-    key: 'left',
-    code: 'align="left"',
-    target: { direction: 'horizontal', align: 'left', dashed: false, inset: false },
-  },
-  {
-    key: 'right',
-    code: 'align="right"',
-    target: { direction: 'horizontal', align: 'right', dashed: false, inset: false },
-  },
-  {
-    key: 'dashed',
-    code: 'dashed',
-    target: { direction: 'horizontal', align: 'center', dashed: true, inset: false },
-  },
-  {
-    key: 'inset',
-    code: 'inset',
-    target: { direction: 'horizontal', align: 'center', dashed: false, inset: true },
-  },
-  {
-    key: 'vertical',
-    code: 'direction="vertical"',
-    target: { direction: 'vertical', align: 'center', dashed: false, inset: false },
-  },
-  {
-    key: 'vertical-dashed',
-    code: 'direction="vertical" dashed',
-    target: { direction: 'vertical', align: 'center', dashed: true, inset: false },
-  },
-]
-
-const presets = computed<DemoPreset[]>(() =>
-  presetRows.map(row => ({
-    key: row.key,
-    code: row.code,
-    active:
-      row.target.direction === direction.value &&
-      row.target.align === align.value &&
-      row.target.dashed === dashed.value &&
-      row.target.inset === inset.value,
-  }))
-)
-
-function rowOf(key: string): PresetRow {
-  return presetRows.find(r => r.key === key)!
-}
-
-function applyPreset(key: string) {
-  const row = presetRows.find(r => r.key === key)
-  if (!row) return
-  direction.value = row.target.direction
-  align.value = row.target.align
-  dashed.value = row.target.dashed
-  inset.value = row.target.inset
 }
 
 // ---- 实时代码片段 ----
@@ -217,34 +143,5 @@ const snippet = computed(() => {
       <NeumorphismDivider direction="vertical" dashed />
       <span>右侧</span>
     </div>
-  </div>
-
-  <div class="demo-block">
-    <h4 class="demo-label">全部变体一览（点击载入到上方配置台）</h4>
-    <DemoPresets :items="presets" @pick="applyPreset">
-      <template #default="{ item }">
-        <!-- overflow: hidden —— 带文字的水平分割线两侧各有 120px 定长虚线，
-             不裁掉会跨出 150px 宽的格子 -->
-        <div style="width: 100%; overflow: hidden">
-          <NeumorphismDivider
-            v-if="rowOf(item.key).target.direction === 'horizontal'"
-            :align="rowOf(item.key).target.align"
-            :dashed="rowOf(item.key).target.dashed"
-            :inset="rowOf(item.key).target.inset"
-            >分隔</NeumorphismDivider
-          >
-          <!-- 垂直方向需要两侧有内容才撑得出高度，否则只有一根 1em 的短线 -->
-          <div v-else class="demo-row" style="justify-content: center; height: 32px; gap: 0">
-            <span style="font-size: 12px">A</span>
-            <NeumorphismDivider
-              direction="vertical"
-              :dashed="rowOf(item.key).target.dashed"
-              :inset="rowOf(item.key).target.inset"
-            />
-            <span style="font-size: 12px">B</span>
-          </div>
-        </div>
-      </template>
-    </DemoPresets>
   </div>
 </template>

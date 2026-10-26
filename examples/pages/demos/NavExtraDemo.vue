@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { DemoPlayground, DemoField, DemoPresets, type DemoPreset } from '../../demo'
+import { DemoPlayground, DemoField } from '../../demo'
 
 type StepDirection = 'horizontal' | 'vertical'
 type StepStatus = 'wait' | 'process' | 'finish' | 'error'
@@ -127,63 +127,6 @@ const horizontalMenuItems: MenuEntry[] = [
   { key: 'docs', label: '文档', divided: true },
   { key: 'about', label: '关于' },
 ]
-
-// ---- 变体一览：Steps 方向 × Menu 折叠 ----
-interface NavPresetRow extends DemoPreset {
-  direction: StepDirection
-  collapsed: boolean
-  label: string
-}
-
-const presetRows: NavPresetRow[] = [
-  {
-    key: 'h-expanded',
-    code: 'direction="horizontal"',
-    direction: 'horizontal',
-    collapsed: false,
-    label: '横向 · Menu 展开',
-  },
-  {
-    key: 'v-expanded',
-    code: 'direction="vertical"',
-    direction: 'vertical',
-    collapsed: false,
-    label: '竖直 · Menu 展开',
-  },
-  {
-    key: 'h-collapsed',
-    code: 'direction="horizontal" collapsed',
-    direction: 'horizontal',
-    collapsed: true,
-    label: '横向 · Menu 折叠',
-  },
-  {
-    key: 'v-collapsed',
-    code: 'direction="vertical" collapsed',
-    direction: 'vertical',
-    collapsed: true,
-    label: '竖直 · Menu 折叠',
-  },
-]
-
-const presets = computed<DemoPreset[]>(() =>
-  presetRows.map(row => ({
-    key: row.key,
-    code: row.code,
-    active: row.direction === stepDirection.value && row.collapsed === menuCollapsed.value,
-  }))
-)
-
-function applyPreset(key: string) {
-  const row = presetRows.find(item => item.key === key)
-  if (!row) return
-  stepDirection.value = row.direction
-  menuCollapsed.value = row.collapsed
-}
-
-function rowOf(key: string) {
-  return presetRows.find(item => item.key === key)!
-}
 
 // ---- 实时代码片段 ----
 const snippet = computed(() => {
@@ -329,19 +272,6 @@ const snippet = computed(() => {
     <p class="demo-hint">
       <code>mode="horizontal"</code> 时子菜单改为悬停弹出（带 150ms 关闭延迟），键盘 ←/→
       在顶层项间移动、→/Enter 进入子菜单。最近交互：<strong>{{ lastAction }}</strong>
-    </p>
-  </div>
-
-  <div class="demo-block">
-    <h4 class="demo-label">Steps 方向 × Menu 折叠（点击载入到上方预览）</h4>
-    <DemoPresets :items="presets" @pick="applyPreset">
-      <template #default="{ item }">
-        <span style="font-size: 12px">{{ rowOf(item.key).label }}</span>
-      </template>
-    </DemoPresets>
-    <p class="demo-hint" style="margin-top: 10px">
-      <code>Steps</code> 的 <code>current</code> 是 0 基索引（0..3 对应第 1..4 步），
-      <code>direction</code> 只影响排布，状态推导逻辑与方向无关。
     </p>
   </div>
 </template>

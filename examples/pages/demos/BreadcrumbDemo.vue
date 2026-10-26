@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { DemoPlayground, DemoField, DemoPresets, type DemoPreset } from '../../demo'
+import { DemoPlayground, DemoField } from '../../demo'
 
 type BreadcrumbSize = 'small' | 'medium' | 'large'
 
@@ -53,36 +53,10 @@ function onItemClick(item: CrumbItem, index: number) {
   lastClick.value = `${item.label}（第 ${index + 1} 层）`
 }
 
-// ---- 变体一览 ----
-interface CrumbPresetRow extends DemoPreset {
-  separator: string
-  size: BreadcrumbSize
-}
-
-const presetRows: CrumbPresetRow[] = [
-  { key: 'slash-medium', code: 'separator="/"', separator: '/', size: 'medium' },
-  { key: 'gt-small', code: 'separator=">" size="small"', separator: '>', size: 'small' },
-  { key: 'dot-medium', code: 'separator="·"', separator: '·', size: 'medium' },
-  { key: 'arrow-large', code: 'separator="→" size="large"', separator: '→', size: 'large' },
-]
-
-const presets = computed<DemoPreset[]>(() =>
-  presetRows.map(row => ({
-    key: row.key,
-    code: row.code,
-    active: row.separator === separator.value && row.size === size.value,
-  }))
-)
-
-function applyPreset(key: string) {
-  const row = presetRows.find(item => item.key === key)
-  if (!row) return
-  separator.value = row.separator
-  size.value = row.size
-}
-
-function rowOf(key: string) {
-  return presetRows.find(item => item.key === key)!
+/** 恢复默认：配置台「恢复默认」按钮直接调它 */
+function reset(): void {
+  separator.value = '/'
+  size.value = 'medium'
 }
 
 // ---- 实时代码片段 ----
@@ -136,7 +110,7 @@ const snippet = computed(() => {
         </DemoField>
 
         <DemoField label="操作">
-          <NeumorphismButton variant="raised" size="small" @click="applyPreset('slash-medium')">
+          <NeumorphismButton variant="raised" size="small" @click="reset()">
             恢复默认
           </NeumorphismButton>
         </DemoField>
@@ -151,19 +125,6 @@ const snippet = computed(() => {
       最近一次 <code>itemClick</code>：<strong>{{ lastClick }}</strong> —— 「已禁用层」带
       <code>disabled</code>，点了不派发事件；「缺 to 的层」照样可点， 因为组件不读
       <code>to</code>（它只是给调用方做路由跳转的数据）。
-    </p>
-  </div>
-
-  <div class="demo-block">
-    <h4 class="demo-label">分隔符 × 尺寸一览（点击载入到上方预览）</h4>
-    <DemoPresets :items="presets" @pick="applyPreset">
-      <template #default="{ item }">
-        <code style="font-size: 13px">{{ rowOf(item.key).separator }}</code>
-      </template>
-    </DemoPresets>
-    <p class="demo-hint" style="margin-top: 10px">
-      尺寸档位只改字号与内边距；点击热区由 <code>nm-touch-min</code> 兜底，小档在触屏上也保持 ≥44px
-      命中高度。
     </p>
   </div>
 </template>

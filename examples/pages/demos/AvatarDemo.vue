@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
-import { DemoPlayground, DemoField, DemoPresets, type DemoPreset } from '../../demo'
+import { DemoPlayground, DemoField } from '../../demo'
 
 type AvatarSize = 'small' | 'medium' | 'large'
 type AvatarShape = 'circle' | 'rounded'
@@ -62,57 +62,6 @@ function reset() {
   initials.value = 'JD'
   src.value = ''
   alt.value = '用户'
-}
-
-// ---- 尺寸 × 形状一览 ----
-interface PresetRow extends DemoPreset {
-  size: AvatarSize
-  shape: AvatarShape
-}
-
-const presetRows: PresetRow[] = [
-  { key: 'sm-circle', code: 'size="small"', size: 'small', shape: 'circle' },
-  { key: 'md-circle', code: 'size="medium"', size: 'medium', shape: 'circle' },
-  { key: 'lg-circle', code: 'size="large"', size: 'large', shape: 'circle' },
-  {
-    key: 'sm-rounded',
-    code: 'size="small" shape="rounded"',
-    size: 'small',
-    shape: 'rounded',
-  },
-  {
-    key: 'md-rounded',
-    code: 'size="medium" shape="rounded"',
-    size: 'medium',
-    shape: 'rounded',
-  },
-  {
-    key: 'lg-rounded',
-    code: 'size="large" shape="rounded"',
-    size: 'large',
-    shape: 'rounded',
-  },
-]
-
-const presets = computed<DemoPreset[]>(() =>
-  presetRows.map(row => ({
-    key: row.key,
-    code: row.code,
-    active: row.size === size.value && row.shape === shape.value,
-  }))
-)
-
-function applyPreset(key: string) {
-  const row = presetRows.find(r => r.key === key)
-  if (!row) return
-  size.value = row.size
-  shape.value = row.shape
-  // watch(size) 只在档位真的变化时拨滑块；同档换形状时手动同步一次
-  diameter.value = TIER_DIAMETER[row.size]
-}
-
-function rowOf(key: string) {
-  return presetRows.find(r => r.key === key)!
 }
 
 // ---- 实时代码片段 ----
@@ -204,25 +153,6 @@ const snippet = computed(() => {
       </template>
     </DemoPlayground>
   </div>
-
-  <div class="demo-block">
-    <h4 class="demo-label">尺寸 × 形状一览（点击载入到上方预览）</h4>
-    <DemoPresets :items="presets" @pick="applyPreset">
-      <template #default="{ item }">
-        <NeumorphismAvatar
-          initials="JD"
-          :size="rowOf(item.key).size"
-          :shape="rowOf(item.key).shape"
-        />
-      </template>
-    </DemoPresets>
-    <p class="demo-hint" style="margin-top: 10px">
-      三档直径来自
-      <code>--nm-avatar-size-sm/md/lg</code>（32 / 44 / 64px）——想要别的直径，覆盖对应 token
-      即可，配置台上的滑块就是这么调出来的。
-    </p>
-  </div>
-
   <div class="demo-block">
     <h4 class="demo-label">图片模式（加载失败时回退）</h4>
     <div class="demo-row">

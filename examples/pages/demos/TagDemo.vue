@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { DemoPlayground, DemoField, DemoPresets, type DemoPreset } from '../../demo'
+import { DemoPlayground, DemoField } from '../../demo'
 
 type TagVariant = 'default' | 'primary' | 'success' | 'warning' | 'error' | 'info'
 
@@ -55,41 +55,6 @@ function reset() {
   rounded.value = false
   fontSize.value = 12
   tagVisible.value = true
-}
-
-// ---- 颜色变体一览 ----
-interface PresetRow extends DemoPreset {
-  variant: TagVariant
-  label: string
-}
-
-const presetRows: PresetRow[] = [
-  { key: 'default', code: '（默认）', variant: 'default', label: '默认' },
-  { key: 'primary', code: 'variant="primary"', variant: 'primary', label: '主要' },
-  { key: 'success', code: 'variant="success"', variant: 'success', label: '成功' },
-  { key: 'warning', code: 'variant="warning"', variant: 'warning', label: '警告' },
-  { key: 'error', code: 'variant="error"', variant: 'error', label: '错误' },
-  { key: 'info', code: 'variant="info"', variant: 'info', label: '信息' },
-]
-
-const presets = computed<DemoPreset[]>(() =>
-  presetRows.map(row => ({
-    key: row.key,
-    code: row.code,
-    active: row.variant === variant.value,
-  }))
-)
-
-function applyPreset(key: string) {
-  const row = presetRows.find(r => r.key === key)
-  if (!row) return
-  variant.value = row.variant
-  // 在变体矩阵里点一格，多半是想看这个颜色——顺手把被关掉的标签放回来
-  tagVisible.value = true
-}
-
-function rowOf(key: string) {
-  return presetRows.find(r => r.key === key)!
 }
 
 // ---- 实时代码片段 ----
@@ -178,22 +143,6 @@ const snippet = computed(() => {
       </template>
     </DemoPlayground>
   </div>
-
-  <div class="demo-block">
-    <h4 class="demo-label">颜色变体一览（点击载入到上方预览）</h4>
-    <DemoPresets :items="presets" @pick="applyPreset">
-      <template #default="{ item }">
-        <NeumorphismTag :variant="rowOf(item.key).variant" :rounded="rounded">
-          {{ rowOf(item.key).label }}
-        </NeumorphismTag>
-      </template>
-    </DemoPresets>
-    <p class="demo-hint" style="margin-top: 10px">
-      6 个 <code>variant</code> 只换色调（<code>--tag-color</code>），尺寸、阴影、交互完全一致；
-      <code>default</code> 就是「不传 variant」时的中性色。
-    </p>
-  </div>
-
   <div class="demo-block">
     <h4 class="demo-label">可关闭与尺寸（字号可调）</h4>
     <div class="demo-row demo-row--stacked" style="gap: 12px">

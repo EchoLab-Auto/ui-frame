@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, reactive, computed } from 'vue'
-import { DemoPlayground, DemoField, DemoPresets, type DemoStage, type DemoPreset } from '../../demo'
+import { DemoPlayground, DemoField, type DemoStage } from '../../demo'
 
 type TabsPosition = 'top' | 'left'
 type TabsSize = 'small' | 'medium' | 'large'
@@ -95,68 +95,10 @@ const sizeActive = reactive<Record<TabsSize, string>>({
 })
 const sideActive = reactive<Record<TabsPosition, string>>({ top: 'tab1', left: 'tab1' })
 
-// ---- 变体一览 ----
-interface TabsPresetRow extends DemoPreset {
-  position: TabsPosition
-  size: TabsSize
-  label: string
-}
-
-const presetRows: TabsPresetRow[] = [
-  {
-    key: 'top-small',
-    code: 'position="top" size="small"',
-    position: 'top',
-    size: 'small',
-    label: '顶栏 · 小',
-  },
-  {
-    key: 'top-medium',
-    code: 'position="top"',
-    position: 'top',
-    size: 'medium',
-    label: '顶栏 · 中',
-  },
-  {
-    key: 'top-large',
-    code: 'position="top" size="large"',
-    position: 'top',
-    size: 'large',
-    label: '顶栏 · 大',
-  },
-  {
-    key: 'left-medium',
-    code: 'position="left"',
-    position: 'left',
-    size: 'medium',
-    label: '左侧 · 中',
-  },
-  {
-    key: 'left-large',
-    code: 'position="left" size="large"',
-    position: 'left',
-    size: 'large',
-    label: '左侧 · 大',
-  },
-]
-
-const presets = computed<DemoPreset[]>(() =>
-  presetRows.map(row => ({
-    key: row.key,
-    code: row.code,
-    active: row.position === position.value && row.size === size.value,
-  }))
-)
-
-function applyPreset(key: string) {
-  const row = presetRows.find(item => item.key === key)
-  if (!row) return
-  position.value = row.position
-  size.value = row.size
-}
-
-function rowOf(key: string) {
-  return presetRows.find(item => item.key === key)!
+/** 恢复默认：配置台「恢复默认」按钮直接调它 */
+function reset(): void {
+  position.value = 'top'
+  size.value = 'medium'
 }
 
 // ---- 实时代码片段 ----
@@ -219,7 +161,7 @@ const snippet = computed(() => {
         </DemoField>
 
         <DemoField label="操作">
-          <NeumorphismButton variant="raised" size="small" @click="applyPreset('top-medium')">
+          <NeumorphismButton variant="raised" size="small" @click="reset()">
             恢复默认
           </NeumorphismButton>
         </DemoField>
@@ -265,14 +207,5 @@ const snippet = computed(() => {
       <code>left</code> 对称）；左侧/右侧时 <code>aria-orientation</code> 变为
       <code>vertical</code>，方向键也随之换成 ↑/↓。
     </p>
-  </div>
-
-  <div class="demo-block">
-    <h4 class="demo-label">位置 × 尺寸一览（点击载入到上方预览）</h4>
-    <DemoPresets :items="presets" @pick="applyPreset">
-      <template #default="{ item }">
-        <span style="font-size: 12px">{{ rowOf(item.key).label }}</span>
-      </template>
-    </DemoPresets>
   </div>
 </template>

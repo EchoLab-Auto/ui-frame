@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { DemoPlayground, DemoField, DemoPresets, type DemoPreset } from '../../demo'
+import { DemoPlayground, DemoField } from '../../demo'
 
 type LogoMode = 'pulse' | 'liquid' | 'wave' | 'pointer'
 
@@ -21,23 +21,6 @@ const logoModeOptions: { label: string; value: LogoMode }[] = [
 const logoModeLabel = computed(
   () => logoModeOptions.find(option => option.value === logoMode.value)?.label ?? '脉冲传导'
 )
-
-function modeOf(key: string): LogoMode {
-  return logoModeOptions.find(option => option.value === key)?.value ?? 'pulse'
-}
-
-// ---- 模式一览：四格各跑一种动画，点击载入到上方配置台 ----
-const logoPresets = computed<DemoPreset[]>(() =>
-  logoModeOptions.map(option => ({
-    key: option.value,
-    code: `mode="${option.value}"`,
-    active: logoMode.value === option.value,
-  }))
-)
-
-function applyLogoPreset(key: string) {
-  logoMode.value = modeOf(key)
-}
 
 // ---- 实时代码片段 ----
 const snippet = computed(() => {
@@ -125,34 +108,5 @@ const snippet = computed(() => {
         </DemoField>
       </template>
     </DemoPlayground>
-  </div>
-
-  <div class="demo-block">
-    <h4 class="demo-label">模式切换（与配置台同一份状态）</h4>
-    <div class="demo-row" style="gap: 10px; flex-wrap: wrap">
-      <NeumorphismButton
-        v-for="opt in logoModeOptions"
-        :key="opt.value"
-        size="small"
-        :variant="logoMode === opt.value ? 'pressed' : 'raised'"
-        @click="logoMode = opt.value"
-      >
-        {{ opt.label }}
-      </NeumorphismButton>
-    </div>
-
-    <h4 class="demo-label" style="margin-top: 18px">四种模式一览（点击载入到上方预览）</h4>
-    <DemoPresets :items="logoPresets" @pick="applyLogoPreset">
-      <template #default="{ item }">
-        <NeumorphismLogo :mode="modeOf(item.key)" :width="88" :goo="logoGoo" :floating="false" />
-      </template>
-    </DemoPresets>
-
-    <p class="demo-hint" style="margin-top: 10px">
-      当前模式：<strong>{{ logoModeLabel }}</strong
-      >。动画全部由 <code>usePixelLogoAnimation</code> 在 <code>requestAnimationFrame</code> 里驱动
-      ——组件本身不持有时序状态，切模式只换参数曲线；系统打开
-      <code>prefers-reduced-motion</code> 时动画幅度会被压到接近静态。
-    </p>
   </div>
 </template>

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { DemoPlayground, DemoField, DemoPresets, type DemoPreset } from '../../demo'
+import { DemoPlayground, DemoField } from '../../demo'
 
 type InputSize = 'small' | 'medium' | 'large'
 
@@ -71,92 +71,6 @@ function pickSize(next: string | number) {
   size.value = next as InputSize
   // 三档基准高度不同（36 / 48 / 60），沿用旧高度会让新档位的字号被算到离谱的缩放比
   height.value = TIER_FIELD[size.value].height
-}
-
-// ---- 状态一览 ----
-interface InputConfig {
-  size: InputSize
-  label: string
-  error: boolean
-  disabled: boolean
-  readonly: boolean
-  affix: boolean
-}
-
-function cfg(patch: Partial<InputConfig>): InputConfig {
-  return {
-    size: 'medium',
-    label: '',
-    error: false,
-    disabled: false,
-    readonly: false,
-    affix: false,
-    ...patch,
-  }
-}
-
-const presetRows: { key: string; code: string; config: InputConfig }[] = [
-  { key: 'small', code: 'size="small"', config: cfg({ size: 'small' }) },
-  { key: 'medium', code: 'size="medium"', config: cfg({}) },
-  { key: 'large', code: 'size="large"', config: cfg({ size: 'large' }) },
-  { key: 'label', code: 'label="用户名"', config: cfg({ label: '用户名' }) },
-  { key: 'affix', code: '#prefix / #suffix', config: cfg({ affix: true }) },
-  { key: 'error', code: 'error="…"', config: cfg({ error: true }) },
-  { key: 'disabled', code: 'disabled', config: cfg({ disabled: true }) },
-  { key: 'readonly', code: 'readonly', config: cfg({ readonly: true }) },
-]
-
-const current = computed<InputConfig>(() => ({
-  size: size.value,
-  label: label.value,
-  error: errorOn.value,
-  disabled: disabled.value,
-  readonly: readonly.value,
-  affix: affix.value,
-}))
-
-const presets = computed<DemoPreset[]>(() =>
-  presetRows.map(row => {
-    const target = row.config
-    const now = current.value
-    const active =
-      target.size === now.size &&
-      target.label === now.label &&
-      target.error === now.error &&
-      target.disabled === now.disabled &&
-      target.readonly === now.readonly &&
-      target.affix === now.affix
-    return { key: row.key, code: row.code, active }
-  })
-)
-
-function rowOf(key: string) {
-  return presetRows.find(row => row.key === key)!
-}
-
-function applyPreset(key: string) {
-  const next = rowOf(key).config
-  size.value = next.size
-  height.value = TIER_FIELD[next.size].height
-  label.value = next.label
-  errorOn.value = next.error
-  disabled.value = next.disabled
-  readonly.value = next.readonly
-  affix.value = next.affix
-}
-
-/** 格子里的真实输入框：v-bind 一份组件 prop（只读格给点内容，否则看不出只读态） */
-function cellProps(key: string) {
-  const c = rowOf(key).config
-  return {
-    modelValue: c.readonly ? '只读内容' : '',
-    size: c.size,
-    label: c.label,
-    error: c.error ? errorText.value || true : false,
-    disabled: c.disabled,
-    readonly: c.readonly,
-    placeholder: '输入内容',
-  }
 }
 
 function reset() {
@@ -381,28 +295,6 @@ const snippet = computed(() => {
       <code>--nm-field-padding-y-*</code>、<code>--nm-field-padding-x-*</code>、
       <code>--nm-field-font-*</code
       >。全局改某一档就覆写这组变量，单点改一个输入框就用上方配置台那种内联写法——两者走的是同一条路径。
-    </p>
-  </div>
-
-  <div class="demo-block">
-    <h4 class="demo-label">状态一览（点击载入到上方预览）</h4>
-    <DemoPresets :items="presets" @pick="applyPreset">
-      <template #default="{ item }">
-        <!-- 格子本身是 button，内嵌输入框只作展示：吃掉指针事件，否则点一下既载入预设又抢了焦点 -->
-        <NeumorphismInput v-bind="cellProps(item.key)" style="pointer-events: none">
-          <template v-if="rowOf(item.key).config.affix" #prefix>
-            <NeumorphismIcon name="search" />
-          </template>
-          <template v-if="rowOf(item.key).config.affix" #suffix>
-            <NeumorphismIcon name="check" />
-          </template>
-        </NeumorphismInput>
-      </template>
-    </DemoPresets>
-    <p class="demo-hint" style="margin-top: 10px">
-      <code>readonly</code> 与
-      <code>disabled</code> 的区别在视觉上很轻：前者保留正常底色，后者降透明度。所以业务里不要用
-      <code>disabled</code> 表达「暂不可改但需要复制」——那正是 <code>readonly</code> 的场景。
     </p>
   </div>
 </template>

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { DemoPlayground, DemoField, DemoPresets, type DemoPreset } from '../../demo'
+import { DemoPlayground, DemoField } from '../../demo'
 
 type CheckboxSize = 'small' | 'medium' | 'large'
 
@@ -43,75 +43,6 @@ function pickBoxSize(value: number) {
   // 桥接只命中 medium 档：不把档位钉回 medium 的话，small / large 下拖动滑块
   // 会出现「读数变了、预览没变」的静默失效，比直接改档位更容易让人困惑
   if (size.value !== 'medium') size.value = 'medium'
-}
-
-// ---- 变体一览 ----
-interface CheckboxConfig {
-  checked: boolean
-  size: CheckboxSize
-  indeterminate: boolean
-  disabled: boolean
-}
-
-function cfg(patch: Partial<CheckboxConfig>): CheckboxConfig {
-  return { checked: false, size: 'medium', indeterminate: false, disabled: false, ...patch }
-}
-
-const presetRows: { key: string; code: string; config: CheckboxConfig }[] = [
-  { key: 'unchecked', code: ':model-value="false"', config: cfg({}) },
-  { key: 'checked', code: ':model-value="true"', config: cfg({ checked: true }) },
-  {
-    key: 'indeterminate',
-    code: ':indeterminate="true"',
-    config: cfg({ checked: true, indeterminate: true }),
-  },
-  { key: 'small', code: 'size="small"', config: cfg({ checked: true, size: 'small' }) },
-  { key: 'large', code: 'size="large"', config: cfg({ checked: true, size: 'large' }) },
-  { key: 'disabled', code: 'disabled', config: cfg({ checked: true, disabled: true }) },
-]
-
-const current = computed<CheckboxConfig>(() => ({
-  checked: checked.value,
-  size: size.value,
-  indeterminate: indeterminate.value,
-  disabled: disabled.value,
-}))
-
-const presets = computed<DemoPreset[]>(() =>
-  presetRows.map(row => {
-    const c = row.config
-    const active =
-      c.checked === current.value.checked &&
-      c.size === current.value.size &&
-      c.indeterminate === current.value.indeterminate &&
-      c.disabled === current.value.disabled
-    return { key: row.key, code: row.code, active }
-  })
-)
-
-function rowOf(key: string) {
-  return presetRows.find(row => row.key === key)!
-}
-
-function applyPreset(key: string) {
-  const next = rowOf(key).config
-  checked.value = next.checked
-  size.value = next.size
-  indeterminate.value = next.indeterminate
-  disabled.value = next.disabled
-  boxSize.value = TIER_BOX[next.size]
-}
-
-/** 格子里的真实复选框：v-bind 一份组件 prop（文案固定成短名，格子窄） */
-function cellProps(key: string) {
-  const c = rowOf(key).config
-  return {
-    modelValue: c.checked,
-    size: c.size,
-    indeterminate: c.indeterminate,
-    disabled: c.disabled,
-    label: '复选',
-  }
 }
 
 function reset() {
@@ -301,20 +232,6 @@ const snippet = computed(() => {
       已选：<strong>{{ picked.length ? picked.join(' / ') : '（空）' }}</strong
       >。父级的三态由子级推导：全选 → <code>modelValue=true</code>，部分选中 →
       <code>indeterminate=true</code>，全不选 → <code>false</code>。
-    </p>
-  </div>
-
-  <div class="demo-block">
-    <h4 class="demo-label">状态一览（点击载入到上方预览）</h4>
-    <DemoPresets :items="presets" @pick="applyPreset">
-      <template #default="{ item }">
-        <!-- 格子本身是 button，内嵌复选框只作展示：吃掉指针事件，否则点一下既载入预设又勾选了一次 -->
-        <NeumorphismCheckbox v-bind="cellProps(item.key)" style="pointer-events: none" />
-      </template>
-    </DemoPresets>
-    <p class="demo-hint" style="margin-top: 10px">
-      三档指示器边长固定（18 / 24 / 30px），勾选图标随之取 12 / 14 / 16px
-      的图标档——尺寸变的是指示器，行高与文案字号保持不变，所以混排时基线依然对齐。
     </p>
   </div>
 </template>

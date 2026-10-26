@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { DemoPlayground, DemoField, DemoPresets, type DemoPreset } from '../../demo'
+import { DemoPlayground, DemoField } from '../../demo'
 
 const ROWS_MIN = 2
 const ROWS_MAX = 10
@@ -32,91 +32,6 @@ function setShowCount(on: boolean) {
   // 组件里计数块是 `v-if="showCount && maxlength"`：没有上限时开关打开也看不到任何东西，
   // 所以顺手补一个 200 字上限，让这个开关点下去立刻有反馈
   if (on && !maxlength.value) maxlength.value = 200
-}
-
-// ---- 状态一览 ----
-interface TextareaConfig {
-  rows: number
-  maxlength: number
-  showCount: boolean
-  autoResize: boolean
-  disabled: boolean
-}
-
-function cfg(patch: Partial<TextareaConfig>): TextareaConfig {
-  return {
-    rows: DEFAULT_ROWS,
-    maxlength: 0,
-    showCount: false,
-    autoResize: false,
-    disabled: false,
-    ...patch,
-  }
-}
-
-const presetRows: { key: string; code: string; config: TextareaConfig }[] = [
-  { key: 'default', code: '默认（4 行）', config: cfg({}) },
-  {
-    key: 'count',
-    code: ':maxlength="200" show-count',
-    config: cfg({ maxlength: 200, showCount: true }),
-  },
-  { key: 'auto', code: 'auto-resize', config: cfg({ autoResize: true }) },
-  {
-    key: 'auto-count',
-    code: 'auto-resize + show-count',
-    config: cfg({ maxlength: 200, showCount: true, autoResize: true }),
-  },
-  { key: 'disabled', code: 'disabled', config: cfg({ disabled: true, rows: 3 }) },
-]
-
-const current = computed<TextareaConfig>(() => ({
-  rows: rows.value,
-  maxlength: maxlength.value,
-  showCount: showCount.value,
-  autoResize: autoResize.value,
-  disabled: disabled.value,
-}))
-
-const presets = computed<DemoPreset[]>(() =>
-  presetRows.map(row => {
-    const target = row.config
-    const now = current.value
-    const active =
-      target.rows === now.rows &&
-      target.maxlength === now.maxlength &&
-      target.showCount === now.showCount &&
-      target.autoResize === now.autoResize &&
-      target.disabled === now.disabled
-    return { key: row.key, code: row.code, active }
-  })
-)
-
-function rowOf(key: string) {
-  return presetRows.find(row => row.key === key)!
-}
-
-function applyPreset(key: string) {
-  const next = rowOf(key).config
-  rows.value = next.rows
-  maxlength.value = next.maxlength
-  showCount.value = next.showCount
-  autoResize.value = next.autoResize
-  disabled.value = next.disabled
-}
-
-/** 格子里的真实文本域：v-bind 一份组件 prop（标签与占位是内容不是配置，格子里统一简化） */
-function cellProps(key: string) {
-  const c = rowOf(key).config
-  return {
-    modelValue: '',
-    rows: c.rows,
-    maxlength: c.maxlength || undefined,
-    showCount: c.showCount,
-    autoResize: c.autoResize,
-    disabled: c.disabled,
-    placeholder: '文本域',
-  }
 }
 
 function reset() {
@@ -292,22 +207,6 @@ ${note.join('\n')}`.trimEnd()
     <p class="demo-hint">
       与 Input 一致：<code>error</code> 只换配色与提示语（仍可输入），<code>disabled</code>
       不可聚焦、不进表单，<code>readonly</code> 可选中复制但不接受修改。
-    </p>
-  </div>
-
-  <div class="demo-block">
-    <h4 class="demo-label">状态一览（点击载入到上方预览）</h4>
-    <DemoPresets :items="presets" @pick="applyPreset">
-      <template #default="{ item }">
-        <!-- 格子本身是 button，内嵌文本域只作展示：吃掉指针事件，否则点一下既载入预设又抢了焦点 -->
-        <NeumorphismTextarea v-bind="cellProps(item.key)" style="pointer-events: none" />
-      </template>
-    </DemoPresets>
-    <p class="demo-hint" style="margin-top: 10px">
-      <code>rows</code> 与
-      <code>auto-resize</code>
-      不是互斥的：前者给一个初始高度，后者在内容变化时接管高度。纯展示场景固定
-      <code>rows</code> 更稳（不会因为滚动高度测量造成布局跳动）。
     </p>
   </div>
 </template>

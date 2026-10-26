@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, onBeforeUnmount } from 'vue'
-import { DemoPlayground, DemoField, DemoPresets, type DemoPreset } from '../../demo'
+import { DemoPlayground, DemoField } from '../../demo'
 
 type SelectVariant = 'default' | 'outlined'
 type SelectSize = 'small' | 'medium' | 'large'
@@ -108,55 +108,6 @@ onBeforeUnmount(() => {
  */
 const variantSingle = ref<string | number>('vue')
 const variantMulti = ref<(string | number)[]>(['vue', 'react'])
-
-// ---- 变体一览 ----
-interface PresetRow extends DemoPreset {
-  variant: SelectVariant
-  multiple: boolean
-}
-
-const presetRows: PresetRow[] = [
-  { key: 'default-single', code: 'variant="default"', variant: 'default', multiple: false },
-  {
-    key: 'default-multiple',
-    code: 'variant="default" multiple',
-    variant: 'default',
-    multiple: true,
-  },
-  { key: 'outlined-single', code: 'variant="outlined"', variant: 'outlined', multiple: false },
-  {
-    key: 'outlined-multiple',
-    code: 'variant="outlined" multiple',
-    variant: 'outlined',
-    multiple: true,
-  },
-]
-
-const presets = computed<DemoPreset[]>(() =>
-  presetRows.map(row => ({
-    key: row.key,
-    code: row.code,
-    active: row.variant === variant.value && row.multiple === multiple.value,
-  }))
-)
-
-function applyPreset(key: string) {
-  const row = presetRows.find(item => item.key === key)
-  if (!row) return
-  variant.value = row.variant
-  multiple.value = row.multiple
-  // 多选格载入时顺手打开折叠，让格子与预览的标签排布一致
-  collapseTags.value = row.multiple
-}
-
-function rowOf(key: string) {
-  return presetRows.find(item => item.key === key)!
-}
-
-/** 格子里静态展示的选中值：多选给 3 项，配合 maxCollapseTags=1 才看得到 +N */
-function presetSample(row: PresetRow): SelectValue {
-  return row.multiple ? ['vue', 'react', 'angular'] : 'vue'
-}
 
 function reset() {
   variant.value = 'default'
@@ -482,31 +433,6 @@ const snippet = computed(() => {
     </div>
     <p class="demo-hint">
       描边色、发光、圆角等均由 <code>--nm-select-outlined-*</code> Token 控制，亮/暗主题均可覆盖。
-    </p>
-  </div>
-
-  <div class="demo-block">
-    <h4 class="demo-label">变体一览（点击载入到上方配置台）</h4>
-    <DemoPresets :items="presets" @pick="applyPreset">
-      <template #default="{ item }">
-        <!-- 格子里只做外观对照：指针事件下沉到外层按钮，避免在下拉里误选 -->
-        <div style="width: 100%; pointer-events: none">
-          <NeumorphismSelect
-            :model-value="presetSample(rowOf(item.key))"
-            :options="selectOptions"
-            :variant="rowOf(item.key).variant"
-            :multiple="rowOf(item.key).multiple"
-            collapse-tags
-            :max-collapse-tags="1"
-            size="small"
-          />
-        </div>
-      </template>
-    </DemoPresets>
-    <p class="demo-hint" style="margin-top: 10px">
-      承载在 <code>NeumorphismCard</code> 里时，<code>outlined</code> 会以负 margin
-      抵消自身长高，所以卡片需要允许溢出（本页已在 <code>#select</code> 上放开
-      <code>overflow</code>）。
     </p>
   </div>
 </template>

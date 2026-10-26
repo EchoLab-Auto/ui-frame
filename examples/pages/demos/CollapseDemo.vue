@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { DemoPlayground, DemoField, DemoPresets, type DemoPreset } from '../../demo'
+import { DemoPlayground, DemoField } from '../../demo'
 
 type CollapseKey = 'item1' | 'item2'
 
@@ -75,69 +75,11 @@ function toggleAll() {
 const compareAccordion = ref<string[]>(['item1'])
 const plainAccordion = ref<string[]>(['item1', 'item2'])
 
-// ---- 变体一览 ----
-interface CollapsePresetRow extends DemoPreset {
-  accordion: boolean
-  disabled: boolean
-  label: string
-}
-
-/** 预设格子里的两条短标题：只求「看得出 accordion 与多开的差别」，不要长文案 */
-const cellItems = [
-  { key: 'a', title: '标题 A' },
-  { key: 'b', title: '标题 B' },
-]
-
-const presetRows: CollapsePresetRow[] = [
-  {
-    key: 'default',
-    code: 'v-model="active"',
-    accordion: false,
-    disabled: false,
-    label: '多开 · 全部可用',
-  },
-  {
-    key: 'accordion',
-    code: 'accordion',
-    accordion: true,
-    disabled: false,
-    label: '手风琴 · 全部可用',
-  },
-  {
-    key: 'disabled',
-    code: ':items="[{ …, disabled: true }]"',
-    accordion: false,
-    disabled: true,
-    label: '多开 · 第三项禁用',
-  },
-  {
-    key: 'accordion-disabled',
-    code: 'accordion + disabled',
-    accordion: true,
-    disabled: true,
-    label: '手风琴 · 第三项禁用',
-  },
-]
-
-const presets = computed<DemoPreset[]>(() =>
-  presetRows.map(row => ({
-    key: row.key,
-    code: row.code,
-    active: row.accordion === accordion.value && row.disabled === disableThird.value,
-  }))
-)
-
-function applyPreset(key: string) {
-  const row = presetRows.find(item => item.key === key)
-  if (!row) return
-  // 先改开关（会顺手压平展开项），再补上第一项展开，保证预览里看得见内容
-  accordionModel.value = row.accordion
-  disableThird.value = row.disabled
+/** 恢复默认：配置台「恢复默认」按钮直接调它 */
+function reset(): void {
+  accordionModel.value = false
+  disableThird.value = true
   active.value = ['item1']
-}
-
-function rowOf(key: string) {
-  return presetRows.find(item => item.key === key)!
 }
 
 // ---- 实时代码片段 ----
@@ -230,7 +172,7 @@ const snippet = computed(() => {
         </DemoField>
 
         <DemoField label="操作">
-          <NeumorphismButton variant="raised" size="small" @click="applyPreset('default')">
+          <NeumorphismButton variant="raised" size="small" @click="reset()">
             恢复默认
           </NeumorphismButton>
         </DemoField>
@@ -270,25 +212,5 @@ const snippet = computed(() => {
         </NeumorphismCollapse>
       </div>
     </div>
-  </div>
-
-  <div class="demo-block">
-    <h4 class="demo-label">配置组合一览（点击载入到上方预览）</h4>
-    <DemoPresets :items="presets" @pick="applyPreset">
-      <template #default="{ item }">
-        <!-- 格子里放真的折叠面板：accordion 与多开的差别只有「能不能同时展开两项」，
-             写成文字标签看不出来，摆两个短标题才是一眼可辨的对比 -->
-        <NeumorphismCollapse
-          :items="cellItems"
-          :model-value="['a', 'b']"
-          :accordion="rowOf(item.key).accordion"
-        />
-      </template>
-    </DemoPresets>
-    <p class="demo-hint" style="margin-top: 10px">
-      内容通过具名插槽 <code>#item1</code> / <code>#item2</code> /
-      <code>#item3</code> 注入，插槽名就是 item 的 <code>key</code>；表头文案要自定义时用
-      <code>#header-item1</code>。
-    </p>
   </div>
 </template>

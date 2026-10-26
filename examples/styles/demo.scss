@@ -272,62 +272,6 @@
 }
 
 // ==========================================
-// 变体一览（DemoPresets）
-// ==========================================
-
-.demo-presets {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: var(--nm-spacing-sm);
-}
-
-.demo-presets__cell {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--nm-spacing-xs);
-  padding: var(--nm-spacing-sm) var(--nm-spacing-xs);
-  border: 1px solid transparent;
-  border-radius: var(--nm-border-radius-md);
-  background: transparent;
-  cursor: pointer;
-  transition:
-    border-color var(--nm-transition-fast),
-    background-color var(--nm-transition-fast);
-
-  &:hover {
-    background-color: var(--nm-surface-raised);
-  }
-
-  &:focus-visible {
-    outline: 2px solid var(--nm-primary-color);
-    outline-offset: 2px;
-  }
-
-  // 选中态：主色描边 + 淡主色底，一眼看出当前配置对应哪一格
-  &--active {
-    border-color: var(--nm-primary-color);
-    background-color: color-mix(in srgb, var(--nm-primary-color) 10%, transparent);
-
-    // 格子里的预览内容：只承载视觉，交互交给外层格子（配合模板上的 inert）
-    .demo-presets__preview {
-      display: contents;
-    }
-
-    .demo-presets__code {
-      color: var(--nm-primary-color);
-    }
-  }
-}
-
-.demo-presets__code {
-  font-size: 10px;
-  color: var(--nm-text-placeholder);
-  text-align: center;
-  word-break: break-all;
-}
-
-// ==========================================
 // 尺寸调参演示 — 数字滑动条直调真实渲染尺寸
 // ==========================================
 // 原生支持数值尺寸的组件（开关 size=px 高度 / 输入框、按钮、头像、进度条走 Token）

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { DemoPlayground, DemoField, DemoPresets, type DemoPreset } from '../../demo'
+import { DemoPlayground, DemoField } from '../../demo'
 import artImage from '../../assets/images.jpeg'
 
 /**
@@ -48,25 +48,6 @@ const asciiPaletteOptions: { label: string; value: AsciiPaletteName }[] = [
 
 /** 配置台的 96px 标签栏——参数名偏长（含 prop 名）时统一到这一档 */
 const labelWidth = '96px'
-
-// ---- 圆角档位一览 ----
-const radiusPresets = computed<DemoPreset[]>(() =>
-  asciiRadiusOptions.map(option => ({
-    key: option.value,
-    code: `radius="${option.value}"`,
-    active: option.value === asciiRadius.value,
-  }))
-)
-
-function applyRadiusPreset(key: string) {
-  const option = asciiRadiusOptions.find(item => item.value === key)
-  if (option) asciiRadius.value = option.value
-}
-
-/** 矩阵回传裸 string，收回成圆角档位联合类型，模板里就不用写断言 */
-function radiusOf(key: string): AsciiRadius {
-  return asciiRadiusOptions.find(item => item.value === key)?.value ?? 'large'
-}
 
 // ---- 实时代码片段 ----
 const snippet = computed(() => {
@@ -216,26 +197,5 @@ const snippet = computed(() => {
         </p>
       </div>
     </div>
-  </div>
-
-  <div class="demo-block">
-    <h4 class="demo-label">圆角档位一览（点击载入到上方配置台）</h4>
-    <DemoPresets :items="radiusPresets" @pick="applyRadiusPreset">
-      <template #default="{ item }">
-        <!-- 缩略图静态化（speed=0 冻结呼吸），矩阵只负责展示圆角差异 -->
-        <NeumorphismAsciiArt
-          :src="artImage"
-          :density="0.6"
-          :speed="0"
-          :radius="radiusOf(item.key)"
-          :height="80"
-          :aria-label="`圆角 ${item.key} 示例`"
-        />
-      </template>
-    </DemoPresets>
-    <p class="demo-hint" style="margin-top: 10px">
-      圆角加在容器上（<code>none</code>
-      即直角），画布本身是方的：贴着圆角边缘的字符会被容器裁掉，所以直角档的字符最完整、特大档四角会「吃掉」几个字符——这是预期内的取景效果，不是渲染瑕疵。
-    </p>
   </div>
 </template>

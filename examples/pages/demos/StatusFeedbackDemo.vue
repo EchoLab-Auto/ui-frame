@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
-import { DemoPlayground, DemoField, DemoPresets, type DemoPreset } from '../../demo'
+import { DemoPlayground, DemoField } from '../../demo'
 
 // 状态点的四种枚举值，与 StatusDot 的 StatusDotStatus 一一对应
 type StatusDotStatus = 'online' | 'offline' | 'busy' | 'connecting'
@@ -19,7 +19,7 @@ const dotStatusOptions: { label: string; value: StatusDotStatus }[] = [
   { label: '连接中', value: 'connecting' },
 ]
 
-/** 中文状态名：预览标签、变体一览两处共用（StatusDot 自身的 aria-label 走 locale） */
+/** 中文状态名：预览读数与配置台共用（StatusDot 自身的 aria-label 走 locale） */
 const statusText: Record<string, string> = {
   online: '在线',
   offline: '离线',
@@ -81,26 +81,6 @@ const navSegmentedOptions = [
   { label: '月', value: 'month' },
   { label: '自定义（未开放）', value: 'custom', disabled: true },
 ]
-
-// ---- 变体一览：StatusDot 的四种状态 ----
-const statusRows = dotStatusOptions.map(option => ({
-  key: option.value,
-  status: option.value,
-  code: `status="${option.value}"`,
-}))
-
-const statusPresets = computed<DemoPreset[]>(() =>
-  statusRows.map(row => ({
-    key: row.key,
-    code: row.code,
-    active: row.status === dotStatus.value,
-  }))
-)
-
-function pickStatus(key: string) {
-  const row = statusRows.find(item => item.key === key)
-  if (row) dotStatus.value = row.status
-}
 
 function reset() {
   dotStatus.value = 'online'
@@ -186,24 +166,6 @@ const snippet = computed(() => {
       </template>
     </DemoPlayground>
   </div>
-
-  <div class="demo-block">
-    <h4 class="demo-label">StatusDot 四种状态（点击载入到上方配置台）</h4>
-    <DemoPresets :items="statusPresets" @pick="pickStatus">
-      <template #default="{ item }">
-        <span style="display: inline-flex; align-items: center; gap: 6px">
-          <NeumorphismStatusDot :status="statusRows.find(row => row.key === item.key)?.status" />
-          <span style="font-size: 13px">{{ statusText[item.key] }}</span>
-        </span>
-      </template>
-    </DemoPresets>
-    <p class="demo-hint">
-      状态点只是一个 10px 的凹陷圆点（<code>small 8 / medium 10 / large 12</code>），颜色靠
-      <code>nm-status-dot--*</code> 的修饰类切换；旁边的文字要自己写，组件只负责
-      <code>role="status"</code> 与 locale 化的 <code>aria-label</code>。
-    </p>
-  </div>
-
   <div class="demo-block">
     <h4 class="demo-label">Spinner 三档尺寸（14 / 20 / 28）</h4>
     <div class="demo-row" style="gap: 32px; align-items: flex-end">

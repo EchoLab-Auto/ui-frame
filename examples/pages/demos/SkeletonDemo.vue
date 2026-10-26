@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
-import { DemoPlayground, DemoField, DemoPresets, type DemoPreset } from '../../demo'
+import { DemoPlayground, DemoField } from '../../demo'
 
 type SkeletonVariant = 'text' | 'circle' | 'rect'
 type SkeletonAnimation = 'pulse' | 'wave' | 'none'
@@ -51,44 +51,6 @@ function reset() {
   height.value = 14
   rows.value = 3
   loading.value = true
-}
-
-// ---- 变体一览 ----
-interface PresetRow {
-  key: string
-  variant: SkeletonVariant
-  animation: SkeletonAnimation
-}
-
-const presetRows: PresetRow[] = (['text', 'circle', 'rect'] as const).flatMap(v =>
-  (['pulse', 'wave'] as const).map(a => ({ key: `${v}-${a}`, variant: v, animation: a }))
-)
-
-const presets = computed<DemoPreset[]>(() =>
-  presetRows.map(row => ({
-    key: row.key,
-    code: `variant="${row.variant}" animation="${row.animation}"`,
-    active: row.variant === variant.value && row.animation === animation.value,
-  }))
-)
-
-function applyPreset(key: string) {
-  const row = presetRows.find(r => r.key === key)
-  if (!row) return
-  // 先赋 animation 再赋 variant：variant 的 watch 会重置宽高，动作顺序不影响结果
-  animation.value = row.animation
-  variant.value = row.variant
-}
-
-function rowOf(key: string): PresetRow {
-  return presetRows.find(r => r.key === key)!
-}
-
-/** 格子里的预览尺寸：文本行取满格、圆形给 36px、矩形压在 44px 高 */
-function presetSize(row: PresetRow): { width: string; height: number } {
-  if (row.variant === 'circle') return { width: '36px', height: 36 }
-  if (row.variant === 'rect') return { width: '100%', height: 44 }
-  return { width: '100%', height: 14 }
 }
 
 // ---- 实时代码片段 ----
@@ -214,33 +176,5 @@ const snippet = computed(() => {
       <p><strong>内容已加载！</strong></p>
       <p style="color: var(--nm-text-secondary); font-size: 13px">此内容替代了上方的骨架屏占位。</p>
     </NeumorphismCard>
-  </div>
-
-  <div class="demo-block">
-    <h4 class="demo-label">形态 × 动画一览（点击载入到上方配置台）</h4>
-    <DemoPresets :items="presets" @pick="applyPreset">
-      <template #default="{ item }">
-        <!--
-          固定 56px 高的预览框：骨架屏本身会随形态变高（矩形 120px），
-          不锁高度的话六个格子的底边会参差不齐。
-        -->
-        <div
-          style="
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 100%;
-            height: 56px;
-          "
-        >
-          <NeumorphismSkeleton
-            :variant="rowOf(item.key).variant"
-            :animation="rowOf(item.key).animation"
-            :width="presetSize(rowOf(item.key)).width"
-            :height="presetSize(rowOf(item.key)).height"
-          />
-        </div>
-      </template>
-    </DemoPresets>
   </div>
 </template>

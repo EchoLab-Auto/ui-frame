@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
-import { DemoPlayground, DemoField, DemoPresets, type DemoPreset } from '../../demo'
+import { DemoPlayground, DemoField } from '../../demo'
 import { DocCodeBlock } from '../../../src/composites/doc'
 
 type CodeLang = 'ts' | 'bash' | 'json' | 'vue'
@@ -57,31 +57,6 @@ function reset() {
   codeLang.value = 'ts'
   codeShowLineNumbers.value = true
   codeContent.value = codeDemoTs
-}
-
-// ---- 语言一览：一格一段单行示例，点击载入到上方配置台 ----
-const codePresets = computed<DemoPreset[]>(() =>
-  (Object.keys(codeSamples) as CodeLang[]).map(lang => ({
-    key: lang,
-    code: `<DocCodeBlock lang="${lang}" />`,
-    active: codeLang.value === lang,
-  }))
-)
-
-function applyLangPreset(key: string) {
-  if (key in codeSamples) codeLang.value = key as CodeLang
-}
-
-/** 格子里用单行样例，免得四个代码块把卡片撑得比正文还长 */
-const presetSample: Record<CodeLang, string> = {
-  ts: 'const count = ref(0)',
-  bash: 'npm run build',
-  json: '{ "strict": true }',
-  vue: '<NeumorphismButton />',
-}
-
-function sampleOf(key: string): string {
-  return presetSample[key as CodeLang] ?? ''
 }
 
 // ---- 实时代码片段 ----
@@ -164,21 +139,6 @@ const snippet = computed(() => {
     <p class="demo-hint">
       右上角的复制按钮走 <code>useClipboard</code>，复制成功后按钮文案会切到「已复制」并在 1.5s
       后复位——一行 shell 命令不需要行号，关掉后左侧整块留白也跟着收掉。
-    </p>
-  </div>
-
-  <div class="demo-block">
-    <h4 class="demo-label">支持的语言一览（点击载入到上方配置台）</h4>
-    <DemoPresets :items="codePresets" @pick="applyLangPreset">
-      <template #default="{ item }">
-        <DocCodeBlock :code="sampleOf(item.key)" :lang="item.key" :show-line-numbers="false" />
-      </template>
-    </DemoPresets>
-    <p class="demo-hint" style="margin-top: 10px">
-      高亮由 <code>highlight.ts</code> 内置的分词器完成（零运行时依赖），只切出字符串 / 注释 /
-      关键字 / 函数名 / 数字 / 类型名六类
-      token，语言之间的差异只在注释风格上；需要更精细的语法请在上层换成 Shiki
-      之类的方案，本组件不绑定具体高亮实现。
     </p>
   </div>
 </template>

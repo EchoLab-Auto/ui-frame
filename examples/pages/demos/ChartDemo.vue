@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { DemoPlayground, DemoField, DemoPresets, type DemoPreset } from '../../demo'
+import { DemoPlayground, DemoField } from '../../demo'
 
 type BarOrientation = 'vertical' | 'horizontal'
 type LineCurve = 'linear' | 'smooth' | 'step'
@@ -55,50 +55,6 @@ function reset() {
   showGrid.value = true
   lineCurve.value = 'smooth'
   lineArea.value = true
-}
-
-// ---- 柱状图四象限：分组 / 堆叠 × 纵向 / 横向 ----
-interface BarPresetRow {
-  key: string
-  code: string
-  stacked: boolean
-  orientation: BarOrientation
-}
-
-const presetRows: BarPresetRow[] = [
-  { key: 'grouped-v', code: '分组', stacked: false, orientation: 'vertical' },
-  { key: 'stacked-v', code: 'stacked', stacked: true, orientation: 'vertical' },
-  {
-    key: 'grouped-h',
-    code: 'orientation="horizontal"',
-    stacked: false,
-    orientation: 'horizontal',
-  },
-  {
-    key: 'stacked-h',
-    code: 'stacked + horizontal',
-    stacked: true,
-    orientation: 'horizontal',
-  },
-]
-
-const presets = computed<DemoPreset[]>(() =>
-  presetRows.map(row => ({
-    key: row.key,
-    code: row.code,
-    active: row.stacked === stacked.value && row.orientation === orientation.value,
-  }))
-)
-
-function rowOf(key: string): BarPresetRow {
-  return presetRows.find(r => r.key === key)!
-}
-
-function applyPreset(key: string) {
-  const row = presetRows.find(r => r.key === key)
-  if (!row) return
-  stacked.value = row.stacked
-  orientation.value = row.orientation
 }
 
 // ---- 实时代码片段 ----
@@ -399,26 +355,5 @@ const chartStockData = [
       :ma-periods="maPeriods"
       height="420px"
     />
-  </div>
-
-  <div class="demo-block">
-    <h4 class="demo-label">柱状图四象限（点击载入到上方配置台）</h4>
-    <DemoPresets :items="presets" @pick="applyPreset">
-      <template #default="{ item }">
-        <div style="width: 100%">
-          <!-- 缩略图关掉图例/网格/坐标轴，只在 96px 高里保留柱体关系 -->
-          <NeumorphismChartBar
-            :series="chartBarData"
-            :stacked="rowOf(item.key).stacked"
-            :orientation="rowOf(item.key).orientation"
-            height="96px"
-            :show-legend="false"
-            :show-grid="false"
-            :show-axis="false"
-            :animate="false"
-          />
-        </div>
-      </template>
-    </DemoPresets>
   </div>
 </template>

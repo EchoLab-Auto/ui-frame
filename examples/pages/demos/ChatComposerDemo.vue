@@ -57,7 +57,7 @@ function reset() {
   composerStage.value = 'gradient'
 }
 
-// ---- 玻璃档位一览：同一段文字在四档材质下的样子 ----
+// ---- 四档玻璃并排：同一段文字在不同材质下的样子 ----
 const glassLadder: { key: string; label: string; glass: false | GlassLevel }[] = [
   { key: 'none', label: '关闭', glass: false },
   { key: 'float', label: '悬浮 float', glass: 'float' },

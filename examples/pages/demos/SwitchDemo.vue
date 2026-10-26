@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { DemoPlayground, DemoField, DemoPresets, type DemoPreset } from '../../demo'
+import { DemoPlayground, DemoField } from '../../demo'
 
 type SwitchVariant = 'default' | 'power'
 /** 通电色预设；'default' = 不传 activeColor，完全交给组件自身的 token */
@@ -9,8 +9,8 @@ type SwitchColor = 'default' | '#27ae60' | '#e74c3c' | '#3498db'
 /**
  * 一只开关的完整可调状态。
  *
- * 配置台、变体一览、实时代码片段共用这同一份形状：载入某一格 = 整份赋值，
- * 「当前配置是否等于该格」= 一次逐字段比较，不必再为每格写一遍字段映射。
+ * 配置台与实时代码片段共用这同一份形状：改任一处 = 整份赋值，
+ * 读数与片段都从它派生，不必为每个字段各写一遍映射。
  */
 interface SwitchConfig {
   checked: boolean
@@ -71,7 +71,6 @@ function pickVariant(value: string | number) {
   size.value = variant.value === 'power' ? SIZE_MAX : NATIVE_HEIGHT.default
 }
 
-// ---- 变体一览 ----
 /** 用补丁构造完整配置，避免每格都抄 7 个字段 */
 function cfg(patch: Partial<SwitchConfig>): SwitchConfig {
   return {
@@ -86,70 +85,6 @@ function cfg(patch: Partial<SwitchConfig>): SwitchConfig {
   }
 }
 
-const presetRows: { key: string; code: string; config: SwitchConfig }[] = [
-  { key: 'default-off', code: ':model-value="false"', config: cfg({}) },
-  { key: 'default-on', code: ':model-value="true"', config: cfg({ checked: true }) },
-  {
-    key: 'slim-18',
-    code: ':size="18"',
-    config: cfg({ size: SIZE_MIN, checked: true }),
-  },
-  {
-    key: 'default-label',
-    code: 'active-text/inactive-text',
-    config: cfg({ checked: true, activeText: '开', inactiveText: '关' }),
-  },
-  { key: 'power-off', code: 'variant="power"', config: cfg({ variant: 'power', size: SIZE_MAX }) },
-  {
-    key: 'power-on',
-    code: 'variant="power" + 开',
-    config: cfg({ variant: 'power', size: SIZE_MAX, checked: true }),
-  },
-  {
-    key: 'power-color',
-    code: 'active-color="#27ae60"',
-    config: cfg({ variant: 'power', size: SIZE_MAX, checked: true, activeColor: '#27ae60' }),
-  },
-  {
-    key: 'power-label',
-    code: 'active-text="通电"',
-    config: cfg({
-      variant: 'power',
-      size: SIZE_MAX,
-      checked: true,
-      activeText: '通电',
-      inactiveText: '断电',
-    }),
-  },
-  {
-    key: 'power-disabled',
-    code: 'disabled',
-    config: cfg({ variant: 'power', size: SIZE_MAX, checked: true, disabled: true }),
-  },
-]
-
-const current = computed<SwitchConfig>(() => ({
-  checked: checked.value,
-  variant: variant.value,
-  size: size.value,
-  activeText: activeText.value,
-  inactiveText: inactiveText.value,
-  activeColor: activeColor.value,
-  disabled: disabled.value,
-}))
-
-function sameConfig(a: SwitchConfig, b: SwitchConfig) {
-  return (Object.keys(a) as (keyof SwitchConfig)[]).every(key => a[key] === b[key])
-}
-
-const presets = computed<DemoPreset[]>(() =>
-  presetRows.map(row => ({
-    key: row.key,
-    code: row.code,
-    active: sameConfig(row.config, current.value),
-  }))
-)
-
 function applyConfig(next: SwitchConfig) {
   checked.value = next.checked
   variant.value = next.variant
@@ -158,28 +93,6 @@ function applyConfig(next: SwitchConfig) {
   inactiveText.value = next.inactiveText
   activeColor.value = next.activeColor
   disabled.value = next.disabled
-}
-
-function rowOf(key: string) {
-  return presetRows.find(row => row.key === key)!
-}
-
-/** 格子里的真实开关：v-bind 一份组件 prop（activeColor 的 'default' 同样要转 undefined） */
-function cellProps(key: string) {
-  const c = rowOf(key).config
-  return {
-    modelValue: c.checked,
-    variant: c.variant,
-    size: c.size,
-    activeText: c.activeText,
-    inactiveText: c.inactiveText,
-    activeColor: c.activeColor === 'default' ? undefined : c.activeColor,
-    disabled: c.disabled,
-  }
-}
-
-function applyPreset(key: string) {
-  applyConfig(rowOf(key).config)
 }
 
 function reset() {
@@ -345,22 +258,6 @@ const snippet = computed(() => {
       刻印文本为可选：不传时器件纯净无文字（上方三个）；传入 <code>active-text</code> /
       <code>inactive-text</code> 时显示自定义刻印（下方）。<code>active-color</code>
       改的是自左擦入的通电面颜色，断电腔体与金属外圈不受影响。
-    </p>
-  </div>
-
-  <div class="demo-block">
-    <h4 class="demo-label">全部变体一览（点击载入到上方预览）</h4>
-    <DemoPresets :items="presets" @pick="applyPreset">
-      <template #default="{ item }">
-        <!-- 格子本身是 button，内嵌开关只作展示：吃掉指针事件，否则点一下既载入预设又切换了状态 -->
-        <NeumorphismSwitch v-bind="cellProps(item.key)" style="pointer-events: none" />
-      </template>
-    </DemoPresets>
-    <p class="demo-hint" style="margin-top: 10px">
-      <code>variant</code> 只有两档：<code>default</code> 是凹陷轨道 + 弹簧滑块，
-      <code>power</code> 是金属外圈 + 整径扳动圆钮。两者共用同一个
-      <code>size</code> 属性，语义都是「px 高度」——换变体不改变高度口径，只改变几何的算法（轨道高 /
-      器件高）。
     </p>
   </div>
 </template>

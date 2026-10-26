@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { DemoPlayground, DemoField, DemoPresets, type DemoPreset } from '../../demo'
+import { DemoPlayground, DemoField } from '../../demo'
 
 type RadioSize = 'small' | 'medium' | 'large'
 type RadioDirection = 'horizontal' | 'vertical'
@@ -51,52 +51,6 @@ function pickCircleSize(value: number) {
   circleSize.value = value
   // 桥接只命中 medium：不钉回档位的话，small / large 下拖滑块会「读数变、预览不变」
   if (size.value !== 'medium') size.value = 'medium'
-}
-
-// ---- 变体一览（尺寸 × 方向） ----
-interface RadioConfig {
-  size: RadioSize
-  direction: RadioDirection
-}
-
-const presetRows: { key: string; code: string; config: RadioConfig }[] = [
-  { key: 'sm-h', code: 'size="small"', config: { size: 'small', direction: 'horizontal' } },
-  { key: 'md-h', code: 'size="medium"', config: { size: 'medium', direction: 'horizontal' } },
-  { key: 'lg-h', code: 'size="large"', config: { size: 'large', direction: 'horizontal' } },
-  {
-    key: 'sm-v',
-    code: 'direction="vertical"',
-    config: { size: 'small', direction: 'vertical' },
-  },
-  {
-    key: 'md-v',
-    code: 'vertical · medium',
-    config: { size: 'medium', direction: 'vertical' },
-  },
-  {
-    key: 'lg-v',
-    code: 'vertical · large',
-    config: { size: 'large', direction: 'vertical' },
-  },
-]
-
-const presets = computed<DemoPreset[]>(() =>
-  presetRows.map(row => ({
-    key: row.key,
-    code: row.code,
-    active: row.config.size === size.value && row.config.direction === direction.value,
-  }))
-)
-
-function rowOf(key: string) {
-  return presetRows.find(row => row.key === key)!
-}
-
-function applyPreset(key: string) {
-  const next = rowOf(key).config
-  size.value = next.size
-  direction.value = next.direction
-  circleSize.value = TIER_CIRCLE[next.size]
 }
 
 function reset() {
@@ -247,28 +201,6 @@ const snippet = computed(() => {
       组级 <code>disabled</code> 会与单个 radio 的
       <code>disabled</code> 取或：任一层为真即不可选。与 <code>Checkbox</code> 一致，禁用只降透明度
       + 吃掉点击，不做「灰掉文案」这类会牺牲对比度的处理。
-    </p>
-  </div>
-
-  <div class="demo-block">
-    <h4 class="demo-label">尺寸 × 方向一览（点击载入到上方预览）</h4>
-    <DemoPresets :items="presets" @pick="applyPreset">
-      <template #default="{ item }">
-        <!-- 格子本身是 button，内嵌单选组只作展示：吃掉指针事件，否则点一下既载入预设又改选了值 -->
-        <NeumorphismRadioGroup
-          :model-value="'a'"
-          :size="rowOf(item.key).config.size"
-          :direction="rowOf(item.key).config.direction"
-          style="pointer-events: none"
-        >
-          <NeumorphismRadio value="a" label="A" />
-          <NeumorphismRadio value="b" label="B" />
-        </NeumorphismRadioGroup>
-      </template>
-    </DemoPresets>
-    <p class="demo-hint" style="margin-top: 10px">
-      <code>direction</code> 只改排布（水平自动换行、垂直单列），间距来自组容器的
-      gap，与圆环尺寸无关——所以三档尺寸下两种方向的节奏都是一致的。
     </p>
   </div>
 </template>

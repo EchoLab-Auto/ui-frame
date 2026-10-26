@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { DemoPlayground, DemoField, DemoPresets, type DemoPreset } from '../../demo'
+import { DemoPlayground, DemoField } from '../../demo'
 
 type PageSize = 10 | 20 | 50
 type PaginationSize = 'small' | 'medium' | 'large'
@@ -52,78 +52,13 @@ const pageModel = computed<number>({
 const page2 = ref(3)
 const itemSizeBridge = computed(() => ({ '--demo-pagination-size': `${itemSize.value}px` }))
 
-// ---- 变体一览 ----
-interface PaginationPresetRow extends DemoPreset {
-  total: number
-  pageSize: PageSize
-  showTotal: boolean
-  showJumper: boolean
-  label: string
-}
-
-const presetRows: PaginationPresetRow[] = [
-  {
-    key: 'basic',
-    code: ':total="100"',
-    total: 100,
-    pageSize: 10,
-    showTotal: false,
-    showJumper: false,
-    label: '100 条 · 10/页',
-  },
-  {
-    key: 'total-jumper',
-    code: ':total="1000" :page-size="20" show-total show-jumper',
-    total: 1000,
-    pageSize: 20,
-    showTotal: true,
-    showJumper: true,
-    label: '1000 条 · 总数 + 跳转',
-  },
-  {
-    key: 'short',
-    code: ':total="50"',
-    total: 50,
-    pageSize: 10,
-    showTotal: false,
-    showJumper: false,
-    label: '50 条 · 5 页',
-  },
-  {
-    key: 'long',
-    code: ':total="500" :page-size="50"',
-    total: 500,
-    pageSize: 50,
-    showTotal: false,
-    showJumper: false,
-    label: '500 条 · 50/页',
-  },
-]
-
-const presets = computed<DemoPreset[]>(() =>
-  presetRows.map(row => ({
-    key: row.key,
-    code: row.code,
-    active:
-      row.total === total.value &&
-      row.pageSize === pageSize.value &&
-      row.showTotal === showTotal.value &&
-      row.showJumper === showJumper.value,
-  }))
-)
-
-function applyPreset(key: string) {
-  const row = presetRows.find(item => item.key === key)
-  if (!row) return
-  total.value = row.total
-  pageSize.value = row.pageSize
-  showTotal.value = row.showTotal
-  showJumper.value = row.showJumper
+/** 恢复默认：配置台「恢复默认」按钮直接调它 */
+function reset(): void {
+  total.value = 100
+  pageSize.value = 10
+  showTotal.value = false
+  showJumper.value = false
   page.value = 1
-}
-
-function rowOf(key: string) {
-  return presetRows.find(item => item.key === key)!
 }
 
 // ---- 实时代码片段 ----
@@ -216,7 +151,7 @@ const snippet = computed(() => {
         </DemoField>
 
         <DemoField label="操作">
-          <NeumorphismButton variant="raised" size="small" @click="applyPreset('basic')">
+          <NeumorphismButton variant="raised" size="small" @click="reset()">
             恢复默认
           </NeumorphismButton>
         </DemoField>
@@ -262,14 +197,5 @@ const snippet = computed(() => {
       <code>.demo-size-pagination</code> 只覆盖 <code>medium</code> 档，<code>small</code> /
       <code>large</code> 走组件自带预设 30/46px。
     </p>
-  </div>
-
-  <div class="demo-block">
-    <h4 class="demo-label">数据规模一览（点击载入到上方预览）</h4>
-    <DemoPresets :items="presets" @pick="applyPreset">
-      <template #default="{ item }">
-        <span style="font-size: 12px">{{ rowOf(item.key).label }}</span>
-      </template>
-    </DemoPresets>
   </div>
 </template>

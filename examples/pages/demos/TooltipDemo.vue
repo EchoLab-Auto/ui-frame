@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { DemoPlayground, DemoField, DemoPresets, type DemoPreset } from '../../demo'
+import { DemoPlayground, DemoField } from '../../demo'
 
 type TooltipPosition = 'top' | 'bottom' | 'left' | 'right'
 type TooltipTrigger = 'hover' | 'click' | 'focus'
@@ -38,32 +38,6 @@ function reset() {
   position.value = 'top'
   trigger.value = 'hover'
   content.value = '上方提示'
-}
-
-// ---- 变体一览：4 个方向 ----
-interface TooltipPresetRow extends DemoPreset {
-  position: TooltipPosition
-}
-
-const presetRows: TooltipPresetRow[] = [
-  { key: 'top', code: 'position="top"', position: 'top' },
-  { key: 'bottom', code: 'position="bottom"', position: 'bottom' },
-  { key: 'left', code: 'position="left"', position: 'left' },
-  { key: 'right', code: 'position="right"', position: 'right' },
-]
-
-const presets = computed<DemoPreset[]>(() =>
-  presetRows.map(row => ({ key: row.key, code: row.code, active: row.position === position.value }))
-)
-
-function applyPreset(key: string) {
-  const row = presetRows.find(item => item.key === key)
-  if (!row) return
-  position.value = row.position
-}
-
-function rowOf(key: string) {
-  return presetRows.find(item => item.key === key)!
 }
 
 // ---- 实时代码片段 ----
@@ -162,18 +136,6 @@ const snippet = computed(() => {
     <p class="demo-hint">
       纯文本用 <code>content</code> 属性即可；要加粗、换行、放图标时改用 <code>#content</code>
       插槽——两者同时存在时插槽优先。
-    </p>
-  </div>
-
-  <div class="demo-block">
-    <h4 class="demo-label">方向一览（点击载入到上方预览）</h4>
-    <DemoPresets :items="presets" @pick="applyPreset">
-      <template #default="{ item }">
-        <span style="font-size: 12px">{{ rowOf(item.key).position }}</span>
-      </template>
-    </DemoPresets>
-    <p class="demo-hint" style="margin-top: 10px">
-      默认 <code>offset</code> 8px、<code>delay</code> 150ms；需要更快或更远时分别调这两个属性。
     </p>
   </div>
 </template>

@@ -72,23 +72,6 @@ const snippet = computed(() => {
   }
   return [head, ...notes].join('\n')
 })
-
-/**
- * 变体一览：CSS 类变体（直接挂类）与覆盖层变体（靠组件 + target）分成两行。
- *
- * 分开排是为了让三列的 CSS 类变体和两列的覆盖层各自撑满一行——
- * 五行一起排会在卡片宽度不足时折成 4+1，视觉上很难看。
- */
-const cssColumns = [
-  { key: 'standard', id: 'nm-sb-standard-demo' },
-  { key: 'primary', id: 'nm-sb-primary-demo' },
-  { key: 'none', id: 'nm-sb-none-demo' },
-] as const
-
-const overlayColumns = [
-  { key: 'dots', id: 'dots-demo-container' },
-  { key: 'glow', id: 'glow-demo-container' },
-] as const
 </script>
 
 <template>
@@ -153,58 +136,6 @@ const overlayColumns = [
       </template>
     </DemoPlayground>
   </div>
-
-  <div class="demo-block">
-    <h4 class="demo-label">五种预设变体一览</h4>
-    <div class="demo-row" style="gap: 16px; flex-wrap: wrap; align-items: stretch">
-      <div
-        v-for="col in cssColumns"
-        :id="col.id"
-        :key="col.key"
-        class="demo-scroll-box"
-        :class="`nm-scrollbar--${col.key}`"
-        style="flex: 1; min-width: 150px"
-      >
-        <div class="demo-scroll-box__title">{{ col.key }}</div>
-        <div v-for="i in 20" :key="i">占位行 {{ i }}</div>
-      </div>
-    </div>
-
-    <div
-      class="demo-row"
-      style="gap: 16px; flex-wrap: wrap; align-items: stretch; margin-top: 16px"
-    >
-      <div
-        v-for="col in overlayColumns"
-        :id="col.id"
-        :key="col.key"
-        class="demo-scroll-box"
-        style="flex: 1; min-width: 150px"
-      >
-        <div class="demo-scroll-box__title">{{ col.key }}</div>
-        <div v-for="i in 20" :key="i">占位行 {{ i }}</div>
-      </div>
-    </div>
-
-    <!--
-      JS 覆盖层：必须先有真实滚动容器，再把 target 指向它。
-      三个 CSS 类变体的滚动条由类自己画，覆盖层变体则由组件注入一层 25px 宽的装饰层。
-    -->
-    <NeumorphismScrollbar
-      variant="dots"
-      target="#dots-demo-container"
-      dot-color="#999999"
-      accent-color="#cdfa4e"
-    />
-    <NeumorphismScrollbar variant="glow" target="#glow-demo-container" accent-color="#cdfa4e" />
-
-    <p class="demo-hint">
-      <code>standard</code> / <code>primary</code> / <code>none</code> 是纯 CSS
-      类，直接挂在滚动容器上； <code>dots</code> / <code>glow</code> 需要组件 +
-      <code>target</code> 选择器，因为点阵和辉光是用 JS 注进去的覆盖层。
-    </p>
-  </div>
-
   <div class="demo-block">
     <h4 class="demo-label">CSS 变量定制度</h4>
     <div class="demo-row" style="gap: 16px; flex-wrap: wrap; align-items: stretch">

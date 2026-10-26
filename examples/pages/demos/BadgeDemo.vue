@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { DemoPlayground, DemoField, DemoPresets, type DemoPreset } from '../../demo'
+import { DemoPlayground, DemoField } from '../../demo'
 
 type BadgeHost = 'button' | 'avatar'
 
@@ -24,54 +24,6 @@ function reset() {
   dot.value = false
   showZero.value = false
   host.value = 'button'
-}
-
-// ---- 形态一览 ----
-interface PresetRow extends DemoPreset {
-  value: number
-  max: number
-  dot: boolean
-  showZero: boolean
-}
-
-const presetRows: PresetRow[] = [
-  { key: 'count', code: ':value="5"', value: 5, max: 99, dot: false, showZero: false },
-  {
-    key: 'overflow',
-    code: ':value="120" :max="99"',
-    value: 120,
-    max: 99,
-    dot: false,
-    showZero: false,
-  },
-  { key: 'dot', code: 'dot :value="1"', value: 1, max: 99, dot: true, showZero: false },
-  { key: 'zero', code: ':value="0" show-zero', value: 0, max: 99, dot: false, showZero: true },
-]
-
-const presets = computed<DemoPreset[]>(() =>
-  presetRows.map(row => ({
-    key: row.key,
-    code: row.code,
-    active:
-      row.value === value.value &&
-      row.max === max.value &&
-      row.dot === dot.value &&
-      row.showZero === showZero.value,
-  }))
-)
-
-function applyPreset(key: string) {
-  const row = presetRows.find(r => r.key === key)
-  if (!row) return
-  value.value = row.value
-  max.value = row.max
-  dot.value = row.dot
-  showZero.value = row.showZero
-  host.value = 'button'
-}
-
-function rowOf(key: string) {
-  return presetRows.find(r => r.key === key)!
 }
 
 // ---- 实时代码片段 ----
@@ -169,26 +121,6 @@ const snippet = computed(() => {
     <p class="demo-hint">
       <code>value</code> 也接受字符串（如 <code>"new"</code>）——非空即显示，不参与
       <code>max</code> 截断；<code>color</code> 只覆盖底色，字号与尺寸跟随主题 token。
-    </p>
-  </div>
-
-  <div class="demo-block">
-    <h4 class="demo-label">形态一览（点击载入到上方预览）</h4>
-    <DemoPresets :items="presets" @pick="applyPreset">
-      <template #default="{ item }">
-        <NeumorphismBadge
-          :value="rowOf(item.key).value"
-          :max="rowOf(item.key).max"
-          :dot="rowOf(item.key).dot"
-          :show-zero="rowOf(item.key).showZero"
-        >
-          <NeumorphismButton variant="pressed" size="small">收件箱</NeumorphismButton>
-        </NeumorphismBadge>
-      </template>
-    </DemoPresets>
-    <p class="demo-hint" style="margin-top: 10px">
-      「零值」那格把 <code>value</code> 设为 0 并打开 <code>show-zero</code>：默认配置下 0
-      是不显示的，只有显式开启才会渲染出 <code>0</code>。
     </p>
   </div>
 </template>

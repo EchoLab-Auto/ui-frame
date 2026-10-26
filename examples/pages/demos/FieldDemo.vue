@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { DemoPlayground, DemoField, DemoPresets, type DemoPreset } from '../../demo'
+import { DemoPlayground, DemoField } from '../../demo'
 
 // ---- 配置台状态 ----
 const labelText = ref('用户名')
@@ -17,74 +17,6 @@ function reset() {
   errorMessage.value = '该字段为必填项，请输入至少 2 个字符'
   inputError.value = true
   inputValue.value = ''
-}
-
-// ---- 组合一览 ----
-interface PresetRow extends DemoPreset {
-  label: string
-  required: boolean
-  error: boolean
-  message: string
-}
-
-const presetRows: PresetRow[] = [
-  {
-    key: 'required-error',
-    code: 'required + error',
-    label: '用户名',
-    required: true,
-    error: true,
-    message: '该字段为必填项',
-  },
-  {
-    key: 'required-only',
-    code: 'required',
-    label: '用户名',
-    required: true,
-    error: false,
-    message: '',
-  },
-  {
-    key: 'optional-error',
-    code: 'error="…"',
-    label: '邮箱',
-    required: false,
-    error: true,
-    message: '邮箱格式不正确',
-  },
-  {
-    key: 'plain',
-    code: 'label="备注"',
-    label: '备注',
-    required: false,
-    error: false,
-    message: '',
-  },
-]
-
-const presets = computed<DemoPreset[]>(() =>
-  presetRows.map(row => ({
-    key: row.key,
-    code: row.code,
-    // 文案不算「变体」：只比对星号与错误态，改文案不会让选中态丢失
-    active:
-      row.label === labelText.value &&
-      row.required === required.value &&
-      row.error === inputError.value,
-  }))
-)
-
-function applyPreset(key: string) {
-  const row = presetRows.find(item => item.key === key)
-  if (!row) return
-  labelText.value = row.label
-  required.value = row.required
-  inputError.value = row.error
-  errorMessage.value = row.message
-}
-
-function rowOf(key: string) {
-  return presetRows.find(item => item.key === key)!
 }
 
 // ---- 实时代码片段 ----
@@ -194,31 +126,5 @@ const snippet = computed(() => {
         </DemoField>
       </template>
     </DemoPlayground>
-  </div>
-
-  <div class="demo-block">
-    <h4 class="demo-label">组合一览：required 星号 × role=alert 错误提示（点击载入到上方）</h4>
-    <DemoPresets :items="presets" @pick="applyPreset">
-      <template #default="{ item }">
-        <div style="width: 100%; text-align: left">
-          <NeumorphismFieldLabel
-            :label="rowOf(item.key).label"
-            :required="rowOf(item.key).required"
-          />
-          <NeumorphismInput
-            placeholder="请输入"
-            size="small"
-            :error="rowOf(item.key).error"
-            style="margin-top: 4px"
-          />
-          <NeumorphismFieldError :message="rowOf(item.key).message" />
-        </div>
-      </template>
-    </DemoPresets>
-    <p class="demo-hint" style="margin-top: 10px">
-      <code>NeumorphismFieldLabel</code> 只是带星号的 <code>&lt;label&gt;</code>，
-      <code>NeumorphismFieldError</code> 只是带 <code>role="alert"</code> 的错误行 ——
-      两个组件都不持有校验逻辑，校验状态由输入类组件或 <code>FormItem</code> 传进来。
-    </p>
   </div>
 </template>

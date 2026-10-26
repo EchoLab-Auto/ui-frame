@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { DemoPlayground, DemoField, DemoPresets, type DemoPreset } from '../../demo'
+import { DemoPlayground, DemoField } from '../../demo'
 import artImage from '../../assets/images.jpeg'
 
 /**
@@ -47,25 +47,6 @@ const artSegmentedOptions = artEffectOptions.map(({ label, value }) => ({ label,
 
 // ---- 横幅用法（覆盖层 + 固定种子 + 自定义配色）----
 const bannerPalette = ['#5b8def', '#3fb27f', '#f0a04b']
-
-// ---- 5 种效果一览 ----
-const presets = computed<DemoPreset[]>(() =>
-  artEffectOptions.map(option => ({
-    key: option.value,
-    code: `effect="${option.value}"`,
-    active: option.value === artEffect.value,
-  }))
-)
-
-function applyPreset(key: string) {
-  const option = artEffectOptions.find(item => item.value === key)
-  if (option) artEffect.value = option.value
-}
-
-/** 矩阵回传的是裸 string，这里收回成效果名联合类型，避免模板里出现类型断言 */
-function effectOf(key: string): ArtEffect {
-  return artEffectOptions.find(item => item.value === key)?.value ?? 'pixel-field'
-}
 
 // ---- 实时代码片段 ----
 const snippet = computed(() => {
@@ -159,30 +140,6 @@ const snippet = computed(() => {
       默认插槽渲染在画布之上且不响应指针（<code>pointer-events: none</code>），适合压标题、水印；
       <code>:seed</code> 固定后图案可复现（同一份数据每次渲染都长一样），<code>:palette</code>
       传入后不再跟随主题 token 换色——配色交给使用方，主题切换时画面保持不变。
-    </p>
-  </div>
-
-  <div class="demo-block">
-    <h4 class="demo-label">5 种效果一览（点击载入到上方配置台）</h4>
-    <DemoPresets :items="presets" @pick="applyPreset">
-      <template #default="{ item }">
-        <!--
-          缩略图静态化（speed=0 冻结时间轴）：5 张画布各自带一条 rAF 循环，
-          矩阵里要的是「长什么样」而不是「动起来」，静态帧足以辨认。
-        -->
-        <NeumorphismArt
-          :effect="effectOf(item.key)"
-          :height="76"
-          :speed="0"
-          :density="0.7"
-          :src="artImage"
-          :aria-label="`${item.key} 效果缩略图`"
-        />
-      </template>
-    </DemoPresets>
-    <p class="demo-hint" style="margin-top: 10px">
-      画布滚出视口即停摆（IntersectionObserver），页面滚动期间也跳过重绘——所以同一页放多张画布不会
-      一直烧 CPU；但真要铺满屏的装饰背景，仍建议只用一张。
     </p>
   </div>
 </template>

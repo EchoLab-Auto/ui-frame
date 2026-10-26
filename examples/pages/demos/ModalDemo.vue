@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { DemoPlayground, DemoField, DemoPresets, type DemoPreset } from '../../demo'
+import { DemoPlayground, DemoField } from '../../demo'
 
 type ModalSize = 'small' | 'medium' | 'large'
 type ModalEvent = 'open' | 'confirm' | 'cancel' | 'close'
@@ -57,39 +57,6 @@ function confirmSlot() {
 function cancelSlot() {
   slotSaved.value = false
   slotVisible.value = false
-}
-
-// ---- 变体一览 ----
-interface ModalPresetRow extends DemoPreset {
-  size: ModalSize
-  footer: boolean
-  label: string
-}
-
-const presetRows: ModalPresetRow[] = [
-  { key: 'small', code: 'size="small"', size: 'small', footer: true, label: '小 · 带页脚' },
-  { key: 'medium', code: 'size="medium"', size: 'medium', footer: true, label: '中 · 带页脚' },
-  { key: 'large', code: 'size="large"', size: 'large', footer: true, label: '大 · 带页脚' },
-  { key: 'no-footer', code: ':footer="false"', size: 'small', footer: false, label: '小 · 无页脚' },
-]
-
-const presets = computed<DemoPreset[]>(() =>
-  presetRows.map(row => ({
-    key: row.key,
-    code: row.code,
-    active: row.size === size.value && row.footer === footer.value,
-  }))
-)
-
-function applyPreset(key: string) {
-  const row = presetRows.find(item => item.key === key)
-  if (!row) return
-  size.value = row.size
-  footer.value = row.footer
-}
-
-function rowOf(key: string) {
-  return presetRows.find(item => item.key === key)!
 }
 
 function reset() {
@@ -228,18 +195,5 @@ const snippet = computed(() => {
         </NeumorphismButton>
       </template>
     </NeumorphismModal>
-  </div>
-
-  <div class="demo-block">
-    <h4 class="demo-label">尺寸 / 页脚一览（点击载入到上方预览）</h4>
-    <DemoPresets :items="presets" @pick="applyPreset">
-      <template #default="{ item }">
-        <span style="font-size: 12px">{{ rowOf(item.key).label }}</span>
-      </template>
-    </DemoPresets>
-    <p class="demo-hint" style="margin-top: 10px">
-      <code>small / medium / large</code> 只改宽度与内边距；<code>destroy-on-close</code> 为
-      <code>false</code>（默认）时关闭只是隐藏，弹层内的输入内容会保留。
-    </p>
   </div>
 </template>

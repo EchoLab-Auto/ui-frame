@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { DemoPlayground, DemoField, DemoPresets, type DemoPreset } from '../../demo'
+import { DemoPlayground, DemoField } from '../../demo'
 
 /**
  * 像素字体（NeumorphismPixelFont）：termsyn 6x11 位图字体。
  *
- * 演示分四段：片头样张（可调）+ 字符集/多行/粗体 + 缩放档位一览 + 字体出处。
+ * 演示分三段：片头样张（可调）+ 字符集/多行/粗体 + 字体出处。
  * 缩放是本组件唯一「有物理含义」的参数——位图字体只在整数倍设计尺寸
  * （11px × scale）下逐像素对齐，所以档位用 1..6 的整数滑块而不是连续值。
  */
@@ -42,25 +42,6 @@ const pixelMultiline = 'READY.\nPRESS ANY KEY'
 /** 字体出处声明：授权信息，原文照抄（放脚本里避免模板换行把中文句子切出多余空格） */
 const fontNotice =
   '字体出处：termsyn 6x11（stlarch 作；Terminus × Tamsyn 混合位图字体，GPL-2）——由 PCF 位图重建为 woff2 内嵌（字形逐像素一致），字母 I 的步进按片头样张收紧，两侧字距与其余字母一致；含 400 / 700 双字重。'
-
-// ---- 缩放档位一览（位图字体只有整数倍有意义，1..6 即为全部档位）----
-const scalePresetItems = computed<DemoPreset[]>(() =>
-  [1, 2, 3, 4, 5, 6].map(scale => ({
-    key: String(scale),
-    code: `:scale="${scale}"`,
-    active: scale === pixelScale.value,
-  }))
-)
-
-function applyScalePreset(key: string) {
-  const scale = Number(key)
-  if (Number.isFinite(scale)) pixelScale.value = scale
-}
-
-/** 矩阵回传的 key 就是倍率字符串；模板里不做 Number() 转换，保持一行 */
-function scaleOf(key: string): number {
-  return Math.max(1, Math.round(Number(key)))
-}
 
 // ---- 实时代码片段 ----
 const snippet = computed(() => {
@@ -163,21 +144,6 @@ const snippet = computed(() => {
       <code>font-weight: 700</code>，即切到内嵌的粗体位图字面（不是伪粗体合成）。
     </p>
   </div>
-
-  <div class="demo-block">
-    <h4 class="demo-label">缩放档位一览（点击载入到上方配置台）</h4>
-    <DemoPresets :items="scalePresetItems" @pick="applyScalePreset">
-      <template #default="{ item }">
-        <NeumorphismPixelFont text="Aa1" :scale="scaleOf(item.key)" />
-      </template>
-    </DemoPresets>
-    <p class="demo-hint" style="margin-top: 10px">
-      1× = 11px 设计尺寸（正文级），6× = 66px（片头级）。非整数倍（如
-      2.5×）会被四舍五入到最近的整数，
-      否则字符会落在半像素上、边缘发灰——这是位图字体与矢量字体最大的不同。
-    </p>
-  </div>
-
   <div class="demo-block">
     <h4 class="demo-label">字体出处与授权</h4>
     <p class="demo-hint">{{ fontNotice }}</p>

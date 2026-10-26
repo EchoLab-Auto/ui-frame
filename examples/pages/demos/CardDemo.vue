@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { DemoPlayground, DemoField, DemoPresets, type DemoStage, type DemoPreset } from '../../demo'
+import { DemoPlayground, DemoField, type DemoStage } from '../../demo'
 
 type CardGlass = 'none' | 'float' | 'raised' | 'pressed'
 type CardHover = 'none' | 'bulge' | 'sink'
@@ -93,47 +93,6 @@ function reset() {
 function useGlass() {
   glass.value = 'float'
   stage.value = 'gradient'
-}
-
-// ---- 圆角 / 超椭圆一览 ----
-interface PresetRow extends DemoPreset {
-  radius: CardRadius
-  squircle: boolean
-  /** 格子里的短标签：圆角档位名比四个一模一样的空卡片好认 */
-  label: string
-}
-
-const presetRows: PresetRow[] = [
-  { key: 'small', code: 'radius="small"', radius: 'small', squircle: false, label: 'small' },
-  { key: 'medium', code: 'radius="medium"', radius: 'medium', squircle: false, label: 'medium' },
-  { key: 'large', code: 'radius="large"', radius: 'large', squircle: false, label: 'large' },
-  { key: 'xl', code: 'radius="xl"', radius: 'xl', squircle: false, label: 'xl' },
-  {
-    key: 'squircle',
-    code: 'radius="xl" squircle',
-    radius: 'xl',
-    squircle: true,
-    label: '超椭圆',
-  },
-]
-
-const presets = computed<DemoPreset[]>(() =>
-  presetRows.map(row => ({
-    key: row.key,
-    code: row.code,
-    active: row.radius === radius.value && row.squircle === squircle.value,
-  }))
-)
-
-function applyPreset(key: string) {
-  const row = presetRows.find(r => r.key === key)
-  if (!row) return
-  radius.value = row.radius
-  squircle.value = row.squircle
-}
-
-function rowOf(key: string) {
-  return presetRows.find(r => r.key === key)!
 }
 
 // ---- 实时代码片段 ----
@@ -327,27 +286,6 @@ const snippet = computed(() => {
     <p class="demo-hint">
       玻璃档位与 <code>elevation</code> 正交：同一档 <code>raised</code> 下 1→4
       级只是阴影强度递增，材质不变。
-    </p>
-  </div>
-
-  <div class="demo-block">
-    <h4 class="demo-label">圆角与超椭圆一览（点击载入到上方预览）</h4>
-    <DemoPresets :items="presets" @pick="applyPreset">
-      <template #default="{ item }">
-        <NeumorphismCard
-          :radius="rowOf(item.key).radius"
-          :squircle="rowOf(item.key).squircle"
-          :elevation="2"
-          style="width: 88px; text-align: center"
-        >
-          <strong style="font-size: 11px">{{ rowOf(item.key).label }}</strong>
-        </NeumorphismCard>
-      </template>
-    </DemoPresets>
-    <p class="demo-hint" style="margin-top: 10px">
-      <code>radius</code> 只改角的大小，<code>squircle</code> 改角<strong>形状</strong>：
-      开启后改用连续曲率的超椭圆轮廓（默认指数 2.5），也接受数字自定义指数；两者互不干扰，
-      因为超椭圆读的是「当前生效的圆角」。
     </p>
   </div>
 </template>

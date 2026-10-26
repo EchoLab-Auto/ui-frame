@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { DemoPlayground, DemoField, DemoPresets, type DemoPreset } from '../../demo'
+import { DemoPlayground, DemoField } from '../../demo'
 
 type ToastKind = 'info' | 'success' | 'warning' | 'error'
 type ToastPosition =
@@ -86,37 +86,6 @@ function clearAll() {
   lastMessage.value = '已清空'
 }
 
-// ---- 变体一览：6 个位置 ----
-interface ToastPresetRow extends DemoPreset {
-  position: ToastPosition
-}
-
-const presetRows: ToastPresetRow[] = positionOptions.map(option => ({
-  key: option.value,
-  code: `position="${option.value}"`,
-  position: option.value,
-}))
-
-const presets = computed<DemoPreset[]>(() =>
-  presetRows.map(row => ({
-    key: row.key,
-    code: row.code,
-    active: row.position === position.value,
-  }))
-)
-
-function applyPreset(key: string) {
-  const row = presetRows.find(item => item.key === key)
-  if (!row) return
-  position.value = row.position
-  // 光改位置没反馈，顺手在该位置弹一条，一眼看到六个角落在哪儿
-  showToast('info', `${positionLabel[row.position]}位置通知`)
-}
-
-function rowOf(key: string) {
-  return presetRows.find(item => item.key === key)!
-}
-
 // ---- 实时代码片段 ----
 const snippet = computed(() => {
   const attrs: string[] = ['ref="toastContainer"']
@@ -183,19 +152,6 @@ const snippet = computed(() => {
     <!-- provider 只渲染 teleport，放在卡片里即可；ref 上拿到 addToast / clearAll -->
     <NeumorphismToastProvider ref="toastContainer" :position="position" :max-count="maxCount" />
   </div>
-
-  <div class="demo-block">
-    <h4 class="demo-label">6 个位置（点击切换并立即弹一条）</h4>
-    <DemoPresets :items="presets" @pick="applyPreset">
-      <template #default="{ item }">
-        <span style="font-size: 12px">{{ positionLabel[rowOf(item.key).position] }}</span>
-      </template>
-    </DemoPresets>
-    <p class="demo-hint" style="margin-top: 10px">
-      位置是 provider 的属性：同一个 provider 的队列只在一个角落渲染，切换位置 = 换容器对齐方式。
-    </p>
-  </div>
-
   <div class="demo-block">
     <h4 class="demo-label">堆叠上限 / 常驻通知 / 清空</h4>
     <div class="demo-row">
