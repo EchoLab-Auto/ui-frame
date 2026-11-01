@@ -7,7 +7,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': resolve(__dirname, 'src'),
-      // mermaid 是可选 peer dependency，测试环境未安装，使用 noop stub
+      // 常规单测用可控 stub；真实解析器测试直接引包内 dist 文件（绕过此 alias）
       mermaid: resolve(__dirname, 'src/__test-utils__/mermaid-stub.ts'),
       // dompurify 同为可选 peer dependency，测试环境用恒等 sanitize stub
       dompurify: resolve(__dirname, 'src/__test-utils__/dompurify-stub.ts'),

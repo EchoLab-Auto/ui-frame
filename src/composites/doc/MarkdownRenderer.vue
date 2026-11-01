@@ -24,6 +24,7 @@ import { parseProDocFlow } from './flow-parser'
 import { useMarkdownToc } from './useMarkdownToc'
 import { useScrollSpy } from './useScrollSpy'
 import { mathExtensions, renderMath } from './math'
+import { mermaidPlaceholder, renderMermaidDiagrams } from './mermaid'
 import NeumorphismIcon from '@/components/NeumorphismIcon/NeumorphismIcon.vue'
 
 export type { TocNode } from './useMarkdownToc'
@@ -74,11 +75,10 @@ function scrollToHeadingAndClose(id: string) {
 // 预创建 Renderer 实例 — 避免每次 content 变化都重建
 // ==========================================
 const renderer = new marked.Renderer()
-
 renderer.code = ({ text, lang }) => {
-  // Mermaid diagram support (optional, loaded dynamically on-mounted)
+  // Mermaid：占位与渲染都由本库的 mermaid 管线负责（可选 peer，按需加载）。
   if (lang === 'mermaid') {
-    return `<div class="mermaid-diagram" data-mermaid="${escapeHtml(text)}"><pre><code>${escapeHtml(text)}</code></pre></div>`
+    return mermaidPlaceholder(text)
   }
 
   // ProDoc 流程画布：占位 div + 挂载后替换为 DocFlowCanvas（见 mountFlowDiagrams）。
@@ -152,15 +152,13 @@ let purifyWarned = false
 function loadPurify(): void {
   if (purifyLoaded) return
   purifyLoaded = true
-  // @ts-expect-error - dompurify is an optional peer dependency, may not be installed
   import('dompurify')
     .then(mod => {
       const dp = mod?.default
       if (dp && typeof dp.sanitize === 'function') {
         purify = (html: string) =>
           dp.sanitize(html, {
-            // Preserve the data-* hooks emitted by this renderer.
-            ADD_ATTR: ['data-mermaid', 'data-code', 'data-heading-id', 'data-lang', 'target'],
+            ADD_ATTR: ['data-code', 'data-heading-id', 'data-lang', 'target'],
           })
         // Re-render now that sanitization is available.
         doRender()
@@ -238,36 +236,9 @@ watch(
   }
 )
 
-/** 动态加载 Mermaid 并渲染图表 */
-async function renderMermaidDiagrams() {
-  if (!contentRef.value) return
-  const diagrams = contentRef.value.querySelectorAll('.mermaid-diagram')
-  if (diagrams.length === 0) return
-
-  try {
-    // 动态加载 mermaid（可选 peer dependency，未安装时静默回退）
-    // @ts-expect-error - mermaid is an optional peer dependency, may not be installed
-    const mermaid = await import('mermaid').catch(() => null)
-    if (!mermaid?.default) return
-
-    let seq = 0
-    for (const el of Array.from(diagrams)) {
-      // 图源取 data-mermaid 属性（DOM 解析后实体已还原）。
-      // 不能用 mermaid.run({ nodes })：它读取元素 innerHTML，会把
-      // 展示用的 <pre><code> 包装标签一并喂给解析器，导致必然语法错误
-      const source = el.getAttribute('data-mermaid') ?? el.textContent ?? ''
-      if (!source.trim()) continue
-      try {
-        const { svg } = await mermaid.default.render(`nm-mermaid-${Date.now()}-${seq++}`, source)
-        el.innerHTML = svg
-        el.setAttribute('data-processed', 'true')
-      } catch {
-        // 单图渲染失败时保留该图的 <pre><code> 回退，不影响其他图
-      }
-    }
-  } catch {
-    // Mermaid 不可用时，保留原始的 <pre><code> 回退
-  }
+/** Mermaid 的加载、渲染和降级统一由本库的 mermaid 管线承担。 */
+function runMermaidDiagrams(): void {
+  void renderMermaidDiagrams(contentRef.value)
 }
 
 // content 或 renderedHtml 变化后重跑后处理（mermaid 替换 + 流程画布/代码块挂载）
@@ -284,14 +255,13 @@ watch(renderedHtml, () => {
 onMounted(runPostRender)
 
 function runPostRender(): void {
-  renderMermaidDiagrams()
+  runMermaidDiagrams()
   mountFlowDiagrams()
   mountCodeBlocks()
   // 公式：动态 import katex 后把占位替换成 KaTeX 输出（未装则保留 TeX 原文）
   void renderMath(contentRef.value)
   cleanupUnclaimedBlocks()
 }
-
 // ==========================================
 // 手动挂载管线（占位 → Vue 子树：流程画布 / 代码块）
 // ==========================================
@@ -576,6 +546,38 @@ onBeforeUnmount(() => {
   font-size: var(--nm-font-lg);
 }
 
+/* ── Mermaid（可选依赖；见 ./mermaid.ts）────────────────────────────────
+   加载中与失败时保留等宽源码；成功后 SVG 在大图时横向滚动，不撑破宿主。
+   样式属于通用渲染器，Panel / DocViewer / 编辑器预览无需各自补一份。 */
+.mermaid-diagram {
+  max-width: 100%;
+  margin: var(--nm-spacing-md) 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+.mermaid-diagram[data-mermaid-state='done'] {
+  padding: var(--nm-spacing-md);
+  border: 1px solid var(--nm-border-subtle);
+  border-radius: var(--nm-border-radius-lg);
+  background: var(--nm-surface-color);
+}
+
+.mermaid-diagram > svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 0 auto;
+}
+
+.mermaid-diagram > pre {
+  margin: 0;
+  white-space: pre;
+  font-family: var(--nm-font-mono);
+  font-size: var(--nm-font-sm);
+  color: var(--nm-text-secondary);
+}
 /* ── 数学公式（KaTeX，可选依赖；见 ./math.ts） ─────────────────────────
    占位元素在 katex 加载完成前显示 TeX 原文（`.md-math-src`），加载完成后
    innerHTML 被替换成 KaTeX 输出。两条路径都必须：不撑破容器、长公式可
@@ -588,7 +590,7 @@ onBeforeUnmount(() => {
   display: block;
   overflow-x: auto;
   overflow-y: hidden;
-  padding: 2px 0;
+  padding: var(--nm-spacing-2xs) 0;
   text-align: center;
   /* 惯性滚动 + 触屏横向拖动（移动端长公式的唯一查看方式） */
   -webkit-overflow-scrolling: touch;
@@ -611,7 +613,7 @@ onBeforeUnmount(() => {
 
 .neumorphism-markdown-content .katex-display {
   margin: var(--nm-spacing-sm) 0;
-  padding: 2px 0;
+  padding: var(--nm-spacing-2xs) 0;
   overflow-x: auto;
   overflow-y: hidden;
   -webkit-overflow-scrolling: touch;

@@ -11,6 +11,7 @@ import {
 
 vi.mock('mermaid', () => ({
   default: {
+    initialize: vi.fn(),
     run: vi.fn(),
     render: vi.fn(async () => ({ svg: '<svg class="mermaid-mock-svg"></svg>' })),
   },
@@ -39,10 +40,9 @@ describe('MarkdownRenderer', () => {
       props: { content, ...props },
     })
   }
-
-  it('renders mermaid diagrams from the decoded data-mermaid source (not the <pre><code> wrapper)', async () => {
+  it('renders mermaid diagrams from decoded <pre><code> source, without a data-attribute copy', async () => {
     const fence = '```'
-    mountRenderer(fence + 'mermaid\ngraph LR\n  A[开始] --> B{判断}\n' + fence)
+    const wrapper = mountRenderer(fence + 'mermaid\ngraph LR\n  A[开始] --> B{判断}\n' + fence)
     const mermaid = (await import('mermaid')).default
     await vi.waitFor(() => expect(mermaid.render).toHaveBeenCalled())
     const [, source] = (mermaid.render as ReturnType<typeof vi.fn>).mock.calls[0] as [
@@ -54,6 +54,11 @@ describe('MarkdownRenderer', () => {
     expect(source).not.toContain('&gt;')
     expect(source).not.toContain('<pre>')
     expect(source).not.toContain('<code>')
+    // 源码不复制进 data-*：含箭头的属性会被 DOMPurify 的 mXSS 规则剥除。
+    expect(wrapper.find('.mermaid-diagram').attributes('data-mermaid')).toBeUndefined()
+    await vi.waitFor(() =>
+      expect(wrapper.find('.mermaid-diagram').attributes('data-mermaid-state')).toBe('done')
+    )
   })
 
   it('renders markdown content', () => {
