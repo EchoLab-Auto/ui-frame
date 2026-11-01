@@ -40,25 +40,31 @@ describe('MarkdownRenderer', () => {
       props: { content, ...props },
     })
   }
-  it('renders mermaid diagrams from decoded <pre><code> source, without a data-attribute copy', async () => {
+  it('flowchart 复用 DocFlowCanvas，不经过 Mermaid 默认 SVG 皮肤', async () => {
     const fence = '```'
     const wrapper = mountRenderer(fence + 'mermaid\ngraph LR\n  A[开始] --> B{判断}\n' + fence)
+    await vi.waitFor(() => expect(wrapper.find('.mermaid-diagram .nm-flow').exists()).toBe(true))
+
+    const diagram = wrapper.find('.mermaid-diagram')
+    expect(diagram.attributes('data-mermaid-renderer')).toBe('ui-frame')
+    expect(diagram.attributes('data-mermaid-state')).toBe('done')
+    expect(diagram.findAll('.nm-flow__node')).toHaveLength(2)
+    expect(diagram.findAll('.nm-flow__edge')).toHaveLength(1)
+    expect(diagram.text()).toContain('开始')
+    expect(diagram.text()).toContain('判断')
+    // 源码不复制进 data-*：含箭头���属性会被 DOMPurify 的 mXSS 规则剥除。
+    expect(diagram.attributes('data-mermaid')).toBeUndefined()
     const mermaid = (await import('mermaid')).default
-    await vi.waitFor(() => expect(mermaid.render).toHaveBeenCalled())
-    const [, source] = (mermaid.render as ReturnType<typeof vi.fn>).mock.calls[0] as [
-      string,
-      string,
-    ]
-    // 源文本必须是 DOM 还原后的图源（--> 而非 &gt;），且不含包装标签
-    expect(source).toContain('-->')
-    expect(source).not.toContain('&gt;')
-    expect(source).not.toContain('<pre>')
-    expect(source).not.toContain('<code>')
-    // 源码不复制进 data-*：含箭头的属性会被 DOMPurify 的 mXSS 规则剥除。
-    expect(wrapper.find('.mermaid-diagram').attributes('data-mermaid')).toBeUndefined()
-    await vi.waitFor(() =>
-      expect(wrapper.find('.mermaid-diagram').attributes('data-mermaid-state')).toBe('done')
-    )
+    expect(mermaid.render).not.toHaveBeenCalled()
+  })
+
+  it('非 flowchart 的 Mermaid 图型保留官方 SVG 渲染兜底', async () => {
+    const fence = '```'
+    const wrapper = mountRenderer(fence + 'mermaid\nsequenceDiagram\n  A->>B: 请求\n' + fence)
+    const mermaid = (await import('mermaid')).default
+    await vi.waitFor(() => expect(wrapper.find('.mermaid-mock-svg').exists()).toBe(true))
+    expect(wrapper.find('.mermaid-diagram').attributes('data-mermaid-renderer')).toBeUndefined()
+    expect(mermaid.render).toHaveBeenCalled()
   })
 
   it('renders markdown content', () => {

@@ -25,6 +25,7 @@ import { useMarkdownToc } from './useMarkdownToc'
 import { useScrollSpy } from './useScrollSpy'
 import { mathExtensions, renderMath } from './math'
 import { mermaidPlaceholder, renderMermaidDiagrams } from './mermaid'
+import { parseMermaidFlow } from './mermaid-flow'
 import NeumorphismIcon from '@/components/NeumorphismIcon/NeumorphismIcon.vue'
 
 export type { TocNode } from './useMarkdownToc'
@@ -236,8 +237,9 @@ watch(
   }
 )
 
-/** Mermaid 的加载、渲染和降级统一由本库的 mermaid 管线承担。 */
+/** flowchart 复用原生画布；其他图型再按需加载 Mermaid 官方渲染器。 */
 function runMermaidDiagrams(): void {
+  mountMermaidFlowDiagrams()
   void renderMermaidDiagrams(contentRef.value)
 }
 
@@ -334,6 +336,23 @@ function adoptOrMount(el: Element, key: string, createVnode: () => VNode): void 
   const rootEl = el.firstElementChild as HTMLElement | null
   if (rootEl) {
     mountedBlocks.push({ key, rootEl, ownerContainer: el as HTMLElement })
+  }
+}
+
+function mountMermaidFlowDiagrams(): void {
+  if (!contentRef.value) return
+  const placeholders = contentRef.value.querySelectorAll('.mermaid-diagram')
+  for (const el of placeholders) {
+    if (el.getAttribute('data-mermaid-state') === 'done') continue
+    const source = el.querySelector('pre code')?.textContent ?? ''
+    const graph = parseMermaidFlow(source)
+    if (!graph) continue
+
+    adoptOrMount(el, `mermaid-flow:${source}`, () =>
+      h(DocFlowCanvas, { graph, height: '480px', editable: false })
+    )
+    el.setAttribute('data-mermaid-state', 'done')
+    el.setAttribute('data-mermaid-renderer', 'ui-frame')
   }
 }
 
