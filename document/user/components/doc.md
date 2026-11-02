@@ -131,6 +131,7 @@ Markdown 正文的渲染核心，DocViewer / DocEditor / MarkdownEditor 的预�
 - **目录 scroll-spy**：`useMarkdownToc` 提取标题树 + `useScrollSpy`（IntersectionObserver）跟踪激活标题，点击平滑滚动并高亮锁定 800ms 防闪烁；遵循 prefers-reduced-motion
 - **代码块**：`DocCodeBlock` 挂载渲染，自研 `highlightCode` 正则高亮（零依赖）、行号、一键复制
 - **内嵌流程图**：` ```prodoc-flow ` 代码块解析为 `ProDocFlowGraph`，由 `DocFlowCanvas` 渲染成可交互画布；节点可声明文档链接，点击触发 `docLink` 跳转
+- **内嵌 Mermaid 图**：` ```mermaid ` 代码块的 `flowchart` / `sequenceDiagram` / `gantt` 分别渲染为原生流程图、时序图、甘特图（见下文「Mermaid 代码块：三种原生图」）；其余图型保留源码，不引入官方渲染器
 - **安全**：marked 输出可经 DOMPurify（可选 peer 依赖，动态加载）净化；链接白名单过滤
 - 移动端 TOC 折叠为浮层
 
@@ -259,6 +260,57 @@ DocFlowCanvas 的定位是**只读呈现 + 节点位置微调**，明确不包�
 - 撤销 / 重做栈、脏状态管理
 
 需要完整图编辑器时，建议以 `NeumorphismCanvas` 为视口、参考本组件的 SVG 图层与拖拽管线自建编辑层。本项目的姊妹项目 DocRenderer 即采用此路线：它对 `NeumorphismCanvas` **零修改**（仅用作缩放/平移视口），在插槽内自建了约 2000 行的图编辑器（连线编辑、节点增删、撤销重做、frontmatter 坐标写回）——证明这套组合方式足以承载完整的图编辑场景，同时说明这类编辑器逻辑属于应用层，不收进组件库。
+
+---
+
+## Mermaid 代码块：三种原生图
+
+`MarkdownRenderer` 把 ` ```mermaid ` 代码块按图型分发给三张原生图，**不使用 Mermaid 官方渲染器**（`mermaid` 既不是依赖也不是可选 peer 依赖）：
+
+| 写法                          | 渲染结果       | 解析器 / 组件                               |
+| ----------------------------- | -------------- | ------------------------------------------- |
+| `flowchart` / `graph`         | 流程图画布     | `parseMermaidFlow` → `DocFlowCanvas`        |
+| `sequenceDiagram`             | 时序图（图表） | `parseMermaidSequence` → `DocSequenceChart` |
+| `gantt`                       | 甘特图（图表） | `parseMermaidGantt` → `DocGanttChart`       |
+| `classDiagram` / `pie` / 其它 | 源码回退       | —                                           |
+
+三种图共用一套**失败语义**：图型有原生实现但写法超出支持子集时，保留源码而不是画半张图（少一条消息的时序是**错误**的时序，不是不完整的时序）。渲染成功的占位带 `data-mermaid-state="done"` 与 `data-mermaid-renderer="ui-frame"`；回退时 `data-mermaid-state="error"` 且 `data-mermaid-graph` 标明判定出的图型——`flowchart` / `sequence` / `gantt` 表示"改写法就有图"，`other` 表示"这个图型还没实现"。
+
+### 支持子集
+
+**flowchart**：`-->`（支持 `==>` 加重边、`-.->` 点线）、四种节点形状、边标签、文档链接。
+
+**sequenceDiagram**：`participant` / `actor`（`as` 别名）、八种箭头（`->>` `-->>` `->` `-->` `-)` `--)` `-x` `--x`）、自消息、`Note left of / right of / over`、`activate` / `deactivate`（含 `->>+` `->>-` 简写）、`autonumber`、`loop` / `alt` / `opt` / `par` / `critical` / `break` 与 `else` / `and` 分隔。不支持 `box`（参与者分组）。
+
+**gantt**：`title` / `dateFormat` / `axisFormat` / `section`、状态 `done` / `active` / `crit` / `milestone`、`after` 依赖、时长 `ms|s|m|h|d|w`、`excludes weekends` 与具体日期排除（按工作日推进，起始日计为第 1 个工作日）。不支持 `vert` 竖向布局。
+
+### 为什么时序图与甘特图是「图表」而不是「画布」
+
+流程图是**探索视图**：节点多、需要拖拽与缩放去找关系，所以它挂在 `NeumorphismCanvas`
+视口上。时序图与甘特图不是这个性质——
+
+| 维度 | 流程图               | 时序图 / 甘特图                                              |
+| ---- | -------------------- | ------------------------------------------------------------ |
+| 读法 | 挑着看，找路径       | 从头顺序读一遍                                               |
+| 缩放 | 大图必需             | **有害**——甘特图换缩放后条长不再可比；时序图缩小后文字不可读 |
+| 尺寸 | 视口固定，内容可溢出 | 宽度铺满正文，**高度随内容**                                 |
+
+所以 `DocSequenceChart` / `DocGanttChart` 是普通文档图表：宽度跟随容器（`useContainerWidth`
+测量，最小 360 / 400 px 兜底），高度由内容决定，没有缩放控件与网格。参与者或行数过多时
+时序图横向滚动，而不是把文字压扁。
+
+```ts
+import {
+  parseMermaidDiagram,
+  parseMermaidSequence,
+  parseMermaidGantt,
+} from '@echolab-auto/ui-frame/doc'
+
+// 宿主只需问一件事：这段源码该画成什么，还是只能给源码
+const { type, diagram } = parseMermaidDiagram(source)
+// type: 'flowchart' | 'sequence' | 'gantt' | 'other'
+// diagram: { kind: 'sequence', graph } | ... | undefined（undefined = 回退源码）
+```
 
 ---
 

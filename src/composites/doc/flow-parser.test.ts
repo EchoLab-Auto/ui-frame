@@ -241,3 +241,21 @@ describe('writeFlowNodePosition', () => {
     expect(out).toBe(body2)
   })
 })
+
+describe('加重边（`==>`）', () => {
+  it('`==>` 解析为 thick 边，与 `-->` 拓扑等价', () => {
+    const graph = parseProDocFlow('graph LR\n  A[根] ==> B[子]\n  B --> C[叶]')
+    expect(graph.errors).toEqual([])
+    expect(graph.edges).toEqual([
+      { from: 'A', to: 'B', label: undefined, thick: true },
+      { from: 'B', to: 'C', label: undefined },
+    ])
+  })
+
+  it('加重边支持边标签，可与普通边混用', () => {
+    const graph = parseProDocFlow('graph TB\n  A ==>|强依赖| B\n  A -->|弱依赖| C')
+    expect(graph.errors).toEqual([])
+    expect(graph.edges[0]).toEqual({ from: 'A', to: 'B', label: '强依赖', thick: true })
+    expect(graph.edges[1]).toEqual({ from: 'A', to: 'C', label: '弱依赖' })
+  })
+})

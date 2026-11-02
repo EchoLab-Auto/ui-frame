@@ -105,6 +105,26 @@ export { parseFrontmatter, pathToId, extractTitle, createNode, buildDocTree } fr
 
 // === 流程图（prodoc-flow） ===
 export { parseProDocFlow, extractFlowBlocks, writeFlowNodePosition } from './flow-parser.js'
+export { default as DocSequenceChart } from './DocSequenceChart.vue'
+export type { DocSequenceChartProps } from './DocSequenceChart.vue'
+export { default as DocGanttChart } from './DocGanttChart.vue'
+export type { DocGanttChartProps } from './DocGanttChart.vue'
+export { useContainerWidth } from './useContainerWidth.js'
+export type { ContainerWidth, UseContainerWidthOptions } from './useContainerWidth.js'
+export { isMermaidFlowchart, parseMermaidFlow } from './mermaid-flow.js'
+export { isMermaidSequence, parseMermaidSequence } from './mermaid-sequence.js'
+export type {
+  SequenceActor,
+  SequenceArrowKind,
+  SequenceGraph,
+  SequenceItem,
+  SequenceMessage,
+  SequenceNote,
+} from './mermaid-sequence.js'
+export { formatGanttTick, isMermaidGantt, parseMermaidGantt } from './mermaid-gantt.js'
+export type { GanttGraph, GanttSection, GanttTask, GanttTaskStatus } from './mermaid-gantt.js'
+export { parseMermaidDiagram } from './mermaid-diagram.js'
+export type { MermaidDiagram, MermaidDiagramResult } from './mermaid-diagram.js'
 export { layoutProDocFlow } from './flow-layout.js'
 export type { FlowLayoutNode, FlowLayoutEdge, FlowLayoutResult } from './flow-layout.js'
 export { resolveCanvasGraph, buildHierarchyGraph } from './flow-graph.js'

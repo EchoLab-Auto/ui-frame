@@ -8,6 +8,7 @@
  * graph LR                      // 方向：LR / RL / TB / BT（缺省 LR + 容错记录）
  * A[开始] --> B{判断}            // []矩形 [/x/]圆角 ()体育场 {}菱形
  * B -->|是| C[处理1|/a/b.md]     // 边标签 |文本|；"显示文本|路径.md" 即文档链接
+ * A ==> D                       // 加重边（Mermaid 的粗箭头，描边加粗、拓扑不变）
  * A --> C                       // 裸 id 引用（自动登记矩形节点）
  * ```
  */
@@ -24,8 +25,12 @@ import type {
 const GRAPH_RE = /^graph\s+(LR|RL|TB|BT)\s*$/i
 /** 节点 token：id + 可选形状括号（sticky，配合 lastIndex 分词） */
 const NODE_RE = /([A-Za-z_][\w-]*)\s*(\[[^\]]*\]|\{[^}]*\}|\([^)]*\))?/y
-/** 边 token：--> 带可选 |标签|（sticky） */
-const ARROW_RE = /-->\s*(?:\|([^|]*)\|)?/y
+/**
+ * 边 token：`-->`（普通）/ `==>`（加重）带可选 `|标签|`（sticky）。
+ *
+ * capture 1 = 箭头原文（用来区分是否加重），capture 2 = 边标签。
+ */
+const ARROW_RE = /(-->|==>)\s*(?:\|([^|]*)\|)?/y
 /** 手动排版标注：`@ x, y`（仅允许出现在行尾，绑定到该行最后一个节点） */
 const POS_RE = /@\s*(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)\s*$/y
 /** 文档链接路径形态：以 /、./、../ 开头且 .md 结尾（防误吞含竖线普通文本） */
@@ -174,11 +179,15 @@ export function parseProDocFlow(source: string): ProDocFlowGraph {
     }
   }
 
-  function registerEdge(from: string, to: string, label?: string): void {
-    const key = `${from}→${to}${label ?? ''}`
+  function registerEdge(from: string, to: string, label?: string, thick?: boolean): void {
+    // 同一条边可能既有普通声明又有加重声明：只保留第一条（后者不静默改写
+    // 前者），但加重信息参与去重键——`A --> B` 与 `A ==> B` 是两种声明。
+    const key = `${from}→${to}${label ?? ''}${thick ? '!' : ''}`
     if (edgeKeys.has(key)) return
     edgeKeys.add(key)
-    edges.push({ from, to, label })
+    const edge: ProDocFlowEdge = { from, to, label }
+    if (thick) edge.thick = true
+    edges.push(edge)
   }
 
   const lines = source.split('\n')
@@ -258,7 +267,8 @@ export function parseProDocFlow(source: string): ProDocFlowGraph {
         })
         return false
       }
-      const edgeLabel = arrowMatch[1]?.trim() || undefined
+      const edgeLabel = arrowMatch[2]?.trim() || undefined
+      const thick = arrowMatch[1] === '==>'
       pos = ARROW_RE.lastIndex
 
       while (pos < raw.length && /\s/.test(raw[pos])) pos++
@@ -270,7 +280,7 @@ export function parseProDocFlow(source: string): ProDocFlowGraph {
       }
       const toId = nodeMatch[1]
       registerNode(nodeMatch[1], nodeMatch[2])
-      registerEdge(fromId, toId, edgeLabel)
+      registerEdge(fromId, toId, edgeLabel, thick)
       fromId = toId
       pos = NODE_RE.lastIndex
     }

@@ -1,9 +1,13 @@
 /**
  * Mermaid flowchart → ui-frame 原生 DocFlowCanvas 图模型。
  *
- * 常见的 `flowchart` / `graph` 不经过 Mermaid 的默认 SVG 皮肤，而是复用
- * NeumorphismCanvas 的布局、节点、边、缩放与主题。其他 Mermaid 图类型
- * （sequence / class / gantt …）返回 null，仍由 Mermaid 官方渲染器兜底。
+ * `flowchart` / `graph` 走 NeumorphismCanvas 的布局、节点、边、缩放与主题，
+ * **不使用** Mermaid 的 SVG 皮肤。其他图型（sequence / class / gantt …）没有
+ * 原生实现，返回 null 由宿主保留源码——框架里已经不存在第二套皮肤。
+ *
+ * 返回 null 的两种情况，宿主用 `isMermaidFlowchart` 区分：
+ * - 图型不支持（非 `flowchart` / `graph`）；
+ * - 流程图用了超出原生能力的写法（`direction` / `click` / `style` 之外的未知语句）。
  */
 
 import { parseProDocFlow } from './flow-parser'
@@ -12,6 +16,27 @@ import type { ProDocFlowGraph } from './types'
 const HEADER_RE = /^(?:flowchart|graph)\s+(LR|RL|TB|BT)\s*$/i
 const STRUCTURAL_RE = /^(?:subgraph\b.*|end|direction\b.*)$/i
 const PRESENTATION_RE = /^(?:classDef\b.*|class\b.*|style\b.*|linkStyle\b.*)$/i
+
+/** 首个有效行（跳过空行与 `%%` 注释）。 */
+function firstMeaningfulLine(source: string): string {
+  return (
+    source
+      .split('\n')
+      .find(line => line.trim() && !line.trim().startsWith('%%'))
+      ?.trim() ?? ''
+  )
+}
+
+/**
+ * 源码是否是 Mermaid 流程图（`flowchart` / `graph`）。
+ *
+ * 宿主据此区分**该由原生画布承担**与**该交给官方渲染器**的图型：流程图不再
+ * 降级到官方 SVG 皮肤——同一份文档里两种皮肤并排是最刺眼的不一致，解析不了
+ * 就保留源码；`sequenceDiagram` / `gantt` 等非流程图形型仍走官方渲染器。
+ */
+export function isMermaidFlowchart(source: string): boolean {
+  return HEADER_RE.test(firstMeaningfulLine(source))
+}
 
 /** 标签只作为文本进入 Vue 节点：换行标记变分隔符，HTML 不进入图组件。 */
 function plainLabel(value: string): string {
@@ -43,8 +68,7 @@ function normalizeStatement(line: string): string {
 
 export function parseMermaidFlow(source: string): ProDocFlowGraph | null {
   const lines = source.split('\n')
-  const first = lines.find(line => line.trim() && !line.trim().startsWith('%%'))?.trim() ?? ''
-  if (!HEADER_RE.test(first)) return null
+  if (!isMermaidFlowchart(source)) return null
 
   const normalized: string[] = []
   for (const original of lines) {

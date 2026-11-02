@@ -243,7 +243,7 @@ function onNodeKeydown(event: KeyboardEvent, docPath?: string): void {
             :key="i"
             :d="e.path"
             class="nm-flow__edge"
-            :class="{ 'nm-flow__edge--back': e.isBackEdge }"
+            :class="{ 'nm-flow__edge--back': e.isBackEdge, 'nm-flow__edge--thick': e.thick }"
             :marker-end="`url(#${arrowMarkerId})`"
           />
         </svg>
@@ -326,6 +326,13 @@ function onNodeKeydown(event: KeyboardEvent, docPath?: string): void {
   stroke: var(--nm-text-secondary);
   stroke-width: 1.6;
   opacity: 0.75;
+
+  // 加重边（`==>`）：只加粗描边与箭头（marker 默认按 strokeWidth 缩放），
+  // 不改颜色——颜色是主题的事，粗细才是语义。
+  &--thick {
+    stroke-width: 3;
+    opacity: 0.95;
+  }
 
   &--back {
     stroke-dasharray: 6 4;

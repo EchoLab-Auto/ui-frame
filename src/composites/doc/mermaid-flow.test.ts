@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { parseMermaidFlow } from './mermaid-flow'
+import { isMermaidFlowchart, parseMermaidFlow } from './mermaid-flow'
 
 describe('Mermaid flowchart → 原生画布', () => {
   it('解析中文节点、子图和带标签边，并去掉标签 HTML', () => {
@@ -40,7 +40,21 @@ describe('Mermaid flowchart → 原生画布', () => {
     expect(graph?.nodes.map(node => node.shape)).toEqual(['rounded', 'diamond', 'stadium'])
   })
 
-  it('非 flowchart 或含不支持的语句时返回 null，交给 Mermaid 兜底', () => {
+  it('`==>` 粗箭头进入原生画布，并保留加重语义', () => {
+    const graph = parseMermaidFlow('flowchart TB\n  ROOT["根"] ==> P["人格层"]')
+    expect(graph).not.toBeNull()
+    expect(graph?.edges).toEqual([{ from: 'ROOT', to: 'P', label: undefined, thick: true }])
+  })
+
+  it('图型判定：流程图归原生画布独占，其他图型保留源码', () => {
+    expect(isMermaidFlowchart('flowchart TB\n  A --> B')).toBe(true)
+    expect(isMermaidFlowchart('graph LR\n  A --> B')).toBe(true)
+    expect(isMermaidFlowchart('%% 注释\nflowchart BT\n  A --> B')).toBe(true)
+    expect(isMermaidFlowchart('sequenceDiagram\n  A->>B: 请求')).toBe(false)
+    expect(isMermaidFlowchart('')).toBe(false)
+  })
+
+  it('非 flowchart 或含不支持的语句时返回 null', () => {
     expect(parseMermaidFlow('sequenceDiagram\n  A->>B: 请求')).toBeNull()
     expect(parseMermaidFlow('flowchart LR\n  A --> B\n  click A "https://example.com"')).toBeNull()
   })

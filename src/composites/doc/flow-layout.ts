@@ -23,6 +23,8 @@ export interface FlowLayoutEdge {
   from: string
   to: string
   label?: string
+  /** 加重边（`==>`）：描边更粗，拓扑与布局不受影响 */
+  thick?: boolean
   /** SVG path d（三次贝塞尔） */
   path: string
   /** 边标签定位点 */
@@ -425,7 +427,15 @@ export function layoutProDocFlow(
       }
     }
 
-    layoutEdges.push({ from: e.from, to: e.to, label: e.label, path, labelPos, isBackEdge: isBack })
+    layoutEdges.push({
+      from: e.from,
+      to: e.to,
+      label: e.label,
+      ...(e.thick ? { thick: true } : {}),
+      path,
+      labelPos,
+      isBackEdge: isBack,
+    })
   })
 
   // 通道外扩后同步扩大画布

@@ -24,8 +24,10 @@ import { parseProDocFlow } from './flow-parser'
 import { useMarkdownToc } from './useMarkdownToc'
 import { useScrollSpy } from './useScrollSpy'
 import { mathExtensions, renderMath } from './math'
-import { mermaidPlaceholder, renderMermaidDiagrams } from './mermaid'
-import { parseMermaidFlow } from './mermaid-flow'
+import { MERMAID_GRAPH_ATTR, mermaidPlaceholder, setMermaidState } from './mermaid'
+import { parseMermaidDiagram } from './mermaid-diagram'
+import DocSequenceChart from './DocSequenceChart.vue'
+import DocGanttChart from './DocGanttChart.vue'
 import NeumorphismIcon from '@/components/NeumorphismIcon/NeumorphismIcon.vue'
 
 export type { TocNode } from './useMarkdownToc'
@@ -237,10 +239,14 @@ watch(
   }
 )
 
-/** flowchart 复用原生画布；其他图型再按需加载 Mermaid 官方渲染器。 */
+/**
+ * Mermaid 代码块的唯一渲染入口：原生画布，**没有官方 SVG 兜底**。
+ *
+ * 图型分发在 `parseMermaidDiagram` 里（纯函数、可单测）：有原生实现的画图，其余
+ * 一律保留源码——同一份文档里只允许一种皮肤。
+ */
 function runMermaidDiagrams(): void {
-  mountMermaidFlowDiagrams()
-  void renderMermaidDiagrams(contentRef.value)
+  mountMermaidDiagrams()
 }
 
 // content 或 renderedHtml 变化后重跑后处理（mermaid 替换 + 流程画布/代码块挂载）
@@ -339,19 +345,32 @@ function adoptOrMount(el: Element, key: string, createVnode: () => VNode): void 
   }
 }
 
-function mountMermaidFlowDiagrams(): void {
+function mountMermaidDiagrams(): void {
   if (!contentRef.value) return
   const placeholders = contentRef.value.querySelectorAll('.mermaid-diagram')
   for (const el of placeholders) {
     if (el.getAttribute('data-mermaid-state') === 'done') continue
     const source = el.querySelector('pre code')?.textContent ?? ''
-    const graph = parseMermaidFlow(source)
-    if (!graph) continue
+    const { type, diagram } = parseMermaidDiagram(source)
+    el.setAttribute(MERMAID_GRAPH_ATTR, type)
 
-    adoptOrMount(el, `mermaid-flow:${source}`, () =>
-      h(DocFlowCanvas, { graph, height: '480px', editable: false })
-    )
-    el.setAttribute('data-mermaid-state', 'done')
+    if (!diagram) {
+      // 两种"画不出来"都不换皮肤，一律保留源码；`type` 让它们在 DOM 上可区分：
+      // - `flowchart` / `sequence` / `gantt`：图型有实现，但这几行写法超界；
+      // - `other`：图型本身没有原生实现（class / state / pie / mindmap …）。
+      setMermaidState(el, 'error')
+      continue
+    }
+
+    const canvas =
+      diagram.kind === 'flowchart'
+        ? h(DocFlowCanvas, { graph: diagram.graph, height: '480px', editable: false })
+        : diagram.kind === 'sequence'
+          ? h(DocSequenceChart, { graph: diagram.graph })
+          : h(DocGanttChart, { graph: diagram.graph })
+
+    adoptOrMount(el, `mermaid-${diagram.kind}:${source}`, () => canvas)
+    setMermaidState(el, 'done')
     el.setAttribute('data-mermaid-renderer', 'ui-frame')
   }
 }
@@ -565,9 +584,10 @@ onBeforeUnmount(() => {
   font-size: var(--nm-font-lg);
 }
 
-/* ── Mermaid（可选依赖；见 ./mermaid.ts）────────────────────────────────
-   加载中与失败时保留等宽源码；成功后 SVG 在大图时横向滚动，不撑破宿主。
-   样式属于通用渲染器，Panel / DocViewer / 编辑器预览无需各自补一份。 */
+/* ── Mermaid（见 ./mermaid.ts；无官方渲染器，只有占位与状态）──────────────
+   成功 = 原生图（流程图是画布 `.nm-flow`，时序/甘特是图表 `.nm-seq` / `.nm-gantt`）；
+   画不出来 = 等宽源码回退。**框由这里统一提供**：三张图共用同一种外框与间距，
+   组件自身只负责内部布局。`> svg` 规则是宿主自定义渲染的兼容位，本库不再产出 SVG。 */
 .mermaid-diagram {
   max-width: 100%;
   margin: var(--nm-spacing-md) 0;

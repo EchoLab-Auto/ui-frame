@@ -9,14 +9,6 @@ import {
   createResizeObserverMock,
 } from '@/__test-utils__/test-helpers'
 
-vi.mock('mermaid', () => ({
-  default: {
-    initialize: vi.fn(),
-    run: vi.fn(),
-    render: vi.fn(async () => ({ svg: '<svg class="mermaid-mock-svg"></svg>' })),
-  },
-}))
-
 describe('MarkdownRenderer', () => {
   const originalIntersectionObserver = globalThis.IntersectionObserver
   const originalResizeObserver = globalThis.ResizeObserver
@@ -47,24 +39,109 @@ describe('MarkdownRenderer', () => {
 
     const diagram = wrapper.find('.mermaid-diagram')
     expect(diagram.attributes('data-mermaid-renderer')).toBe('ui-frame')
+    expect(diagram.attributes('data-mermaid-graph')).toBe('flowchart')
     expect(diagram.attributes('data-mermaid-state')).toBe('done')
     expect(diagram.findAll('.nm-flow__node')).toHaveLength(2)
     expect(diagram.findAll('.nm-flow__edge')).toHaveLength(1)
     expect(diagram.text()).toContain('开始')
     expect(diagram.text()).toContain('判断')
-    // 源码不复制进 data-*：含箭头���属性会被 DOMPurify 的 mXSS 规则剥除。
+    // 源码不复制进 data-*：含箭头的属性会被 DOMPurify 的 mXSS 规则剥除。
     expect(diagram.attributes('data-mermaid')).toBeUndefined()
-    const mermaid = (await import('mermaid')).default
-    expect(mermaid.render).not.toHaveBeenCalled()
   })
 
-  it('非 flowchart 的 Mermaid 图型保留官方 SVG 渲染兜底', async () => {
+  it('`==>` 加重边进入原生画布（不再因粗箭头回退）', async () => {
     const fence = '```'
-    const wrapper = mountRenderer(fence + 'mermaid\nsequenceDiagram\n  A->>B: 请求\n' + fence)
-    const mermaid = (await import('mermaid')).default
-    await vi.waitFor(() => expect(wrapper.find('.mermaid-mock-svg').exists()).toBe(true))
-    expect(wrapper.find('.mermaid-diagram').attributes('data-mermaid-renderer')).toBeUndefined()
-    expect(mermaid.render).toHaveBeenCalled()
+    const wrapper = mountRenderer(
+      fence + 'mermaid\nflowchart TB\n  ROOT[根] ==> P[人格层]\n' + fence
+    )
+    await vi.waitFor(() => expect(wrapper.find('.mermaid-diagram .nm-flow').exists()).toBe(true))
+
+    const diagram = wrapper.find('.mermaid-diagram')
+    expect(diagram.attributes('data-mermaid-state')).toBe('done')
+    expect(diagram.findAll('.nm-flow__node')).toHaveLength(2)
+    expect(diagram.findAll('.nm-flow__edge')).toHaveLength(1)
+    expect(diagram.find('.nm-flow__edge--thick').exists()).toBe(true)
+  })
+
+  it('画不出来的流程图保留源码，不降级任何 SVG 皮肤', async () => {
+    const fence = '```'
+    // `direction` 是 Mermaid 合法语法、原生画布明确不支持——正是"同一份文档
+    // 里两种皮肤并排"的触发条件。
+    const wrapper = mountRenderer(
+      fence + 'mermaid\nflowchart LR\n  A[开始] --> B[结束]\n  direction BT\n' + fence
+    )
+    await nextTick()
+    await nextTick()
+
+    const diagram = wrapper.find('.mermaid-diagram')
+    expect(diagram.exists()).toBe(true)
+    expect(diagram.attributes('data-mermaid-graph')).toBe('flowchart')
+    expect(diagram.attributes('data-mermaid-state')).toBe('error')
+    expect(diagram.attributes('data-mermaid-renderer')).toBeUndefined()
+    expect(diagram.find('.nm-flow').exists()).toBe(false)
+    expect(diagram.find('svg').exists()).toBe(false)
+    expect(diagram.find('pre code').text()).toContain('direction BT')
+  })
+
+  it('sequenceDiagram 渲染成原生时序图', async () => {
+    const fence = '```'
+    const wrapper = mountRenderer(
+      fence +
+        'mermaid\nsequenceDiagram\n  participant A\n  participant B\n  A->>B: 请求\n  B-->>A: 响应\n' +
+        fence
+    )
+    await vi.waitFor(() => expect(wrapper.find('.mermaid-diagram .nm-seq').exists()).toBe(true))
+
+    const diagram = wrapper.find('.mermaid-diagram')
+    expect(diagram.attributes('data-mermaid-graph')).toBe('sequence')
+    expect(diagram.attributes('data-mermaid-state')).toBe('done')
+    expect(diagram.attributes('data-mermaid-renderer')).toBe('ui-frame')
+    expect(diagram.findAll('.nm-seq__head')).toHaveLength(2)
+    expect(diagram.findAll('.nm-seq__message')).toHaveLength(2)
+    expect(diagram.find('pre').exists()).toBe(false)
+  })
+
+  it('gantt 渲染成原生甘特图', async () => {
+    const fence = '```'
+    const wrapper = mountRenderer(
+      fence +
+        'mermaid\ngantt\n  dateFormat YYYY-MM-DD\n  section 开发\n  实现 :a, 2026-01-01, 5d\n  测试 :b, after a, 3d\n' +
+        fence
+    )
+    await vi.waitFor(() => expect(wrapper.find('.mermaid-diagram .nm-gantt').exists()).toBe(true))
+
+    const diagram = wrapper.find('.mermaid-diagram')
+    expect(diagram.attributes('data-mermaid-graph')).toBe('gantt')
+    expect(diagram.attributes('data-mermaid-state')).toBe('done')
+    expect(diagram.findAll('.nm-gantt__bar')).toHaveLength(2)
+    expect(diagram.findAll('.nm-gantt__dep')).toHaveLength(1)
+  })
+
+  it('既没有原生实现、也不是已知图型时保留源码', async () => {
+    const fence = '```'
+    const wrapper = mountRenderer(fence + 'mermaid\npie\n  "A" : 30\n' + fence)
+    await nextTick()
+    await nextTick()
+
+    const diagram = wrapper.find('.mermaid-diagram')
+    expect(diagram.attributes('data-mermaid-graph')).toBe('other')
+    expect(diagram.attributes('data-mermaid-state')).toBe('error')
+    expect(diagram.find('svg').exists()).toBe(false)
+    expect(diagram.find('pre code').text()).toContain('pie')
+  })
+
+  it('时序图写法超界（如 box 分组）保留源码，而不是画半张图', async () => {
+    const fence = '```'
+    const wrapper = mountRenderer(
+      fence + 'mermaid\nsequenceDiagram\n  box 后端\n  participant A\n  end\n' + fence
+    )
+    await nextTick()
+    await nextTick()
+
+    const diagram = wrapper.find('.mermaid-diagram')
+    expect(diagram.attributes('data-mermaid-graph')).toBe('sequence')
+    expect(diagram.attributes('data-mermaid-state')).toBe('error')
+    expect(diagram.find('.nm-seq').exists()).toBe(false)
   })
 
   it('renders markdown content', () => {
