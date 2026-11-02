@@ -26,6 +26,11 @@ const routes: RouteRecordRaw[] = [
     name: 'Chat',
     component: () => import('../pages/ChatPage.vue'),
   },
+  {
+    path: '/color-gamut',
+    name: 'ColorGamut',
+    component: () => import('../pages/ColorGamutPage.vue'),
+  },
 ]
 
 export default createRouter({

@@ -14,6 +14,7 @@ const navItems = [
   { path: '/layout', label: '排版系统' },
   { path: '/doc', label: '文档组件' },
   { path: '/chat', label: '聊天组件' },
+  { path: '/color-gamut', label: '色彩能力' },
 ]
 </script>
 
