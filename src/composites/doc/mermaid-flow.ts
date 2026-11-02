@@ -52,15 +52,32 @@ function plainLabel(value: string): string {
     .trim()
 }
 
+/**
+ * 点线（dependency）→ 实线的两种写法都要认。
+ *
+ * Mermaid 里同一个语义有两种拼法，用的人各占一半：
+ * - 展开式：`A -. "文字" .-> B`（官方文档主推）
+ * - 紧凑式：`A -.-> B` / `A -.->|文字| B`（手写更常见）
+ *
+ * 只认展开式时，紧凑式会整行解析失败、整张图退回源码（"依赖图恰好全用紧凑
+ * 写法"是很可能的）。所以先归一紧凑式，再交给展开式的规则。
+ */
+const DASHED_COMPACT_RE = /-\.->\s*(?:\|([^|]*)\|)?/g
+const DASHED_SPACED_RE = /-\.\s*(?:"([^"]*)"|([^\.]*?))?\s*\.->/g
+
 /** 去掉 Mermaid 节点标签里的引号与简单 HTML，保留 ProDoc 的形状括号。 */
 function normalizeStatement(line: string): string {
   // 原生画布已有依赖边绘制；Mermaid 的点线提示统一映射为带标签依赖边。
-  const solid = line.replace(
-    /-\.\s*(?:"([^"]*)"|([^\.]*?))?\s*\.->/g,
+  const compact = line.replace(DASHED_COMPACT_RE, (_edge, label?: string) => {
+    const text = label?.trim()
+    return text ? `-->|${text}|` : '-->'
+  })
+  const spaced = compact.replace(
+    DASHED_SPACED_RE,
     (_edge, quoted: string | undefined, bare: string | undefined) =>
       `-->|${(quoted ?? bare ?? '').trim()}|`
   )
-  return solid.replace(
+  return spaced.replace(
     /(\[[^\]]*\]|\{[^}]*\}|\([^)]*\))/g,
     block => block[0] + plainLabel(block.slice(1, -1)) + block[block.length - 1]
   )

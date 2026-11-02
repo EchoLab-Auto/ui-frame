@@ -46,6 +46,19 @@ describe('Mermaid flowchart → 原生画布', () => {
     expect(graph?.edges).toEqual([{ from: 'ROOT', to: 'P', label: undefined, thick: true }])
   })
 
+  it('点线的紧凑写法 `-.->` 与展开写法等价', () => {
+    const compact = parseMermaidFlow('flowchart LR\n  A["a"] -.-> B["b"]')
+    expect(compact).not.toBeNull()
+    expect(compact?.edges).toEqual([{ from: 'A', to: 'B', label: undefined }])
+
+    const labeled = parseMermaidFlow('flowchart LR\n  A["a"] -.->|依赖| B["b"]')
+    expect(labeled?.edges).toEqual([{ from: 'A', to: 'B', label: '依赖' }])
+
+    // 展开式仍按原语义走（不能被紧凑式规则抢先吃掉）
+    const spaced = parseMermaidFlow('flowchart LR\n  A["a"] -. "依赖" .-> B["b"]')
+    expect(spaced?.edges).toEqual([{ from: 'A', to: 'B', label: '依赖' }])
+  })
+
   it('图型判定：流程图归原生画布独占，其他图型保留源码', () => {
     expect(isMermaidFlowchart('flowchart TB\n  A --> B')).toBe(true)
     expect(isMermaidFlowchart('graph LR\n  A --> B')).toBe(true)
