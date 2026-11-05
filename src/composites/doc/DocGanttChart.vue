@@ -229,7 +229,9 @@ function statusClass(task: GanttTask): string {
         </div>
 
         <!-- 行：section 标题 + 任务名 -->
-        <template v-for="(row, index) in layout.rows" :key="`row-${index}`">
+        <!-- key 用 row.y（cursor 单调递增，全局唯一）：不引入 v-for 的 index 变量，
+             否则 vite-plugin-dts 的类型检查会误报 TS6133（模板作用域未被识别） -->
+        <template v-for="row in layout.rows" :key="`row-${row.y}`">
           <div
             v-if="row.name"
             class="nm-gantt__section"
