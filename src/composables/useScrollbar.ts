@@ -90,6 +90,7 @@ export function useScrollbar(opts: UseScrollbarOptions): UseScrollbarReturn {
   let overlayEl: HTMLDivElement | null = null
   let glowEl: HTMLDivElement | null = null
   let styleId: string | null = null
+  let resizeObserver: ResizeObserver | null = null
 
   // ---- 颜色解析：空串 = 从 CSS 变量读取（token 驱动，主题跟随）；prop 仅作可选覆盖 ----
   /** 把 #rgb/#rrggbb/rgb(r,g,b) 归一为 "r,g,b"；无法解析时返回 fallback */
@@ -111,7 +112,10 @@ export function useScrollbar(opts: UseScrollbarOptions): UseScrollbarReturn {
 
   /** 读取 CSS 变量并归一；变量缺失/空值回退到给定字面量 */
   function resolveColor(value: string, cssVar: string, fallback: string): string {
-    if (value) return value
+    // prop 也要过 normalizeColor：原实现原样返回，#rrggbb 经 split(',') 得到
+    // ["#ff0000"] → Number → NaN，整个点阵变成 rgba(NaN,NaN,NaN,*)（浏览器丢弃
+    // 这些渐变层），点阵直接消失。demo 文档说「写成 r,g,b 会失败」也是这同一个洞。
+    if (value) return normalizeColor(value, fallback)
     if (typeof document === 'undefined') return fallback
     const v = getComputedStyle(document.documentElement).getPropertyValue(cssVar).trim()
     return v ? normalizeColor(v, fallback) : fallback
@@ -160,7 +164,9 @@ export function useScrollbar(opts: UseScrollbarOptions): UseScrollbarReturn {
     if (overlayEl) overlayEl.style.height = `${overlayH.value}px`
   }
 
-  function onScroll() {
+  let scrollRaf = 0
+
+  function readScroll() {
     if (!el) return
     if (overlayKind.value === 'glow') {
       positionGlow()
@@ -168,6 +174,20 @@ export function useScrollbar(opts: UseScrollbarOptions): UseScrollbarReturn {
     }
     scrollY.value = el.scrollTop
     overlayDocH.value = el.scrollHeight
+  }
+
+  // 滚动事件每帧可达多次，dots 每次都重建 ~N×5 条渐变层；
+  // 用 rAF 合并到每帧至多一次，与视觉刷新对齐。
+  function onScroll() {
+    if (scrollRaf) return
+    if (typeof requestAnimationFrame !== 'function') {
+      readScroll()
+      return
+    }
+    scrollRaf = requestAnimationFrame(() => {
+      scrollRaf = 0
+      readScroll()
+    })
   }
 
   function injectHider(selector: string) {
@@ -195,6 +215,12 @@ export function useScrollbar(opts: UseScrollbarOptions): UseScrollbarReturn {
     el.addEventListener('scroll', onScroll, { passive: true })
     injectHider(target.value)
     window.addEventListener('resize', onResize, { passive: true })
+    // 容器高度不随 window.resize 改变的情况很常见（侧栏折叠、头部高度变化、
+    // 字体/图片加载完毕），仅靠 window resize 会让点阵只画到旧高度。
+    if (typeof ResizeObserver !== 'undefined') {
+      resizeObserver = new ResizeObserver(onResize)
+      resizeObserver.observe(el)
+    }
 
     // Zero-height sticky wrapper — occupies no vertical space in flow
     // but stays pinned to the visible top while scrolling.
@@ -221,13 +247,29 @@ export function useScrollbar(opts: UseScrollbarOptions): UseScrollbarReturn {
     }
     el.insertBefore(wrapperEl, el.firstChild)
 
-    onScroll()
+    readScroll()
     onResize()
+    if (kind === 'dots') paintDots()
+    // onMounted 时容器可能尚未完成布局（字体/图片/侧栏折叠动画），
+    // 首帧后再量一次，避免点阵高度停留在旧值。
+    if (typeof requestAnimationFrame === 'function') {
+      requestAnimationFrame(() => {
+        readScroll()
+        onResize()
+        if (kind === 'dots') paintDots()
+      })
+    }
   }
 
   function stopOverlay() {
     if (el) el.removeEventListener('scroll', onScroll)
     window.removeEventListener('resize', onResize)
+    resizeObserver?.disconnect()
+    resizeObserver = null
+    if (scrollRaf && typeof cancelAnimationFrame === 'function') {
+      cancelAnimationFrame(scrollRaf)
+      scrollRaf = 0
+    }
     removeHider()
     wrapperEl?.remove()
     wrapperEl = null
@@ -240,8 +282,11 @@ export function useScrollbar(opts: UseScrollbarOptions): UseScrollbarReturn {
   const bgImage = computed(() => {
     const h = overlayH.value
     const maxScroll = overlayDocH.value - h
-    const progress = maxScroll > 0 ? scrollY.value / maxScroll : 0
-    const cursorY = progress * h
+    const progress = maxScroll > 0 ? Math.min(1, Math.max(0, scrollY.value / maxScroll)) : 0
+    // 游标不能贴着边：0 会让一半的高斯晕落出画布外，顶部看起来是「半截」亮点。
+    // 让游标始终在 [edge, h - edge] 内移动，两端都完整可见。
+    const edge = Math.min(sigma.value, h / 2)
+    const cursorY = edge + progress * Math.max(0, h - 2 * edge)
     const s = sigma.value
 
     const rows = Math.ceil(h / 5)
@@ -268,13 +313,21 @@ export function useScrollbar(opts: UseScrollbarOptions): UseScrollbarReturn {
     return layers.join(',\n')
   })
 
-  // Sync computed background to DOM overlay
-  watch(bgImage, val => {
-    if (overlayEl) {
-      overlayEl.style.backgroundImage = val
-      overlayEl.style.backgroundSize = `25px ${overlayH.value}px`
-      overlayEl.style.backgroundRepeat = 'no-repeat'
-    }
+  // Sync computed background to DOM overlay.
+  // immediate: true —— 首次 startOverlay 时 bgImage 只是被 watch 惰性求值过一次，
+  // 非 immediate 的 watch 不会在「建立依赖的初次求值」上回调，点阵会一片空白
+  // 直到用户真的滚动才出现。
+  function paintDots() {
+    if (!overlayEl) return
+    overlayEl.style.backgroundImage = bgImage.value
+    overlayEl.style.backgroundSize = `25px ${overlayH.value}px`
+    overlayEl.style.backgroundRepeat = 'no-repeat'
+  }
+
+  watch(bgImage, paintDots, { immediate: true })
+  watch([dotColor, accentColor], () => {
+    refreshColors()
+    paintDots()
   })
 
   // ==================== 生命周期 ====================
@@ -298,9 +351,9 @@ export function useScrollbar(opts: UseScrollbarOptions): UseScrollbarReturn {
     start()
   })
 
-  watch(accentColor, () => {
+  watch([variant, dotColor, accentColor], () => {
     refreshColors()
-    paintGlow()
+    if (overlayKind.value === 'glow') paintGlow()
   })
 
   onBeforeUnmount(stop)
