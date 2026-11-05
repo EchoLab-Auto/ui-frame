@@ -40,17 +40,16 @@ PR 创建/更新
          ├── npm run typecheck    ← vue-tsc --noEmit
          ├── npm run test:coverage  ← Vitest + 覆盖率阈值
          ├── npm run build        ← Vite (ESM + UMD)
-         ├── Bundle size check    ← JS < 20KB gzip, CSS < 36KB gzip
+         ├── Bundle size check    ← dist 全量 JS < 250KB gzip, style.css < 50KB gzip
          ├── npm run example:build
          ├── Verify outputs
          ├── Package lint (publint)
          └── Upload artifacts ──→ Pages (自动部署示例站)
-
-Release Published
-  └──→ Publish
-         ├── 完整验证 (lint + format + typecheck + test + build + verify)
-         └── npm publish --provenance ──→ npm registry
 ```
+
+> **发布不在 CI 内**：`release.yml` 已移除，npm 发版由维护者本地手动执行
+> （`npx changeset version` → `bash scripts/publish.sh`），详见
+> [ci-design.md](./ci-design.md#发布流程手动)。
 
 ---
 
@@ -136,11 +135,10 @@ npm run example
 
 ## 六、工作流间依赖关系
 
-| 上游               | 下游        | 依赖方式                                     |
-| ------------------ | ----------- | -------------------------------------------- |
-| **CI**             | **Pages**   | `workflow_run` 事件：CI 成功后自动部署示例站 |
-| **CI**             | **Publish** | 无直接依赖；Publish 独立运行完整验证链       |
-| **PR Title Check** | 无          | 独立运行                                     |
+| 上游               | 下游      | 依赖方式                                     |
+| ------------------ | --------- | -------------------------------------------- |
+| **CI**             | **Pages** | `workflow_run` 事件：CI 成功后自动部署示例站 |
+| **PR Title Check** | 无        | 独立运行                                     |
 
 ### 产物传递
 
@@ -177,7 +175,7 @@ CI (Node 22) 构建产物
 | 缺口                         | 优先级 | 说明                                                                                       |
 | ---------------------------- | ------ | ------------------------------------------------------------------------------------------ |
 | **代码覆盖率爬坡**           | 中     | 门禁已接线（CI 跑 `test:coverage`，阈值 73/63/73/75 防退化），按季度爬坡至 80/70/80/80     |
-| **Changeset 强制检查**       | 中     | PR 未强制要求 changeset 文件；可在 CI 中加入 `changeset status` 检查                       |
+| ~~Changeset 强制检查~~       | 已闭环 | CI 的 `changeset-check` job 已对 PR 强制 `changeset status --since=origin/main`            |
 | **E2E / 视觉回归测试**       | 低     | 浏览器 E2E 与自动化视觉回归均未覆盖（Storybook + Chromatic 接线 2026-10 移除，未实际启用） |
 | **无障碍自动化测试**         | 低     | 无 axe-core 等 a11y 扫描                                                                   |
 | **依赖许可证检查**           | 低     | 无 `license-checker` 扫描                                                                  |

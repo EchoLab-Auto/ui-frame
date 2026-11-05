@@ -86,7 +86,7 @@
     "test:coverage": "vitest run --coverage",
     "prepare": "node -e \"try{require('child_process').execSync('husky',{stdio:'inherit'})}catch(e){}\"",
     "version": "changeset version && npm run format",
-    "release": "npm run build && changeset publish --provenance --access public"
+    "release": "npm run build && changeset publish --access public"
   },
   "lint-staged": {
     "*.{ts,tsx,vue}": [

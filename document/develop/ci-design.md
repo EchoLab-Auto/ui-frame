@@ -17,9 +17,9 @@ group: 开发
 - [架构概览](#架构概览)
 - [工作流详解](#工作流详解)
   - [CI — 核心验证](#ci--核心验证)
-  - [Publish — 发布到 npm](#publish--发布到-npm)
   - [Pages — 示例站部署](#pages--示例站部署)
   - [PR Title Check — PR 标题校验](#pr-title-check--pr-标题校验)
+- [发布流程（手动）](#发布流程手动)
 - [版本命名与预发规则](#版本命名与预发规则)
 - [工作流触发链](#工作流触发链)
 - [环境配置](#环境配置)
@@ -30,18 +30,18 @@ group: 开发
 
 ## 架构概览
 
-本项目采用 **4 条独立工作流** 组成 CI/CD 体系：
+本项目采用 **3 条独立工作流** 组成 CI，发布不在 CI 内（见 [发布流程（手动）](#发布流程手动)）：
 
-| 工作流         | 文件                 | 职责                                    | 触发时机              |
-| -------------- | -------------------- | --------------------------------------- | --------------------- |
-| CI             | `ci.yml`             | 代码质量验证 + 构建 + 测试              | push/PR 到 `main`     |
-| Release        | `release.yml`        | Changesets 版本与发布（自动 CHANGELOG） | push 到 `main` / 手动 |
-| Pages          | `pages.yml`          | 部署示例站到 GitHub Pages               | CI 成功 / 手动        |
-| PR Title Check | `pr-title-check.yml` | 校验 PR 标题符合 Conventional Commits   | PR 生命周期事件       |
+| 工作流         | 文件                 | 职责                                  | 触发时机          |
+| -------------- | -------------------- | ------------------------------------- | ----------------- |
+| CI             | `ci.yml`             | 代码质量验证 + 构建 + 测试            | push/PR 到 `main` |
+| Pages          | `pages.yml`          | 部署示例站到 GitHub Pages             | CI 成功 / 手动    |
+| PR Title Check | `pr-title-check.yml` | 校验 PR 标题符合 Conventional Commits | PR 生命周期事件   |
 
 设计原则：
 
-- **职责分离**：验证、发布、部署三者独立，互不阻塞
+- **职责分离**：验证与部署各自独立，互不阻塞
+- **发布不在 CI 内**：npm 发版由维护者手动执行，CI 只做质量门禁（原因见 [发布流程（手动）](#发布流程手动)）
 - **并发控制**：同分支/同 PR 的重复运行自动取消（`cancel-in-progress: true`）
 - **产物复用**：CI 构建的 example 产物被 Pages 工作流直接下载复用，避免重复构建
 
@@ -107,52 +107,51 @@ Example:
 
 ---
 
-### Release — Changesets 发布流水线
+### 发布流程（手动）
 
-**文件**：`.github/workflows/release.yml`
+**发布不在 GitHub Actions 内执行。** 仓库不再有 `release.yml`，npm 发版由维护者在本地完成。
 
-**触发条件**：
+**为什么移除**：原先用 `changesets/action` 在 main 上开「Version Packages」PR 并发布，但
+该 action 创建 PR 需要仓库级 `GITHUB_TOKEN` 具备 pull requests 写权限，即
+`Settings → Actions → General → Workflow permissions` 中的 **Allow GitHub Actions to
+create and approve pull requests**。本仓库归属组织 `EchoLab-Auto`，该选项受组织级策略
+约束、长期处于锁定状态，Release 工作流自建立起每次都以
+`GitHub Actions is not permitted to create or approve pull requests` 失败，从未真正发出过一个版本。
+与其保留一条永远红的流水线，改为手动发布。
 
-```yaml
-on:
-  push:
-    branches: [main] # main 更新即评估
-  workflow_dispatch: # 支持手动触发
+**手动发布步骤**：
+
+```bash
+# 1. 消费 .changeset/*.md：bump 版本号 + 生成 CHANGELOG（并跑 prettier）
+npx changeset version
+
+# 2. 提交版本变更
+git add -A && git commit -m "chore: version packages"
+
+# 3. 构建并发布（脚本提示输入 npm token，仅临时存放，发完即删）
+bash scripts/publish.sh
 ```
 
-**发布模型（Changesets 标准流）**：
+**配套脚本（package.json，均为手动调用）**：
 
-```
-开发者 PR（携带 .changeset/*.md 变更说明）
-  → 合并到 main
-  → changesets/action 检测到未发布 changeset
-  → 自动开/更新 "Version Packages" PR（bump 版本 + 生成 CHANGELOG.md）
-  → 该 PR 合并后再次触发
-  → npm run release = npm run build && changeset publish --provenance
-  → 发布到 npm 并自动创建 GitHub Release
-```
+| 脚本      | 命令                                                 | 用途                       |
+| --------- | ---------------------------------------------------- | -------------------------- |
+| version   | `changeset version && npm run format`                | 版本 bump + 生成 CHANGELOG |
+| release   | `npm run build && changeset publish --access public` | 构建并发布                 |
+| changeset | `changeset`                                          | 本地新增变更说明           |
 
-**配套脚本（package.json）**：
+> `--provenance` **不可用于本地发布**：npm 仅在带 OIDC 的 CI（GitHub Actions / GitLab CI）
+> 中生成 provenance，其他环境直接抛
+> `EUSAGE: Automatic provenance generation not supported for provider`。
+> 故 `release` 脚本已移除该 flag。
 
-| 脚本      | 命令                                              | 用途               |
-| --------- | ------------------------------------------------- | ------------------ |
-| version   | `changeset version && npm run format`             | 版本 bump + 格式化 |
-| release   | `npm run build && changeset publish --provenance` | 构建并发布         |
-| changeset | `changeset`                                       | 本地新增变更说明   |
-
-**配套门禁**：
+**仍然保留的门禁**：
 
 - **PR changeset 检查**：CI 的 `changeset-check` job（仅 PR 触发）运行
   `npx changeset status --since=origin/main` —— 无 changeset 文件则失败，
-  强制每个变更 PR 携带版本说明
-- **完整验证**：main 上的 CI 全量跑（lint + format + typecheck + test:coverage + build + verify + publint），发布前的最后一道防线
-- **权限最小化**：仅申请 `contents: write`、`id-token: write`、`pull-requests: write`
-
----
-
-### Publish — 发布到 npm（已废弃，见 Release）
-
-旧 `publish.yml`（GitHub Release 触发 + 直连 `npm publish`）已被 Changesets 流水线取代并删除。
+  保证版本说明不遗漏（手动发版时 `changeset version` 才有料可用）
+- **完整验证**：main 上的 CI 全量跑（lint + format + typecheck + test:coverage + build + verify + publint）
+- **发布前构建**：`prepublishOnly` 与 `scripts/publish.sh` 都会先构建，产物缺失即失败
 
 **产物校验清单**（与 CI 一致）：
 
@@ -168,8 +167,6 @@ Subpath exports:
   dist/extensions/index.js + .d.ts
   dist/utils/index.js + .d.ts
 ```
-
-> 注意：Publish 的验证步骤与 CI 完全一致，确保发布前代码质量达标。
 
 ---
 
@@ -286,7 +283,7 @@ echo "${{ github.event.pull_request.title }}" | npx commitlint
 
 ### 本项目实操约定
 
-- **正常发布流**：PR 携带 changeset → 合并后 Release 工作流开「Version Packages」PR → 合并即自动发布（见 [Release — Changesets 发布流水线](#release--changesets-发布流水线)）
+- **正常发布流（手动）**：PR 携带 changeset → 合并到 main → 本地 `npx changeset version` → 提交版本变更 → `bash scripts/publish.sh`（见 [发布流程（手动）](#发布流程手动)）
 - **预发模式（changesets 原生）**：`npx changeset pre enter <tag>` 后正常走 changeset 流程即产出 `X.Y.Z-<tag>.n` 版本；`changeset pre exit` 退出
 - **手工预发（应急）**：直接编辑 `package.json` 与 `package-lock.json` 的根版本字段（**勿用 `npm version`**——它会触发 package.json 的 `version` 脚本 `changeset version`，把待发 changeset 全部消费掉）；CHANGELOG 手工补 `## X.Y.Z-<tag>.<n>` 条目
 - **待发 changeset 保护**：存在未发布的更高级别 changeset 时（如 minor 的 `.changeset/art-component.md`），手工 patch bump 前先临时移出该文件，bump 完成后还原，防止版本被意外抬高
@@ -306,9 +303,9 @@ Push 到 main
             │
             └──→ 触发 Pages ──→ 下载 artifacts ──→ 部署到 GitHub Pages
 
-Push 到 main
+维护者本地（不经 CI）
   │
-  └──→ Release ──→ changesets/action ──→ Version PR ──→ 合并后发布到 npm
+  └──→ npx changeset version ──→ git commit ──→ scripts/publish.sh ──→ npm registry
 ```
 
 ---
@@ -344,7 +341,7 @@ concurrency:
 ```
 
 - 同一工作流 + 同一分支/PR 的多次运行，旧运行自动取消
-- Publish 和 Pages 使用 `cancel-in-progress: false`，防止发布/部署冲突
+- Pages 使用 `cancel-in-progress: false`，防止部署冲突
 
 ---
 
@@ -352,10 +349,10 @@ concurrency:
 
 ### Artifacts
 
-| 产物名称       | 来源             | 消费者                    |
-| -------------- | ---------------- | ------------------------- |
-| `dist`         | CI Build library | Publish（备用）、本地调试 |
-| `dist-example` | CI Build example | Pages 部署                |
+| 产物名称       | 来源             | 消费者                   |
+| -------------- | ---------------- | ------------------------ |
+| `dist`         | CI Build library | 手动发布前核对、本地调试 |
+| `dist-example` | CI Build example | Pages 部署               |
 
 ### npm 缓存
 
@@ -415,11 +412,28 @@ feat 新增 Switch 组件      # 缺少冒号
 FEAT: 新增 Switch 组件     # type 必须小写
 ```
 
-### Release 失败：`GitHub Actions is not permitted to create or approve pull requests`
+### 发布相关：曾经的 Release 工作流与 403
 
-**根因**：仓库/组织设置未允许 Actions 创建 PR——Changesets 无法开「Version Packages」PR。
+`release.yml` 已在 2026-11 移除（改为手动发布，见 [发布流程（手动）](#发布流程手动)）。
+移除前的报错为：
 
-**修复**：`Settings → Actions → General → Workflow permissions` 勾选 **Allow GitHub Actions to create and approve pull requests**（组织仓库需先在组织级放开）。
+```
+GitHub Actions is not permitted to create or approve pull requests.
+```
+
+**根因**：`changesets/action` 创建「Version Packages」PR 需要仓库
+`Settings → Actions → General → Workflow permissions` 勾选 **Allow GitHub Actions to
+create and approve pull requests**；本仓库归属组织 `EchoLab-Auto`，该选项受组织级
+`Settings → Actions → General` 约束而处于锁定/灰色不可点状态。
+
+**若将来要恢复自动发布**，两条路：
+
+1. **组织级放开**：组织 owner 在
+   `https://github.com/organizations/EchoLab-Auto/settings/actions` 勾选同一选项，
+   再到仓库级勾选一次（两层都要开）
+2. **改用 PAT**：建 fine-grained token（`contents: read/write` + `pull requests:
+read/write`）存为 `RELEASE_TOKEN` secret，并让工作流用
+   `GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN || secrets.GITHUB_TOKEN }}`
 
 ### Workflow 显示 `Invalid workflow file`（0 秒失败、无 job）
 

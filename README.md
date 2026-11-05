@@ -206,13 +206,26 @@ npm run example:build
 
 ## 发布
 
+发布**由维护者在本地手动执行，不在 GitHub Actions 内**（CI 只做质量门禁）。详见
+[CI/CD 设计 · 发布流程（手动）](document/develop/ci-design.md#发布流程手动)。
+
 ```bash
-export NPM_TOKEN=npm_xxxxxxxx
-npm config set //registry.npmjs.org/:_authToken=${NPM_TOKEN}
-npm publish
+# 1. 消费 .changeset/*.md：bump 版本号 + 生成 CHANGELOG
+npx changeset version
+
+# 2. 提交版本变更
+git add -A && git commit -m "chore: version packages"
+
+# 3. 构建并发布（脚本提示输入 npm token，仅临时存放，发完即删）
+bash scripts/publish.sh
 ```
 
-- 发布测试版本
+`npm run release` 等价于 `npm run build && changeset publish --access public`。
+
+> 不要给发布命令加 `--provenance`：provenance 需要 CI 的 OIDC token，本地执行会直接
+> 抛 `EUSAGE: Automatic provenance generation not supported for provider`。
+
+- 发布测试版本（预发版本号必须带 tag，否则 npm 拒绝）
 
 ```bash
 npm publish --tag dev
