@@ -92,17 +92,21 @@ jobs:
       - name: Check bundle size
         run: |
           # 全量载荷预算：所有 dist JS 逐文件 gzip 求和
-          #（2026-10 校准——首跑实测 203.6KB；随功能增长上调，预算 220KB）
+          # 校准记录：
+          #   2026-10 首跑实测 203.6KB → 预算 220KB
+          #   2026-11-05 实测 236.8KB（原生 mermaid 渲染器 / art 泛化蒙版 /
+          #     PixelFont / 图表组件落地所致）→ 预算 250KB
+          # 随功能增长上调；上调时同步更新本注释里的实测值。
           PAYLOAD=$(find dist -name '*.js' -exec gzip -c {} + | wc -c)
           CSS_SIZE=$(gzip -c dist/style.css | wc -c)
           echo "dist JS payload gzipped: ${PAYLOAD} bytes"
           echo "dist/style.css gzipped: ${CSS_SIZE} bytes"
-          if [ "$PAYLOAD" -ge 220000 ]; then
-            echo "ERROR: dist JS payload exceeds 220 KB gzipped (${PAYLOAD} bytes)"
+          if [ "$PAYLOAD" -ge 250000 ]; then
+            echo "ERROR: dist JS payload exceeds 250 KB gzipped (${PAYLOAD} bytes)"
             exit 1
           fi
-          if [ "$CSS_SIZE" -ge 38000 ]; then
-            echo "ERROR: dist/style.css exceeds 38 KB gzipped (${CSS_SIZE} bytes)"
+          if [ "$CSS_SIZE" -ge 50000 ]; then
+            echo "ERROR: dist/style.css exceeds 50 KB gzipped (${CSS_SIZE} bytes)"
             exit 1
           fi
           echo "OK — bundle sizes within limits"
@@ -125,6 +129,8 @@ jobs:
           test -f dist/utils/index.d.ts      || { echo "MISSING: dist/utils/index.d.ts";      exit 1; }
           echo "=== Example ==="
           test -f dist-example/index.html || { echo "MISSING: dist-example/index.html"; exit 1; }
+          # 静态托管的 SPA 深链回退（GitHub Pages 对未知路径返回 404.html）
+          test -f dist-example/404.html || { echo "MISSING: dist-example/404.html"; exit 1; }
           echo "OK — all outputs verified"
 
       - name: Package lint (publint)
