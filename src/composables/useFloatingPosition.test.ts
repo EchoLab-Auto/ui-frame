@@ -116,6 +116,63 @@ describe('useFloatingPosition', () => {
     stop()
   })
 
+  // 2026-11 用户报「点开的框超出边界、按不到」的直接成因：
+  // 打开那一帧浮层刚挂载，`offsetHeight` 还是 0，auto 用估计高度（120）判向 →
+  // "下面放得下"通过 → 选 bottom；内容真渲染成 430px 高后已溢出视口下沿，
+  // 而 auto 只在 resize 重判，永远纠正不回来。这里锁定"实测尺寸变化后重判"。
+  it('auto：内容晚于判向才渲染时，按实测高度重判方向', async () => {
+    // 触发器贴近视口底部：下方只剩 ~40px，上方充足
+    const trigger = mockTrigger({ top: innerHeight - 60, bottom: innerHeight - 20 })
+    const open = ref(false)
+    // 浮层先用 0 高度（尚未渲染），随后变高
+    const floatingEl = document.createElement('div')
+    let height = 0
+    Object.defineProperty(floatingEl, 'offsetHeight', { get: () => height, configurable: true })
+    Object.defineProperty(floatingEl, 'offsetWidth', { get: () => 280, configurable: true })
+    const floating = { value: floatingEl }
+
+    const { actualPlacement, floatingSize, stop } = useFloatingPosition({
+      trigger,
+      open,
+      placement: ref<FloatingPlacement | 'auto'>('auto'),
+      floating,
+      offset: ref(0),
+    })
+
+    open.value = true
+    await nextTick()
+    await flushFrames(2)
+    // 第一帧：还没量到高度（0），估计 120 < 下方可用空间 → 先选 bottom
+    expect(actualPlacement.value).toBe('bottom')
+
+    height = 430 // 内容渲染完成：估算的 120 严重偏小
+    await flushFrames(3)
+    // 重判：下方装不下 430 → 翻到上方
+    expect(actualPlacement.value).toBe('top')
+    expect(floatingSize.value.height).toBe(430)
+    stop()
+  })
+
+  it('浮层实测尺寸逐帧上报（夹边/自适应高度依赖它）', async () => {
+    const trigger = mockTrigger({})
+    const open = ref(false)
+    const floatingEl = document.createElement('div')
+    Object.defineProperty(floatingEl, 'offsetHeight', { get: () => 200, configurable: true })
+    Object.defineProperty(floatingEl, 'offsetWidth', { get: () => 240, configurable: true })
+    const { floatingSize, stop } = useFloatingPosition({
+      trigger,
+      open,
+      placement: ref<FloatingPlacement | 'auto'>('auto'),
+      floating: { value: floatingEl },
+      offset: ref(0),
+    })
+    open.value = true
+    await nextTick()
+    await flushFrames(2)
+    expect(floatingSize.value).toEqual({ width: 240, height: 200 })
+    stop()
+  })
+
   it('rAF 逐帧跟随：触发器移动后 rect 同步更新', async () => {
     let top = 100
     const el = document.createElement('div')

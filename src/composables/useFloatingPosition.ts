@@ -47,6 +47,13 @@ export interface UseFloatingPositionReturn {
   actualPlacement: Ref<FloatingPlacement>
   /** 触发器视口 rect（逐帧更新，仅变化时写入） */
   rect: Ref<FloatingRect | null>
+  /**
+   * 浮层**实测**尺寸（逐帧更新，仅变化时写入；未挂载为 0×0）。
+   *
+   * 消费方拿它把浮层夹进视口：位置由 `rect` 驱动，但"盒子有多高"只有量了才
+   * 知道——内容异步渲染（列表、图片、折叠块）时高度会在打开后继续变。
+   */
+  floatingSize: Ref<{ width: number; height: number }>
   /** 当前侧可用空间 px（打开/翻转/resize 时重估，滚动中冻结防抖动） */
   available: Ref<number>
   /** 立即全量重算（方向 + rect + 可用空间） */
@@ -96,8 +103,22 @@ export function useFloatingPosition(opts: UseFloatingPositionOptions): UseFloati
 
   const rect = ref<FloatingRect | null>(null)
   const available = ref(0)
+  const floatingSize = ref<{ width: number; height: number }>({ width: 0, height: 0 })
   const initial: FloatingPlacement = placement.value === 'auto' ? candidates[0] : placement.value
   const actualPlacement = ref<FloatingPlacement>(initial)
+  /**
+   * auto 判向时**实际量到的**内容高度（0 = 当时还没渲染出来，用的是估计值）。
+   *
+   * 为什么需要它：打开那一帧浮层刚从 `v-if` 挂载，`offsetHeight` 常常还是 0，
+   * `pickAuto` 于是拿 `estimateSize`（默认 120）算空间——"下面放得下"通过，选
+   * bottom；等内容真渲染成 430px 高，浮层已溢出视口下沿，而 auto 只在
+   * `fullRecompute`（resize）时重判，**永远纠正不回来**。实测 360×640 下触发器
+   * 在屏幕底部时浮层 bottom=890（vh=640），下半截点不到。
+   *
+   * 修法：判向时记下量到的高度，之后每帧发现实测尺寸与当时不一致就补一次全量
+   * 重估。尺寸稳定后不再触发，不会抖动。
+   */
+  let decidedHeight = 0
 
   function gap(): number {
     return offset?.value ?? 0
@@ -125,6 +146,7 @@ export function useFloatingPosition(opts: UseFloatingPositionOptions): UseFloati
   function pickAuto(r: FloatingRect): FloatingPlacement {
     const s = spaces(r)
     const size = contentSize()
+    decidedHeight = size.height
     for (const c of candidates) {
       const need = (c === 'bottom' || c === 'top' ? size.height : size.width) + 8
       if (s[c] >= need) return c
@@ -144,6 +166,20 @@ export function useFloatingPosition(opts: UseFloatingPositionOptions): UseFloati
 
   function update(fullRecompute: boolean) {
     if (!trigger.value || typeof window === 'undefined') return
+    // 实测尺寸（夹边用）：逐帧量，仅变化时写响应式状态
+    const measuredSize = contentSize()
+    if (
+      floatingSize.value.width !== measuredSize.width ||
+      floatingSize.value.height !== measuredSize.height
+    ) {
+      floatingSize.value = { width: measuredSize.width, height: measuredSize.height }
+    }
+
+    // 内容尺寸晚于判向就绪：auto 模式下补一次重估（见 `decidedHeight` 注释）。
+    if (!fullRecompute && placement.value === 'auto' && !pendingDecision) {
+      const measured = floating?.value?.offsetHeight ?? 0
+      if (measured > 0 && Math.abs(measured - decidedHeight) > 8) fullRecompute = true
+    }
     const r = trigger.value.getBoundingClientRect()
     const next: FloatingRect = {
       top: r.top,
@@ -196,7 +232,6 @@ export function useFloatingPosition(opts: UseFloatingPositionOptions): UseFloati
   let needsFullRecompute = false
   // 锁定模式下仅打开转换后的首次 update 判向，其后冻结直到关闭
   let pendingDecision = true
-
   function onWindowResize() {
     needsFullRecompute = true
   }
@@ -244,6 +279,7 @@ export function useFloatingPosition(opts: UseFloatingPositionOptions): UseFloati
       actualPlacement.value = placement.value === 'auto' ? candidates[0] : placement.value
       // 下次打开重新判向（锁定模式的一次决策随关闭失效）
       pendingDecision = true
+      decidedHeight = 0
     }
   })
 
@@ -257,6 +293,7 @@ export function useFloatingPosition(opts: UseFloatingPositionOptions): UseFloati
   return {
     actualPlacement,
     rect,
+    floatingSize,
     available,
     refresh,
     stop,

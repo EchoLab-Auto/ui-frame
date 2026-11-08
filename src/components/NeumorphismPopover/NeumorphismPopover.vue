@@ -64,6 +64,9 @@ const {
   offset: resolvedOffset,
 })
 
+/** 实测尺寸缺失时（未挂载 / display:none）的兜底尺寸——与定位引擎的估计同源。 */
+const estimateSizeFallback = { width: 200, height: 120 }
+
 // ---- Refs ----
 const triggerRef = ref<HTMLElement>()
 const popoverRef = ref<HTMLElement>()
@@ -71,14 +74,63 @@ const popoverRef = ref<HTMLElement>()
 // ---- 共享浮层定位引擎（rAF 逐帧追踪 + 边界翻转滞后） ----
 // 嵌套滚动容器/平滑滚动下由逐帧轮询保证同帧同步 —— 旧实现的 scroll
 // 事件监听无 capture，嵌套滚动时浮层与触发器脱节，由引擎从根本上覆盖
-const { actualPlacement, rect, refresh, stop } = useFloatingPosition({
+const { actualPlacement, rect, floatingSize, refresh, stop } = useFloatingPosition({
   trigger: triggerRef,
   open: isOpen,
   placement: computed(() => resolvedPosition.value),
   offset: resolvedOffset,
   floating: popoverRef,
-  estimateSize: { width: 200, height: 120 },
+  estimateSize: estimateSizeFallback,
 })
+
+/** 浮层与视口边缘的最小留白（px）。 */
+const VIEWPORT_MARGIN = 8
+
+/**
+ * 把浮层的最终位置夹进视口（原地改写 `style.top` / `style.left`）。
+ *
+ * 位置是"锚点 + transform"两段式，所以先把盒子的左上角还原出来再夹：
+ * - `top` 向：`translate(-50%, -100%)` → 盒底 = `top`，盒左 = `left - w/2`；
+ * - `bottom` 向：`translate(-50%, 0)` → 盒顶 = `top`，盒左 = `left - w/2`；
+ * - `left` 向：`translate(-100%, -50%)` → 盒右 = `left`，盒顶 = `top - h/2`；
+ * - `right` 向：`translate(0, -50%)` → 盒左 = `left`，盒顶 = `top - h/2`。
+ *
+ * 尺寸取实测值（`floatingSize`）：内容异步长高时 rect 不变，用估的会夹错。
+ * 装不下时（尺寸 > 视口）贴住上/左留白，让内容在自己的滚动区里滚。
+ */
+function clampIntoViewport(
+  style: Record<string, string>,
+  r: NonNullable<typeof rect.value>,
+  offset: number
+): void {
+  if (typeof window === 'undefined') return
+  const w = floatingSize.value.width || estimateSizeFallback.width
+  const h = floatingSize.value.height || estimateSizeFallback.height
+  const vw = window.innerWidth
+  const vh = window.innerHeight
+
+  const clampAxis = (value: number, size: number, viewport: number): number => {
+    const max = Math.max(VIEWPORT_MARGIN, viewport - size - VIEWPORT_MARGIN)
+    return Math.min(Math.max(value, VIEWPORT_MARGIN), max)
+  }
+
+  const placement = actualPlacement.value
+  if (placement === 'top' || placement === 'bottom') {
+    const boxTopRaw = placement === 'top' ? r.top - offset - h : r.bottom + offset
+    const boxLeftRaw = r.left + r.width / 2 - w / 2
+    const boxTop = clampAxis(boxTopRaw, h, vh)
+    const boxLeft = clampAxis(boxLeftRaw, w, vw)
+    style.top = `${placement === 'top' ? boxTop + h : boxTop}px`
+    style.left = `${boxLeft + w / 2}px`
+    return
+  }
+  const boxTopRaw = r.top + r.height / 2 - h / 2
+  const boxLeftRaw = placement === 'left' ? r.left - offset - w : r.right + offset
+  const boxTop = clampAxis(boxTopRaw, h, vh)
+  const boxLeft = clampAxis(boxLeftRaw, w, vw)
+  style.top = `${boxTop + h / 2}px`
+  style.left = `${placement === 'left' ? boxLeft + w : boxLeft}px`
+}
 
 const computedStyle = computed(() => {
   const r = rect.value
@@ -108,6 +160,16 @@ const computedStyle = computed(() => {
       style.transform = 'translate(0, -50%)'
       break
   }
+
+  // ── 夹进视口（硬保证）────────────────────────────────────────────────
+  //
+  // 判向只解决"选哪一侧"，不保证"放得下"：`pickAuto` 在内容还没渲染时用
+  // 估计高度决策，或在两侧都装不下时回退第一候选，结果都能让浮层压出屏幕
+  // （2026-11 用户报"弹出的框超出边界、按不到"）。这里在最终坐标上做一次
+  // 夹边：先把"盒子左上角"算出来，夹进 [margin, viewport - size - margin]，
+  // 再换算回 transform 的锚点。夹边只平移不改尺寸——尺寸该由消费方按视口
+  // 收缩（否则再夹也放不下）。
+  clampIntoViewport(style, r, offset)
 
   // Width handling
   if (resolvedWidth.value === 'trigger') {
