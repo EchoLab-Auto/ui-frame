@@ -75,7 +75,7 @@ const snippet = computed(() => {
         >
           {{ variantLabel[variant] }}
         </NeumorphismTag>
-        <NeumorphismButton v-else variant="pressed" size="small" @click="tagVisible = true">
+        <NeumorphismButton v-else variant="pressed" :size="32" @click="tagVisible = true">
           已关闭 · 点此恢复
         </NeumorphismButton>
       </div>
@@ -94,33 +94,33 @@ const snippet = computed(() => {
 
       <template #config>
         <DemoField label="变体 variant">
-          <NeumorphismSegmented v-model="variant" :options="variantOptions" size="small" />
+          <NeumorphismSegmented v-model="variant" :options="variantOptions" :size="26" />
         </DemoField>
 
         <DemoField label="字号" :value="`${fontSize}px`" grow>
-          <NeumorphismSlider v-model="fontSize" :min="10" :max="16" :step="1" size="small" />
+          <NeumorphismSlider v-model="fontSize" :min="10" :max="16" :step="1" :size="6" />
         </DemoField>
 
         <DemoField label="状态">
           <div class="demo-row" style="gap: 16px">
             <label class="demo-toggle">
-              <NeumorphismSwitch v-model="closable" size="small" />
+              <NeumorphismSwitch v-model="closable" :size="24" />
               <span>closable</span>
             </label>
             <label class="demo-toggle">
-              <NeumorphismSwitch v-model="rounded" size="small" />
+              <NeumorphismSwitch v-model="rounded" :size="24" />
               <span>rounded</span>
             </label>
           </div>
         </DemoField>
 
         <DemoField label="操作">
-          <NeumorphismButton variant="raised" size="small" @click="reset()"
+          <NeumorphismButton variant="raised" :size="32" @click="reset()"
             >恢复默认</NeumorphismButton
           >
           <NeumorphismButton
             variant="pressed"
-            size="small"
+            :size="32"
             :disabled="tagVisible"
             @click="tagVisible = true"
           >

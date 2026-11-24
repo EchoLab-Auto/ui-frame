@@ -87,7 +87,7 @@ const snippet = computed(() => {
 
       <template #config>
         <DemoField label="方向 direction">
-          <NeumorphismSegmented v-model="direction" :options="directionOptions" size="small" />
+          <NeumorphismSegmented v-model="direction" :options="directionOptions" :size="26" />
         </DemoField>
 
         <DemoField label="对齐 align">
@@ -95,29 +95,29 @@ const snippet = computed(() => {
             v-model="align"
             :options="alignOptions"
             :disabled="direction === 'vertical'"
-            size="small"
+            :size="26"
           />
         </DemoField>
 
         <DemoField label="文字内容">
-          <NeumorphismInput v-model="text" size="small" placeholder="留空则只有线" />
+          <NeumorphismInput v-model="text" :size="36" placeholder="留空则只有线" />
         </DemoField>
 
         <DemoField label="样式">
           <div class="demo-row" style="gap: 16px">
             <label class="demo-toggle">
-              <NeumorphismSwitch v-model="dashed" size="small" />
+              <NeumorphismSwitch v-model="dashed" :size="24" />
               <span>dashed</span>
             </label>
             <label class="demo-toggle">
-              <NeumorphismSwitch v-model="inset" size="small" />
+              <NeumorphismSwitch v-model="inset" :size="24" />
               <span>inset</span>
             </label>
           </div>
         </DemoField>
 
         <DemoField label="操作">
-          <NeumorphismButton variant="pressed" size="small" @click="reset()"
+          <NeumorphismButton variant="pressed" :size="32" @click="reset()"
             >恢复默认</NeumorphismButton
           >
         </DemoField>

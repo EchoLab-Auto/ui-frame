@@ -8,23 +8,18 @@ import { RADIO_SCALE } from '@/utils/controlScales'
 
 defineOptions({ inheritAttrs: false })
 
-export type RadioSize = 'small' | 'medium' | 'large'
-
 export interface NeumorphismRadioProps {
   modelValue?: unknown
   value: unknown
   disabled?: boolean
   label?: string
   /**
-   * 尺寸——圆圈（radio 圆点整体）直径 px（数字，主几何量），或三档预设名。
+   * 尺寸——圆圈（radio 圆点整体）直径 px（数字，主几何量）。
    *
    * 数字即「圆圈直径」：按锚点表（18 / 24 / 30）插值，内部圆点取圈的 50%，
-   * 所以 `:size="24"` 与 `size="medium"` 逐像素一致。
-   *
-   * @deprecated 字符串档位（`'small' | 'medium' | 'large'`）仅作兼容别名保留，
-   * 新代码请传数字。
+   * 所以 `:size="24"` 即设计稿 `md` 档的实测值。
    */
-  size?: number | RadioSize
+  size?: number
   name?: string
   id?: string
 }
@@ -33,7 +28,7 @@ const props = withDefaults(defineProps<NeumorphismRadioProps>(), {
   disabled: false,
 })
 
-const { config, resolveProp } = useNeumorphismSetup()
+const { config } = useNeumorphismSetup()
 
 const emit = defineEmits<{
   (e: 'update:modelValue', value: unknown): void
@@ -61,40 +56,26 @@ const isChecked = computed(() => {
 
 const isDisabled = computed(() => props.disabled || radioGroup?.disabled.value || false)
 /**
- * 尺寸原始取值：Group 级联 > 自身 prop > 全局配置 `radio.size` > 档位默认 medium。
+ * 尺寸（px）：Group 级联 > 自身 prop > 全局配置 `radio.size` > 锚点 `md`。
  *
- * 级联优先级放在最前面，是为了让 `RadioGroup size` 真的能「覆盖子项」——
- * 数字也走同一条路，子项收到后自己按 `RADIO_SCALE` 插值。
+ * 级联优先级放最前，`RadioGroup` 的 size 才能真正覆盖子项——数字也走同一条路，
+ * 子项收到后自己按 `RADIO_SCALE` 插值。
  */
-const rawSize = computed<number | RadioSize>(() => {
-  const own = resolveProp(props.size, config.value.radio?.size, 'medium' as number | RadioSize)
-  return (radioGroup?.size.value || own) as number | RadioSize
-})
-
-/** 数字通道：`undefined` = 走档位 class，有值 = 走内联 CSS 变量 */
 const numericSize = computed(() =>
-  typeof rawSize.value === 'number'
-    ? normalizeNumericSize(rawSize.value, RADIO_SCALE.primary.md)
-    : undefined
+  normalizeNumericSize(
+    radioGroup?.size.value ?? props.size ?? config.value.radio?.size,
+    RADIO_SCALE.primary.md
+  )
 )
 
-/** 字符串通道：数字路径下不挂档位类，这里只用于档位类名与语义兜底 */
-const resolvedSize = computed<RadioSize>(() =>
-  typeof rawSize.value === 'string' ? rawSize.value : 'medium'
-)
-
-/** 数字尺寸下发的 CSS 变量（见 utils/controlScale） */
-const sizeStyle = computed(() =>
-  numericSize.value === undefined ? undefined : resolveControlScale(RADIO_SCALE, numericSize.value)
-)
+/** 尺寸下发的 CSS 变量（见 utils/controlScale） */
+const sizeStyle = computed(() => resolveControlScale(RADIO_SCALE, numericSize.value))
 
 const { inputId, classList } = useCheckable(() => ({
   prefix: 'radio',
   isChecked: isChecked.value,
   isDisabled: isDisabled.value,
-  // 数字路径不挂档位类：几何全由内联 `--nm-radio-sz-*` 决定，两条通道互斥
-  size: numericSize.value === undefined ? resolvedSize.value : undefined,
-  extraClasses: { 'nm-radio--sized': numericSize.value !== undefined },
+  extraClasses: { 'nm-radio--sized': true },
 }))
 
 function handleChange(): void {

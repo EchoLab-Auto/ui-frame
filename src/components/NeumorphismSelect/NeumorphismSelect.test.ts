@@ -69,14 +69,6 @@ describe('NeumorphismSelect', () => {
     expect(select.attributes('tabindex')).toBe('-1')
   })
 
-  it('should apply size classes', () => {
-    const sizes = ['small', 'medium', 'large'] as const
-    for (const size of sizes) {
-      const wrapper = mountSelect({ size })
-      expect(wrapper.find('.nm-select').classes()).toContain(`nm-select--${size}`)
-    }
-  })
-
   it('数字 size：走 --sized 类 + 内联 CSS 变量，不挂档位类', () => {
     const wrapper = mountSelect({ size: 42 })
     const box = wrapper.find('.nm-select')
@@ -90,22 +82,19 @@ describe('NeumorphismSelect', () => {
     expect(box.attributes('style')).toContain('--nm-field-sz-affix-x: 12px')
   })
 
-  it('数字 size 在锚点上与档位别名逐像素一致', () => {
+  it('数字 size 落在锚点上：内联变量原样下发该 px', () => {
     const anchors = [
-      [36, 'small', 13, 6, 12, 10],
-      [48, 'medium', 14, 10, 16, 14],
-      [60, 'large', 16, 14, 20, 16],
+      [36, 13, 6, 12, 10],
+      [48, 14, 10, 16, 14],
+      [60, 16, 14, 20, 16],
     ] as const
-    for (const [px, tier, font, padY, padX, affixX] of anchors) {
+    for (const [px, font, padY, padX, affixX] of anchors) {
       const style = mountSelect({ size: px }).find('.nm-select').attributes('style')
       expect(style).toContain(`--nm-field-sz-height: ${px}px`)
       expect(style).toContain(`--nm-field-sz-font: ${font}px`)
       expect(style).toContain(`--nm-field-sz-pad-y: ${padY}px`)
       expect(style).toContain(`--nm-field-sz-pad-x: ${padX}px`)
       expect(style).toContain(`--nm-field-sz-affix-x: ${affixX}px`)
-      const byTier = mountSelect({ size: tier })
-      expect(byTier.find('.nm-select').classes()).toContain(`nm-select--${tier}`)
-      expect(byTier.find('.nm-select').attributes('style')).toBeUndefined()
     }
   })
 

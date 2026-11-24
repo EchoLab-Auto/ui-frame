@@ -116,23 +116,23 @@ const snippet = computed(() => {
 
       <template #config>
         <DemoField label="效果 effect" label-width="88px">
-          <NeumorphismSegmented v-model="artEffect" :options="artSegmentedOptions" size="small" />
+          <NeumorphismSegmented v-model="artEffect" :options="artSegmentedOptions" :size="26" />
         </DemoField>
 
         <DemoField label="指针交互" label-width="88px">
-          <NeumorphismSwitch v-model="artReactive" size="small" />
+          <NeumorphismSwitch v-model="artReactive" :size="24" />
         </DemoField>
 
         <DemoField label="速度 speed" :value="artSpeed.toFixed(1)" label-width="88px" grow>
-          <NeumorphismSlider v-model="artSpeed" :min="0.2" :max="3" :step="0.1" size="small" />
+          <NeumorphismSlider v-model="artSpeed" :min="0.2" :max="3" :step="0.1" :size="6" />
         </DemoField>
 
         <DemoField label="密度 density" :value="artDensity.toFixed(1)" label-width="88px" grow>
-          <NeumorphismSlider v-model="artDensity" :min="0.5" :max="3" :step="0.1" size="small" />
+          <NeumorphismSlider v-model="artDensity" :min="0.5" :max="3" :step="0.1" :size="6" />
         </DemoField>
 
         <DemoField label="随机种子 seed" :value="String(artSeed)" label-width="88px" grow>
-          <NeumorphismSlider v-model="artSeed" :min="1" :max="60" :step="1" size="small" />
+          <NeumorphismSlider v-model="artSeed" :min="1" :max="60" :step="1" :size="6" />
         </DemoField>
 
         <DemoField label="配色 palette" label-width="88px">
@@ -142,16 +142,16 @@ const snippet = computed(() => {
               { label: '主题色', value: 'theme' },
               { label: '自定义', value: 'custom' },
             ]"
-            size="small"
+            :size="26"
           />
         </DemoField>
 
         <DemoField label="覆盖层文案" label-width="88px" grow>
-          <NeumorphismInput v-model="artOverlayText" size="small" placeholder="留空则显示效果名" />
+          <NeumorphismInput v-model="artOverlayText" :size="36" placeholder="留空则显示效果名" />
         </DemoField>
 
         <DemoField label="高度 height" :value="`${artHeight}px`" label-width="88px" grow>
-          <NeumorphismSlider v-model="artHeight" :min="160" :max="480" :step="20" size="small" />
+          <NeumorphismSlider v-model="artHeight" :min="160" :max="480" :step="20" :size="6" />
         </DemoField>
       </template>
     </DemoPlayground>

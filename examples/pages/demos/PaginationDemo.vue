@@ -3,7 +3,6 @@ import { ref, computed } from 'vue'
 import { DemoPlayground, DemoField } from '../../demo'
 
 type PageSize = 10 | 20 | 50
-type PaginationSize = 'small' | 'medium' | 'large'
 
 interface DemoOption<T> {
   label: string
@@ -13,7 +12,7 @@ interface DemoOption<T> {
 // ---- 配置台状态 ----
 const total = ref(100)
 const pageSize = ref<PageSize>(10)
-const size = ref<PaginationSize>('medium')
+const size = ref<number>(38)
 const showTotal = ref(false)
 const showJumper = ref(false)
 /** 按钮边长（px）：走演示级 CSS 变量桥接，组件源码零改动 */
@@ -25,10 +24,10 @@ const pageSizeOptions: DemoOption<PageSize>[] = [
   { label: '20', value: 20 },
   { label: '50', value: 50 },
 ]
-const sizeOptions: DemoOption<PaginationSize>[] = [
-  { label: '小', value: 'small' },
-  { label: '中', value: 'medium' },
-  { label: '大', value: 'large' },
+const sizeOptions: DemoOption<number>[] = [
+  { label: '30', value: 30 },
+  { label: '38', value: 38 },
+  { label: '46', value: 46 },
 ]
 
 const totalPages = computed(() => Math.max(1, Math.ceil(total.value / pageSize.value)))
@@ -65,7 +64,7 @@ const snippet = computed(() => {
   if (pageSize.value !== 10) attrs.push(`:page-size="${pageSize.value}"`)
   if (showTotal.value) attrs.push('show-total')
   if (showJumper.value) attrs.push('show-jumper')
-  if (size.value !== 'medium') attrs.push(`size="${size.value}"`)
+  if (size.value !== 38) attrs.push(`:size="${size.value}"`)
   const open = `<NeumorphismPagination ${attrs.join(' ')} />`
   // 该变量只是演示页的桥接，不进组件 API，因此单独注释、不混进属性列表
   const bridge =
@@ -110,15 +109,15 @@ const snippet = computed(() => {
 
       <template #config>
         <DemoField label="总数 total" :value="String(total)" grow>
-          <NeumorphismSlider v-model="total" :min="50" :max="1000" :step="10" size="small" />
+          <NeumorphismSlider v-model="total" :min="50" :max="1000" :step="10" :size="6" />
         </DemoField>
 
         <DemoField label="每页 pageSize">
-          <NeumorphismSegmented v-model="pageSize" :options="pageSizeOptions" size="small" />
+          <NeumorphismSegmented v-model="pageSize" :options="pageSizeOptions" :size="26" />
         </DemoField>
 
         <DemoField label="尺寸 size">
-          <NeumorphismSegmented v-model="size" :options="sizeOptions" size="small" />
+          <NeumorphismSegmented v-model="size" :options="sizeOptions" :size="26" />
         </DemoField>
 
         <DemoField label="按钮边长" :value="`${itemSize}px`" grow>
@@ -129,26 +128,26 @@ const snippet = computed(() => {
             :min="26"
             :max="56"
             :step="2"
-            size="small"
-            :disabled="size !== 'medium'"
+            :size="6"
+            :disabled="size !== 38"
           />
         </DemoField>
 
         <DemoField label="附加">
           <div class="demo-row" style="gap: 16px">
             <label class="demo-toggle">
-              <NeumorphismSwitch v-model="showTotal" size="small" />
+              <NeumorphismSwitch v-model="showTotal" :size="24" />
               <span>show-total</span>
             </label>
             <label class="demo-toggle">
-              <NeumorphismSwitch v-model="showJumper" size="small" />
+              <NeumorphismSwitch v-model="showJumper" :size="24" />
               <span>show-jumper</span>
             </label>
           </div>
         </DemoField>
 
         <DemoField label="操作">
-          <NeumorphismButton variant="raised" size="small" @click="reset()">
+          <NeumorphismButton variant="raised" :size="32" @click="reset()">
             恢复默认
           </NeumorphismButton>
         </DemoField>

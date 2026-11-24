@@ -31,7 +31,7 @@ const snippet = computed(() => {
   const open = `<NeumorphismLogo ${attrs.join(' ')}>`
   const slot = `
   <template #default="{ replay }">
-    <NeumorphismButton size="small" @click="replay">↻ 重播汇聚</NeumorphismButton>
+    <NeumorphismButton :size="32" @click="replay">↻ 重播汇聚</NeumorphismButton>
   </template>
 </NeumorphismLogo>`
   return `${open}${slot}`
@@ -58,7 +58,7 @@ const snippet = computed(() => {
         >
           <template #default="{ replay }">
             <div style="margin-top: 12px">
-              <NeumorphismButton size="small" @click="replay">↻ 重播汇聚</NeumorphismButton>
+              <NeumorphismButton :size="32" @click="replay">↻ 重播汇聚</NeumorphismButton>
             </div>
           </template>
         </NeumorphismLogo>
@@ -78,31 +78,31 @@ const snippet = computed(() => {
 
       <template #config>
         <DemoField label="模式 mode">
-          <NeumorphismSegmented v-model="logoMode" :options="logoModeOptions" size="small" />
+          <NeumorphismSegmented v-model="logoMode" :options="logoModeOptions" :size="26" />
         </DemoField>
 
         <DemoField label="宽度 width" :value="`${logoWidth}px`" grow>
-          <NeumorphismSlider v-model="logoWidth" :min="80" :max="360" :step="10" size="small" />
+          <NeumorphismSlider v-model="logoWidth" :min="80" :max="360" :step="10" :size="6" />
         </DemoField>
 
         <DemoField label="滤镜">
           <div class="demo-row" style="gap: 16px">
             <label class="demo-toggle">
-              <NeumorphismSwitch v-model="logoGoo" size="small" />
+              <NeumorphismSwitch v-model="logoGoo" :size="24" />
               <span>goo</span>
             </label>
             <label class="demo-toggle">
-              <NeumorphismSwitch v-model="logoFloating" size="small" />
+              <NeumorphismSwitch v-model="logoFloating" :size="24" />
               <span>floating</span>
             </label>
           </div>
         </DemoField>
 
         <DemoField label="操作">
-          <NeumorphismButton variant="raised" size="small" @click="logoMode = 'pulse'"
+          <NeumorphismButton variant="raised" :size="32" @click="logoMode = 'pulse'"
             >回到脉冲</NeumorphismButton
           >
-          <NeumorphismButton variant="pressed" size="small" @click="logoGoo = !logoGoo">
+          <NeumorphismButton variant="pressed" :size="32" @click="logoGoo = !logoGoo">
             切换 goo
           </NeumorphismButton>
         </DemoField>

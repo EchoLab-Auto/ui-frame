@@ -81,12 +81,6 @@ import { NeumorphismButton, NeumorphismCard, useTheme } from '@echolab-auto/ui-f
 
 ```ts
 import { NeumorphismButton } from '@echolab-auto/ui-frame'
-import type {
-  NeumorphismButtonProps,
-  ButtonVariant,
-  ButtonSize,
-  ButtonShape,
-} from '@echolab-auto/ui-frame'
 ```
 
 | Props    | Type                                                                                           | Default     | Description                                                                                                               |
@@ -109,16 +103,16 @@ import { NeumorphismSwitch } from '@echolab-auto/ui-frame'
 import type { NeumorphismSwitchProps, SwitchVariant } from '@echolab-auto/ui-frame'
 ```
 
-| Props         | Type                   | Default     | Description                                                                                                                |
-| ------------- | ---------------------- | ----------- | -------------------------------------------------------------------------------------------------------------------------- |
-| modelValue    | `boolean`              | `false`     | 绑定值                                                                                                                     |
-| disabled      | `boolean`              | `false`     | 是否禁用                                                                                                                   |
-| activeText    | `string`               | —           | 开启状态文本                                                                                                               |
-| inactiveText  | `string`               | —           | 关闭状态文本                                                                                                               |
-| activeColor   | `string`               | —           | 开启态自定义颜色                                                                                                           |
-| inactiveColor | `string`               | —           | 关闭态自定义颜色                                                                                                           |
-| size          | `number`               | `30` / `91` | 尺寸 = px 高度（default 变体轨道高 / power 变体器件高）；旧档位 `'small' \| 'medium' \| 'large'` 已弃用（兼容 24/30/36px） |
-| variant       | `'default' \| 'power'` | `'default'` | 视觉变体：power 为电力开关                                                                                                 |
+| Props         | Type                   | Default     | Description                                                       |
+| ------------- | ---------------------- | ----------- | ----------------------------------------------------------------- |
+| modelValue    | `boolean`              | `false`     | 绑定值                                                            |
+| disabled      | `boolean`              | `false`     | 是否禁用                                                          |
+| activeText    | `string`               | —           | 开启状态文本                                                      |
+| inactiveText  | `string`               | —           | 关闭状态文本                                                      |
+| activeColor   | `string`               | —           | 开启态自定义颜色                                                  |
+| inactiveColor | `string`               | —           | 关闭态自定义颜色                                                  |
+| size          | `number`               | `30` / `91` | 尺寸 = px 高度（default 变体轨道高 / power 变体器件高），下限 8px |
+| variant       | `'default' \| 'power'` | `'default'` | 视觉变体：power 为电力开关                                        |
 
 **Events:** `update:modelValue`, `change`
 
@@ -176,7 +170,7 @@ import type { NeumorphismRadioProps, NeumorphismRadioGroupProps } from '@echolab
 
 ```ts
 import { NeumorphismInput } from '@echolab-auto/ui-frame'
-import type { NeumorphismInputProps, InputSize } from '@echolab-auto/ui-frame'
+import type { NeumorphismInputProps } from '@echolab-auto/ui-frame'
 ```
 
 | Props       | Type                | Default  | Description        |
@@ -277,11 +271,6 @@ interface SelectOption {
 
 ```ts
 import { NeumorphismSegmented } from '@echolab-auto/ui-frame'
-import type {
-  NeumorphismSegmentedProps,
-  SegmentedOption,
-  SegmentedSize,
-} from '@echolab-auto/ui-frame'
 ```
 
 | Props      | Type                | Default     | Description                    |
@@ -355,7 +344,7 @@ interface FormRule {
 
 ```ts
 import { NeumorphismSlider } from '@echolab-auto/ui-frame'
-import type { NeumorphismSliderProps, SliderSize } from '@echolab-auto/ui-frame'
+import type { NeumorphismSliderProps } from '@echolab-auto/ui-frame'
 ```
 
 | Props       | Type      | Default | Description          |
@@ -378,7 +367,7 @@ import type { NeumorphismSliderProps, SliderSize } from '@echolab-auto/ui-frame'
 
 ```ts
 import { NeumorphismInputNumber } from '@echolab-auto/ui-frame'
-import type { NeumorphismInputNumberProps, NumberInputSize } from '@echolab-auto/ui-frame'
+import type { NeumorphismInputNumberProps } from '@echolab-auto/ui-frame'
 ```
 
 | Props       | Type      | Default     | Description        |
@@ -552,7 +541,7 @@ import type {
 
 ```ts
 import { NeumorphismAvatar } from '@echolab-auto/ui-frame'
-import type { NeumorphismAvatarProps, AvatarSize } from '@echolab-auto/ui-frame'
+import type { NeumorphismAvatarProps } from '@echolab-auto/ui-frame'
 ```
 
 | Props    | Type                    | Default    | Description  |
@@ -926,7 +915,7 @@ import type { NeumorphismAlertProps, AlertType } from '@echolab-auto/ui-frame'
 
 ```ts
 import { NeumorphismEmpty } from '@echolab-auto/ui-frame'
-import type { NeumorphismEmptyProps, EmptySize } from '@echolab-auto/ui-frame'
+import type { NeumorphismEmptyProps } from '@echolab-auto/ui-frame'
 ```
 
 | Props       | Type     | Default | Description    |
@@ -943,11 +932,6 @@ import type { NeumorphismEmptyProps, EmptySize } from '@echolab-auto/ui-frame'
 
 ```ts
 import { NeumorphismStatusDot } from '@echolab-auto/ui-frame'
-import type {
-  NeumorphismStatusDotProps,
-  StatusDotStatus,
-  StatusDotSize,
-} from '@echolab-auto/ui-frame'
 ```
 
 | Props  | Type                                              | Default              | Description                       |
@@ -963,7 +947,7 @@ import type {
 
 ```ts
 import { NeumorphismSpinner } from '@echolab-auto/ui-frame'
-import type { NeumorphismSpinnerProps, SpinnerSize } from '@echolab-auto/ui-frame'
+import type { NeumorphismSpinnerProps } from '@echolab-auto/ui-frame'
 ```
 
 | Props | Type     | Default     | Description |
@@ -1144,13 +1128,13 @@ import { NeumorphismSteps } from '@echolab-auto/ui-frame'
 import type { NeumorphismStepsProps, StepItem, StepStatus } from '@echolab-auto/ui-frame'
 ```
 
-| Props     | Type                             | Default        | Description           |
-| --------- | -------------------------------- | -------------- | --------------------- |
-| steps     | `StepItem[]`                     | `[]`           | 步骤项列表            |
-| current   | `number`                         | `0`            | 当前步骤索引(0-based) |
-| direction | `'horizontal' \| 'vertical'`     | `'horizontal'` | 布局方向              |
-| size      | `'small' \| 'medium' \| 'large'` | `'medium'`     | 尺寸                  |
-| center    | `boolean`                        | `false`        | 标题和描述是否居中    |
+| Props     | Type                         | Default        | Description           |
+| --------- | ---------------------------- | -------------- | --------------------- |
+| steps     | `StepItem[]`                 | `[]`           | 步骤项列表            |
+| current   | `number`                     | `0`            | 当前步骤索引(0-based) |
+| direction | `'horizontal' \| 'vertical'` | `'horizontal'` | 布局方向              |
+| size      | `number`                     | `36`           | 序号圆直径（px）      |
+| center    | `boolean`                    | `false`        | 标题和描述是否居中    |
 
 ```ts
 interface StepItem {
@@ -2302,7 +2286,7 @@ interface UseTableReturn {
 
 ```ts
 import { useProgress } from '@echolab-auto/ui-frame'
-import type { UseProgressOptions, UseProgressReturn, ProgressSize } from '@echolab-auto/ui-frame'
+import type { UseProgressOptions, UseProgressReturn } from '@echolab-auto/ui-frame'
 ```
 
 ```ts
@@ -2310,7 +2294,7 @@ interface UseProgressOptions {
   modelValue: Ref<number>
   max: Ref<number>
   indeterminate: Ref<boolean>
-  size: Ref<ProgressSize> // 'small' | 'medium' | 'large'
+  size: Ref<number> // 线形条厚度 px（主几何量）；环形几何由它推导
 }
 
 interface UseProgressReturn {
@@ -3080,7 +3064,6 @@ interface UseCheckableOptions {
   prefix: 'checkbox' | 'radio'
   isChecked: boolean
   isDisabled: boolean
-  size: 'small' | 'medium' | 'large'
   extraClasses?: Record<string, boolean> // 额外类名（如 indeterminate）
 }
 
@@ -3097,13 +3080,14 @@ function useCheckable(options: () => UseCheckableOptions): {
 
 ```ts
 import { useFormField } from '@echolab-auto/ui-frame'
-import type { FormFieldConfig, FieldSize } from '@echolab-auto/ui-frame'
+import type { FormFieldConfig } from '@echolab-auto/ui-frame'
 ```
 
 ```ts
 interface FormFieldConfig {
   id?: string // 不传则自动生成稳定 id
-  size: 'small' | 'medium' | 'large'
+  // 主几何量 px
+  size: number
   disabled: boolean
   error?: string | boolean
   prefix: 'input' | 'textarea' | 'select' | 'datepicker'
@@ -3144,7 +3128,6 @@ function validateFieldValue(value: unknown, rules: FormRule[]): string | undefin
 | ------------------------------- | ------------- |
 | `NeumorphismButtonProps`        | Button        |
 | `ButtonVariant`                 | Button        |
-| `ButtonSize`                    | Button        |
 | `ButtonShape`                   | Button        |
 | `NeumorphismSwitchProps`        | Switch        |
 | `SwitchVariant`                 | Switch        |
@@ -3152,7 +3135,6 @@ function validateFieldValue(value: unknown, rules: FormRule[]): string | undefin
 | `CardVariant`                   | Card          |
 | `CardDepth`                     | Card          |
 | `NeumorphismInputProps`         | Input         |
-| `InputSize`                     | Input         |
 | `NeumorphismCheckboxProps`      | Checkbox      |
 | `NeumorphismRadioProps`         | Radio         |
 | `NeumorphismRadioGroupProps`    | RadioGroup    |
@@ -3323,7 +3305,7 @@ interface ExtendedConfig {
 ```ts
 app.use(NeumorphismUI, {
   config: {
-    button: { size: 'large' },
+    button: { size: 56 },
   },
   components: {
     NeumorphismButton: MyCustomButton,
@@ -3354,51 +3336,51 @@ function useConfig(): ComputedRef<NeumorphismGlobalConfig>
 
 ```ts
 interface NeumorphismGlobalConfig {
-  button?: { size?: ButtonSize; variant?: ButtonVariant; shape?: ButtonShape }
+  button?: { size?: number; variant?: ButtonVariant; shape?: ButtonShape }
   switch?: { size?: number; variant?: SwitchVariant }
   card?: { elevation?: number; hoverable?: boolean | 'bulge' | 'sink' }
-  input?: { size?: InputSize }
-  checkbox?: { size?: CheckboxSize }
-  radio?: { size?: RadioSize }
+  input?: { size?: number }
+  checkbox?: { size?: number }
+  radio?: { size?: number }
   select?: {
-    size?: SelectSize
+    size?: number
     clearable?: boolean
     multiple?: boolean
     filterable?: boolean
     collapseTags?: boolean
     variant?: 'default' | 'outlined'
   }
-  textarea?: { size?: TextareaSize }
-  form?: { size?: FieldSize; labelWidth?: string; direction?: 'vertical' | 'horizontal' }
+  textarea?: { size?: number }
+  form?: { size?: number; labelWidth?: string; direction?: 'vertical' | 'horizontal' }
   modal?: { size?: number; maskClosable?: boolean }
   toast?: { position?: ToastPosition; maxCount?: number }
   tooltip?: { position?: TooltipPosition; trigger?: TooltipTrigger }
-  tabs?: { position?: TabPosition; size?: TabSize }
-  breadcrumb?: { size?: BreadcrumbSize }
-  pagination?: { size?: PaginationSize; showTotal?: boolean }
-  avatar?: { size?: AvatarSize; shape?: AvatarShape }
+  tabs?: { position?: TabPosition; size?: number }
+  breadcrumb?: { size?: number }
+  pagination?: { size?: number; showTotal?: boolean }
+  avatar?: { size?: number; shape?: AvatarShape }
   badge?: { max?: number; dot?: boolean; showZero?: boolean }
-  tag?: { size?: TagSize; variant?: TagVariant; rounded?: boolean }
+  tag?: { size?: number; variant?: TagVariant; rounded?: boolean }
   progress?: {
-    size?: ProgressSize
+    size?: number
     // 注意：全局配置不含组件 prop 的 'default' 变体
     variant?: 'primary' | 'success' | 'warning' | 'error'
     showLabel?: boolean
     effect?: ProgressEffect
   }
   skeleton?: { variant?: 'text' | 'circle' | 'rect'; animation?: SkeletonAnimation }
-  table?: { size?: TableSize; striped?: boolean }
+  table?: { size?: number; striped?: boolean }
   divider?: {
     direction?: DividerDirection
     align?: DividerAlign
     dashed?: boolean
     inset?: boolean
   }
-  collapse?: { size?: CollapseSize; accordion?: boolean }
+  collapse?: { size?: number; accordion?: boolean }
   container?: { mode?: 'fixed' | 'fluid' }
   row?: { gutter?: number | [number, number] }
   layout?: { siderWidth?: number; collapsible?: boolean }
-  themeToggle?: { size?: ThemeToggleSize }
+  themeToggle?: { size?: number }
   tree?: { showSearch?: boolean; multiple?: boolean }
   canvas?: { showGrid?: boolean; gridSize?: number; gridVariant?: 'dots' | 'lines' }
   popover?: {
@@ -3415,27 +3397,27 @@ interface NeumorphismGlobalConfig {
     duration?: number
     icon?: boolean
     bordered?: boolean
-    size?: AlertSize
+    size?: number
   }
-  empty?: { size?: EmptySize }
-  autoComplete?: { size?: AutoCompleteSize; clearable?: boolean }
-  slider?: { size?: SliderSize; showTooltip?: boolean; showStops?: boolean }
-  inputNumber?: { size?: 'small' | 'medium' | 'large' }
+  empty?: { size?: number }
+  autoComplete?: { size?: number; clearable?: boolean }
+  slider?: { size?: number; showTooltip?: boolean; showStops?: boolean }
+  inputNumber?: { size?: number }
   statusDot?: { status?: StatusDotStatus; size?: number; pulse?: boolean }
   spinner?: { size?: number }
   // 注意：drawer / formItem / virtualList 等配置段在 useConfig 中未定义且组件未消费，设置无效
-  menu?: { mode?: 'vertical' | 'horizontal'; size?: MenuSize; selectable?: boolean }
-  navMenu?: { mode?: 'horizontal' | 'vertical'; size?: NavMenuSize; showIndicator?: boolean }
-  steps?: { direction?: 'horizontal' | 'vertical'; size?: StepsSize; center?: boolean }
-  datePicker?: { size?: DatePickerSize; format?: string; clearable?: boolean }
+  menu?: { mode?: 'vertical' | 'horizontal'; size?: number; selectable?: boolean }
+  navMenu?: { mode?: 'horizontal' | 'vertical'; size?: number; showIndicator?: boolean }
+  steps?: { direction?: 'horizontal' | 'vertical'; size?: number; center?: boolean }
+  datePicker?: { size?: number; format?: string; clearable?: boolean }
   upload?: {
-    size?: UploadSize
+    size?: number
     drag?: boolean
     showUploadList?: boolean
     listType?: 'text' | 'picture' | 'picture-card'
     autoUpload?: boolean
   }
-  list?: { size?: ListSize; bordered?: boolean; split?: boolean; hoverable?: boolean }
+  list?: { size?: number; bordered?: boolean; split?: boolean; hoverable?: boolean }
   chart?: {
     // 公共开关（按各组件支持情况）与全部子段均真实级联生效
     showTooltip?: boolean

@@ -135,35 +135,35 @@ const toneSamples: { tone: NeumorphismIconTone; name: IconName; token: string }[
         </DemoField>
 
         <DemoField label="尺寸 size" :value="`${ICON_SIZE_PX[size]}px`">
-          <NeumorphismSegmented v-model="size" :options="sizeOptions" size="small" />
+          <NeumorphismSegmented v-model="size" :options="sizeOptions" :size="26" />
         </DemoField>
 
         <DemoField label="色调 tone">
-          <NeumorphismSegmented v-model="tone" :options="toneOptions" size="small" />
+          <NeumorphismSegmented v-model="tone" :options="toneOptions" :size="26" />
         </DemoField>
 
         <DemoField label="线宽">
-          <NeumorphismSegmented v-model="stroke" :options="strokeOptions" size="small" />
+          <NeumorphismSegmented v-model="stroke" :options="strokeOptions" :size="26" />
         </DemoField>
 
         <DemoField label="状态">
           <div class="demo-row" style="gap: 16px">
             <label class="demo-toggle">
-              <NeumorphismSwitch v-model="spin" size="small" />
+              <NeumorphismSwitch v-model="spin" :size="24" />
               <span>spin</span>
             </label>
             <label class="demo-toggle">
-              <NeumorphismSwitch v-model="pulse" size="small" />
+              <NeumorphismSwitch v-model="pulse" :size="24" />
               <span>pulse</span>
             </label>
           </div>
         </DemoField>
 
         <DemoField label="操作">
-          <NeumorphismButton variant="raised" size="small" @click="reset()"
+          <NeumorphismButton variant="raised" :size="32" @click="reset()"
             >恢复默认</NeumorphismButton
           >
-          <NeumorphismButton variant="pressed" size="small" @click="copySnippet()">
+          <NeumorphismButton variant="pressed" :size="32" @click="copySnippet()">
             {{ copied ? '已复制' : '复制片段' }}
           </NeumorphismButton>
         </DemoField>
@@ -176,7 +176,7 @@ const toneSamples: { tone: NeumorphismIconTone; name: IconName; token: string }[
     <div class="icon-toolbar">
       <NeumorphismInput
         v-model="keyword"
-        size="small"
+        :size="36"
         class="icon-search"
         placeholder="搜索语义名，如 arrow / file"
       />

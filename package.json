@@ -80,11 +80,12 @@
     "check:registry": "node scripts/check-component-registry.mjs",
     "check:styles": "node scripts/check-styles.mjs",
     "check:icons": "node scripts/check-icons.mjs",
+    "check:sizes": "node scripts/check-sizes.mjs",
     "prepublishOnly": "npm run build",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "prepare": "node -e \"try{require('child_process').execSync('husky',{stdio:'inherit'})}catch(e){}\"",
+    "prepare": "node scripts/prepare.mjs",
     "version": "changeset version && npm run format",
     "release": "npm run build && changeset publish --access public"
   },

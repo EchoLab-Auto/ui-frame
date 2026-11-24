@@ -31,13 +31,13 @@ describe('useFormField', () => {
 
   it('should reflect disabled state in baseClassList', () => {
     const field = useFormField(() => ({
-      size: 'large',
+      size: 60,
       disabled: true,
       prefix: 'select',
     }))
     const classes = field.baseClassList('nm-select').value
     expect(classes[0]).toBe('nm-select')
-    expect(classes[1]).toBe('nm-select--large')
+    expect(classes[1]).toBe('nm-select--sized')
     expect(hasClass(classes, 'nm-select--disabled')).toBe(true)
   })
 

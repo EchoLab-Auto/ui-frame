@@ -243,36 +243,31 @@ function syncEditScroll() {
     <!-- Formatting toolbar -->
     <div class="neumorphism-editor-toolbar">
       <div class="neumorphism-editor-toolbar-left">
-        <NeumorphismButton size="small" title="粗体 (Ctrl+B)" aria-label="粗体" @click="insertBold">
+        <NeumorphismButton :size="32" title="粗体 (Ctrl+B)" aria-label="粗体" @click="insertBold">
           <strong>B</strong>
         </NeumorphismButton>
-        <NeumorphismButton
-          size="small"
-          title="斜体 (Ctrl+I)"
-          aria-label="斜体"
-          @click="insertItalic"
-        >
+        <NeumorphismButton :size="32" title="斜体 (Ctrl+I)" aria-label="斜体" @click="insertItalic">
           <em>I</em>
         </NeumorphismButton>
-        <NeumorphismButton size="small" title="标题" aria-label="标题" @click="insertHeading">
+        <NeumorphismButton :size="32" title="标题" aria-label="标题" @click="insertHeading">
           H
         </NeumorphismButton>
-        <NeumorphismButton size="small" title="链接" aria-label="链接" @click="insertLink">
+        <NeumorphismButton :size="32" title="链接" aria-label="链接" @click="insertLink">
           <NeumorphismIcon name="link" size="sm" class="neumorphism-editor-icon" />
         </NeumorphismButton>
-        <NeumorphismButton size="small" title="图片" aria-label="图片" @click="insertImage">
+        <NeumorphismButton :size="32" title="图片" aria-label="图片" @click="insertImage">
           <NeumorphismIcon name="image" size="sm" class="neumorphism-editor-icon" />
         </NeumorphismButton>
-        <NeumorphismButton size="small" title="行内代码" aria-label="行内代码" @click="insertCode">
+        <NeumorphismButton :size="32" title="行内代码" aria-label="行内代码" @click="insertCode">
           &lt;/&gt;
         </NeumorphismButton>
-        <NeumorphismButton size="small" title="代码块" aria-label="代码块" @click="insertCodeBlock">
+        <NeumorphismButton :size="32" title="代码块" aria-label="代码块" @click="insertCodeBlock">
           <NeumorphismIcon name="clipboard" size="sm" class="neumorphism-editor-icon" />
         </NeumorphismButton>
-        <NeumorphismButton size="small" title="无序列表" aria-label="无序列表" @click="insertList">
+        <NeumorphismButton :size="32" title="无序列表" aria-label="无序列表" @click="insertList">
           <NeumorphismIcon name="list" size="sm" class="neumorphism-editor-icon" />
         </NeumorphismButton>
-        <NeumorphismButton size="small" title="表格" aria-label="表格" @click="insertTable">
+        <NeumorphismButton :size="32" title="表格" aria-label="表格" @click="insertTable">
           <NeumorphismIcon name="table" size="sm" class="neumorphism-editor-icon" />
         </NeumorphismButton>
       </div>
@@ -280,7 +275,7 @@ function syncEditScroll() {
         <NeumorphismTabs
           v-model="mode"
           :tabs="tabs"
-          size="small"
+          :size="12"
           class="neumorphism-editor-mode-tabs"
         >
           <template #tab="{ tab, active, activate }">

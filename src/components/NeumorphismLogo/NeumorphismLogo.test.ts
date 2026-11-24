@@ -17,17 +17,8 @@ describe('NeumorphismLogo', () => {
   it('should render with default props', () => {
     const wrapper = mount(NeumorphismLogo)
     expect(wrapper.classes()).toContain('nm-logo')
-    expect(wrapper.classes()).toContain('nm-logo--medium')
-    expect(wrapper.find('.nm-logo__svg').exists()).toBe(true)
-  })
 
-  it('should apply size classes', () => {
-    const sizes = ['small', 'medium', 'large'] as const
-    for (const size of sizes) {
-      const wrapper = mount(NeumorphismLogo, { props: { size } })
-      expect(wrapper.classes()).toContain(`nm-logo--${size}`)
-      wrapper.unmount()
-    }
+    expect(wrapper.find('.nm-logo__svg').exists()).toBe(true)
   })
 
   it('should render custom width', () => {

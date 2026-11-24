@@ -66,20 +66,13 @@ describe('NeumorphismSteps', () => {
     expect(style).toContain('--nm-steps-sz-font: 13px')
   })
 
-  it('数字 size 在锚点上与档位别名逐像素一致', () => {
-    const anchors = [
-      [28, 'small'],
-      [36, 'medium'],
-      [48, 'large'],
-    ] as const
-    for (const [px, tier] of anchors) {
+  it('数字 size 落在锚点上：内联变量原样下发该 px', () => {
+    const anchors = [[28], [36], [48]] as const
+    for (const [px] of anchors) {
       const byNumber = mount(NeumorphismSteps, { props: { steps, current: 0, size: px } })
       expect(byNumber.find('.nm-steps').attributes('style')).toContain(
         `--nm-steps-sz-circle: ${px}px`
       )
-      const byTier = mount(NeumorphismSteps, { props: { steps, current: 0, size: tier } })
-      expect(byTier.find('.nm-steps').classes()).toContain(`nm-steps--${tier}`)
-      expect(byTier.find('.nm-steps').attributes('style')).toBeUndefined()
     }
   })
 

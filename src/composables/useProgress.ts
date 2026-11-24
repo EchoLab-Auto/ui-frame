@@ -11,8 +11,6 @@ import { useReducedMotion } from './useReducedMotion'
 import { interpolateAnchor, normalizeNumericSize, positionOf } from '@/utils/controlScale'
 import { CONTROL_SCALES } from '@/utils/controlScales'
 
-export type ProgressSize = 'small' | 'medium' | 'large'
-
 export interface UseProgressOptions {
   /** Current value. */
   modelValue: Ref<number>
@@ -21,12 +19,12 @@ export interface UseProgressOptions {
   /** Whether the progress is in indeterminate mode. */
   indeterminate: Ref<boolean>
   /**
-   * 尺寸 —— 数字 = 线形条厚度 px（主几何量），字符串为三档兼容别名。
+   * 尺寸 —— 线形条厚度 px（主几何量）。
    *
-   * 环形几何（直径 / 描边）也由它推导：数字与档位走**同一条**三锚点插值，
-   * 所以 `:size="8"` 与 `size="medium"` 的环完全一致。
+   * 环形几何（直径 / 描边）也由它推导：两者走**同一条**三锚点插值，
+   * 所以 `:size="8"`（= 原 medium 档）的环与档位时代逐像素一致。
    */
-  size: Ref<ProgressSize | number>
+  size: Ref<number>
 }
 
 export interface UseProgressReturn {
@@ -62,16 +60,10 @@ export interface UseProgressReturn {
 /**
  * 环形几何不再手写映射表，而是复用 `CONTROL_SCALES.progress` 的锚点：
  *
- * - 档位别名固定落在三锚点轴上（0 = sm / 1 = md / 2 = lg）
- * - 数字按「线形条厚度」在 primary 轴上定位，超出两端夹取（不外推）
- *
- * 两条路径共用 `interpolateAnchor`，于是 `:size="8"` 与 `size="medium"`
- * 得到的直径/描边天然逐像素一致——两套映射表则迟早漂移。
+ * 数字按「线形条厚度」在 primary 轴上定位，超出两端夹取（不外推）；
+ * 插值结果与档位时代的三档取值逐像素一致（锚点就是那三档的实测值）。
  */
 const PROGRESS_SPEC = CONTROL_SCALES.progress
-
-/** 档位别名在三锚点轴上的位置 */
-const TIER_POSITION: Record<ProgressSize, number> = { small: 0, medium: 1, large: 2 }
 
 /** 0 / 负数 / NaN 的回落值：medium 锚点（线形条 8px 厚） */
 const DEFAULT_THICKNESS = PROGRESS_SPEC.primary.md
@@ -147,12 +139,10 @@ export function useProgress(options: UseProgressOptions): UseProgressReturn {
   const displayPercentage = computed(() => Math.round(displayed.value))
 
   // ---- Circular ring geometry ----
-  /** 三锚点轴上的位置：字符串档位取固定位置，数字按厚度定位 */
-  const scalePosition = computed(() => {
-    const raw = size.value
-    if (typeof raw === 'string') return TIER_POSITION[raw] ?? 1
-    return positionOf(PROGRESS_SPEC.primary, normalizeNumericSize(raw, DEFAULT_THICKNESS))
-  })
+  /** 三锚点轴上的位置：按线形条厚度定位 */
+  const scalePosition = computed(() =>
+    positionOf(PROGRESS_SPEC.primary, normalizeNumericSize(size.value, DEFAULT_THICKNESS))
+  )
 
   const circleSize = computed(() => interpolateAnchor(CIRCLE_ANCHOR, scalePosition.value))
   const strokeWidth = computed(() => interpolateAnchor(STROKE_ANCHOR, scalePosition.value))

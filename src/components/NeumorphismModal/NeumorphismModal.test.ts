@@ -88,16 +88,17 @@ describe('NeumorphismModal', () => {
     expect(modal!.className).toBe('nm-modal')
   })
 
-  it('默认宽 560px；旧字符串档位仍兼容（small=400 / medium=560 / large=720）', async () => {
+  it('默认宽 560px；size 收 px 并夹到 240px 下限', async () => {
     document.body.innerHTML = ''
     mountModal({ modelValue: true })
     await nextTick()
     expect((document.querySelector('.nm-modal') as HTMLElement).style.maxWidth).toBe('560px')
 
     const cases = [
-      ['small', 400],
-      ['medium', 560],
-      ['large', 720],
+      [400, 400],
+      [560, 560],
+      [720, 720],
+      [100, 240],
     ] as const
     for (const [size, px] of cases) {
       document.body.innerHTML = ''

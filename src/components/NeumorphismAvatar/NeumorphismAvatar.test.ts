@@ -6,17 +6,9 @@ describe('NeumorphismAvatar', () => {
   it('should render with default props', () => {
     const wrapper = mount(NeumorphismAvatar, { props: { src: 'https://example.com/avatar.jpg' } })
     expect(wrapper.classes()).toContain('nm-avatar')
-    expect(wrapper.classes()).toContain('nm-avatar--medium')
+    expect(wrapper.classes()).toContain('nm-avatar--sized')
     expect(wrapper.classes()).toContain('nm-avatar--circle')
     expect(wrapper.find('img').exists()).toBe(true)
-  })
-
-  it('should apply size classes', () => {
-    const sizes = ['small', 'medium', 'large'] as const
-    for (const size of sizes) {
-      const wrapper = mount(NeumorphismAvatar, { props: { size, src: '' } })
-      expect(wrapper.classes()).toContain(`nm-avatar--${size}`)
-    }
   })
 
   it('should apply shape classes', () => {
@@ -73,18 +65,11 @@ describe('NeumorphismAvatar', () => {
     expect(style).toContain('--nm-avatar-sz-font: 14px')
   })
 
-  it('数字 size 在锚点上与档位别名逐像素一致', () => {
-    const anchors = [
-      [32, 'small'],
-      [44, 'medium'],
-      [64, 'large'],
-    ] as const
-    for (const [px, tier] of anchors) {
+  it('数字 size 落在锚点上：内联变量原样下发该 px', () => {
+    const anchors = [[32], [44], [64]] as const
+    for (const [px] of anchors) {
       const byNumber = mount(NeumorphismAvatar, { props: { src: '', size: px } })
       expect(byNumber.attributes('style')).toContain(`--nm-avatar-sz-size: ${px}px`)
-      const byTier = mount(NeumorphismAvatar, { props: { src: '', size: tier } })
-      expect(byTier.classes()).toContain(`nm-avatar--${tier}`)
-      expect(byTier.attributes('style')).toBeUndefined()
     }
   })
 

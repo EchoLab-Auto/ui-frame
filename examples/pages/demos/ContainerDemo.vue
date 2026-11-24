@@ -104,20 +104,20 @@ const snippet = computed(() => {
       <template #config>
         <DemoField label="流体 fluid" :value="fluid ? 'fluid' : 'fixed'">
           <label class="demo-toggle">
-            <NeumorphismSwitch v-model="fluid" size="small" />
+            <NeumorphismSwitch v-model="fluid" :size="24" />
             <span>固定 ↔ 流体</span>
           </label>
         </DemoField>
 
         <DemoField label="内边距 noPadding" :value="String(noPadding)">
           <label class="demo-toggle">
-            <NeumorphismSwitch v-model="noPadding" size="small" />
+            <NeumorphismSwitch v-model="noPadding" :size="24" />
             <span>移除内边距</span>
           </label>
         </DemoField>
 
         <DemoField label="操作">
-          <NeumorphismButton variant="raised" size="small" @click="reset()"
+          <NeumorphismButton variant="raised" :size="32" @click="reset()"
             >恢复默认</NeumorphismButton
           >
         </DemoField>

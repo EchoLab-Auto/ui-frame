@@ -2,12 +2,10 @@
 import { ref, computed } from 'vue'
 import { DemoPlayground, DemoField } from '../../demo'
 
-type TableSize = 'small' | 'medium' | 'large'
-
 // ---- 配置台状态（主角是 Table）----
 const striped = ref(false)
 const hoverable = ref(true)
-const size = ref<TableSize>('medium')
+const size = ref<number>(12)
 const showHeader = ref(true)
 
 // ---- 数据 ----
@@ -42,15 +40,15 @@ const virtualItems = computed(() =>
 )
 
 const sizeOptions = [
-  { label: '紧凑', value: 'small' },
-  { label: '标准', value: 'medium' },
-  { label: '宽松', value: 'large' },
+  { label: '8 紧凑', value: 8 },
+  { label: '12 标准', value: 12 },
+  { label: '16 宽松', value: 16 },
 ]
 
 function reset() {
   striped.value = false
   hoverable.value = true
-  size.value = 'medium'
+  size.value = 12
   showHeader.value = true
   selectedKeys.value = []
   virtualItemHeight.value = 36
@@ -62,7 +60,7 @@ const snippet = computed(() => {
   if (striped.value) attrs.push('striped')
   // hoverable 的默认值来自全局配置（true），关掉它必须显式写 false
   if (!hoverable.value) attrs.push(':hoverable="false"')
-  if (size.value !== 'medium') attrs.push(`size="${size.value}"`)
+  if (size.value !== 12) attrs.push(`:size="${size.value}"`)
   if (!showHeader.value) attrs.push(':show-header="false"')
   return `<NeumorphismTable ${attrs.join(' ')} />`
 })
@@ -95,28 +93,28 @@ const snippet = computed(() => {
 
       <template #config>
         <DemoField label="密度 size">
-          <NeumorphismSegmented v-model="size" :options="sizeOptions" size="small" />
+          <NeumorphismSegmented v-model="size" :options="sizeOptions" :size="26" />
         </DemoField>
 
         <DemoField label="状态">
           <div class="demo-row" style="gap: 16px">
             <label class="demo-toggle">
-              <NeumorphismSwitch v-model="striped" size="small" />
+              <NeumorphismSwitch v-model="striped" :size="24" />
               <span>striped</span>
             </label>
             <label class="demo-toggle">
-              <NeumorphismSwitch v-model="hoverable" size="small" />
+              <NeumorphismSwitch v-model="hoverable" :size="24" />
               <span>hoverable</span>
             </label>
             <label class="demo-toggle">
-              <NeumorphismSwitch v-model="showHeader" size="small" />
+              <NeumorphismSwitch v-model="showHeader" :size="24" />
               <span>show-header</span>
             </label>
           </div>
         </DemoField>
 
         <DemoField label="操作">
-          <NeumorphismButton variant="pressed" size="small" @click="reset()"
+          <NeumorphismButton variant="pressed" :size="32" @click="reset()"
             >恢复默认</NeumorphismButton
           >
         </DemoField>
@@ -162,7 +160,7 @@ const snippet = computed(() => {
         :min="28"
         :max="64"
         :step="2"
-        size="small"
+        :size="6"
         style="width: 200px"
       />
       <code>{{ virtualItemHeight }}px</code>

@@ -6,15 +6,15 @@ type ThemeValue = 'light' | 'dark' | 'auto'
 
 // ---- 配置台状态 ----
 const themeToggleValue = ref<ThemeValue>('auto')
-const themeToggleSize = ref<'small' | 'medium' | 'large'>('medium')
+const themeToggleSize = ref<number>(6)
 /** 尺寸桥接只挂在 medium 档上（.demo-size-theme-toggle 的选择器写死了 --medium） */
 const themeToggleHeight = ref(35)
 const disableAuto = ref(false)
 
 const sizeOptions = [
-  { label: '小', value: 'small' },
-  { label: '中', value: 'medium' },
-  { label: '大', value: 'large' },
+  { label: '5', value: 5 },
+  { label: '6', value: 6 },
+  { label: '8', value: 8 },
 ]
 
 /**
@@ -24,7 +24,7 @@ const sizeOptions = [
  * 里刻意写死的：small / large 有自己的 token，硬改会把两档几何混在一起。所以选别的档位时
  * 高度滑块不起作用，这里显式把类摘掉，避免「滑块动了但没变化」的假象。
  */
-const heightBridgeActive = computed(() => themeToggleSize.value === 'medium')
+const heightBridgeActive = computed(() => themeToggleSize.value === 6)
 
 const bridgeStyle = computed(() =>
   heightBridgeActive.value ? { '--demo-theme-toggle-h': `${themeToggleHeight.value}px` } : undefined
@@ -43,7 +43,7 @@ watch(disableAuto, disabled => {
 /** 切换会写进全局 useTheme：整个示例站跟着变，这是组件设计而不是演示 bug */
 function reset() {
   themeToggleValue.value = 'auto'
-  themeToggleSize.value = 'medium'
+  themeToggleSize.value = 6
   themeToggleHeight.value = 35
   disableAuto.value = false
 }
@@ -51,7 +51,7 @@ function reset() {
 // ---- 实时代码片段 ----
 const snippet = computed(() => {
   const attrs = ['v-model="theme"']
-  if (themeToggleSize.value !== 'medium') attrs.push(`size="${themeToggleSize.value}"`)
+  if (themeToggleSize.value !== 6) attrs.push(`:size="${themeToggleSize.value}"`)
   if (disableAuto.value) attrs.push(':disable-auto="true"')
   return `<NeumorphismThemeToggle ${attrs.join(' ')} />`
 })
@@ -87,28 +87,22 @@ const snippet = computed(() => {
 
       <template #config>
         <DemoField label="尺寸 size">
-          <NeumorphismSegmented v-model="themeToggleSize" :options="sizeOptions" size="small" />
+          <NeumorphismSegmented v-model="themeToggleSize" :options="sizeOptions" :size="26" />
         </DemoField>
 
         <DemoField label="高度" :value="`${themeToggleHeight}px`" grow>
-          <NeumorphismSlider
-            v-model="themeToggleHeight"
-            :min="30"
-            :max="56"
-            :step="2"
-            size="small"
-          />
+          <NeumorphismSlider v-model="themeToggleHeight" :min="30" :max="56" :step="2" :size="6" />
         </DemoField>
 
         <DemoField label="禁用自动 disableAuto" :value="String(disableAuto)">
           <label class="demo-toggle">
-            <NeumorphismSwitch v-model="disableAuto" size="small" />
+            <NeumorphismSwitch v-model="disableAuto" :size="24" />
             <span>只剩 light / dark</span>
           </label>
         </DemoField>
 
         <DemoField label="操作">
-          <NeumorphismButton variant="raised" size="small" @click="reset()"
+          <NeumorphismButton variant="raised" :size="32" @click="reset()"
             >恢复默认</NeumorphismButton
           >
         </DemoField>

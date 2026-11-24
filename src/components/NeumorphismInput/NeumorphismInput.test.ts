@@ -51,14 +51,6 @@ describe('NeumorphismInput', () => {
     expect(wrapper.find('.nm-input').classes()).toContain('nm-input--readonly')
   })
 
-  it('should apply size classes', () => {
-    const sizes = ['small', 'medium', 'large'] as const
-    for (const size of sizes) {
-      const wrapper = mount(NeumorphismInput, { props: { size } })
-      expect(wrapper.find('.nm-input').classes()).toContain(`nm-input--${size}`)
-    }
-  })
-
   it('数字 size：走 --sized 类 + 内联 CSS 变量，不挂档位类', () => {
     const wrapper = mount(NeumorphismInput, { props: { size: 42 } })
     const box = wrapper.find('.nm-input')
@@ -72,14 +64,14 @@ describe('NeumorphismInput', () => {
     expect(box.attributes('style')).toContain('--nm-field-sz-affix-x: 12px')
   })
 
-  it('数字 size 在锚点上与档位别名逐像素一致', () => {
+  it('数字 size 落在锚点上：内联变量原样下发该 px', () => {
     // 锚点 ↔ 档位 ↔ tokens.scss 里的 --nm-field-* （高度 / 字号 / 内距）
     const anchors = [
-      [36, 'small', 13, 6, 12, 10],
-      [48, 'medium', 14, 10, 16, 14],
-      [60, 'large', 16, 14, 20, 16],
+      [36, 13, 6, 12, 10],
+      [48, 14, 10, 16, 14],
+      [60, 16, 14, 20, 16],
     ] as const
-    for (const [px, tier, font, padY, padX, affixX] of anchors) {
+    for (const [px, font, padY, padX, affixX] of anchors) {
       const style = mount(NeumorphismInput, { props: { size: px } })
         .find('.nm-input')
         .attributes('style')
@@ -89,9 +81,6 @@ describe('NeumorphismInput', () => {
       expect(style).toContain(`--nm-field-sz-pad-x: ${padX}px`)
       expect(style).toContain(`--nm-field-sz-affix-x: ${affixX}px`)
       // 档位路径不挂内联变量，两者靠锚点取值一致而非共享代码
-      const byTier = mount(NeumorphismInput, { props: { size: tier } })
-      expect(byTier.find('.nm-input').classes()).toContain(`nm-input--${tier}`)
-      expect(byTier.find('.nm-input').attributes('style')).toBeUndefined()
     }
   })
 

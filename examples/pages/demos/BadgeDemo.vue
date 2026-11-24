@@ -35,8 +35,8 @@ const snippet = computed(() => {
   if (showZero.value) attrs.push('show-zero')
   const hostTag =
     host.value === 'button'
-      ? '  <NeumorphismButton variant="pressed" size="small">收件箱</NeumorphismButton>'
-      : '  <NeumorphismAvatar initials="AB" size="medium" />'
+      ? '  <NeumorphismButton variant="pressed" :size="32">收件箱</NeumorphismButton>'
+      : '  <NeumorphismAvatar initials="AB" :size="44" />'
   return `<NeumorphismBadge ${attrs.join(' ')}>\n${hostTag}\n</NeumorphismBadge>`
 })
 </script>
@@ -46,10 +46,10 @@ const snippet = computed(() => {
     <h4 class="demo-label">展示 + 配置（左侧实时预览，右侧调整参数）</h4>
     <DemoPlayground :snippet="snippet">
       <NeumorphismBadge :value="value" :max="max" :dot="dot" :show-zero="showZero">
-        <NeumorphismButton v-if="host === 'button'" variant="pressed" size="small">
+        <NeumorphismButton v-if="host === 'button'" variant="pressed" :size="32">
           收件箱
         </NeumorphismButton>
-        <NeumorphismAvatar v-else initials="AB" size="medium" />
+        <NeumorphismAvatar v-else initials="AB" :size="44" />
       </NeumorphismBadge>
 
       <template #spec>
@@ -65,32 +65,32 @@ const snippet = computed(() => {
 
       <template #config>
         <DemoField label="数值 value" :value="String(value)" grow>
-          <NeumorphismSlider v-model="value" :min="0" :max="200" :step="1" size="small" />
+          <NeumorphismSlider v-model="value" :min="0" :max="200" :step="1" :size="6" />
         </DemoField>
 
         <DemoField label="上限 max" :value="String(max)" grow>
-          <NeumorphismSlider v-model="max" :min="1" :max="200" :step="1" size="small" />
+          <NeumorphismSlider v-model="max" :min="1" :max="200" :step="1" :size="6" />
         </DemoField>
 
         <DemoField label="状态">
           <div class="demo-row" style="gap: 16px">
             <label class="demo-toggle">
-              <NeumorphismSwitch v-model="dot" size="small" />
+              <NeumorphismSwitch v-model="dot" :size="24" />
               <span>dot</span>
             </label>
             <label class="demo-toggle">
-              <NeumorphismSwitch v-model="showZero" size="small" />
+              <NeumorphismSwitch v-model="showZero" :size="24" />
               <span>show-zero</span>
             </label>
           </div>
         </DemoField>
 
         <DemoField label="宿主">
-          <NeumorphismSegmented v-model="host" :options="hostOptions" size="small" />
+          <NeumorphismSegmented v-model="host" :options="hostOptions" :size="26" />
         </DemoField>
 
         <DemoField label="操作">
-          <NeumorphismButton variant="raised" size="small" @click="reset()"
+          <NeumorphismButton variant="raised" :size="32" @click="reset()"
             >恢复默认</NeumorphismButton
           >
         </DemoField>

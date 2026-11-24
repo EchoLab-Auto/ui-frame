@@ -28,22 +28,18 @@ const GLASS_TIER_OF_VARIANT: Partial<Record<ButtonVariant, GlassVariant>> = {
   'glass-pressed': 'pressed',
 }
 
-export type ButtonSize = 'small' | 'medium' | 'large'
 export type ButtonShape = 'rounded' | 'pill' | 'circle'
 
 export interface NeumorphismButtonProps {
   /** 视觉预设：`raised` / `pressed` / `primary` / `glow` / 玻璃三档 */
   variant?: ButtonVariant
   /**
-   * 尺寸——px 最小高度（数字，主几何量），或三档预设名。
+   * 尺寸——px 最小高度（数字，主几何量）。
    *
-   * 数字即「最小高度」：字号与内距按三锚点（32 / 44 / 56）分段线性插值，
-   * 所以 `:size="32"` 与 `size="small"` 逐像素相同，`:size="40"` 落在两者之间。
-   *
-   * @deprecated 字符串档位（`'small' | 'medium' | 'large'`）仅作兼容别名保留，
-   * 新代码请传数字。
+   * 数字即「最小高度」：字号与内距按三锚点（32 / 44 / 56）分段线性插值；
+   * `md` 锚点即 `:size="32"`，`:size="40"` 落在两者之间。
    */
-  size?: number | ButtonSize
+  size?: number
   /** Button corner shape */
   shape?: ButtonShape
   /** Whether the button is disabled */
@@ -90,24 +86,13 @@ const resolvedBaseVariant = computed<ButtonVariant>(() =>
   GLASS_TIER_OF_VARIANT[resolvedVariant.value] ? 'raised' : resolvedVariant.value
 )
 
-/** 数字尺寸的语义是「最小高度」，默认值取 medium 锚点 */
-const DEFAULT_SIZE_PX = 44
-
-/** 数字通道：`undefined` = 走档位 class，有值 = 走内联 CSS 变量 */
-const numericSize = computed(() => {
-  const raw = props.size ?? config.value.button?.size
-  return typeof raw === 'number' ? normalizeNumericSize(raw, DEFAULT_SIZE_PX) : undefined
-})
-
-const resolvedSize = computed<ButtonSize>(() => {
-  const raw = props.size ?? config.value.button?.size
-  return typeof raw === 'string' ? raw : 'medium'
-})
-
-/** 数字尺寸下发的 CSS 变量（见 utils/controlScale） */
-const sizeStyle = computed(() =>
-  numericSize.value === undefined ? undefined : resolveControlScale(BUTTON_SCALE, numericSize.value)
+/** 尺寸（px）：显式 prop > 全局配置 > 锚点 `md`（语义 = 最小高度）。 */
+const numericSize = computed(() =>
+  normalizeNumericSize(props.size ?? config.value.button?.size, BUTTON_SCALE.primary.md)
 )
+
+/** 尺寸下发的 CSS 变量（见 utils/controlScale） */
+const sizeStyle = computed(() => resolveControlScale(BUTTON_SCALE, numericSize.value))
 const resolvedShape = computed(() => props.shape ?? config.value.button?.shape ?? 'rounded')
 
 const emit = defineEmits<{
@@ -119,7 +104,7 @@ const isDisabled = computed(() => props.disabled || props.loading)
 const classList = computed(() => [
   'nm-button',
   `nm-button--${resolvedBaseVariant.value}`,
-  numericSize.value === undefined ? `nm-button--${resolvedSize.value}` : 'nm-button--sized',
+  'nm-button--sized',
   `nm-button--${resolvedShape.value}`,
   ...glassClassNames('nm-button', resolvedGlass.value),
   {

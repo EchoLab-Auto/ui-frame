@@ -387,44 +387,32 @@ const snippet = computed(() => {
 
       <template #config>
         <DemoField label="节点半径" :value="`${graphNodeRadius}px`" label-width="88px" grow>
-          <NeumorphismSlider v-model="graphNodeRadius" :min="2" :max="20" :step="1" size="small" />
+          <NeumorphismSlider v-model="graphNodeRadius" :min="2" :max="20" :step="1" :size="6" />
         </DemoField>
 
         <DemoField label="理想边长" :value="`${graphLinkDistance}px`" label-width="88px" grow>
-          <NeumorphismSlider
-            v-model="graphLinkDistance"
-            :min="40"
-            :max="200"
-            :step="2"
-            size="small"
-          />
+          <NeumorphismSlider v-model="graphLinkDistance" :min="40" :max="200" :step="2" :size="6" />
         </DemoField>
 
         <DemoField label="排斥强度" :value="`${graphRepulsion}`" label-width="88px" grow>
-          <NeumorphismSlider
-            v-model="graphRepulsion"
-            :min="100"
-            :max="3000"
-            :step="50"
-            size="small"
-          />
+          <NeumorphismSlider v-model="graphRepulsion" :min="100" :max="3000" :step="50" :size="6" />
         </DemoField>
 
         <DemoField label="容器高度" :value="`${graphHeight}px`" label-width="88px" grow>
-          <NeumorphismSlider v-model="graphHeight" :min="320" :max="760" :step="20" size="small" />
+          <NeumorphismSlider v-model="graphHeight" :min="320" :max="760" :step="20" :size="6" />
         </DemoField>
 
         <!-- 只把「看一眼就知道效果」的视觉开关放这里；交互与行为类集中在后面那组 -->
         <DemoField label="图例" label-width="88px">
-          <NeumorphismSwitch v-model="graphShowLegend" size="small" />
+          <NeumorphismSwitch v-model="graphShowLegend" :size="24" />
         </DemoField>
 
         <DemoField label="缩放控件" label-width="88px">
-          <NeumorphismSwitch v-model="graphShowControls" size="small" />
+          <NeumorphismSwitch v-model="graphShowControls" :size="24" />
         </DemoField>
 
         <DemoField label="高亮邻居" label-width="88px">
-          <NeumorphismSwitch v-model="graphHighlight" size="small" />
+          <NeumorphismSwitch v-model="graphHighlight" :size="24" />
         </DemoField>
       </template>
     </DemoPlayground>
@@ -440,7 +428,7 @@ const snippet = computed(() => {
           :min="0.001"
           :max="0.03"
           :step="0.001"
-          size="small"
+          :size="6"
           style="flex: 1"
         />
         <code class="graph-ctl__value">{{ fmt(graphSpring, 3) }}</code>
@@ -452,7 +440,7 @@ const snippet = computed(() => {
           :min="0"
           :max="0.002"
           :step="0.0001"
-          size="small"
+          :size="6"
           style="flex: 1"
         />
         <code class="graph-ctl__value">{{ fmt(graphGravity, 4) }}</code>
@@ -464,7 +452,7 @@ const snippet = computed(() => {
           :min="0"
           :max="0.9"
           :step="0.05"
-          size="small"
+          :size="6"
           style="flex: 1"
         />
         <code class="graph-ctl__value">{{ fmt(graphVelocityDecay, 2) }}</code>
@@ -476,7 +464,7 @@ const snippet = computed(() => {
           :min="2"
           :max="40"
           :step="1"
-          size="small"
+          :size="6"
           style="flex: 1"
         />
         <code class="graph-ctl__value">{{ graphMaxSpeed }}</code>
@@ -488,7 +476,7 @@ const snippet = computed(() => {
           :min="0.004"
           :max="0.12"
           :step="0.002"
-          size="small"
+          :size="6"
           style="flex: 1"
         />
         <code class="graph-ctl__value">{{ fmt(graphAlphaDecay, 3) }}</code>
@@ -500,7 +488,7 @@ const snippet = computed(() => {
           :min="0.0004"
           :max="0.02"
           :step="0.0001"
-          size="small"
+          :size="6"
           style="flex: 1"
         />
         <code class="graph-ctl__value">{{ fmt(graphAlphaMin, 4) }}</code>
@@ -512,7 +500,7 @@ const snippet = computed(() => {
           :min="1"
           :max="20"
           :step="0.5"
-          size="small"
+          :size="6"
           style="flex: 1"
         />
         <code class="graph-ctl__value">{{ fmt(graphMaxRepulsionForce, 1) }}</code>
@@ -528,23 +516,23 @@ const snippet = computed(() => {
     <h4 class="demo-label">视图 / 交互 / 行为（开关类 props）</h4>
     <div class="graph-switches">
       <div class="graph-switch">
-        <NeumorphismSwitch v-model="graphDraggable" size="small" />
+        <NeumorphismSwitch v-model="graphDraggable" :size="24" />
         <span>拖拽节点 draggable</span>
       </div>
       <div class="graph-switch">
-        <NeumorphismSwitch v-model="graphPannable" size="small" />
+        <NeumorphismSwitch v-model="graphPannable" :size="24" />
         <span>拖背景平移 pannable</span>
       </div>
       <div class="graph-switch">
-        <NeumorphismSwitch v-model="graphZoomable" size="small" />
+        <NeumorphismSwitch v-model="graphZoomable" :size="24" />
         <span>缩放 zoomable</span>
       </div>
       <div class="graph-switch">
-        <NeumorphismSwitch v-model="graphAutoFit" size="small" />
+        <NeumorphismSwitch v-model="graphAutoFit" :size="24" />
         <span>自动适应 autoFit</span>
       </div>
       <div class="graph-switch">
-        <NeumorphismSwitch v-model="graphPreservePositions" size="small" />
+        <NeumorphismSwitch v-model="graphPreservePositions" :size="24" />
         <span>保留坐标 preservePositions</span>
       </div>
     </div>
@@ -552,27 +540,27 @@ const snippet = computed(() => {
     <div class="demo-row" style="flex-wrap: wrap; gap: 24px; align-items: center">
       <div class="demo-row">
         <span class="demo-form-label">标签 showLabels</span>
-        <NeumorphismSegmented v-model="graphLabelMode" :options="graphLabelOptions" size="small" />
+        <NeumorphismSegmented v-model="graphLabelMode" :options="graphLabelOptions" :size="26" />
       </div>
     </div>
 
     <div class="graph-actions">
-      <NeumorphismButton variant="raised" size="small" @click="graphRef?.fit()">
+      <NeumorphismButton variant="raised" :size="32" @click="graphRef?.fit()">
         适应视图
       </NeumorphismButton>
-      <NeumorphismButton variant="pressed" size="small" @click="graphRef?.resetLayout()">
+      <NeumorphismButton variant="pressed" :size="32" @click="graphRef?.resetLayout()">
         重新布局
       </NeumorphismButton>
-      <NeumorphismButton variant="raised" size="small" @click="graphRef?.reheat(0.6)">
+      <NeumorphismButton variant="raised" :size="32" @click="graphRef?.reheat(0.6)">
         重新唤醒
       </NeumorphismButton>
-      <NeumorphismButton variant="raised" size="small" @click="addGraphNode()">
+      <NeumorphismButton variant="raised" :size="32" @click="addGraphNode()">
         ＋ 新增节点
       </NeumorphismButton>
-      <NeumorphismButton variant="raised" size="small" @click="removeGraphNode()">
+      <NeumorphismButton variant="raised" :size="32" @click="removeGraphNode()">
         － 移除节点
       </NeumorphismButton>
-      <NeumorphismButton variant="raised" size="small" @click="resetGraphDefaults()">
+      <NeumorphismButton variant="raised" :size="32" @click="resetGraphDefaults()">
         恢复默认
       </NeumorphismButton>
     </div>

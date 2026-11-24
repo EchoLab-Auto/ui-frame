@@ -13,21 +13,16 @@
  */
 
 export { default as NeumorphismButton } from './NeumorphismButton'
-export type {
-  NeumorphismButtonProps,
-  ButtonVariant,
-  ButtonSize,
-  ButtonShape,
-} from './NeumorphismButton'
+export type { NeumorphismButtonProps, ButtonVariant, ButtonShape } from './NeumorphismButton'
 
 export { default as NeumorphismSwitch } from './NeumorphismSwitch'
-export type { NeumorphismSwitchProps, SwitchVariant, SwitchSize } from './NeumorphismSwitch'
+export type { NeumorphismSwitchProps, SwitchVariant } from './NeumorphismSwitch'
 
 export { default as NeumorphismCard } from './NeumorphismCard'
 export type { NeumorphismCardProps, CardVariant, CardDepth, CardGlass } from './NeumorphismCard'
 
 export { default as NeumorphismInput } from './NeumorphismInput'
-export type { NeumorphismInputProps, InputSize } from './NeumorphismInput'
+export type { NeumorphismInputProps } from './NeumorphismInput'
 
 export { default as ThemeProvider } from './ThemeProvider'
 export type { ThemeProviderProps } from './ThemeProvider'
@@ -83,10 +78,10 @@ export type { NeumorphismEmptyProps } from './NeumorphismEmpty'
 
 // Navigation
 export { default as NeumorphismMenu } from './NeumorphismMenu'
-export type { NeumorphismMenuProps, MenuSize } from './NeumorphismMenu'
+export type { NeumorphismMenuProps } from './NeumorphismMenu'
 
 export { default as NeumorphismNavMenu } from './NeumorphismNavMenu'
-export type { NeumorphismNavMenuProps, NavMenuSize } from './NeumorphismNavMenu'
+export type { NeumorphismNavMenuProps } from './NeumorphismNavMenu'
 
 export { default as NeumorphismTabs } from './NeumorphismTabs'
 export type { NeumorphismTabsProps, TabItem } from './NeumorphismTabs'
@@ -99,7 +94,7 @@ export type { NeumorphismPaginationProps } from './NeumorphismPagination'
 
 // Data display
 export { default as NeumorphismAvatar } from './NeumorphismAvatar'
-export type { NeumorphismAvatarProps, AvatarSize } from './NeumorphismAvatar'
+export type { NeumorphismAvatarProps } from './NeumorphismAvatar'
 
 export { default as NeumorphismBadge } from './NeumorphismBadge'
 export type { NeumorphismBadgeProps } from './NeumorphismBadge'
@@ -163,7 +158,7 @@ export { default as NeumorphismCanvas } from './NeumorphismCanvas'
 export type { NeumorphismCanvasProps } from './NeumorphismCanvas'
 
 export { default as NeumorphismLogo } from './NeumorphismLogo'
-export type { NeumorphismLogoProps, LogoMode, LogoSize } from './NeumorphismLogo'
+export type { NeumorphismLogoProps, LogoMode } from './NeumorphismLogo'
 
 export { default as NeumorphismArt } from './NeumorphismArt'
 export type { NeumorphismArtProps, ArtEffectName } from './NeumorphismArt'
@@ -193,7 +188,7 @@ export { default as NeumorphismInputNumber } from './NeumorphismInputNumber'
 export type { NeumorphismInputNumberProps } from './NeumorphismInputNumber'
 
 export { default as NeumorphismSteps } from './NeumorphismSteps'
-export type { NeumorphismStepsProps, StepItem, StepStatus, StepsSize } from './NeumorphismSteps'
+export type { NeumorphismStepsProps, StepItem, StepStatus } from './NeumorphismSteps'
 
 export { NeumorphismForm, NeumorphismFormItem } from './NeumorphismForm'
 export type { NeumorphismFormProps, NeumorphismFormItemProps, FormRule } from './NeumorphismForm'
@@ -216,21 +211,13 @@ export type { NeumorphismChartCandlestickProps } from './NeumorphismChartCandles
 
 // Status & feedback primitives
 export { default as NeumorphismSpinner } from './NeumorphismSpinner'
-export type { NeumorphismSpinnerProps, SpinnerSize } from './NeumorphismSpinner'
+export type { NeumorphismSpinnerProps } from './NeumorphismSpinner'
 
 export { default as NeumorphismStatusDot } from './NeumorphismStatusDot'
-export type {
-  NeumorphismStatusDotProps,
-  StatusDotStatus,
-  StatusDotSize,
-} from './NeumorphismStatusDot'
+export type { NeumorphismStatusDotProps, StatusDotStatus } from './NeumorphismStatusDot'
 
 export { default as NeumorphismIcon } from './NeumorphismIcon'
 export type { NeumorphismIconProps, NeumorphismIconTone } from './NeumorphismIcon'
 
 export { default as NeumorphismSegmented } from './NeumorphismSegmented'
-export type {
-  NeumorphismSegmentedProps,
-  SegmentedOption,
-  SegmentedSize,
-} from './NeumorphismSegmented'
+export type { NeumorphismSegmentedProps, SegmentedOption } from './NeumorphismSegmented'

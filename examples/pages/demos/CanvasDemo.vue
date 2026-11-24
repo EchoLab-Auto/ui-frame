@@ -117,16 +117,16 @@ const snippet = computed(() => {
     <DemoPlayground :snippet="snippet" :stage-switch="false">
       <div style="width: 100%">
         <div class="demo-row" style="margin-bottom: 10px">
-          <NeumorphismButton size="small" @click="canvasShowGrid = !canvasShowGrid">
+          <NeumorphismButton :size="32" @click="canvasShowGrid = !canvasShowGrid">
             {{ canvasShowGrid ? '隐藏网格' : '显示网格' }}
           </NeumorphismButton>
           <NeumorphismButton
-            size="small"
+            :size="32"
             @click="canvasGridVariant = canvasGridVariant === 'dots' ? 'lines' : 'dots'"
           >
             {{ canvasGridVariant === 'dots' ? '线条网格' : '点状网格' }}
           </NeumorphismButton>
-          <NeumorphismButton size="small" @click="canvasZoom = 1">重置缩放</NeumorphismButton>
+          <NeumorphismButton :size="32" @click="canvasZoom = 1">重置缩放</NeumorphismButton>
         </div>
 
         <NeumorphismCanvas
@@ -224,7 +224,7 @@ const snippet = computed(() => {
       <template #config>
         <DemoField label="网格">
           <label class="demo-toggle">
-            <NeumorphismSwitch v-model="canvasShowGrid" size="small" />
+            <NeumorphismSwitch v-model="canvasShowGrid" :size="24" />
             <span>showGrid</span>
           </label>
         </DemoField>
@@ -233,38 +233,32 @@ const snippet = computed(() => {
           <NeumorphismSegmented
             v-model="canvasGridVariant"
             :options="gridVariantOptions"
-            size="small"
+            :size="26"
           />
         </DemoField>
 
         <DemoField label="格距" :value="`${canvasGridSize}px`" grow>
-          <NeumorphismSlider v-model="canvasGridSize" :min="10" :max="48" :step="2" size="small" />
+          <NeumorphismSlider v-model="canvasGridSize" :min="10" :max="48" :step="2" :size="6" />
         </DemoField>
 
         <!-- 两条滑块各自只覆盖 1 的一侧：minZoom ≤ 1 ≤ maxZoom，天然不会配出空的缩放区间 -->
         <DemoField label="最小缩放" :value="`${canvasMinZoom}`" grow>
-          <NeumorphismSlider
-            v-model="canvasMinZoom"
-            :min="0.1"
-            :max="1"
-            :step="0.05"
-            size="small"
-          />
+          <NeumorphismSlider v-model="canvasMinZoom" :min="0.1" :max="1" :step="0.05" :size="6" />
         </DemoField>
 
         <DemoField label="最大缩放" :value="`${canvasMaxZoom}`" grow>
-          <NeumorphismSlider v-model="canvasMaxZoom" :min="1" :max="5" :step="0.25" size="small" />
+          <NeumorphismSlider v-model="canvasMaxZoom" :min="1" :max="5" :step="0.25" :size="6" />
         </DemoField>
 
         <DemoField label="高度" :value="`${canvasHeight}px`" grow>
-          <NeumorphismSlider v-model="canvasHeight" :min="240" :max="640" :step="20" size="small" />
+          <NeumorphismSlider v-model="canvasHeight" :min="240" :max="640" :step="20" :size="6" />
         </DemoField>
 
         <DemoField label="操作">
-          <NeumorphismButton variant="raised" size="small" @click="reset()"
+          <NeumorphismButton variant="raised" :size="32" @click="reset()"
             >恢复默认</NeumorphismButton
           >
-          <NeumorphismButton variant="pressed" size="small" @click="canvasZoom = 1">
+          <NeumorphismButton variant="pressed" :size="32" @click="canvasZoom = 1">
             重置缩放
           </NeumorphismButton>
         </DemoField>

@@ -164,18 +164,11 @@ describe('NeumorphismProgress', () => {
     expect(wrapper.find('.nm-progress-circle__fill').attributes('stroke-width')).toBe('5.5')
   })
 
-  it('数字 size 在锚点上与档位别名逐像素一致（线性条与环形）', () => {
-    const anchors = [
-      [4, 'small'],
-      [8, 'medium'],
-      [12, 'large'],
-    ] as const
-    for (const [px, tier] of anchors) {
+  it('数字 size 落在锚点上：内联变量原样下发该 px', () => {
+    const anchors = [[4], [8], [12]] as const
+    for (const [px] of anchors) {
       const byNumber = mount(NeumorphismProgress, { props: { modelValue: 40, size: px } })
       expect(byNumber.attributes('style')).toContain(`--nm-progress-sz-height: ${px}px`)
-      const byTier = mount(NeumorphismProgress, { props: { modelValue: 40, size: tier } })
-      expect(byTier.classes()).toContain(`nm-progress--${tier}`)
-      expect(byTier.attributes('style')).toBeUndefined()
     }
 
     // 环形：数字 8 ≡ medium（直径 120 / 描边 7 / 半径 56.5）

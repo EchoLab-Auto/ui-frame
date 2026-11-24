@@ -20,8 +20,8 @@ describe('NeumorphismSpinner', () => {
     expect(wrapper.attributes('style')).toContain('--nm-spinner-size: 32px')
   })
 
-  it('档位尺寸映射为像素', () => {
-    const wrapper = mount(NeumorphismSpinner, { props: { size: 'large' } })
+  it('数字尺寸直传像素', () => {
+    const wrapper = mount(NeumorphismSpinner, { props: { size: 28 } })
     expect(wrapper.attributes('style')).toContain('--nm-spinner-size: 28px')
   })
 })

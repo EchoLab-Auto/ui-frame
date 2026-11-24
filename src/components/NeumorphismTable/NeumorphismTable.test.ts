@@ -59,20 +59,12 @@ describe('NeumorphismTable — sort header keyboard accessibility', () => {
     expect(wrapper.attributes('style')).toContain('--nm-table-sz-font: 13px')
   })
 
-  it('数字 size 在锚点上与档位别名等价（同一组 px）', () => {
+  it('数字 size 落在锚点上：内联变量原样下发该 px', () => {
     // 锚点：small 8 / medium 12 / large 16（单元格上下内距）；medium 走基础规则，无独立 class
-    const anchors = [
-      [8, 'small'],
-      [12, 'medium'],
-      [16, 'large'],
-    ] as const
-    for (const [px, tier] of anchors) {
+    const anchors = [[8], [12], [16]] as const
+    for (const [px] of anchors) {
       const byNumber = mount(NeumorphismTable, { props: { columns, data, size: px } })
-      const byTier = mount(NeumorphismTable, { props: { columns, data, size: tier } })
       expect(byNumber.attributes('style')).toContain(`--nm-table-sz-pad-y: ${px}px`)
-      expect(byTier.classes()).toContain(`nm-table--${tier}`)
-      expect(byTier.classes()).not.toContain('nm-table--sized')
-      expect(byTier.attributes('style')).toBeUndefined()
     }
   })
 

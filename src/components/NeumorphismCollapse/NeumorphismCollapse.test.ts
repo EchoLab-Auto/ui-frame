@@ -18,20 +18,12 @@ describe('NeumorphismCollapse — size 数字通道', () => {
     expect(wrapper.attributes('style')).toContain('--nm-collapse-sz-pad-x: 18px')
   })
 
-  it('数字 size 在锚点上与档位别名等价（同一组 px）', () => {
+  it('数字 size 落在锚点上：内联变量原样下发该 px', () => {
     // 锚点：small 13 / medium 15 / large 16（标题字号）；medium 走基础规则，没有独立 class
-    const anchors = [
-      [13, 'small'],
-      [15, 'medium'],
-      [16, 'large'],
-    ] as const
-    for (const [px, tier] of anchors) {
+    const anchors = [[13], [15], [16]] as const
+    for (const [px] of anchors) {
       const byNumber = mount(NeumorphismCollapse, { props: { items, size: px } })
-      const byTier = mount(NeumorphismCollapse, { props: { items, size: tier } })
       expect(byNumber.attributes('style')).toContain(`--nm-collapse-sz-font: ${px}px`)
-      expect(byTier.classes()).toContain(`nm-collapse--${tier}`)
-      expect(byTier.classes()).not.toContain('nm-collapse--sized')
-      expect(byTier.attributes('style')).toBeUndefined()
     }
   })
 

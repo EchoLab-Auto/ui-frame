@@ -217,7 +217,7 @@ export default { install, version: '__VERSION__' }
 
 ```ts
 app.use(NeumorphismUI, {
-  config: { button: { size: 'large' } },
+  config: { button: { size: 56 } },
   components: { NeumorphismButton: MyCustomButton },
   prefix: 'App',
 })

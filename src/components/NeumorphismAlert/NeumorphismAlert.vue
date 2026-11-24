@@ -9,8 +9,6 @@ import NeumorphismIcon from '@/components/NeumorphismIcon/NeumorphismIcon.vue'
 
 export type { AlertType }
 
-export type AlertSize = 'small' | 'medium' | 'large'
-
 export interface NeumorphismAlertProps {
   type?: AlertType
   title?: string
@@ -20,15 +18,12 @@ export interface NeumorphismAlertProps {
   icon?: boolean
   bordered?: boolean
   /**
-   * 尺寸——px 正文字号（数字，主几何量），或三档预设名。
+   * 尺寸——px 正文字号（数字，主几何量）。
    *
-   * 数字即「正文字号」：标题字号与四周内距按三锚点（12 / 13 / 14）分段线性插值，
-   * 所以 `:size="13"` 与 `size="medium"` 逐像素相同，`:size="12.5"` 落在两者之间。
-   *
-   * @deprecated 字符串档位（`'small' | 'medium' | 'large'`）仅作兼容别名保留，
-   * 新代码请传数字。
+   * 数字即「正文字号」：标题字号与四周内距按三锚点（12 / 13 / 14）分段线性插值；
+   * `md` 锚点即 `:size="13"`，`:size="12.5"` 落在两者之间。
    */
-  size?: number | AlertSize
+  size?: number
   /** Accessible label for the close button */
   closeLabel?: string
 }
@@ -62,28 +57,17 @@ const resolvedBordered = computed(() =>
   resolveProp(props.bordered, config.value.alert?.bordered, true)
 )
 /**
- * 数字尺寸的语义是「正文字号」，默认值取 medium 锚点。
+ * 尺寸（px）：显式 prop > 全局配置 > 锚点 `md`（语义 = 正文字号）。
  *
  * 0 / 负数 / NaN 回落到这里：正文字号 0 等于内容不可读，负内距则会写出无效声明。
  */
-const DEFAULT_SIZE_PX = 13
-
-/** 数字通道：`undefined` = 走档位 class，有值 = 走内联 CSS 变量 */
-const numericSize = computed(() => {
-  const raw = props.size ?? config.value.alert?.size
-  return typeof raw === 'number' ? normalizeNumericSize(raw, DEFAULT_SIZE_PX) : undefined
-})
-
-/** 字符串通道：只认档位别名（显式传数字时它不参与渲染） */
-const resolvedSize = computed<AlertSize>(() => {
-  const raw = props.size ?? config.value.alert?.size
-  return typeof raw === 'string' ? raw : 'medium'
-})
-
-/** 数字尺寸下发的 CSS 变量（见 utils/controlScale） */
-const sizeStyle = computed(() =>
-  numericSize.value === undefined ? undefined : resolveControlScale(ALERT_SCALE, numericSize.value)
+/** 尺寸（px）：显式 prop > 全局配置 > 锚点 `md`。 */
+const numericSize = computed(() =>
+  normalizeNumericSize(props.size ?? config.value.alert?.size, ALERT_SCALE.primary.md)
 )
+
+/** 尺寸下发的 CSS 变量（见 utils/controlScale） */
+const sizeStyle = computed(() => resolveControlScale(ALERT_SCALE, numericSize.value))
 
 const { t } = useLocale()
 const resolvedCloseLabel = computed(() => props.closeLabel || t('alertClose'))
@@ -117,7 +101,7 @@ function handleClose() {
 const classList = computed(() => [
   'nm-alert',
   `nm-alert--${resolvedType.value}`,
-  numericSize.value === undefined ? `nm-alert--${resolvedSize.value}` : 'nm-alert--sized',
+  'nm-alert--sized',
   {
     'nm-alert--bordered': resolvedBordered.value,
     'nm-alert--leaving': leaving.value,

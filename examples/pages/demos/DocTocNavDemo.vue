@@ -126,30 +126,30 @@ const snippet = computed(() => {
 
       <template #config>
         <DemoField label="层级 items">
-          <NeumorphismSegmented v-model="tocDepth" :options="tocDepthOptions" size="small" />
+          <NeumorphismSegmented v-model="tocDepth" :options="tocDepthOptions" :size="26" />
         </DemoField>
 
         <DemoField label="激活项" label-width="78px">
           <NeumorphismSelect
             v-model="tocActiveId"
             :options="tocActiveOptions"
-            size="small"
+            :size="36"
             style="width: 168px"
           />
         </DemoField>
 
         <DemoField label="卡片边框 framed">
-          <NeumorphismSwitch v-model="tocFramed" size="small" />
+          <NeumorphismSwitch v-model="tocFramed" :size="24" />
         </DemoField>
 
         <DemoField label="操作">
           <NeumorphismButton
             variant="raised"
-            size="small"
+            :size="32"
             @click="tocActiveId = firstLeafId(tocItems)"
             >回到首个节点</NeumorphismButton
           >
-          <NeumorphismButton variant="pressed" size="small" @click="tocActiveId = 'toc-demo-api'">
+          <NeumorphismButton variant="pressed" :size="32" @click="tocActiveId = 'toc-demo-api'">
             激活 API 参考
           </NeumorphismButton>
         </DemoField>

@@ -150,43 +150,43 @@ const snippet = computed(() => {
 
       <template #config>
         <DemoField label="高度 elevation" :value="String(elevation)" grow>
-          <NeumorphismSlider v-model="elevation" :min="-4" :max="4" :step="1" size="small" />
+          <NeumorphismSlider v-model="elevation" :min="-4" :max="4" :step="1" :size="6" />
         </DemoField>
 
         <DemoField label="玻璃 glass">
-          <NeumorphismSegmented v-model="glass" :options="glassOptions" size="small" />
+          <NeumorphismSegmented v-model="glass" :options="glassOptions" :size="26" />
         </DemoField>
 
         <DemoField label="悬停 hoverable">
-          <NeumorphismSegmented v-model="hoverable" :options="hoverableOptions" size="small" />
+          <NeumorphismSegmented v-model="hoverable" :options="hoverableOptions" :size="26" />
         </DemoField>
 
         <DemoField label="圆角 radius" :value="`${radius}px`" grow>
-          <NeumorphismSlider v-model="radius" :min="0" :max="48" :step="1" size="small" />
+          <NeumorphismSlider v-model="radius" :min="0" :max="48" :step="1" :size="6" />
         </DemoField>
 
         <DemoField label="超椭圆 squircle" :value="squircle ? '开' : '关'">
-          <NeumorphismSwitch v-model="squircle" size="small" />
+          <NeumorphismSwitch v-model="squircle" :size="24" />
         </DemoField>
 
         <DemoField label="插槽">
           <div class="demo-row" style="gap: 16px">
             <label class="demo-toggle">
-              <NeumorphismSwitch v-model="showHeader" size="small" />
+              <NeumorphismSwitch v-model="showHeader" :size="24" />
               <span>#header</span>
             </label>
             <label class="demo-toggle">
-              <NeumorphismSwitch v-model="showFooter" size="small" />
+              <NeumorphismSwitch v-model="showFooter" :size="24" />
               <span>#footer</span>
             </label>
           </div>
         </DemoField>
 
         <DemoField label="操作">
-          <NeumorphismButton variant="raised" size="small" @click="reset()"
+          <NeumorphismButton variant="raised" :size="32" @click="reset()"
             >恢复默认</NeumorphismButton
           >
-          <NeumorphismButton variant="pressed" size="small" @click="useGlass()">
+          <NeumorphismButton variant="pressed" :size="32" @click="useGlass()">
             套用玻璃
           </NeumorphismButton>
         </DemoField>

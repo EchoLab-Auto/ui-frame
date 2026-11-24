@@ -42,7 +42,7 @@ const navItems = [
           {{ item.label }}
         </router-link>
       </nav>
-      <NeumorphismThemeToggle v-model="themeValue" size="small" />
+      <NeumorphismThemeToggle v-model="themeValue" :size="5" />
     </header>
 
     <!-- Page content — each page manages its own Layout -->

@@ -2,8 +2,6 @@
 import { ref, computed } from 'vue'
 import { DemoPlayground, DemoField } from '../../demo'
 
-type BreadcrumbSize = 'small' | 'medium' | 'large'
-
 interface CrumbItem {
   label: string
   to?: string
@@ -18,12 +16,12 @@ interface DemoOption<T> {
 // ---- 配置台状态 ----
 /** 分隔符是纯文本，允许留空（留空 = 不渲染分隔符），也允许一句中文逗号之类的长分隔 */
 const separator = ref('/')
-const size = ref<BreadcrumbSize>('medium')
+const size = ref<number>(14)
 
-const sizeOptions: DemoOption<BreadcrumbSize>[] = [
-  { label: '小', value: 'small' },
-  { label: '中', value: 'medium' },
-  { label: '大', value: 'large' },
+const sizeOptions: DemoOption<number>[] = [
+  { label: '12', value: 12 },
+  { label: '14', value: 14 },
+  { label: '16', value: 16 },
 ]
 
 /** 预览用的层级：前两层可点（带 to），最后一层是当前页 */
@@ -64,7 +62,7 @@ function reset(): void {
   separator.value = '/'
   itemsMode.value = 'normal'
   lastClick.value = '—'
-  size.value = 'medium'
+  size.value = 14
 }
 
 // ---- 实时代码片段 ----
@@ -72,7 +70,7 @@ const snippet = computed(() => {
   const attrs: string[] = []
   // 默认分隔符是 '/'，默认尺寸是 medium：只有非默认值才写进片段
   if (separator.value !== '/') attrs.push(`separator="${separator.value}"`)
-  if (size.value !== 'medium') attrs.push(`size="${size.value}"`)
+  if (size.value !== 14) attrs.push(`:size="${size.value}"`)
   const attrText = attrs.length ? ` ${attrs.join(' ')}` : ''
   const emptyNote = separator.value === '' ? '\n  <!-- separator="" 表示不渲染分隔符 -->' : ''
   return `<NeumorphismBreadcrumb :items="items"${attrText} @item-click="onItemClick" />${emptyNote}`
@@ -105,7 +103,7 @@ const snippet = computed(() => {
 
       <template #config>
         <DemoField label="分隔符 separator" grow>
-          <NeumorphismInput v-model="separator" size="small" placeholder="/" :maxlength="4" />
+          <NeumorphismInput v-model="separator" :size="36" placeholder="/" :maxlength="4" />
         </DemoField>
 
         <DemoField label="快捷分隔符">
@@ -113,7 +111,7 @@ const snippet = computed(() => {
             v-for="symbol in separatorPresets"
             :key="symbol"
             variant="pressed"
-            size="small"
+            :size="32"
             @click="separator = symbol"
           >
             {{ symbol }}
@@ -127,16 +125,16 @@ const snippet = computed(() => {
               { label: '常态', value: 'normal' },
               { label: '边界（缺 to / 禁用 / 当前页）', value: 'mixed' },
             ]"
-            size="small"
+            :size="26"
           />
         </DemoField>
 
         <DemoField label="尺寸 size">
-          <NeumorphismSegmented v-model="size" :options="sizeOptions" size="small" />
+          <NeumorphismSegmented v-model="size" :options="sizeOptions" :size="26" />
         </DemoField>
 
         <DemoField label="操作">
-          <NeumorphismButton variant="raised" size="small" @click="reset()">
+          <NeumorphismButton variant="raised" :size="32" @click="reset()">
             恢复默认
           </NeumorphismButton>
         </DemoField>

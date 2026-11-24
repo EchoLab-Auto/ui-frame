@@ -9,13 +9,12 @@ import { DemoPlayground, DemoField } from '../../demo'
 type ProgressVariant = 'default' | 'primary' | 'success' | 'warning' | 'error'
 type ProgressEffect = 'default' | 'pulse' | 'flow' | 'wave' | 'stripes' | 'sparkle'
 type ProgressShape = 'line' | 'circle'
-type ProgressSize = 'small' | 'medium' | 'large'
 
 // ---- 配置台状态 ----
 const variant = ref<ProgressVariant>('primary')
 const effect = ref<ProgressEffect>('default')
 const shape = ref<ProgressShape>('line')
-const size = ref<ProgressSize>('medium')
+const size = ref<number>(8)
 const showLabel = ref(false)
 const indeterminate = ref(false)
 
@@ -41,9 +40,9 @@ const variantOptions = [
   { label: '错误', value: 'error' },
 ]
 const sizeOptions = [
-  { label: '小', value: 'small' },
-  { label: '中', value: 'medium' },
-  { label: '大', value: 'large' },
+  { label: '4', value: 4 },
+  { label: '8', value: 8 },
+  { label: '12', value: 12 },
 ]
 const shapeOptions = [
   { label: '条形', value: 'line' },
@@ -90,7 +89,7 @@ function reset() {
   variant.value = 'primary'
   effect.value = 'default'
   shape.value = 'line'
-  size.value = 'medium'
+  size.value = 8
   showLabel.value = false
   indeterminate.value = false
   value.value = 60
@@ -103,7 +102,7 @@ const snippet = computed(() => {
   const attrs: string[] = []
   if (shape.value === 'circle') attrs.push('type="circle"')
   if (variant.value !== 'primary') attrs.push(`variant="${variant.value}"`)
-  if (size.value !== 'medium') attrs.push(`size="${size.value}"`)
+  if (size.value !== 8) attrs.push(`:size="${size.value}"`)
   // 五种动效都画在 .nm-progress__bar 的伪元素上；环形走 SVG 描边，不吃 effect
   if (effect.value !== 'default' && shape.value === 'line') attrs.push(`effect="${effect.value}"`)
   if (indeterminate.value) attrs.push('indeterminate')
@@ -174,15 +173,15 @@ const snippet = computed(() => {
 
       <template #config>
         <DemoField label="变体 variant">
-          <NeumorphismSegmented v-model="variant" :options="variantOptions" size="small" />
+          <NeumorphismSegmented v-model="variant" :options="variantOptions" :size="26" />
         </DemoField>
 
         <DemoField label="形状 type">
-          <NeumorphismSegmented v-model="shape" :options="shapeOptions" size="small" />
+          <NeumorphismSegmented v-model="shape" :options="shapeOptions" :size="26" />
         </DemoField>
 
         <DemoField label="尺寸 size">
-          <NeumorphismSegmented v-model="size" :options="sizeOptions" size="small" />
+          <NeumorphismSegmented v-model="size" :options="sizeOptions" :size="26" />
         </DemoField>
 
         <DemoField label="动效 effect">
@@ -190,7 +189,7 @@ const snippet = computed(() => {
             v-model="effect"
             :options="effectOptions"
             :disabled="shape === 'circle'"
-            size="small"
+            :size="36"
           />
         </DemoField>
 
@@ -201,26 +200,26 @@ const snippet = computed(() => {
             :max="100"
             :step="5"
             :disabled="indeterminate"
-            size="small"
+            :size="6"
           />
         </DemoField>
 
         <DemoField label="条体高度" :value="`${barHeight}px`" grow>
-          <NeumorphismSlider v-model="barHeight" :min="4" :max="24" :step="1" size="small" />
+          <NeumorphismSlider v-model="barHeight" :min="4" :max="24" :step="1" :size="6" />
         </DemoField>
 
         <DemoField label="环直径" :value="`Ø ${circleDiameter}px`" grow>
-          <NeumorphismSlider v-model="circleDiameter" :min="64" :max="200" :step="4" size="small" />
+          <NeumorphismSlider v-model="circleDiameter" :min="64" :max="200" :step="4" :size="6" />
         </DemoField>
 
         <DemoField label="状态">
           <div class="demo-row" style="gap: 16px">
             <label class="demo-toggle">
-              <NeumorphismSwitch v-model="showLabel" size="small" />
+              <NeumorphismSwitch v-model="showLabel" :size="24" />
               <span>show-label</span>
             </label>
             <label class="demo-toggle">
-              <NeumorphismSwitch v-model="indeterminate" size="small" />
+              <NeumorphismSwitch v-model="indeterminate" :size="24" />
               <span>indeterminate</span>
             </label>
           </div>
@@ -229,12 +228,12 @@ const snippet = computed(() => {
         <DemoField label="操作">
           <NeumorphismButton
             variant="raised"
-            size="small"
+            :size="32"
             :disabled="isSimulating"
             @click="simulateLoading()"
             >{{ isSimulating ? '加载中…' : '播放模拟加载' }}</NeumorphismButton
           >
-          <NeumorphismButton variant="pressed" size="small" @click="reset()"
+          <NeumorphismButton variant="pressed" :size="32" @click="reset()"
             >恢复默认</NeumorphismButton
           >
         </DemoField>

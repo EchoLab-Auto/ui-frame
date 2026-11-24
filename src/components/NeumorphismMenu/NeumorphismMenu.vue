@@ -13,8 +13,6 @@ import NeumorphismIcon from '@/components/NeumorphismIcon/NeumorphismIcon.vue'
 export type { MenuItem as NeumorphismMenuItemProps }
 
 /** 档位别名（字符串通道）。数字为一等公民，档位仅兼容保留 */
-export type MenuSize = 'small' | 'medium' | 'large'
-
 export interface NeumorphismMenuProps {
   /** Menu items (with optional children for submenus) */
   items?: MenuItem[]
@@ -31,15 +29,12 @@ export interface NeumorphismMenuProps {
   /** Theme override */
   theme?: 'light' | 'dark'
   /**
-   * 尺寸——px 菜单项字号（数字，主几何量），或三档预设名。
+   * 尺寸——px 菜单项字号（数字，主几何量）。
    *
-   * 数字即「菜单项字号」：内距、图标与项间距按三锚点（11 / 14 / 15）分段线性插值，
-   * 所以 `:size="14"` 与 `size="medium"` 逐像素相同，`:size="12"` 落在两档之间。
-   *
-   * @deprecated 字符串档位（`'small' | 'medium' | 'large'`）仅作兼容别名保留，
-   * 新代码请传数字。
+   * 数字即「菜单项字号」：内距、图标与项间距按三锚点（11 / 14 / 15）分段线性插值；
+   * `md` 锚点即 `:size="14"`，`:size="12"` 落在两档之间。
    */
-  size?: number | MenuSize
+  size?: number
 }
 
 const props = withDefaults(defineProps<NeumorphismMenuProps>(), {
@@ -66,28 +61,13 @@ const resolvedTheme = computed(() => {
 
 const resolvedMode = computed(() => resolveProp(props.mode, config.value.menu?.mode, 'vertical'))
 
-/** 数字尺寸的语义是「菜单项字号」，默认值取 medium 锚点 */
-const DEFAULT_SIZE_PX = 14
-
-/** 原始 size：显式 prop > 全局配置 > medium（两个通道共用同一条级联） */
-const rawSize = computed(() => resolveProp(props.size, config.value.menu?.size, 'medium' as const))
-
-/** 数字通道：`undefined` = 走档位 class，有值 = 走内联 CSS 变量 */
+/** 尺寸（px）：显式 prop > 全局配置 > 锚点 `md`（语义 = 菜单项字号）。 */
 const numericSize = computed(() =>
-  typeof rawSize.value === 'number'
-    ? normalizeNumericSize(rawSize.value, DEFAULT_SIZE_PX)
-    : undefined
+  normalizeNumericSize(props.size ?? config.value.menu?.size, MENU_SCALE.primary.md)
 )
 
-/** 档位通道：字符串别名（数字路径下取 medium 占位，实际不挂档位类） */
-const resolvedSize = computed<MenuSize>(() =>
-  typeof rawSize.value === 'string' ? rawSize.value : 'medium'
-)
-
-/** 数字尺寸下发的 CSS 变量（见 utils/controlScale） */
-const sizeStyle = computed(() =>
-  numericSize.value === undefined ? undefined : resolveControlScale(MENU_SCALE, numericSize.value)
-)
+/** 尺寸下发的 CSS 变量（见 utils/controlScale） */
+const sizeStyle = computed(() => resolveControlScale(MENU_SCALE, numericSize.value))
 
 const resolvedSelectable = computed(() =>
   resolveProp(props.selectable, config.value.menu?.selectable, true)
@@ -241,7 +221,7 @@ const classList = computed(() => [
   'nm-menu',
   `nm-menu--${resolvedMode.value}`,
   // 数字与档位互斥：数字走 `--sized`（变量来自内联样式），字符串走档位类
-  numericSize.value === undefined ? `nm-menu--${resolvedSize.value}` : 'nm-menu--sized',
+  'nm-menu--sized',
   `nm-menu--theme-${resolvedTheme.value}`,
   {
     'nm-menu--collapsed': props.collapsed,
@@ -342,10 +322,7 @@ const expandIconClass = computed(() => [
               class="nm-menu__submenu"
               :class="
                 resolvedMode === 'horizontal'
-                  ? [
-                      numericSize === undefined ? `nm-menu--${resolvedSize}` : 'nm-menu--sized',
-                      'nm-menu__submenu--floating',
-                    ]
+                  ? ['nm-menu--sized', 'nm-menu__submenu--floating']
                   : undefined
               "
               :style="resolvedMode === 'horizontal' ? submenuStyle(item.key) : undefined"

@@ -38,22 +38,14 @@ describe('NeumorphismAlert', () => {
     expect(root.attributes('style')).toContain('--nm-alert-sz-pad-x: 14px')
   })
 
-  it('数字 size 在锚点上与档位别名等价（同一组 px）', () => {
+  it('数字 size 落在锚点上：内联变量原样下发该 px', () => {
     // 锚点：small 12 / medium 13 / large 14（正文字号）
-    const anchors = [
-      [12, 'small'],
-      [13, 'medium'],
-      [14, 'large'],
-    ] as const
-    for (const [px, tier] of anchors) {
+    const anchors = [[12], [13], [14]] as const
+    for (const [px] of anchors) {
       const byNumber = mountAlert({ size: px, message: 'Message' })
-      const byTier = mountAlert({ size: tier, message: 'Message' })
       expect(byNumber.find('.nm-alert').attributes('style')).toContain(
         `--nm-alert-sz-font: ${px}px`
       )
-      expect(byTier.find('.nm-alert').classes()).toContain(`nm-alert--${tier}`)
-      expect(byTier.find('.nm-alert').classes()).not.toContain('nm-alert--sized')
-      expect(byTier.find('.nm-alert').attributes('style') ?? '').not.toContain('--nm-alert-sz-font')
     }
   })
 

@@ -117,7 +117,7 @@ const snippet = computed(() => {
         </NeumorphismCollapse>
 
         <div style="margin-top: 14px">
-          <NeumorphismButton size="small" @click="toggleAll()">
+          <NeumorphismButton :size="32" @click="toggleAll()">
             {{ active.length ? '全部折叠' : '全部展开' }}
           </NeumorphismButton>
         </div>
@@ -139,7 +139,7 @@ const snippet = computed(() => {
         <DemoField label="手风琴 accordion">
           <div class="demo-row" style="gap: 16px">
             <label class="demo-toggle">
-              <NeumorphismSwitch v-model="accordionModel" size="small" />
+              <NeumorphismSwitch v-model="accordionModel" :size="24" />
               <span>同时只开一项</span>
             </label>
           </div>
@@ -148,11 +148,11 @@ const snippet = computed(() => {
         <DemoField label="展开 active">
           <div class="demo-row" style="gap: 16px">
             <label class="demo-toggle">
-              <NeumorphismSwitch v-model="item1Open" size="small" />
+              <NeumorphismSwitch v-model="item1Open" :size="24" />
               <span>item1</span>
             </label>
             <label class="demo-toggle">
-              <NeumorphismSwitch v-model="item2Open" size="small" />
+              <NeumorphismSwitch v-model="item2Open" :size="24" />
               <span>item2</span>
             </label>
           </div>
@@ -161,14 +161,14 @@ const snippet = computed(() => {
         <DemoField label="第三项">
           <div class="demo-row" style="gap: 16px">
             <label class="demo-toggle">
-              <NeumorphismSwitch v-model="disableThird" size="small" />
+              <NeumorphismSwitch v-model="disableThird" :size="24" />
               <span>disabled</span>
             </label>
           </div>
         </DemoField>
 
         <DemoField label="操作">
-          <NeumorphismButton variant="raised" size="small" @click="reset()">
+          <NeumorphismButton variant="raised" :size="32" @click="reset()">
             恢复默认
           </NeumorphismButton>
         </DemoField>

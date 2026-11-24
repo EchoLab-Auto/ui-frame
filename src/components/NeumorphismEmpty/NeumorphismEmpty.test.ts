@@ -15,14 +15,6 @@ describe('NeumorphismEmpty', () => {
     expect(wrapper.text()).toContain('No data available')
   })
 
-  it('should apply size class', () => {
-    const sizes = ['small', 'medium', 'large'] as const
-    for (const size of sizes) {
-      const wrapper = mount(NeumorphismEmpty, { props: { size } })
-      expect(wrapper.classes()).toContain(`nm-empty--${size}`)
-    }
-  })
-
   it('should render custom slot content', () => {
     const wrapper = mount(NeumorphismEmpty, {
       slots: { default: '<div class="custom-empty">Custom</div>' },
@@ -42,18 +34,11 @@ describe('NeumorphismEmpty', () => {
     expect(style).toContain('--nm-empty-sz-font: 13px')
   })
 
-  it('数字 size 在锚点上与档位别名逐像素一致', () => {
-    const anchors = [
-      [60, 'small'],
-      [100, 'medium'],
-      [140, 'large'],
-    ] as const
-    for (const [px, tier] of anchors) {
+  it('数字 size 落在锚点上：内联变量原样下发该 px', () => {
+    const anchors = [[60], [100], [140]] as const
+    for (const [px] of anchors) {
       const byNumber = mount(NeumorphismEmpty, { props: { size: px } })
       expect(byNumber.attributes('style')).toContain(`--nm-empty-sz-illustration: ${px}px`)
-      const byTier = mount(NeumorphismEmpty, { props: { size: tier } })
-      expect(byTier.classes()).toContain(`nm-empty--${tier}`)
-      expect(byTier.attributes('style')).toBeUndefined()
     }
   })
 

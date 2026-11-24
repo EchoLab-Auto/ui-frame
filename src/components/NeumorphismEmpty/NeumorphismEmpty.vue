@@ -4,54 +4,34 @@ import { useNeumorphismSetup } from '@/extensions/createComponent'
 import { normalizeNumericSize, resolveControlScale } from '@/utils/controlScale'
 import { EMPTY_SCALE } from '@/utils/controlScales'
 
-export type EmptySize = 'small' | 'medium' | 'large'
-
 export interface NeumorphismEmptyProps {
   image?: string
   description?: string
   /**
-   * 尺寸——px 插图边长（数字，主几何量），或三档预设名。
+   * 尺寸——px 插图边长（数字，主几何量）。
    *
    * 数字即「插图边长」：描述字号按三锚点（60 / 100 / 140）分段线性插值，
-   * 所以 `:size="100"` 与 `size="medium"` 逐像素相同。
-   *
-   * @deprecated 字符串档位（`'small' | 'medium' | 'large'`）仅作兼容别名保留，
-   * 新代码请传数字。
+   * 所以 `:size="100"` 即设计稿 `md` 档的实测值。
    */
-  size?: number | EmptySize
+  size?: number
 }
 
 const props = withDefaults(defineProps<NeumorphismEmptyProps>(), {})
 
-const { config, resolveProp } = useNeumorphismSetup()
+const { config } = useNeumorphismSetup()
 
-/** 数字尺寸的语义是「插图边长」，默认值取 medium 锚点 */
-const DEFAULT_SIZE_PX = 100
-
-/** 原始 size：显式 prop > 全局配置 > medium（两个通道共用同一条级联） */
-const rawSize = computed(() => resolveProp(props.size, config.value.empty?.size, 'medium' as const))
-
-/** 数字通道：`undefined` = 走档位 class，有值 = 走内联 CSS 变量 */
+/** 尺寸（px）：显式 prop > 全局配置 > 锚点 `md`（语义 = 插图边长）。 */
 const numericSize = computed(() =>
-  typeof rawSize.value === 'number'
-    ? normalizeNumericSize(rawSize.value, DEFAULT_SIZE_PX)
-    : undefined
+  normalizeNumericSize(props.size ?? config.value.empty?.size, EMPTY_SCALE.primary.md)
 )
 
-/** 档位通道：字符串别名（数字路径下取 medium 占位，实际不挂档位类） */
-const resolvedSize = computed<EmptySize>(() =>
-  typeof rawSize.value === 'string' ? rawSize.value : 'medium'
-)
-
-/** 数字尺寸下发的 CSS 变量（见 utils/controlScale） */
-const sizeStyle = computed(() =>
-  numericSize.value === undefined ? undefined : resolveControlScale(EMPTY_SCALE, numericSize.value)
-)
+/** 尺寸下发的 CSS 变量（见 utils/controlScale） */
+const sizeStyle = computed(() => resolveControlScale(EMPTY_SCALE, numericSize.value))
 
 const classList = computed(() => [
   'nm-empty',
   // 数字与档位互斥：数字走 `--sized`（变量来自内联样式），字符串走档位类
-  numericSize.value === undefined ? `nm-empty--${resolvedSize.value}` : 'nm-empty--sized',
+  'nm-empty--sized',
 ])
 </script>
 

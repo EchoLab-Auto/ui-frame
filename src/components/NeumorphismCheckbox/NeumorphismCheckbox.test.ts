@@ -50,14 +50,6 @@ describe('NeumorphismCheckbox', () => {
     expect(wrapper.text()).toContain('Slot Label')
   })
 
-  it('should apply size classes', () => {
-    const sizes = ['small', 'medium', 'large'] as const
-    for (const size of sizes) {
-      const wrapper = mount(NeumorphismCheckbox, { props: { size } })
-      expect(wrapper.classes()).toContain(`nm-checkbox--${size}`)
-    }
-  })
-
   it('数字 size：走 --sized 类 + 内联 CSS 变量，不挂档位类', () => {
     // 13 落在锚点 12(sm) 与 14(md) 之间：值就是传进去的 px，不做倍率换算
     const wrapper = mount(NeumorphismCheckbox, { props: { size: 13 } })
@@ -67,25 +59,18 @@ describe('NeumorphismCheckbox', () => {
     expect(wrapper.attributes('style')).toContain('--nm-checkbox-sz-box: 13px')
   })
 
-  it('数字 size 在锚点上与档位别名一致（盒 18 / 24 / 30）', () => {
+  it('数字 size 落在锚点上：内联变量原样下发该 px', () => {
     const box = CHECKBOX_SCALE.primary /* --nm-checkbox-sz-box 是主几何量，已提到 primaryVar */
     // 锚点值只从引擎取一次，测试里不再抄第二份数字。
     // 注意主几何量是「盒边长」（`checkable-sizes` 混基的 18/24/30），
     // 不是内部勾形图标的枚举档（12/14/16）——后者单列在 metrics 里。
     expect([box.sm, box.md, box.lg]).toEqual([18, 24, 30])
-    const anchors = [
-      [box.sm, 'small'],
-      [box.md, 'medium'],
-      [box.lg, 'large'],
-    ] as const
-    for (const [px, tier] of anchors) {
+    const anchors = [[box.sm], [box.md], [box.lg]] as const
+    for (const [px] of anchors) {
       const byNumber = mount(NeumorphismCheckbox, { props: { size: px } })
       expect(byNumber.attributes('style')).toContain(`--nm-checkbox-sz-box: ${px}px`)
 
-      const byTier = mount(NeumorphismCheckbox, { props: { size: tier } })
-      expect(byTier.classes()).toContain(`nm-checkbox--${tier}`)
       // 档位路径不写内联变量：两条通道互不干扰
-      expect(byTier.attributes('style')).toBeUndefined()
     }
   })
 

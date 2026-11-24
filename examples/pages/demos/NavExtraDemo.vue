@@ -172,7 +172,7 @@ const snippet = computed(() => {
             />
             <h4 class="demo-label" style="margin-top: 16px">Dropdown 下拉菜单</h4>
             <NeumorphismDropdown :items="dropdownItems" @select="onDropdownSelect">
-              <NeumorphismButton size="small">操作</NeumorphismButton>
+              <NeumorphismButton :size="32">操作</NeumorphismButton>
             </NeumorphismDropdown>
           </div>
         </div>
@@ -208,11 +208,11 @@ const snippet = computed(() => {
 
       <template #config>
         <DemoField label="当前步骤 current" :value="`第 ${stepCurrent + 1} 步`" grow>
-          <NeumorphismSlider v-model="stepCurrent" :min="0" :max="3" :step="1" size="small" />
+          <NeumorphismSlider v-model="stepCurrent" :min="0" :max="3" :step="1" :size="6" />
         </DemoField>
 
         <DemoField label="方向 direction">
-          <NeumorphismSegmented v-model="stepDirection" :options="directionOptions" size="small" />
+          <NeumorphismSegmented v-model="stepDirection" :options="directionOptions" :size="26" />
         </DemoField>
 
         <DemoField label="Menu 模式">
@@ -222,18 +222,18 @@ const snippet = computed(() => {
               { label: '纵向', value: 'vertical' },
               { label: '横向', value: 'horizontal' },
             ]"
-            size="small"
+            :size="26"
           />
         </DemoField>
 
         <DemoField label="Menu">
           <div class="demo-row" style="gap: 16px">
             <label class="demo-toggle">
-              <NeumorphismSwitch v-model="menuCollapsed" size="small" />
+              <NeumorphismSwitch v-model="menuCollapsed" :size="24" />
               <span>collapsed</span>
             </label>
             <label class="demo-toggle">
-              <NeumorphismSwitch v-model="menuDivided" size="small" />
+              <NeumorphismSwitch v-model="menuDivided" :size="24" />
               <span>divided</span>
             </label>
           </div>
@@ -242,14 +242,14 @@ const snippet = computed(() => {
         <DemoField label="NavMenu">
           <div class="demo-row" style="gap: 16px">
             <label class="demo-toggle">
-              <NeumorphismSwitch v-model="showIndicator" size="small" />
+              <NeumorphismSwitch v-model="showIndicator" :size="24" />
               <span>showIndicator</span>
             </label>
           </div>
         </DemoField>
 
         <DemoField label="操作">
-          <NeumorphismButton variant="raised" size="small" @click="reset()">
+          <NeumorphismButton variant="raised" :size="32" @click="reset()">
             恢复默认
           </NeumorphismButton>
         </DemoField>

@@ -117,26 +117,26 @@ const snippet = computed(() => {
 
       <template #config>
         <DemoField label="类型 type">
-          <NeumorphismSegmented v-model="alertType" :options="alertTypeOptions" size="small" />
+          <NeumorphismSegmented v-model="alertType" :options="alertTypeOptions" :size="26" />
         </DemoField>
 
         <DemoField label="文案 message">
-          <NeumorphismInput v-model="alertMessage" size="small" placeholder="提示文案" />
+          <NeumorphismInput v-model="alertMessage" :size="36" placeholder="提示文案" />
         </DemoField>
 
         <DemoField label="accept">
-          <NeumorphismSegmented v-model="accept" :options="acceptOptions" size="small" />
+          <NeumorphismSegmented v-model="accept" :options="acceptOptions" :size="26" />
         </DemoField>
 
         <DemoField label="多选">
           <label class="demo-toggle">
-            <NeumorphismSwitch v-model="multiple" size="small" />
+            <NeumorphismSwitch v-model="multiple" :size="24" />
             <span>multiple</span>
           </label>
         </DemoField>
 
         <DemoField label="操作">
-          <NeumorphismButton variant="raised" size="small" @click="reset()"
+          <NeumorphismButton variant="raised" :size="32" @click="reset()"
             >恢复默认</NeumorphismButton
           >
         </DemoField>
@@ -147,7 +147,7 @@ const snippet = computed(() => {
     <h4 class="demo-label">Drawer 抽屉</h4>
     <div class="demo-row">
       <NeumorphismButton @click="demoDrawerOpen = true">打开抽屉</NeumorphismButton>
-      <NeumorphismButton variant="pressed" size="small" @click="toggleDrawerPosition()">
+      <NeumorphismButton variant="pressed" :size="32" @click="toggleDrawerPosition()">
         切到{{ drawerPosition === 'right' ? '左侧' : '右侧' }}
       </NeumorphismButton>
       <code style="font-size: 13px">position: {{ drawerPosition }}</code>

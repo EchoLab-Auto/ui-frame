@@ -3,7 +3,6 @@ import { ref, computed } from 'vue'
 import { DemoPlayground, DemoField, type DemoStage } from '../../demo'
 
 type TabsPosition = 'top' | 'left'
-type TabsSize = 'small' | 'medium' | 'large'
 
 interface TabEntry {
   key: string
@@ -18,7 +17,7 @@ interface DemoOption<T> {
 
 // ---- 配置台状态 ----
 const position = ref<TabsPosition>('top')
-const size = ref<TabsSize>('medium')
+const size = ref<number>(14)
 /** 页签数量：2 / 3 / 4。调小数量是为了看导航条在窄容器里的等分表现 */
 const tabCount = ref(3)
 /** 禁用项：固定压在最后一个页签上，方便肉眼验证「禁用项既点不动、也被键盘跳过」 */
@@ -30,10 +29,10 @@ const positionOptions: DemoOption<TabsPosition>[] = [
   { label: '顶部', value: 'top' },
   { label: '左侧', value: 'left' },
 ]
-const sizeOptions: DemoOption<TabsSize>[] = [
-  { label: '小', value: 'small' },
-  { label: '中', value: 'medium' },
-  { label: '大', value: 'large' },
+const sizeOptions: DemoOption<number>[] = [
+  { label: '12', value: 12 },
+  { label: '14', value: 14 },
+  { label: '16', value: 16 },
 ]
 const countOptions: DemoOption<number>[] = [
   { label: '2 个', value: 2 },
@@ -81,7 +80,7 @@ const activeLabel = computed(
 /** 恢复默认：配置台「恢复默认」按钮直接调它 */
 function reset(): void {
   position.value = 'top'
-  size.value = 'medium'
+  size.value = 14
 }
 
 // ---- 实时代码片段 ----
@@ -89,7 +88,7 @@ const snippet = computed(() => {
   const attrs: string[] = []
   // 默认值（top / medium）不写，片段里只出现真正改变行为的属性
   if (position.value !== 'top') attrs.push(`position="${position.value}"`)
-  if (size.value !== 'medium') attrs.push(`size="${size.value}"`)
+  if (size.value !== 14) attrs.push(`:size="${size.value}"`)
   const open = attrs.length
     ? `<NeumorphismTabs v-model="active" :tabs="tabs" ${attrs.join(' ')}>`
     : '<NeumorphismTabs v-model="active" :tabs="tabs">'
@@ -123,28 +122,28 @@ const snippet = computed(() => {
 
       <template #config>
         <DemoField label="位置 position">
-          <NeumorphismSegmented v-model="position" :options="positionOptions" size="small" />
+          <NeumorphismSegmented v-model="position" :options="positionOptions" :size="26" />
         </DemoField>
 
         <DemoField label="尺寸 size">
-          <NeumorphismSegmented v-model="size" :options="sizeOptions" size="small" />
+          <NeumorphismSegmented v-model="size" :options="sizeOptions" :size="26" />
         </DemoField>
 
         <DemoField label="页签数量">
-          <NeumorphismSegmented v-model="tabCount" :options="countOptions" size="small" />
+          <NeumorphismSegmented v-model="tabCount" :options="countOptions" :size="26" />
         </DemoField>
 
         <DemoField label="状态">
           <div class="demo-row" style="gap: 16px">
             <label class="demo-toggle">
-              <NeumorphismSwitch v-model="hasDisabled" size="small" />
+              <NeumorphismSwitch v-model="hasDisabled" :size="24" />
               <span>含禁用项</span>
             </label>
           </div>
         </DemoField>
 
         <DemoField label="操作">
-          <NeumorphismButton variant="raised" size="small" @click="reset()">
+          <NeumorphismButton variant="raised" :size="32" @click="reset()">
             恢复默认
           </NeumorphismButton>
         </DemoField>

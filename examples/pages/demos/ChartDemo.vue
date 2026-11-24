@@ -220,32 +220,32 @@ const chartStockData = [
 
       <template #config>
         <DemoField label="模式 stacked">
-          <NeumorphismSegmented v-model="stackMode" :options="stackModeOptions" size="small" />
+          <NeumorphismSegmented v-model="stackMode" :options="stackModeOptions" :size="26" />
         </DemoField>
 
         <DemoField label="方向 orientation">
-          <NeumorphismSegmented v-model="orientation" :options="orientationOptions" size="small" />
+          <NeumorphismSegmented v-model="orientation" :options="orientationOptions" :size="26" />
         </DemoField>
 
         <DemoField label="高度 height" :value="`${height}px`" grow>
-          <NeumorphismSlider v-model="height" :min="200" :max="420" :step="20" size="small" />
+          <NeumorphismSlider v-model="height" :min="200" :max="420" :step="20" :size="6" />
         </DemoField>
 
         <DemoField label="状态">
           <div class="demo-row" style="gap: 16px">
             <label class="demo-toggle">
-              <NeumorphismSwitch v-model="showLegend" size="small" />
+              <NeumorphismSwitch v-model="showLegend" :size="24" />
               <span>show-legend</span>
             </label>
             <label class="demo-toggle">
-              <NeumorphismSwitch v-model="showGrid" size="small" />
+              <NeumorphismSwitch v-model="showGrid" :size="24" />
               <span>show-grid</span>
             </label>
           </div>
         </DemoField>
 
         <DemoField label="操作">
-          <NeumorphismButton variant="pressed" size="small" @click="reset()"
+          <NeumorphismButton variant="pressed" :size="32" @click="reset()"
             >恢复默认</NeumorphismButton
           >
         </DemoField>
@@ -256,10 +256,10 @@ const chartStockData = [
     <h4 class="demo-label">折线图（平滑曲线 + 面积填充）</h4>
     <div class="demo-row" style="margin-bottom: 12px">
       <span class="demo-form-label">曲线 curve</span>
-      <NeumorphismSegmented v-model="lineCurve" :options="curveOptions" size="small" />
+      <NeumorphismSegmented v-model="lineCurve" :options="curveOptions" :size="26" />
       <span class="demo-form-label">面积 area</span>
       <!-- .demo-toggle 只定义在 .demo-playground__stage 里，这块在预览台之外，所以只用行内间距 -->
-      <NeumorphismSwitch v-model="lineArea" size="small" />
+      <NeumorphismSwitch v-model="lineArea" :size="24" />
       <code>area-opacity=0.08</code>
     </div>
     <NeumorphismChartLine

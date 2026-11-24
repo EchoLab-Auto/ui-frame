@@ -107,14 +107,14 @@ const snippet = computed(() => {
 
       <template #config>
         <DemoField label="变体 variant">
-          <NeumorphismSegmented v-model="variant" :options="variantOptions" size="small" />
+          <NeumorphismSegmented v-model="variant" :options="variantOptions" :size="26" />
         </DemoField>
 
         <DemoField label="点阵色 dotColor">
           <NeumorphismInput
             v-model="dotColor"
             :disabled="!isOverlay"
-            size="small"
+            :size="36"
             placeholder="#999999"
           />
         </DemoField>
@@ -123,13 +123,13 @@ const snippet = computed(() => {
           <NeumorphismInput
             v-model="accentColor"
             :disabled="!isOverlay"
-            size="small"
+            :size="36"
             placeholder="#cdfa4e"
           />
         </DemoField>
 
         <DemoField label="操作">
-          <NeumorphismButton variant="pressed" size="small" @click="reset()"
+          <NeumorphismButton variant="pressed" :size="32" @click="reset()"
             >恢复默认</NeumorphismButton
           >
         </DemoField>

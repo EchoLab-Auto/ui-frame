@@ -47,13 +47,13 @@ describe('NeumorphismDatePicker size（数字为一等公民）', () => {
     wrapper.unmount()
   })
 
-  it('数字 size 在锚点上与档位别名逐像素一致', () => {
+  it('数字 size 落在锚点上：内联变量原样下发该 px', () => {
     const anchors = [
-      [36, 'small', 13, 6, 12],
-      [48, 'medium', 14, 10, 16],
-      [60, 'large', 16, 14, 20],
+      [36, 13, 6, 12],
+      [48, 14, 10, 16],
+      [60, 16, 14, 20],
     ] as const
-    for (const [px, tier, font, padY, padX] of anchors) {
+    for (const [px, font, padY, padX] of anchors) {
       const byNumber = mount(NeumorphismDatePicker, {
         props: { size: px },
         attachTo: document.body,
@@ -64,14 +64,6 @@ describe('NeumorphismDatePicker size（数字为一等公民）', () => {
       expect(style).toContain(`--nm-field-sz-pad-y: ${padY}px`)
       expect(style).toContain(`--nm-field-sz-pad-x: ${padX}px`)
       byNumber.unmount()
-
-      const byTier = mount(NeumorphismDatePicker, {
-        props: { size: tier },
-        attachTo: document.body,
-      })
-      expect(byTier.find('.nm-datepicker').classes()).toContain(`nm-datepicker--${tier}`)
-      expect(byTier.find('.nm-datepicker').attributes('style')).toBeUndefined()
-      byTier.unmount()
     }
   })
 

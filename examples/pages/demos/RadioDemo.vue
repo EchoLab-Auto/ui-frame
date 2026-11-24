@@ -2,31 +2,32 @@
 import { ref, computed } from 'vue'
 import { DemoPlayground, DemoField } from '../../demo'
 
-type RadioSize = 'small' | 'medium' | 'large'
 type RadioDirection = 'horizontal' | 'vertical'
 
 /**
- * 三档圆环的真实直径。
+ * 尺寸只有一个量：**圆环直径 px**。
  *
- * 组件里（`src/styles/_checkable.scss`）是硬编码的 18 / 24 / 30px，没有 token；
- * 演示页用 `.demo-size-radio` + `--demo-radio-size` 桥接，而那条选择器只覆盖
- * `--medium` 档（见 `examples/styles/demo.scss`）。
+ * 2026-11 起 `size` 直接收 px（数字 size 的语义就是直径），组件按锚点表插值写进
+ * `--nm-radio-sz-*`，数字路径不再挂档位类——所以老演示里 `.demo-size-radio` +
+ * `--demo-radio-size` 那套桥接（原本只覆盖 medium 档）整体删掉。
  */
-const TIER_CIRCLE: Record<RadioSize, number> = { small: 18, medium: 24, large: 30 }
 const CIRCLE_MIN = 16
 const CIRCLE_MAX = 36
+const DEFAULT_CIRCLE = 24
 
 // ---- 配置台状态 ----
 const radioValue = ref('a')
-const size = ref<RadioSize>('medium')
+const circleSize = ref(DEFAULT_CIRCLE)
+/** 别名：模板与片段里沿用 `size` 这个名字 */
+const size = circleSize
 const direction = ref<RadioDirection>('horizontal')
-const circleSize = ref(TIER_CIRCLE.medium)
 const disabled = ref(false)
 
+/** 常用直径（原三档锚点 18 / 24 / 30）当快捷取值 */
 const sizeOptions = [
-  { label: '小', value: 'small' },
-  { label: '中', value: 'medium' },
-  { label: '大', value: 'large' },
+  { label: '18', value: 18 },
+  { label: '24', value: 24 },
+  { label: '30', value: 30 },
 ]
 const directionOptions = [
   { label: '水平', value: 'horizontal' },
@@ -38,26 +39,14 @@ const valueOptions = [
   { label: 'C', value: 'c' },
 ]
 
-/** 圆环直径走演示桥接：内联变量只作用在 medium 档的 CSS 上 */
-const circleVars = computed(() => ({ '--demo-radio-size': `${circleSize.value}px` }))
-
 function pickSize(value: string | number) {
-  size.value = value as RadioSize
-  // 读数跟随档位，否则切到 small 后滑块仍写着 24px，读数与预览就对不上了
-  circleSize.value = TIER_CIRCLE[size.value]
-}
-
-function pickCircleSize(value: number) {
-  circleSize.value = value
-  // 桥接只命中 medium：不钉回档位的话，small / large 下拖滑块会「读数变、预览不变」
-  if (size.value !== 'medium') size.value = 'medium'
+  circleSize.value = Number(value)
 }
 
 function reset() {
   radioValue.value = 'a'
-  size.value = 'medium'
+  circleSize.value = DEFAULT_CIRCLE
   direction.value = 'horizontal'
-  circleSize.value = TIER_CIRCLE.medium
   disabled.value = false
 }
 
@@ -65,7 +54,7 @@ function reset() {
 const snippet = computed(() => {
   const attrs = ['v-model="radioValue"']
   if (direction.value !== 'horizontal') attrs.push(`direction="${direction.value}"`)
-  if (size.value !== 'medium') attrs.push(`size="${size.value}"`)
+  if (size.value !== DEFAULT_CIRCLE) attrs.push(`:size="${size.value}"`)
   if (disabled.value) attrs.push('disabled')
   // 整组渲染出来，直接粘进业务页面就能看到一个能点的单选组
   return `<NeumorphismRadioGroup ${attrs.join(' ')}>
@@ -80,7 +69,7 @@ const snippet = computed(() => {
   <div class="demo-block">
     <h4 class="demo-label">展示 + 配置（左侧实时预览，右侧调整参数）</h4>
     <DemoPlayground :snippet="snippet">
-      <span class="demo-size-radio" :style="circleVars">
+      <div>
         <NeumorphismRadioGroup
           v-model="radioValue"
           :size="size"
@@ -91,55 +80,54 @@ const snippet = computed(() => {
           <NeumorphismRadio value="b" label="选项 B" />
           <NeumorphismRadio value="c" label="选项 C（已禁用）" :disabled="true" />
         </NeumorphismRadioGroup>
-      </span>
+      </div>
 
       <template #spec>
         size=<b>{{ size }}</b> · direction=<b>{{ direction }}</b> · value=<b>{{ radioValue }}</b> ·
-        圆环=<b>{{ circleSize }}px</b>
+        直径=<b>{{ circleSize }}px</b>
         <template v-if="disabled"> · disabled</template>
       </template>
 
       <template #hint>
-        三档圆环直径（18 / 24 / 30px）是组件内的枚举常量，没有 token；配置台的 px 滑块走演示级 CSS
-        桥接，只命中 <code>medium</code> 档，所以拖动时档位会被钉回 medium。圆点在组件里另有
-        8、12、16px 三档，桥接把它按「环径的一半」重算，所以放大缩小时内外不会脱节。
+        <code>size</code> 就是圆环直径（px）：组件按锚点表分段插值写进
+        <code>--nm-radio-sz-*</code>，圆点与图标按比例一起缩放，放大缩小时内外不会脱节。
       </template>
 
       <template #config>
         <DemoField label="选中值 value">
-          <NeumorphismSegmented v-model="radioValue" :options="valueOptions" size="small" />
+          <NeumorphismSegmented v-model="radioValue" :options="valueOptions" :size="26" />
         </DemoField>
 
         <DemoField label="尺寸 size">
           <NeumorphismSegmented
             :model-value="size"
             :options="sizeOptions"
-            size="small"
+            :size="26"
             @update:model-value="pickSize"
           />
         </DemoField>
 
         <DemoField label="方向 direction">
-          <NeumorphismSegmented v-model="direction" :options="directionOptions" size="small" />
+          <NeumorphismSegmented v-model="direction" :options="directionOptions" :size="26" />
         </DemoField>
 
-        <DemoField label="圆环直径" :value="`${circleSize}px`" grow>
+        <DemoField label="微调" :value="`${circleSize}px`" grow>
           <NeumorphismSlider
             :model-value="circleSize"
             :min="CIRCLE_MIN"
             :max="CIRCLE_MAX"
             :step="2"
-            size="small"
-            @update:model-value="pickCircleSize"
+            :size="6"
+            @update:model-value="pickSize"
           />
         </DemoField>
 
         <DemoField label="禁用 disabled">
-          <NeumorphismSwitch v-model="disabled" size="small" />
+          <NeumorphismSwitch v-model="disabled" :size="24" />
         </DemoField>
 
         <DemoField label="操作">
-          <NeumorphismButton variant="raised" size="small" @click="reset()"
+          <NeumorphismButton variant="raised" :size="32" @click="reset()"
             >恢复默认</NeumorphismButton
           >
         </DemoField>

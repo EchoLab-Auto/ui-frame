@@ -1,5 +1,5 @@
 /**
- * 各组件 `size` 档位的锚点表 —— 数字 `size` 的插值依据。
+ * 各组件 `size` 的锚点表 —— 数字插值与「设计三档」的对照依据。
  *
  * 每份 spec 声明两件事：
  * - `primary`：数字 `size` 的语义（主几何量）在三档上的 px 值
@@ -9,8 +9,9 @@
  * token）；`src/utils/controlScale.test.ts` 会解析 tokens 逐个核对，改 token 忘了
  * 改这里会直接测试失败。
  *
- * 组件里 CSS 侧新增一条 `--sized` 规则把 `sz-*` 变量接到实际声明上；档位 class
- * 一行不改，因此 `size="small"` 与 `:size="32"` 在锚点处逐像素一致。
+ * 组件里 CSS 侧一条 `--sized` 规则把 `sz-*` 变量接到实际声明上；三档 class
+ * （`.nm-x--small|medium|large`）**保留但不再由 API 触发**——它们是本表数值的
+ * 声明源，`controlScales.tiers.test.ts` 解析它们来守护「锚点 == 设计稿实测值」。
  */
 
 import type { ControlScaleSpec } from './controlScale'

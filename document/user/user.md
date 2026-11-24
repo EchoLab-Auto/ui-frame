@@ -72,7 +72,7 @@ import { NeumorphismButton, NeumorphismCard } from '@echolab-auto/ui-frame'
 
 <template>
   <NeumorphismCard :elevation="2">
-    <NeumorphismButton variant="raised" size="medium">点击我</NeumorphismButton>
+    <NeumorphismButton variant="raised" :size="44">点击我</NeumorphismButton>
   </NeumorphismCard>
 </template>
 ```
@@ -134,12 +134,13 @@ const theme = ref('auto')
 
 ```ts
 app.use(NeumorphismUI, {
-  // 按钮默认中等尺寸
-  button: { size: 'medium' },
-  // 输入框默认中等尺寸
-  input: { size: 'medium' },
-  // 选择器默认中等尺寸且可清空
-  select: { size: 'medium', clearable: true },
+  // 尺寸一律写 px（数字 size 的语义 = 该组件的主几何量，见「尺寸」一节）
+  // 按钮：最小高度 44px（原 `medium` 档）
+  button: { size: 44 },
+  // 输入框：最小高度 48px（原 `medium` 档）
+  input: { size: 48 },
+  // 选择器：最小高度 48px，且可清空
+  select: { size: 48, clearable: true },
   // 模态框默认点击遮罩可关闭
   modal: { maskClosable: true },
   // Toast 默认右上角、最多 5 条
@@ -188,7 +189,7 @@ app.use(NeumorphismUI, {
     </template>
 
     <template #header-right>
-      <NeumorphismAvatar initials="U" size="small" />
+      <NeumorphismAvatar initials="U" :size="32" />
     </template>
 
     <template #sider="{ collapsed }">
@@ -625,7 +626,7 @@ provideLocale({ ...zhCN, selectPlaceholder: '请挑选一个选项' })
     <template #content>
       <div style="padding: 12px">
         <p>这是弹出的内容</p>
-        <NeumorphismButton size="small">确认</NeumorphismButton>
+        <NeumorphismButton :size="32">确认</NeumorphismButton>
       </div>
     </template>
   </NeumorphismPopover>
@@ -890,13 +891,13 @@ const steps = [
 ```ts
 // ✅ 推荐
 app.use(NeumorphismUI, {
-  button: { size: 'medium' },
-  input: { size: 'medium' },
+  button: { size: 44 },
+  input: { size: 48 },
 })
 
 // ❌ 避免
-<NeumorphismButton size="medium" />
-<NeumorphismInput size="medium" />
+<NeumorphismButton :size="44" />
+<NeumorphismInput :size="48" />
 ```
 
 ### 2. 利用台阶高度模型
@@ -954,7 +955,8 @@ const { isTouch } = useTouchDevice()
 </script>
 
 <template>
-  <NeumorphismButton :size="isTouch ? 'large' : 'medium'"> 提交 </NeumorphismButton>
+  <!-- 触屏加大：直接算 px，不必记住哪一档对应多少 -->
+  <NeumorphismButton :size="isTouch ? 56 : 44"> 提交 </NeumorphismButton>
 </template>
 ```
 

@@ -57,7 +57,7 @@ const stageOptions = [
 
       <div v-if="stageSwitch" class="demo-playground__bg">
         <span class="demo-playground__bg-label">预览背景</span>
-        <NeumorphismSegmented v-model="stage" :options="stageOptions" size="small" />
+        <NeumorphismSegmented v-model="stage" :options="stageOptions" :size="26" />
       </div>
 
       <p v-if="hint || $slots.hint" class="demo-hint demo-playground__hint">

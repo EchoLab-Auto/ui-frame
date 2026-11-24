@@ -7,23 +7,18 @@ import { normalizeNumericSize, resolveControlScale } from '@/utils/controlScale'
 import { PAGINATION_SCALE } from '@/utils/controlScales'
 import NeumorphismIcon from '@/components/NeumorphismIcon/NeumorphismIcon.vue'
 
-export type PaginationSize = 'small' | 'medium' | 'large'
-
 export interface NeumorphismPaginationProps {
   modelValue?: number
   total?: number
   pageSize?: number
   /**
-   * 尺寸——px 页码按钮高（数字，主几何量），或三档预设名。
+   * 尺寸——px 页码按钮高（数字，主几何量）。
    *
    * 数字即「页码按钮高」：按钮最小宽度与字号按三锚点（30 / 38 / 46）
-   * 分段线性插值，所以 `:size="38"` 与 `size="medium"` 逐像素相同，
+   * 分段线性插值；`md` 锚点即 `:size="38"`，
    * `:size="42"` 落在 medium / large 之间。
-   *
-   * @deprecated 字符串档位（`'small' | 'medium' | 'large'`）仅作兼容别名保留，
-   * 新代码请传数字。
    */
-  size?: number | PaginationSize
+  size?: number
   showTotal?: boolean
   showJumper?: boolean
   maxVisiblePages?: number
@@ -47,27 +42,13 @@ const props = withDefaults(defineProps<NeumorphismPaginationProps>(), {
 
 const { config, resolveProp } = useNeumorphismSetup()
 
-/** 数字尺寸的语义是「页码按钮高」，默认值取 medium 锚点 */
-const DEFAULT_SIZE_PX = 38
-
-/** 数字通道：`undefined` = 走档位 class，有值 = 走内联 CSS 变量 */
-const numericSize = computed(() => {
-  const raw = props.size ?? config.value.pagination?.size
-  return typeof raw === 'number' ? normalizeNumericSize(raw, DEFAULT_SIZE_PX) : undefined
-})
-
-/** 字符串通道：只认档位别名（显式传数字时它不参与渲染） */
-const resolvedSize = computed<PaginationSize>(() => {
-  const raw = props.size ?? config.value.pagination?.size
-  return typeof raw === 'string' ? raw : 'medium'
-})
-
-/** 数字尺寸下发的 CSS 变量（见 utils/controlScale）；变量在根节点，消费在页码按钮上 */
-const sizeStyle = computed(() =>
-  numericSize.value === undefined
-    ? undefined
-    : resolveControlScale(PAGINATION_SCALE, numericSize.value)
+/** 尺寸（px）：显式 prop > 全局配置 > 锚点 `md`（语义 = 页码按钮高）。 */
+const numericSize = computed(() =>
+  normalizeNumericSize(props.size ?? config.value.pagination?.size, PAGINATION_SCALE.primary.md)
 )
+
+/** 尺寸下发的 CSS 变量（见 utils/controlScale） */
+const sizeStyle = computed(() => resolveControlScale(PAGINATION_SCALE, numericSize.value))
 const resolvedShowTotal = computed(() =>
   resolveProp(props.showTotal, config.value.pagination?.showTotal, false)
 )
@@ -106,7 +87,7 @@ const { totalPages, visiblePages, changePage, prevPage, nextPage, isPrevDisabled
 
 const classList = computed(() => [
   'nm-pagination',
-  numericSize.value === undefined ? `nm-pagination--${resolvedSize.value}` : 'nm-pagination--sized',
+  'nm-pagination--sized',
   { 'nm-pagination--disabled': props.disabled },
 ])
 

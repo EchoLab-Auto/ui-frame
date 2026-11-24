@@ -11,8 +11,6 @@ import NeumorphismIcon from '@/components/NeumorphismIcon/NeumorphismIcon.vue'
 
 export type { TableColumn }
 
-export type TableSize = 'small' | 'medium' | 'large'
-
 export interface NeumorphismTableProps {
   data?: Record<string, unknown>[]
   columns?: TableColumn[]
@@ -22,16 +20,13 @@ export interface NeumorphismTableProps {
   loading?: boolean
   emptyText?: string
   /**
-   * 尺寸——px 单元格上下内距（数字，行密度），或三档预设名。
+   * 尺寸——px 单元格上下内距（数字，行密度）。
    *
    * 数字即「行密度」：上下内距是主几何量，左右内距与单元格字号按三锚点
-   * （8 / 12 / 16）分段线性插值，所以 `:size="12"` 与 `size="medium"` 逐像素
+   * （8 / 12 / 16）分段线性插值；`:size="12"` 就是设计稿 `md` 档的取值。
    * 相同，`:size="10"` 落在 small / medium 之间。
-   *
-   * @deprecated 字符串档位（`'small' | 'medium' | 'large'`）仅作兼容别名保留，
-   * 新代码请传数字。
    */
-  size?: number | TableSize
+  size?: number
   striped?: boolean
   hoverable?: boolean
   showHeader?: boolean
@@ -60,25 +55,13 @@ const emit = defineEmits<{
 const { t } = useLocale()
 
 const config = useConfig()
-/** 数字尺寸的语义是「单元格上下内距」，默认值取 medium 锚点 */
-const DEFAULT_SIZE_PX = 12
-
-/** 数字通道：`undefined` = 走档位 class，有值 = 走内联 CSS 变量 */
-const numericSize = computed(() => {
-  const raw = props.size ?? config.value.table?.size
-  return typeof raw === 'number' ? normalizeNumericSize(raw, DEFAULT_SIZE_PX) : undefined
-})
-
-/** 字符串通道：只认档位别名（显式传数字时它不参与渲染） */
-const resolvedSize = computed<TableSize>(() => {
-  const raw = props.size ?? config.value.table?.size
-  return typeof raw === 'string' ? raw : 'medium'
-})
-
-/** 数字尺寸下发的 CSS 变量（见 utils/controlScale）；变量在根节点，消费在单元格上 */
-const sizeStyle = computed(() =>
-  numericSize.value === undefined ? undefined : resolveControlScale(TABLE_SCALE, numericSize.value)
+/** 尺寸（px）：显式 prop > 全局配置 > 锚点 `md`（语义 = 单元格上下内距）。 */
+const numericSize = computed(() =>
+  normalizeNumericSize(props.size ?? config.value.table?.size, TABLE_SCALE.primary.md)
 )
+
+/** 尺寸下发的 CSS 变量（见 utils/controlScale） */
+const sizeStyle = computed(() => resolveControlScale(TABLE_SCALE, numericSize.value))
 const resolvedStriped = computed(() => props.striped ?? config.value.table?.striped ?? false)
 const resolvedHoverable = computed(() => props.hoverable ?? config.value.table?.hoverable ?? true)
 const resolvedEmptyText = computed(() => props.emptyText || t('tableEmpty'))
@@ -140,7 +123,7 @@ function columnWidthStyle(column: TableColumn): Record<string, string> | undefin
 
 const classList = computed(() => [
   'nm-table',
-  numericSize.value === undefined ? `nm-table--${resolvedSize.value}` : 'nm-table--sized',
+  'nm-table--sized',
   {
     'nm-table--striped': resolvedStriped.value,
     'nm-table--hoverable': resolvedHoverable.value,

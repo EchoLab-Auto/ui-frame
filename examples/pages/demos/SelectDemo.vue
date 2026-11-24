@@ -3,7 +3,6 @@ import { ref, computed } from 'vue'
 import { DemoPlayground, DemoField } from '../../demo'
 
 type SelectVariant = 'default' | 'outlined'
-type SelectSize = 'small' | 'medium' | 'large'
 type SelectValue = string | number | (string | number)[] | undefined
 
 // ---- 演示数据：配置台与下面每个功能格共用同一份，示例之间不会悄悄漂移 ----
@@ -28,7 +27,7 @@ const selectGroupedOptions = [
 
 // ---- 配置台状态：默认值对齐组件默认值，片段里就只剩「非默认」属性 ----
 const variant = ref<SelectVariant>('default')
-const size = ref<SelectSize>('medium')
+const size = ref<number>(48)
 const label = ref('框架')
 const placeholder = ref('请选择')
 const clearable = ref(false)
@@ -48,9 +47,9 @@ const variantOptions = [
   { label: '描边', value: 'outlined' },
 ]
 const sizeOptions = [
-  { label: '小', value: 'small' },
-  { label: '中', value: 'medium' },
-  { label: '大', value: 'large' },
+  { label: '36', value: 36 },
+  { label: '48', value: 48 },
+  { label: '60', value: 60 },
 ]
 
 /**
@@ -79,7 +78,7 @@ const previewSelected = computed(() => {
 })
 function reset() {
   variant.value = 'default'
-  size.value = 'medium'
+  size.value = 48
   label.value = '框架'
   placeholder.value = '请选择'
   clearable.value = false
@@ -98,7 +97,7 @@ function reset() {
 const snippet = computed(() => {
   const attrs = ['v-model="value"', ':options="options"']
   if (variant.value !== 'default') attrs.push(`variant="${variant.value}"`)
-  if (size.value !== 'medium') attrs.push(`size="${size.value}"`)
+  if (size.value !== 48) attrs.push(`:size="${size.value}"`)
   if (label.value.trim()) attrs.push(`label="${label.value.trim()}"`)
   if (placeholder.value.trim()) attrs.push(`placeholder="${placeholder.value.trim()}"`)
   if (clearable.value) attrs.push('clearable')
@@ -164,48 +163,48 @@ const snippet = computed(() => {
 
       <template #config>
         <DemoField label="标签 label">
-          <NeumorphismInput v-model="label" size="small" placeholder="留空则不渲染标签" />
+          <NeumorphismInput v-model="label" :size="36" placeholder="留空则不渲染标签" />
         </DemoField>
 
         <DemoField label="占位 placeholder">
-          <NeumorphismInput v-model="placeholder" size="small" placeholder="请选择" />
+          <NeumorphismInput v-model="placeholder" :size="36" placeholder="请选择" />
         </DemoField>
 
         <DemoField label="变体 variant">
-          <NeumorphismSegmented v-model="variant" :options="variantOptions" size="small" />
+          <NeumorphismSegmented v-model="variant" :options="variantOptions" :size="26" />
         </DemoField>
 
         <DemoField label="尺寸 size">
-          <NeumorphismSegmented v-model="size" :options="sizeOptions" size="small" />
+          <NeumorphismSegmented v-model="size" :options="sizeOptions" :size="26" />
         </DemoField>
 
         <DemoField label="错误 error">
-          <NeumorphismInput v-model="errorText" size="small" placeholder="留空则不显示错误" />
+          <NeumorphismInput v-model="errorText" :size="36" placeholder="留空则不显示错误" />
         </DemoField>
 
         <DemoField label="选项分组">
-          <NeumorphismSwitch v-model="grouped" size="small" />
+          <NeumorphismSwitch v-model="grouped" :size="24" />
         </DemoField>
 
         <DemoField label="能力开关">
           <div class="demo-row" style="gap: 16px; row-gap: 8px">
             <label class="demo-toggle">
-              <NeumorphismSwitch v-model="clearable" size="small" />
+              <NeumorphismSwitch v-model="clearable" :size="24" />
               <span>clearable</span>
             </label>
             <label class="demo-toggle">
-              <NeumorphismSwitch v-model="filterable" size="small" />
+              <NeumorphismSwitch v-model="filterable" :size="24" />
               <span>filterable</span>
             </label>
             <label class="demo-toggle">
-              <NeumorphismSwitch v-model="multiple" size="small" />
+              <NeumorphismSwitch v-model="multiple" :size="24" />
               <span>multiple</span>
             </label>
           </div>
         </DemoField>
 
         <DemoField v-if="multiple" label="折叠 collapseTags">
-          <NeumorphismSwitch v-model="collapseTags" size="small" />
+          <NeumorphismSwitch v-model="collapseTags" :size="24" />
         </DemoField>
 
         <DemoField
@@ -215,24 +214,24 @@ const snippet = computed(() => {
           label-width="128px"
           grow
         >
-          <NeumorphismSlider v-model="maxCollapseTags" :min="1" :max="4" :step="1" size="small" />
+          <NeumorphismSlider v-model="maxCollapseTags" :min="1" :max="4" :step="1" :size="6" />
         </DemoField>
 
         <DemoField label="状态">
           <div class="demo-row" style="gap: 16px">
             <label class="demo-toggle">
-              <NeumorphismSwitch v-model="loading" size="small" />
+              <NeumorphismSwitch v-model="loading" :size="24" />
               <span>loading</span>
             </label>
             <label class="demo-toggle">
-              <NeumorphismSwitch v-model="disabled" size="small" />
+              <NeumorphismSwitch v-model="disabled" :size="24" />
               <span>disabled</span>
             </label>
           </div>
         </DemoField>
 
         <DemoField label="操作">
-          <NeumorphismButton variant="raised" size="small" @click="reset()"
+          <NeumorphismButton variant="raised" :size="32" @click="reset()"
             >恢复默认</NeumorphismButton
           >
         </DemoField>

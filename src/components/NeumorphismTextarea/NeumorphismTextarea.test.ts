@@ -41,14 +41,6 @@ describe('NeumorphismTextarea', () => {
     expect(wrapper.find('.nm-textarea').classes()).toContain('nm-textarea--readonly')
   })
 
-  it('should apply size classes', () => {
-    const sizes = ['small', 'medium', 'large'] as const
-    for (const size of sizes) {
-      const wrapper = mount(NeumorphismTextarea, { props: { size } })
-      expect(wrapper.find('.nm-textarea').classes()).toContain(`nm-textarea--${size}`)
-    }
-  })
-
   it('数字 size：走 --sized 类 + 内联 CSS 变量，不挂档位类', () => {
     const wrapper = mount(NeumorphismTextarea, { props: { size: 42 } })
     const box = wrapper.find('.nm-textarea')
@@ -61,13 +53,13 @@ describe('NeumorphismTextarea', () => {
     expect(box.attributes('style')).toContain('--nm-field-sz-pad-x: 14px')
   })
 
-  it('数字 size 在锚点上与档位别名逐像素一致', () => {
+  it('数字 size 落在锚点上：内联变量原样下发该 px', () => {
     const anchors = [
-      [36, 'small', 13, 6, 12],
-      [48, 'medium', 14, 10, 16],
-      [60, 'large', 16, 14, 20],
+      [36, 13, 6, 12],
+      [48, 14, 10, 16],
+      [60, 16, 14, 20],
     ] as const
-    for (const [px, tier, font, padY, padX] of anchors) {
+    for (const [px, font, padY, padX] of anchors) {
       const style = mount(NeumorphismTextarea, { props: { size: px } })
         .find('.nm-textarea')
         .attributes('style')
@@ -75,9 +67,6 @@ describe('NeumorphismTextarea', () => {
       expect(style).toContain(`--nm-field-sz-font: ${font}px`)
       expect(style).toContain(`--nm-field-sz-pad-y: ${padY}px`)
       expect(style).toContain(`--nm-field-sz-pad-x: ${padX}px`)
-      const byTier = mount(NeumorphismTextarea, { props: { size: tier } })
-      expect(byTier.find('.nm-textarea').classes()).toContain(`nm-textarea--${tier}`)
-      expect(byTier.find('.nm-textarea').attributes('style')).toBeUndefined()
     }
   })
 

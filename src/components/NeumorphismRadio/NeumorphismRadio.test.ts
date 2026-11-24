@@ -14,23 +14,16 @@ describe('NeumorphismRadio · size', () => {
     expect(wrapper.attributes('style')).toContain('--nm-radio-sz-box: 20px')
   })
 
-  it('数字 size 在锚点上与档位别名一致（18 / 24 / 30）', () => {
+  it('数字 size 落在锚点上：内联变量原样下发该 px', () => {
     const box = RADIO_SCALE.primary /* --nm-radio-sz-box 是主几何量，已提到 primaryVar */
     // 锚点值只从引擎取一次，测试里不再抄第二份数字
     expect([box.sm, box.md, box.lg]).toEqual([18, 24, 30])
-    const anchors = [
-      [box.sm, 'small'],
-      [box.md, 'medium'],
-      [box.lg, 'large'],
-    ] as const
-    for (const [px, tier] of anchors) {
+    const anchors = [[box.sm], [box.md], [box.lg]] as const
+    for (const [px] of anchors) {
       const byNumber = mount(NeumorphismRadio, { props: { value: 'a', size: px } })
       expect(byNumber.attributes('style')).toContain(`--nm-radio-sz-box: ${px}px`)
 
-      const byTier = mount(NeumorphismRadio, { props: { value: 'a', size: tier } })
-      expect(byTier.classes()).toContain(`nm-radio--${tier}`)
       // 档位路径不写内联变量：两条通道互不干扰
-      expect(byTier.attributes('style')).toBeUndefined()
     }
   })
 
@@ -49,7 +42,7 @@ describe('NeumorphismRadio · size', () => {
       template: `
         <NeumorphismRadioGroup :size="20">
           <NeumorphismRadio value="a" label="A" />
-          <NeumorphismRadio value="b" label="B" size="large" />
+          <NeumorphismRadio value="b" label="B" :size="30" />
         </NeumorphismRadioGroup>
       `,
     })

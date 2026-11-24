@@ -105,18 +105,11 @@ describe('NeumorphismNavMenu', () => {
     expect(style).toContain('--nm-nav-sz-indicator: 2px')
   })
 
-  it('数字 size 在锚点上与档位别名逐像素一致', () => {
-    const anchors = [
-      [11, 'small'],
-      [14, 'medium'],
-      [15, 'large'],
-    ] as const
-    for (const [px, tier] of anchors) {
+  it('数字 size 落在锚点上：内联变量原样下发该 px', () => {
+    const anchors = [[11], [14], [15]] as const
+    for (const [px] of anchors) {
       const byNumber = mountPlain({ size: px }).find('.nm-nav-menu')
       expect(byNumber.attributes('style')).toContain(`--nm-nav-sz-font: ${px}px`)
-      const byTier = mountPlain({ size: tier }).find('.nm-nav-menu')
-      expect(byTier.classes()).toContain(`nm-nav-menu--${tier}`)
-      expect(byTier.attributes('style')).toBeUndefined()
     }
   })
 

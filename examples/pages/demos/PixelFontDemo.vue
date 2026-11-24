@@ -81,23 +81,23 @@ const snippet = computed(() => {
 
       <template #config>
         <DemoField label="标题文本">
-          <NeumorphismInput v-model="pixelTitle" size="small" />
+          <NeumorphismInput v-model="pixelTitle" :size="36" />
         </DemoField>
 
         <DemoField label="副题文本">
-          <NeumorphismInput v-model="pixelSubtitle" size="small" />
+          <NeumorphismInput v-model="pixelSubtitle" :size="36" />
         </DemoField>
 
         <DemoField label="缩放 scale" :value="`${pixelScale}×`" grow>
-          <NeumorphismSlider v-model="pixelScale" :min="1" :max="6" :step="1" size="small" />
+          <NeumorphismSlider v-model="pixelScale" :min="1" :max="6" :step="1" :size="6" />
         </DemoField>
 
         <DemoField label="光标 cursor">
-          <NeumorphismSwitch v-model="pixelCursor" size="small" />
+          <NeumorphismSwitch v-model="pixelCursor" :size="24" />
         </DemoField>
 
         <DemoField label="对齐 align">
-          <NeumorphismSegmented v-model="pixelAlign" :options="pixelAlignOptions" size="small" />
+          <NeumorphismSegmented v-model="pixelAlign" :options="pixelAlignOptions" :size="26" />
         </DemoField>
       </template>
     </DemoPlayground>

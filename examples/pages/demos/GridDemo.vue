@@ -79,19 +79,19 @@ const snippet = computed(() => {
 
       <template #config>
         <DemoField label="间距 gutter" :value="`${gutter}px`" grow>
-          <NeumorphismSlider v-model="gutter" :min="0" :max="32" :step="1" size="small" />
+          <NeumorphismSlider v-model="gutter" :min="0" :max="32" :step="1" :size="6" />
         </DemoField>
 
         <DemoField label="占位 span" :value="`${span}/24`" grow>
-          <NeumorphismSlider v-model="span" :min="1" :max="24" :step="1" size="small" />
+          <NeumorphismSlider v-model="span" :min="1" :max="24" :step="1" :size="6" />
         </DemoField>
 
         <DemoField label="偏移 offset" :value="`${offset}`" grow>
-          <NeumorphismSlider v-model="offset" :min="0" :max="12" :step="1" size="small" />
+          <NeumorphismSlider v-model="offset" :min="0" :max="12" :step="1" :size="6" />
         </DemoField>
 
         <DemoField label="操作">
-          <NeumorphismButton variant="raised" size="small" @click="reset()"
+          <NeumorphismButton variant="raised" :size="32" @click="reset()"
             >恢复默认</NeumorphismButton
           >
         </DemoField>

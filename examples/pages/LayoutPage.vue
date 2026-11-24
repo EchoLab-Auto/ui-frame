@@ -81,7 +81,7 @@ const containerModes = [
         </p>
 
         <!-- 面包屑 -->
-        <NeumorphismBreadcrumb :items="breadcrumbItems" separator="/" size="small" />
+        <NeumorphismBreadcrumb :items="breadcrumbItems" separator="/" :size="12" />
 
         <!-- 标签页 -->
         <div style="margin-top: 20px">
@@ -121,7 +121,7 @@ const containerModes = [
               <template #header>
                 <div class="panel-header">
                   <strong>项目进度</strong>
-                  <NeumorphismTag size="small" variant="primary">进行中</NeumorphismTag>
+                  <NeumorphismTag :size="11" variant="primary">进行中</NeumorphismTag>
                 </div>
               </template>
 
@@ -133,7 +133,7 @@ const containerModes = [
                 <NeumorphismProgress
                   :model-value="task.progress"
                   :variant="task.variant"
-                  size="small"
+                  :size="4"
                 />
               </div>
             </NeumorphismCard>
@@ -146,7 +146,7 @@ const containerModes = [
                 <div class="panel-header">
                   <strong>最近通知</strong>
                   <NeumorphismBadge :value="notifications.length">
-                    <NeumorphismButton size="small">全部</NeumorphismButton>
+                    <NeumorphismButton :size="32">全部</NeumorphismButton>
                   </NeumorphismBadge>
                 </div>
               </template>
@@ -185,7 +185,7 @@ const containerModes = [
           >
             <template #header-left>
               <div style="display: flex; align-items: center; gap: 10px">
-                <NeumorphismAvatar initials="A" size="small" />
+                <NeumorphismAvatar initials="A" :size="32" />
                 <strong style="font-size: 14px">Admin 后台</strong>
               </div>
             </template>
@@ -193,9 +193,9 @@ const containerModes = [
             <template #header-right>
               <div style="display: flex; align-items: center; gap: 10px">
                 <NeumorphismBadge dot>
-                  <NeumorphismButton size="small" aria-label="通知">🔔</NeumorphismButton>
+                  <NeumorphismButton :size="32" aria-label="通知">🔔</NeumorphismButton>
                 </NeumorphismBadge>
-                <NeumorphismAvatar src="https://i.pravatar.cc/32?img=5" size="small" />
+                <NeumorphismAvatar src="https://i.pravatar.cc/32?img=5" :size="32" />
               </div>
             </template>
 
@@ -266,7 +266,7 @@ const containerModes = [
           <NeumorphismButton
             v-for="bp in breakpoints"
             :key="bp.key"
-            size="small"
+            :size="32"
             :variant="breakpointDemo === bp.key ? 'pressed' : 'raised'"
             @click="breakpointDemo = bp.key"
           >

@@ -50,13 +50,6 @@ describe('NeumorphismSegmented', () => {
     expect(wrapper.emitted('update:modelValue')?.[0]).toEqual(['allowlist'])
   })
 
-  it('应用尺寸修饰类', () => {
-    const wrapper = mount(NeumorphismSegmented, {
-      props: { options: OPTIONS, size: 'small' },
-    })
-    expect(wrapper.classes()).toContain('nm-segmented--small')
-  })
-
   describe('size（数字是一等公民）', () => {
     it('数字 size：走 --sized 类 + 内联 CSS 变量，不挂档位类', () => {
       // 29 落在锚点 26(sm) 与 32(md) 之间：值就是「单段最小高度」px
@@ -74,24 +67,17 @@ describe('NeumorphismSegmented', () => {
       expect(style).toContain('--nm-segmented-sz-pad-y: 3px')
     })
 
-    it('数字 size 在锚点上与档位别名一致（26 / 32 / 38）', () => {
+    it('数字 size 落在锚点上：内联变量原样下发该 px', () => {
       const height =
         SEGMENTED_SCALE.primary /* --nm-segmented-sz-height 是主几何量，已提到 primaryVar */
       // 锚点值只从引擎取一次，测试里不再抄第二份数字
       expect([height.sm, height.md, height.lg]).toEqual([26, 32, 38])
-      const anchors = [
-        [height.sm, 'small'],
-        [height.md, 'medium'],
-        [height.lg, 'large'],
-      ] as const
-      for (const [px, tier] of anchors) {
+      const anchors = [[height.sm], [height.md], [height.lg]] as const
+      for (const [px] of anchors) {
         const byNumber = mount(NeumorphismSegmented, { props: { options: OPTIONS, size: px } })
         expect(byNumber.attributes('style')).toContain(`--nm-segmented-sz-height: ${px}px`)
 
-        const byTier = mount(NeumorphismSegmented, { props: { options: OPTIONS, size: tier } })
-        expect(byTier.classes()).toContain(`nm-segmented--${tier}`)
         // 档位路径不写内联变量：两条通道互不干扰
-        expect(byTier.attributes('style')).toBeUndefined()
       }
     })
 

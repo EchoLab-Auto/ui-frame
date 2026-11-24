@@ -40,20 +40,12 @@ describe('NeumorphismList', () => {
     expect(wrapper.attributes('style')).toContain('--nm-list-sz-pad-x: 20px')
   })
 
-  it('数字 size 在锚点上与档位别名等价（同一组 px）', () => {
+  it('数字 size 落在锚点上：内联变量原样下发该 px', () => {
     // 锚点：small 12 / medium 14 / large 15（字号）
-    const anchors = [
-      [12, 'small'],
-      [14, 'medium'],
-      [15, 'large'],
-    ] as const
-    for (const [px, tier] of anchors) {
+    const anchors = [[12], [14], [15]] as const
+    for (const [px] of anchors) {
       const byNumber = mount(NeumorphismList, { props: { items: ['A'], size: px } })
-      const byTier = mount(NeumorphismList, { props: { items: ['A'], size: tier } })
       expect(byNumber.attributes('style')).toContain(`--nm-list-sz-font: ${px}px`)
-      expect(byTier.classes()).toContain(`nm-list--${tier}`)
-      expect(byTier.classes()).not.toContain('nm-list--sized')
-      expect(byTier.attributes('style')).toBeUndefined()
     }
   })
 

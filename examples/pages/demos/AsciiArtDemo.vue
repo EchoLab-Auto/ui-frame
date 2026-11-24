@@ -129,7 +129,7 @@ const snippet = computed(() => {
 
       <template #config>
         <DemoField label="蒙版 mask" :label-width="labelWidth">
-          <NeumorphismSegmented v-model="asciiMask" :options="asciiMaskOptions" size="small" />
+          <NeumorphismSegmented v-model="asciiMask" :options="asciiMaskOptions" :size="26" />
         </DemoField>
 
         <!-- 波点专属：直径与网格占用；字符画下不显示（调了也不生效） -->
@@ -140,7 +140,7 @@ const snippet = computed(() => {
             :label-width="labelWidth"
             grow
           >
-            <NeumorphismSlider v-model="asciiDotMin" :min="0" :max="6" :step="0.5" size="small" />
+            <NeumorphismSlider v-model="asciiDotMin" :min="0" :max="6" :step="0.5" :size="6" />
           </DemoField>
 
           <DemoField
@@ -149,7 +149,7 @@ const snippet = computed(() => {
             :label-width="labelWidth"
             grow
           >
-            <NeumorphismSlider v-model="asciiDotMax" :min="2" :max="24" :step="0.5" size="small" />
+            <NeumorphismSlider v-model="asciiDotMax" :min="2" :max="24" :step="0.5" :size="6" />
           </DemoField>
 
           <DemoField
@@ -163,7 +163,7 @@ const snippet = computed(() => {
               :min="0.2"
               :max="1.2"
               :step="0.02"
-              size="small"
+              :size="6"
             />
           </DemoField>
         </template>
@@ -174,39 +174,33 @@ const snippet = computed(() => {
           :label-width="labelWidth"
           grow
         >
-          <NeumorphismSlider v-model="asciiDensity" :min="0.5" :max="3" :step="0.1" size="small" />
+          <NeumorphismSlider v-model="asciiDensity" :min="0.5" :max="3" :step="0.1" :size="6" />
         </DemoField>
 
         <DemoField label="速度 speed" :value="asciiSpeed.toFixed(1)" :label-width="labelWidth" grow>
-          <NeumorphismSlider v-model="asciiSpeed" :min="0" :max="3" :step="0.1" size="small" />
+          <NeumorphismSlider v-model="asciiSpeed" :min="0" :max="3" :step="0.1" :size="6" />
         </DemoField>
 
         <DemoField label="指针交互" :label-width="labelWidth">
-          <NeumorphismSwitch v-model="asciiReactive" size="small" />
+          <NeumorphismSwitch v-model="asciiReactive" :size="24" />
         </DemoField>
 
         <DemoField label="圆角 radius" :value="`${asciiRadius}px`" :label-width="labelWidth" grow>
-          <NeumorphismSlider v-model="asciiRadius" :min="0" :max="64" :step="2" size="small" />
+          <NeumorphismSlider v-model="asciiRadius" :min="0" :max="64" :step="2" :size="6" />
         </DemoField>
 
         <DemoField label="尺寸模式" :label-width="labelWidth">
-          <NeumorphismSegmented v-model="asciiSizeMode" :options="asciiSizeOptions" size="small" />
+          <NeumorphismSegmented v-model="asciiSizeMode" :options="asciiSizeOptions" :size="26" />
         </DemoField>
 
         <!-- 固定尺寸才需要宽高：自适应时这两个滑块调了也不生效，索性不显示 -->
         <template v-if="asciiSizeMode === 'fixed'">
           <DemoField label="宽度 width" :value="`${asciiWidth}px`" :label-width="labelWidth" grow>
-            <NeumorphismSlider v-model="asciiWidth" :min="240" :max="720" :step="10" size="small" />
+            <NeumorphismSlider v-model="asciiWidth" :min="240" :max="720" :step="10" :size="6" />
           </DemoField>
 
           <DemoField label="高度 height" :value="`${asciiHeight}px`" :label-width="labelWidth" grow>
-            <NeumorphismSlider
-              v-model="asciiHeight"
-              :min="200"
-              :max="600"
-              :step="10"
-              size="small"
-            />
+            <NeumorphismSlider v-model="asciiHeight" :min="200" :max="600" :step="10" :size="6" />
           </DemoField>
         </template>
 
@@ -214,12 +208,12 @@ const snippet = computed(() => {
           <NeumorphismSegmented
             v-model="asciiPaletteName"
             :options="asciiPaletteOptions"
-            size="small"
+            :size="26"
           />
         </DemoField>
 
         <DemoField label="ariaLabel（空=默认）" :label-width="labelWidth" grow>
-          <NeumorphismInput v-model="asciiAriaLabel" size="small" />
+          <NeumorphismInput v-model="asciiAriaLabel" :size="36" />
         </DemoField>
       </template>
     </DemoPlayground>

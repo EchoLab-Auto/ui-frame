@@ -43,7 +43,7 @@ const snippet = computed(() => {
     lines.push(
       '    <template #header-left><strong>My App</strong></template>',
       '    <template #header-right>',
-      '      <NeumorphismAvatar initials="U" size="small" />',
+      '      <NeumorphismAvatar initials="U" :size="32" />',
       '    </template>'
     )
   }
@@ -92,7 +92,7 @@ const snippet = computed(() => {
           </template>
 
           <template #header-right>
-            <NeumorphismAvatar initials="U" size="small" />
+            <NeumorphismAvatar initials="U" :size="32" />
           </template>
 
           <template #sider="{ collapsed }">
@@ -150,36 +150,36 @@ const snippet = computed(() => {
 
       <template #config>
         <DemoField label="侧栏宽 siderWidth" :value="`${siderWidth}px`" grow>
-          <NeumorphismSlider v-model="siderWidth" :min="160" :max="280" :step="4" size="small" />
+          <NeumorphismSlider v-model="siderWidth" :min="160" :max="280" :step="4" :size="6" />
         </DemoField>
 
         <DemoField label="可折叠 collapsible" :value="String(collapsible)">
           <label class="demo-toggle">
-            <NeumorphismSwitch v-model="collapsible" size="small" />
+            <NeumorphismSwitch v-model="collapsible" :size="24" />
             <span>显示折叠按钮</span>
           </label>
         </DemoField>
 
         <DemoField label="顶栏 showHeader" :value="String(showHeader)">
           <label class="demo-toggle">
-            <NeumorphismSwitch v-model="showHeader" size="small" />
+            <NeumorphismSwitch v-model="showHeader" :size="24" />
             <span>Header 区域</span>
           </label>
         </DemoField>
 
         <DemoField label="初始折叠" :value="String(defaultCollapsed)">
           <label class="demo-toggle">
-            <NeumorphismSwitch v-model="defaultCollapsed" size="small" />
+            <NeumorphismSwitch v-model="defaultCollapsed" :size="24" />
             <span>default-collapsed</span>
           </label>
         </DemoField>
 
         <DemoField label="折叠后宽" :value="`${collapsedWidth}px`" grow>
-          <NeumorphismSlider v-model="collapsedWidth" :min="48" :max="120" :step="4" size="small" />
+          <NeumorphismSlider v-model="collapsedWidth" :min="48" :max="120" :step="4" :size="6" />
         </DemoField>
 
         <DemoField label="操作">
-          <NeumorphismButton variant="raised" size="small" @click="reset()"
+          <NeumorphismButton variant="raised" :size="32" @click="reset()"
             >恢复默认</NeumorphismButton
           >
         </DemoField>

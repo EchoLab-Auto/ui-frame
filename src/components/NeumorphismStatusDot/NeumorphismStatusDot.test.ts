@@ -60,18 +60,6 @@ describe('NeumorphismStatusDot', () => {
     expect(wrapper.attributes('style')).toContain('width: 10px')
   })
 
-  it('旧字符串档位仍兼容映射（small=8 / medium=10 / large=12）', () => {
-    const cases = [
-      ['small', 8],
-      ['medium', 10],
-      ['large', 12],
-    ] as const
-    for (const [size, px] of cases) {
-      const wrapper = mount(NeumorphismStatusDot, { props: { size } })
-      expect(wrapper.attributes('style')).toContain(`width: ${px}px`)
-    }
-  })
-
   it('容错：0 或负数夹到 4px 下限，NaN 退回默认 10px', () => {
     expect(mount(NeumorphismStatusDot, { props: { size: 0 } }).attributes('style')).toContain(
       'width: 4px'

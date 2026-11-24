@@ -140,7 +140,7 @@ export { useReducedMotion, prefersReducedMotion } from './composables/useReduced
 export type { UseReducedMotionReturn } from './composables/useReducedMotion'
 
 export { useProgress } from './composables/useProgress'
-export type { UseProgressOptions, UseProgressReturn, ProgressSize } from './composables/useProgress'
+export type { UseProgressOptions, UseProgressReturn } from './composables/useProgress'
 
 export { useTabs } from './composables/useTabs'
 export type {
@@ -435,7 +435,7 @@ const NAME_TO_COMPONENT = {
  * Register all built-in components plus any consumer-provided overrides.
  *
  * Supports both legacy and new plugin option formats:
- * - `app.use(NeumorphismUI, { button: { size: 'large' } })`   (legacy, unchanged)
+ * - `app.use(NeumorphismUI, { button: { size: 56 } })`
  * - `app.use(NeumorphismUI, { config: {...}, components: {...}, prefix: 'X' })`   (new)
  */
 export function install(

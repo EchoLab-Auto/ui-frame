@@ -148,7 +148,7 @@ const snippet = computed(() => {
 
       <template #config>
         <DemoField label="开关状态">
-          <NeumorphismSwitch v-model="checked" size="small" />
+          <NeumorphismSwitch v-model="checked" :size="24" />
           <span class="demo-form-label">{{ checked ? '开' : '关' }}</span>
         </DemoField>
 
@@ -156,39 +156,33 @@ const snippet = computed(() => {
           <NeumorphismSegmented
             :model-value="variant"
             :options="variantOptions"
-            size="small"
+            :size="26"
             @update:model-value="pickVariant"
           />
         </DemoField>
 
         <DemoField label="尺寸 size" :value="`${size}px`" grow>
-          <NeumorphismSlider
-            v-model="size"
-            :min="SIZE_MIN"
-            :max="SIZE_MAX"
-            :step="2"
-            size="small"
-          />
+          <NeumorphismSlider v-model="size" :min="SIZE_MIN" :max="SIZE_MAX" :step="2" :size="6" />
         </DemoField>
 
         <DemoField label="开启文本">
-          <NeumorphismInput v-model="activeText" size="small" placeholder="active-text" />
+          <NeumorphismInput v-model="activeText" :size="36" placeholder="active-text" />
         </DemoField>
 
         <DemoField label="关闭文本">
-          <NeumorphismInput v-model="inactiveText" size="small" placeholder="inactive-text" />
+          <NeumorphismInput v-model="inactiveText" :size="36" placeholder="inactive-text" />
         </DemoField>
 
         <DemoField label="通电色">
-          <NeumorphismSegmented v-model="activeColor" :options="colorOptions" size="small" />
+          <NeumorphismSegmented v-model="activeColor" :options="colorOptions" :size="26" />
         </DemoField>
 
         <DemoField label="禁用 disabled">
-          <NeumorphismSwitch v-model="disabled" size="small" />
+          <NeumorphismSwitch v-model="disabled" :size="24" />
         </DemoField>
 
         <DemoField label="操作">
-          <NeumorphismButton variant="raised" size="small" @click="reset()"
+          <NeumorphismButton variant="raised" :size="32" @click="reset()"
             >恢复默认</NeumorphismButton
           >
         </DemoField>

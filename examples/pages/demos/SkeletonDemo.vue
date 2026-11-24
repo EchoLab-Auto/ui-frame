@@ -110,19 +110,19 @@ const snippet = computed(() => {
 
       <template #config>
         <DemoField label="形态 variant">
-          <NeumorphismSegmented v-model="variant" :options="variantOptions" size="small" />
+          <NeumorphismSegmented v-model="variant" :options="variantOptions" :size="26" />
         </DemoField>
 
         <DemoField label="动画 animation">
-          <NeumorphismSegmented v-model="animation" :options="animationOptions" size="small" />
+          <NeumorphismSegmented v-model="animation" :options="animationOptions" :size="26" />
         </DemoField>
 
         <DemoField label="宽度 width" :value="`${width}px`" grow>
-          <NeumorphismSlider v-model="width" :min="40" :max="400" :step="10" size="small" />
+          <NeumorphismSlider v-model="width" :min="40" :max="400" :step="10" :size="6" />
         </DemoField>
 
         <DemoField label="高度 height" :value="`${height}px`" grow>
-          <NeumorphismSlider v-model="height" :min="8" :max="240" :step="2" size="small" />
+          <NeumorphismSlider v-model="height" :min="8" :max="240" :step="2" :size="6" />
         </DemoField>
 
         <DemoField label="行数 rows" :value="`${rows} 行`" grow>
@@ -133,12 +133,12 @@ const snippet = computed(() => {
             :max="6"
             :step="1"
             :disabled="variant !== 'text'"
-            size="small"
+            :size="6"
           />
         </DemoField>
 
         <DemoField label="操作">
-          <NeumorphismButton variant="pressed" size="small" @click="reset()"
+          <NeumorphismButton variant="pressed" :size="32" @click="reset()"
             >恢复默认</NeumorphismButton
           >
         </DemoField>
@@ -149,7 +149,7 @@ const snippet = computed(() => {
   <div class="demo-block">
     <h4 class="demo-label">加载态 ↔ 内容（组合成一屏卡片）</h4>
     <div class="demo-row" style="margin-bottom: 14px">
-      <NeumorphismButton size="small" @click="loading = !loading">
+      <NeumorphismButton :size="32" @click="loading = !loading">
         {{ loading ? '隐藏骨架屏' : '显示骨架屏' }}
       </NeumorphismButton>
     </div>

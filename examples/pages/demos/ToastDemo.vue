@@ -127,22 +127,22 @@ const snippet = computed(() => {
 
       <template #config>
         <DemoField label="位置 position" grow>
-          <NeumorphismSelect v-model="position" :options="positionOptions" size="small" />
+          <NeumorphismSelect v-model="position" :options="positionOptions" :size="36" />
         </DemoField>
 
         <DemoField label="上限 maxCount" :value="String(maxCount)" grow>
-          <NeumorphismSlider v-model="maxCount" :min="1" :max="8" :step="1" size="small" />
+          <NeumorphismSlider v-model="maxCount" :min="1" :max="8" :step="1" :size="6" />
         </DemoField>
 
         <DemoField label="时长 duration" :value="`${duration}ms`" grow>
-          <NeumorphismSlider v-model="duration" :min="1000" :max="6000" :step="500" size="small" />
+          <NeumorphismSlider v-model="duration" :min="1000" :max="6000" :step="500" :size="6" />
         </DemoField>
 
         <DemoField label="操作">
-          <NeumorphismButton variant="raised" size="small" @click="showBurst()">
+          <NeumorphismButton variant="raised" :size="32" @click="showBurst()">
             连发 4 条
           </NeumorphismButton>
-          <NeumorphismButton variant="pressed" size="small" @click="clearAll()">
+          <NeumorphismButton variant="pressed" :size="32" @click="clearAll()">
             清空
           </NeumorphismButton>
         </DemoField>
@@ -155,13 +155,13 @@ const snippet = computed(() => {
   <div class="demo-block">
     <h4 class="demo-label">堆叠上限 / 常驻通知 / 清空</h4>
     <div class="demo-row">
-      <NeumorphismButton variant="raised" size="small" @click="showBurst()">
+      <NeumorphismButton variant="raised" :size="32" @click="showBurst()">
         连发 4 条（看 maxCount 挤掉最早的）
       </NeumorphismButton>
-      <NeumorphismButton variant="pressed" size="small" @click="showSticky()">
+      <NeumorphismButton variant="pressed" :size="32" @click="showSticky()">
         duration: 0（常驻）
       </NeumorphismButton>
-      <NeumorphismButton variant="pressed" size="small" @click="clearAll()">
+      <NeumorphismButton variant="pressed" :size="32" @click="clearAll()">
         clearAll()
       </NeumorphismButton>
     </div>

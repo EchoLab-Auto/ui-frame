@@ -7,23 +7,18 @@ import { normalizeNumericSize, resolveControlScale } from '@/utils/controlScale'
 import { SEGMENTED_SCALE } from '@/utils/controlScales'
 
 export type { SegmentedOption }
-export type SegmentedSize = 'small' | 'medium' | 'large'
-
 export interface NeumorphismSegmentedProps {
   /** 选中值（v-model） */
   modelValue?: string | number
   /** 可选项 */
   options: SegmentedOption[]
   /**
-   * 尺寸——单段最小高度 px（数字，主几何量），或三档预设名。
+   * 尺寸——单段最小高度 px（数字，主几何量）。
    *
    * 数字即「单段最小高度」：字号与内距按锚点表（26 / 32 / 38）分段线性插值，
    * 尺寸施加在内部 `.nm-segmented__item` 上（变量挂根节点）。
-   *
-   * @deprecated 字符串档位（`'small' | 'medium' | 'large'`）仅作兼容别名保留，
-   * 新代码请传数字。
    */
-  size?: number | SegmentedSize
+  size?: number
   disabled?: boolean
   /** 无障碍组标签（默认取 locale segmentedLabel） */
   ariaLabel?: string
@@ -43,30 +38,13 @@ const emit = defineEmits<{
 
 const { t } = useLocale()
 const { config, resolveProp } = useNeumorphismSetup()
-
-/** 尺寸原始取值：显式 prop > 全局配置 `segmented.size` > 档位默认 medium */
-const rawSize = computed<number | SegmentedSize>(() =>
-  resolveProp(props.size, config.value.segmented?.size, 'medium' as number | SegmentedSize)
-)
-
-/** 数字通道：`undefined` = 走档位 class，有值 = 走内联 CSS 变量 */
+/** 尺寸（px）：显式 prop > 全局配置 > 锚点 `md`。 */
 const numericSize = computed(() =>
-  typeof rawSize.value === 'number'
-    ? normalizeNumericSize(rawSize.value, SEGMENTED_SCALE.primary.md)
-    : undefined
+  normalizeNumericSize(props.size ?? config.value.segmented?.size, SEGMENTED_SCALE.primary.md)
 )
 
-/** 字符串通道：数字路径下不挂档位类，这里只用于档位类名与语义兜底 */
-const resolvedSize = computed<SegmentedSize>(() =>
-  typeof rawSize.value === 'string' ? rawSize.value : 'medium'
-)
-
-/** 数字尺寸下发的 CSS 变量（见 utils/controlScale） */
-const sizeStyle = computed(() =>
-  numericSize.value === undefined
-    ? undefined
-    : resolveControlScale(SEGMENTED_SCALE, numericSize.value)
-)
+/** 尺寸下发的 CSS 变量（见 utils/controlScale） */
+const sizeStyle = computed(() => resolveControlScale(SEGMENTED_SCALE, numericSize.value))
 
 const resolvedDisabled = computed(() =>
   resolveProp(props.disabled, config.value.segmented?.disabled, false)
@@ -102,7 +80,7 @@ watch(focusIndex, async index => {
 const classList = computed(() => [
   'nm-segmented',
   // 数字与档位类互斥：几何全由内联 `--nm-segmented-sz-*` 决定
-  numericSize.value === undefined ? `nm-segmented--${resolvedSize.value}` : 'nm-segmented--sized',
+  'nm-segmented--sized',
   { 'nm-segmented--disabled': resolvedDisabled.value },
 ])
 </script>

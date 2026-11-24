@@ -2,31 +2,23 @@
 import { ref, computed } from 'vue'
 import { DemoPlayground, DemoField } from '../../demo'
 
-type InputSize = 'small' | 'medium' | 'large'
-
 /**
- * 各档位在 tokens.scss 里的基准值（高度 / 上下内边距 / 左右内边距 / 字号）。
+ * 尺寸只有一个量：**最小高度 px**。
  *
- * Input 的尺寸**不是 prop 直改**，而是由 `--nm-field-*-sm|md|lg` 这一组 token 驱动；
- * 滑块要立刻生效就必须写到**当前档位**对应的那组变量上——只写 `-md`
- * （原页面的 `inputSizeVars()` 就是这么干的）在 small / large 下会静默失效。
+ * 2026-11 起 `size` 直接收 px（数字 size 的语义就是最小高度），组件按锚点表
+ * （36 / 48 / 60）分段插值算出内边距与字号并写进 `--nm-field-sz-*`——所以老演示里
+ * 「按当前档位手动写 `--nm-field-min-height-sm|md|lg`」的那套 `previewStyle` 桥接
+ * 整体删掉：数字路径不挂档位类，桥接选择器本来也命中不到。
  */
-const TIER_FIELD: Record<
-  InputSize,
-  { suffix: string; height: number; padY: number; padX: number; font: number }
-> = {
-  small: { suffix: 'sm', height: 36, padY: 6, padX: 12, font: 13 },
-  medium: { suffix: 'md', height: 48, padY: 10, padX: 16, font: 14 },
-  large: { suffix: 'lg', height: 60, padY: 14, padX: 20, font: 16 },
-}
 const HEIGHT_MIN = 32
 const HEIGHT_MAX = 72
+const DEFAULT_HEIGHT = 48
 
 // ---- 配置台状态 ----
 const value = ref('')
-const size = ref<InputSize>('medium')
-/** 高度基准取 medium；切档时 pickSize 会把它重置成新档位的基准 */
-const height = ref(TIER_FIELD.medium.height)
+const height = ref(DEFAULT_HEIGHT)
+/** 别名：模板与片段里沿用 `size` 这个名字 */
+const size = height
 const label = ref('')
 const placeholder = ref('请输入内容')
 const errorOn = ref(false)
@@ -35,10 +27,11 @@ const disabled = ref(false)
 const readonly = ref(false)
 const affix = ref(false)
 
+/** 常用高度（原三档锚点 36 / 48 / 60）当快捷取值 */
 const sizeOptions = [
-  { label: '小', value: 'small' },
-  { label: '中', value: 'medium' },
-  { label: '大', value: 'large' },
+  { label: '36', value: 36 },
+  { label: '48', value: 48 },
+  { label: '60', value: 60 },
 ]
 
 /**
@@ -52,31 +45,13 @@ const errorValue = computed<string | boolean>(() => {
   return errorText.value || true
 })
 
-/**
- * 高度样式：按当前档位的基准值等比缩放左右内边距与字号，几何比例保持不变。
- * 键名必须带档位后缀，否则切到 small / large 时滑块会静默失效。
- */
-const previewStyle = computed(() => {
-  const tier = TIER_FIELD[size.value]
-  const k = height.value / tier.height
-  return {
-    [`--nm-field-min-height-${tier.suffix}`]: `${height.value}px`,
-    [`--nm-field-padding-y-${tier.suffix}`]: `${Math.round(tier.padY * k)}px`,
-    [`--nm-field-padding-x-${tier.suffix}`]: `${Math.round(tier.padX * k)}px`,
-    [`--nm-field-font-${tier.suffix}`]: `${Math.max(11, Math.round(tier.font * k))}px`,
-  }
-})
-
 function pickSize(next: string | number) {
-  size.value = next as InputSize
-  // 三档基准高度不同（36 / 48 / 60），沿用旧高度会让新档位的字号被算到离谱的缩放比
-  height.value = TIER_FIELD[size.value].height
+  height.value = Number(next)
 }
 
 function reset() {
   value.value = ''
-  size.value = 'medium'
-  height.value = TIER_FIELD.medium.height
+  height.value = DEFAULT_HEIGHT
   label.value = ''
   placeholder.value = '请输入内容'
   errorOn.value = false
@@ -89,7 +64,7 @@ function reset() {
 // ---- 实时代码片段 ----
 const snippet = computed(() => {
   const attrs = ['v-model="value"']
-  if (size.value !== 'medium') attrs.push(`size="${size.value}"`)
+  if (size.value !== DEFAULT_HEIGHT) attrs.push(`:size="${size.value}"`)
   if (label.value) attrs.push(`label="${label.value}"`)
   if (placeholder.value !== '请输入内容') attrs.push(`placeholder="${placeholder.value}"`)
   // error 的布尔写法必须写成 :error="true"：裸写 error 时 prop 类型是 [String, Boolean]，
@@ -106,12 +81,7 @@ const snippet = computed(() => {
 
   const open = `<NeumorphismInput ${attrs.join(' ')}`
   const body = slots.length ? `${open}>\n${slots.join('\n')}\n</NeumorphismInput>` : `${open} />`
-  const tier = TIER_FIELD[size.value]
-  const heightNote =
-    height.value !== tier.height
-      ? `\n<!-- 高度经 --nm-field-min-height-${tier.suffix} 等变量调整：${height.value}px -->`
-      : ''
-  return `${body}${heightNote}`
+  return body
 })
 </script>
 
@@ -128,7 +98,6 @@ const snippet = computed(() => {
           :error="errorValue"
           :disabled="disabled"
           :readonly="readonly"
-          :style="previewStyle"
         >
           <template v-if="affix" #prefix>
             <NeumorphismIcon name="search" />
@@ -140,7 +109,7 @@ const snippet = computed(() => {
       </div>
 
       <template #spec>
-        size=<b>{{ size }}</b> · 高度=<b>{{ height }}px</b> · error=<b>{{
+        size=<b>{{ size }}px</b> · error=<b>{{
           errorOn ? (errorText ? '文案' : '布尔') : '关闭'
         }}</b>
         · 插槽=<b>{{ affix ? 'prefix + suffix' : '无' }}</b>
@@ -160,7 +129,7 @@ const snippet = computed(() => {
           <NeumorphismSegmented
             :model-value="size"
             :options="sizeOptions"
-            size="small"
+            :size="26"
             @update:model-value="pickSize"
           />
         </DemoField>
@@ -171,37 +140,37 @@ const snippet = computed(() => {
             :min="HEIGHT_MIN"
             :max="HEIGHT_MAX"
             :step="2"
-            size="small"
+            :size="6"
           />
         </DemoField>
 
         <DemoField label="标签 label" grow>
-          <NeumorphismInput v-model="label" size="small" placeholder="留空则不渲染标签" />
+          <NeumorphismInput v-model="label" :size="36" placeholder="留空则不渲染标签" />
         </DemoField>
 
         <DemoField label="占位文案" grow>
-          <NeumorphismInput v-model="placeholder" size="small" placeholder="placeholder" />
+          <NeumorphismInput v-model="placeholder" :size="36" placeholder="placeholder" />
         </DemoField>
 
         <DemoField label="错误 error">
-          <NeumorphismSwitch v-model="errorOn" size="small" />
+          <NeumorphismSwitch v-model="errorOn" :size="24" />
           <span class="demo-form-label">{{
             errorOn ? (errorText ? '字符串 error' : '布尔 error') : '关闭'
           }}</span>
         </DemoField>
 
         <DemoField label="错误文案" grow>
-          <NeumorphismInput v-model="errorText" size="small" placeholder="留空 = 只染红框" />
+          <NeumorphismInput v-model="errorText" :size="36" placeholder="留空 = 只染红框" />
         </DemoField>
 
         <DemoField label="状态">
           <div class="demo-row" style="gap: 16px">
             <label class="demo-toggle">
-              <NeumorphismSwitch v-model="disabled" size="small" />
+              <NeumorphismSwitch v-model="disabled" :size="24" />
               <span>disabled</span>
             </label>
             <label class="demo-toggle">
-              <NeumorphismSwitch v-model="readonly" size="small" />
+              <NeumorphismSwitch v-model="readonly" :size="24" />
               <span>readonly</span>
             </label>
           </div>
@@ -209,13 +178,13 @@ const snippet = computed(() => {
 
         <DemoField label="前缀/后缀">
           <label class="demo-toggle">
-            <NeumorphismSwitch v-model="affix" size="small" />
+            <NeumorphismSwitch v-model="affix" :size="24" />
             <span>#prefix + #suffix</span>
           </label>
         </DemoField>
 
         <DemoField label="操作">
-          <NeumorphismButton variant="raised" size="small" @click="reset()"
+          <NeumorphismButton variant="raised" :size="32" @click="reset()"
             >恢复默认</NeumorphismButton
           >
         </DemoField>

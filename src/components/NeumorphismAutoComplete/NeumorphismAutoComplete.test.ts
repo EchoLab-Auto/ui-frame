@@ -3,10 +3,10 @@ import { mount } from '@vue/test-utils'
 import NeumorphismAutoComplete from './NeumorphismAutoComplete.vue'
 
 describe('NeumorphismAutoComplete', () => {
-  it('默认渲染：档位走内嵌 Input，外层只做包装', () => {
+  it('默认渲染：外层挂 --sized，几何量交给内嵌 Input', () => {
     const wrapper = mount(NeumorphismAutoComplete)
-    expect(wrapper.find('.nm-autocomplete').classes()).toContain('nm-autocomplete--medium')
-    expect(wrapper.find('.nm-input').classes()).toContain('nm-input--medium')
+    expect(wrapper.find('.nm-autocomplete').classes()).toContain('nm-autocomplete--sized')
+    expect(wrapper.find('.nm-input').classes()).toContain('nm-input--sized')
   })
 
   it('数字 size：外层挂 --sized，几何量交给内嵌 Input 的内联变量', () => {
@@ -28,24 +28,19 @@ describe('NeumorphismAutoComplete', () => {
     expect(input.attributes('style')).toContain('--nm-field-sz-pad-x: 14px')
   })
 
-  it('数字 size 在锚点上与档位别名逐像素一致', () => {
+  it('数字 size 落在锚点上：内联变量原样下发该 px', () => {
     const anchors = [
-      [36, 'small', 13, 6, 12],
-      [48, 'medium', 14, 10, 16],
-      [60, 'large', 16, 14, 20],
+      [36, 13, 6, 12],
+      [48, 14, 10, 16],
+      [60, 16, 14, 20],
     ] as const
-    for (const [px, tier, font, padY, padX] of anchors) {
+    for (const [px, font, padY, padX] of anchors) {
       const byNumber = mount(NeumorphismAutoComplete, { props: { size: px } })
       const style = byNumber.find('.nm-input').attributes('style')
       expect(style).toContain(`--nm-field-sz-height: ${px}px`)
       expect(style).toContain(`--nm-field-sz-font: ${font}px`)
       expect(style).toContain(`--nm-field-sz-pad-y: ${padY}px`)
       expect(style).toContain(`--nm-field-sz-pad-x: ${padX}px`)
-
-      const byTier = mount(NeumorphismAutoComplete, { props: { size: tier } })
-      expect(byTier.find('.nm-autocomplete').classes()).toContain(`nm-autocomplete--${tier}`)
-      expect(byTier.find('.nm-input').classes()).toContain(`nm-input--${tier}`)
-      expect(byTier.find('.nm-input').attributes('style')).toBeUndefined()
     }
   })
 

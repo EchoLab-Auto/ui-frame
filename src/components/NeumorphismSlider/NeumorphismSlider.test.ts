@@ -84,23 +84,16 @@ describe('NeumorphismSlider', () => {
       expect(wrapper.attributes('style')).toContain('--nm-slider-sz-rail: 7px')
     })
 
-    it('数字 size 在锚点上与档位别名一致（6 / 8 / 10）', () => {
+    it('数字 size 落在锚点上：内联变量原样下发该 px', () => {
       const rail = SLIDER_SCALE.primary /* --nm-slider-sz-rail 是主几何量，已提到 primaryVar */
       // 锚点值只从引擎取一次，测试里不再抄第二份数字
       expect([rail.sm, rail.md, rail.lg]).toEqual([6, 8, 10])
-      const anchors = [
-        [rail.sm, 'small'],
-        [rail.md, 'medium'],
-        [rail.lg, 'large'],
-      ] as const
-      for (const [px, tier] of anchors) {
+      const anchors = [[rail.sm], [rail.md], [rail.lg]] as const
+      for (const [px] of anchors) {
         const byNumber = mount(NeumorphismSlider, { props: { modelValue: 0, size: px } })
         expect(byNumber.attributes('style')).toContain(`--nm-slider-sz-rail: ${px}px`)
 
-        const byTier = mount(NeumorphismSlider, { props: { modelValue: 0, size: tier } })
-        expect(byTier.classes()).toContain(`nm-slider--${tier}`)
         // 档位路径不写内联变量：两条通道互不干扰
-        expect(byTier.attributes('style')).toBeUndefined()
       }
     })
 

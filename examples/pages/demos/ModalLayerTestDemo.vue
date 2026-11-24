@@ -74,7 +74,7 @@ function resetLayerTest() {
       "
     >
       <NeumorphismButton @click="layerTestVisible = true">打开层叠测试模态框</NeumorphismButton>
-      <NeumorphismButton variant="pressed" size="small" @click="resetLayerTest()"
+      <NeumorphismButton variant="pressed" :size="32" @click="resetLayerTest()"
         >清空当前值</NeumorphismButton
       >
       <span style="font-size: 13px; color: var(--nm-text-secondary)">
@@ -85,7 +85,7 @@ function resetLayerTest() {
       </span>
     </div>
 
-    <NeumorphismModal v-model="layerTestVisible" title="网络接口配置（层叠联动验证）" size="medium">
+    <NeumorphismModal v-model="layerTestVisible" title="网络接口配置（层叠联动验证）" :size="560">
       <NeumorphismForm>
         <NeumorphismFormItem label="接口名称" :required="true">
           <NeumorphismSelect
@@ -133,10 +133,10 @@ function resetLayerTest() {
         >
           <span style="font-size: 12px; color: var(--nm-text-secondary)">附加验证：</span>
           <NeumorphismTooltip content="Tooltip 应在遮罩之上" position="top">
-            <NeumorphismButton variant="pressed" size="small">悬停 Tooltip</NeumorphismButton>
+            <NeumorphismButton variant="pressed" :size="32">悬停 Tooltip</NeumorphismButton>
           </NeumorphismTooltip>
           <NeumorphismPopover trigger="click" position="bottom" content="Popover 应在遮罩之上">
-            <NeumorphismButton size="small">点击 Popover</NeumorphismButton>
+            <NeumorphismButton :size="32">点击 Popover</NeumorphismButton>
           </NeumorphismPopover>
         </div>
       </NeumorphismForm>

@@ -23,13 +23,6 @@ describe('NeumorphismBreadcrumb', () => {
     expect(lastItem.attributes('aria-current')).toBe('page')
   })
 
-  it('should apply size class', () => {
-    const wrapper = mount(NeumorphismBreadcrumb, {
-      props: { items, size: 'small' },
-    })
-    expect(wrapper.classes()).toContain('nm-breadcrumb--small')
-  })
-
   it('数字 size：走 --sized 类 + 内联 CSS 变量，不挂档位类', () => {
     const wrapper = mount(NeumorphismBreadcrumb, { props: { items, size: 13 } })
     expect(wrapper.classes()).toContain('nm-breadcrumb--sized')
@@ -37,20 +30,12 @@ describe('NeumorphismBreadcrumb', () => {
     expect(wrapper.attributes('style')).toContain('--nm-breadcrumb-sz-font: 13px')
   })
 
-  it('数字 size 在锚点上与档位别名等价（同一组 px）', () => {
+  it('数字 size 落在锚点上：内联变量原样下发该 px', () => {
     // 锚点：small 12 / medium 14 / large 16（字号）
-    const anchors = [
-      [12, 'small'],
-      [14, 'medium'],
-      [16, 'large'],
-    ] as const
-    for (const [px, tier] of anchors) {
+    const anchors = [[12], [14], [16]] as const
+    for (const [px] of anchors) {
       const byNumber = mount(NeumorphismBreadcrumb, { props: { items, size: px } })
-      const byTier = mount(NeumorphismBreadcrumb, { props: { items, size: tier } })
       expect(byNumber.attributes('style')).toContain(`--nm-breadcrumb-sz-font: ${px}px`)
-      expect(byTier.classes()).toContain(`nm-breadcrumb--${tier}`)
-      expect(byTier.classes()).not.toContain('nm-breadcrumb--sized')
-      expect(byTier.attributes('style')).toBeUndefined()
     }
   })
 

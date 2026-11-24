@@ -13,14 +13,15 @@ app.use(router)
 
 // Global config — set default props for all components
 app.use(NeumorphismUI, {
+  // 全局默认尺寸一律写 px（数字 size 的语义见各组件的三锚点，例如 button = 最小高度）
   button: {
-    size: 'medium',
+    size: 44,
   },
   input: {
-    size: 'medium',
+    size: 48,
   },
   select: {
-    size: 'medium',
+    size: 48,
     clearable: true,
   },
   modal: {

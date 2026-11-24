@@ -10,8 +10,6 @@ import NeumorphismFieldError from '@/components/NeumorphismField/NeumorphismFiel
 
 defineOptions({ inheritAttrs: false })
 
-export type InputSize = 'small' | 'medium' | 'large'
-
 export interface NeumorphismInputProps {
   modelValue?: string
   type?: string
@@ -20,16 +18,13 @@ export interface NeumorphismInputProps {
   readonly?: boolean
   required?: boolean
   /**
-   * 尺寸——px 最小高度（数字，主几何量），或三档预设名。
+   * 尺寸——px 最小高度（数字，主几何量）。
    *
    * 数字即「最小高度」：字号、内距与前后缀内距按三锚点（36 / 48 / 60）
-   * 分段线性插值，所以 `:size="36"` 与 `size="small"` 逐像素相同，
+   * 分段线性插值；`md` 锚点即 `:size="36"`，
    * `:size="42"` 落在两者之间。
-   *
-   * @deprecated 字符串档位（`'small' | 'medium' | 'large'`）仅作兼容别名保留，
-   * 新代码请传数字。
    */
-  size?: number | InputSize
+  size?: number
   maxlength?: number | string
   minlength?: number | string
   name?: string
@@ -53,24 +48,13 @@ const props = withDefaults(defineProps<NeumorphismInputProps>(), {
 
 const config = useConfig()
 
-/** 数字尺寸的语义是「最小高度」，默认值取 medium 锚点 */
-const DEFAULT_SIZE_PX = 48
-
-/** 数字通道：`undefined` = 走档位 class，有值 = 走内联 CSS 变量 */
-const numericSize = computed(() => {
-  const raw = props.size ?? config.value.input?.size
-  return typeof raw === 'number' ? normalizeNumericSize(raw, DEFAULT_SIZE_PX) : undefined
-})
-
-const resolvedSize = computed<InputSize>(() => {
-  const raw = props.size ?? config.value.input?.size
-  return typeof raw === 'string' ? raw : 'medium'
-})
-
-/** 数字尺寸下发的 CSS 变量（见 utils/controlScale） */
-const sizeStyle = computed(() =>
-  numericSize.value === undefined ? undefined : resolveControlScale(FIELD_SCALE, numericSize.value)
+/** 尺寸（px）：显式 prop > 全局配置 > 锚点 `md`（语义 = 最小高度）。 */
+const numericSize = computed(() =>
+  normalizeNumericSize(props.size ?? config.value.input?.size, FIELD_SCALE.primary.md)
 )
+
+/** 尺寸下发的 CSS 变量（见 utils/controlScale） */
+const sizeStyle = computed(() => resolveControlScale(FIELD_SCALE, numericSize.value))
 
 const emit = defineEmits<{
   (e: 'update:modelValue', value: string): void
@@ -98,8 +82,8 @@ const inputAttrs = computed(() => {
 const { fieldId, isFocused, errorMessage, baseClassList, handleFocus, handleBlur } = useFormField(
   () => ({
     id: props.id,
-    // 数字直接交给 useFormField 判 `--sized` 档；它只决定 class，几何量在内联变量里
-    size: numericSize.value ?? resolvedSize.value,
+    // size 只用于判 `--sized` 类，几何量全在内联变量里
+    size: numericSize.value,
     disabled: props.disabled,
     error: props.error,
     prefix: 'input',

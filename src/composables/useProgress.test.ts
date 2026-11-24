@@ -126,16 +126,16 @@ describe('useProgress', () => {
   })
 
   it('should compute circular geometry per size', () => {
-    const { api, size } = withProgress({ size: 'medium' })
+    const { api, size } = withProgress({ size: 8 }) // = 原 medium 锚点
     expect(api().circleSize.value).toBe(120)
     expect(api().strokeWidth.value).toBe(7)
     expect(api().radius.value).toBe((120 - 7) / 2)
 
-    size.value = 'small'
+    size.value = 4 // = 原 small 锚点
     expect(api().circleSize.value).toBe(64)
     expect(api().strokeWidth.value).toBe(4)
 
-    size.value = 'large'
+    size.value = 12 // = 原 large 锚点
     expect(api().circleSize.value).toBe(160)
     expect(api().strokeWidth.value).toBe(10)
   })

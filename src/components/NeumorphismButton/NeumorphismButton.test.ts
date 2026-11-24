@@ -12,7 +12,7 @@ describe('NeumorphismButton', () => {
     expect(btn.text()).toBe('Click me')
     expect(btn.classes()).toContain('nm-button')
     expect(btn.classes()).toContain('nm-button--raised')
-    expect(btn.classes()).toContain('nm-button--medium')
+    expect(btn.classes()).toContain('nm-button--sized')
     expect(btn.classes()).toContain('nm-button--rounded')
     expect(btn.attributes('type')).toBe('button')
     expect(btn.attributes('disabled')).toBeUndefined()
@@ -127,14 +127,6 @@ describe('NeumorphismButton', () => {
     })
   })
 
-  it('should apply size classes', () => {
-    const sizes = ['small', 'medium', 'large'] as const
-    for (const size of sizes) {
-      const wrapper = mount(NeumorphismButton, { props: { size } })
-      expect(wrapper.find('button').classes()).toContain(`nm-button--${size}`)
-    }
-  })
-
   it('数字 size：走 --sized 类 + 内联 CSS 变量，不挂档位类', () => {
     const wrapper = mount(NeumorphismButton, { props: { size: 40 } })
     const btn = wrapper.find('button')
@@ -145,20 +137,12 @@ describe('NeumorphismButton', () => {
     expect(btn.attributes('style')).toContain('--nm-button-sz-font: 13.7px')
   })
 
-  it('数字 size 在锚点上与档位别名逐像素一致', () => {
-    const anchors = [
-      [32, 'small'],
-      [44, 'medium'],
-      [56, 'large'],
-    ] as const
-    for (const [px, tier] of anchors) {
+  it('数字 size 落在锚点上：内联变量原样下发该 px', () => {
+    const anchors = [[32], [44], [56]] as const
+    for (const [px] of anchors) {
       const byNumber = mount(NeumorphismButton, { props: { size: px } })
-      const byTier = mount(NeumorphismButton, { props: { size: tier } })
       expect(byNumber.attributes('style')).toContain(`--nm-button-sz-height: ${px}px`)
       // 反查档位 class 对应的 token，确认两者指向同一个 px
-      const tokenPx = { small: 32, medium: 44, large: 56 }[tier]
-      expect(tokenPx).toBe(px)
-      expect(byTier.classes()).toContain(`nm-button--${tier}`)
     }
   })
 
@@ -258,25 +242,26 @@ describe('NeumorphismButton', () => {
       slots: { default: 'x' },
       global: {
         provide: {
-          [ConfigKey]: { value: { button: { variant: 'pressed', size: 'large' } } },
+          [ConfigKey]: { value: { button: { variant: 'pressed', size: 56 } } },
         },
       },
     })
     expect(wrapper.classes()).toContain('nm-button--pressed')
-    expect(wrapper.classes()).toContain('nm-button--large')
+    expect(wrapper.find('button').attributes('style')).toContain('--nm-button-sz-height: 56px')
   })
 
   it('should let explicit props override global config', () => {
     const wrapper = mount(NeumorphismButton, {
-      props: { variant: 'glow', size: 'small' },
+      props: { variant: 'glow', size: 32 },
       slots: { default: 'x' },
       global: {
         provide: {
-          [ConfigKey]: { value: { button: { variant: 'pressed', size: 'large' } } },
+          [ConfigKey]: { value: { button: { variant: 'pressed', size: 56 } } },
         },
       },
     })
     expect(wrapper.classes()).toContain('nm-button--glow')
-    expect(wrapper.classes()).toContain('nm-button--small')
+    // 显式 prop 压过全局配置：32 而非 56
+    expect(wrapper.find('button').attributes('style')).toContain('--nm-button-sz-height: 32px')
   })
 })

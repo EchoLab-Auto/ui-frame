@@ -61,24 +61,17 @@ describe('NeumorphismUpload', () => {
       expect(wrapper.find('.nm-upload__trigger').exists()).toBe(true)
     })
 
-    it('数字 size 在锚点上与档位别名一致（72 / 100 / 140）', () => {
+    it('数字 size 落在锚点上：内联变量原样下发该 px', () => {
       const height =
         UPLOAD_SCALE.primary /* --nm-upload-sz-trigger-height 是主几何量，已提到 primaryVar */
       // 锚点值只从引擎取一次，测试里不再抄第二份数字
       expect([height.sm, height.md, height.lg]).toEqual([72, 100, 140])
-      const anchors = [
-        [height.sm, 'small'],
-        [height.md, 'medium'],
-        [height.lg, 'large'],
-      ] as const
-      for (const [px, tier] of anchors) {
+      const anchors = [[height.sm], [height.md], [height.lg]] as const
+      for (const [px] of anchors) {
         const byNumber = mount(NeumorphismUpload, { props: { size: px } })
         expect(byNumber.attributes('style')).toContain(`--nm-upload-sz-trigger-height: ${px}px`)
 
-        const byTier = mount(NeumorphismUpload, { props: { size: tier } })
-        expect(byTier.classes()).toContain(`nm-upload--${tier}`)
         // 档位路径不写内联变量：两条通道互不干扰
-        expect(byTier.attributes('style')).toBeUndefined()
       }
     })
 

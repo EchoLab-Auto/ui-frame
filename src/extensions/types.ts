@@ -27,13 +27,13 @@ export interface NeumorphismPluginHooks {
  *
  * @example Legacy format (still supported)
  * ```ts
- * app.use(NeumorphismUI, { button: { size: 'large' } })
+ * app.use(NeumorphismUI, { button: { size: 56 } })
  * ```
  *
  * @example New structured format
  * ```ts
  * app.use(NeumorphismUI, {
- *   config: { button: { size: 'large' } },
+ *   config: { button: { size: 56 } },
  *   components: { NeumorphismButton: MyCustomButton },
  *   prefix: 'App',
  *   hooks: {

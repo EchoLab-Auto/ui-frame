@@ -88,19 +88,19 @@ const snippet = computed(() => {
 
       <template #config>
         <DemoField label="内容 content" grow>
-          <NeumorphismInput v-model="content" size="small" placeholder="留空则用 #content 插槽" />
+          <NeumorphismInput v-model="content" :size="36" placeholder="留空则用 #content 插槽" />
         </DemoField>
 
         <DemoField label="方向 position">
-          <NeumorphismSegmented v-model="position" :options="positionOptions" size="small" />
+          <NeumorphismSegmented v-model="position" :options="positionOptions" :size="26" />
         </DemoField>
 
         <DemoField label="触发 trigger">
-          <NeumorphismSegmented v-model="trigger" :options="triggerOptions" size="small" />
+          <NeumorphismSegmented v-model="trigger" :options="triggerOptions" :size="26" />
         </DemoField>
 
         <DemoField label="操作">
-          <NeumorphismButton variant="raised" size="small" @click="reset()">
+          <NeumorphismButton variant="raised" :size="32" @click="reset()">
             恢复默认
           </NeumorphismButton>
         </DemoField>

@@ -2,8 +2,6 @@
 import { ref, computed, watch } from 'vue'
 import { DemoPlayground, DemoField } from '../../demo'
 
-type SliderSize = 'small' | 'medium' | 'large'
-
 // ---- 配置台主角：NeumorphismSlider ----
 const sliderValue = ref(40)
 const sliderMin = ref(0)
@@ -12,12 +10,12 @@ const sliderStep = ref(1)
 const showTooltip = ref(true)
 const showStops = ref(false)
 const sliderDisabled = ref(false)
-const sliderSize = ref<SliderSize>('medium')
+const sliderSize = ref<number>(8)
 
 const sizeOptions = [
-  { label: '小', value: 'small' },
-  { label: '中', value: 'medium' },
-  { label: '大', value: 'large' },
+  { label: '6', value: 6 },
+  { label: '8', value: 8 },
+  { label: '10', value: 10 },
 ]
 
 /**
@@ -74,7 +72,7 @@ const snippet = computed(() => {
   if (!showTooltip.value) attrs.push(':show-tooltip="false"')
   if (showStops.value) attrs.push('show-stops')
   if (sliderDisabled.value) attrs.push('disabled')
-  if (sliderSize.value !== 'medium') attrs.push(`size="${sliderSize.value}"`)
+  if (sliderSize.value !== 8) attrs.push(`:size="${sliderSize.value}"`)
   return `<NeumorphismSlider\n  ${attrs.join('\n  ')}\n/>`
 })
 </script>
@@ -112,40 +110,40 @@ const snippet = computed(() => {
 
       <template #config>
         <DemoField label="最小值 min" :value="`${sliderMin}`" grow>
-          <NeumorphismSlider v-model="sliderMin" :min="0" :max="40" :step="5" size="small" />
+          <NeumorphismSlider v-model="sliderMin" :min="0" :max="40" :step="5" :size="6" />
         </DemoField>
 
         <DemoField label="最大值 max" :value="`${sliderMax}`" grow>
-          <NeumorphismSlider v-model="sliderMax" :min="60" :max="200" :step="10" size="small" />
+          <NeumorphismSlider v-model="sliderMax" :min="60" :max="200" :step="10" :size="6" />
         </DemoField>
 
         <DemoField label="步长 step" :value="`${sliderStep}`" grow>
-          <NeumorphismSlider v-model="sliderStep" :min="1" :max="20" :step="1" size="small" />
+          <NeumorphismSlider v-model="sliderStep" :min="1" :max="20" :step="1" :size="6" />
         </DemoField>
 
         <DemoField label="尺寸 size">
-          <NeumorphismSegmented v-model="sliderSize" :options="sizeOptions" size="small" />
+          <NeumorphismSegmented v-model="sliderSize" :options="sizeOptions" :size="26" />
         </DemoField>
 
         <DemoField label="状态">
           <div class="demo-row" style="gap: 16px; row-gap: 8px">
             <label class="demo-toggle">
-              <NeumorphismSwitch v-model="showTooltip" size="small" />
+              <NeumorphismSwitch v-model="showTooltip" :size="24" />
               <span>show-tooltip</span>
             </label>
             <label class="demo-toggle">
-              <NeumorphismSwitch v-model="showStops" size="small" />
+              <NeumorphismSwitch v-model="showStops" :size="24" />
               <span>show-stops</span>
             </label>
             <label class="demo-toggle">
-              <NeumorphismSwitch v-model="sliderDisabled" size="small" />
+              <NeumorphismSwitch v-model="sliderDisabled" :size="24" />
               <span>disabled</span>
             </label>
           </div>
         </DemoField>
 
         <DemoField label="操作">
-          <NeumorphismButton variant="raised" size="small" @click="sliderValue = 40"
+          <NeumorphismButton variant="raised" :size="32" @click="sliderValue = 40"
             >复位数值</NeumorphismButton
           >
         </DemoField>

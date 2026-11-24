@@ -47,9 +47,6 @@ export interface NeumorphismAsciiArtProps {
   palette?: string[]
   /**
    * 容器圆角半径（px，直接就是像素值）。默认 24。
-   *
-   * @deprecated 字符串档位（`'none' | 'small' | 'medium' | 'large' | 'xl'`）已弃用，
-   * 仅按 none=0 / small=8 / medium=16 / large=24 / xl=32（px）兼容映射；新代码请传数字。
    */
   radius?: number | AsciiArtRadius
   /** Accessible label */

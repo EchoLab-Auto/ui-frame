@@ -157,7 +157,6 @@ export const demoCategories: DemoCategory[] = [
   },
   {
     title: '表单',
-    title: '表单',
     desc: '表单容器与表单项，内置验证规则引擎，支持必填、正则、长度限制和自定义校验器。',
     items: [
       {

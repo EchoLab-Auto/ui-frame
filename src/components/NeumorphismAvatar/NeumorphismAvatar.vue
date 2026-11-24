@@ -5,21 +5,16 @@ import { useNeumorphismSetup } from '@/extensions/createComponent'
 import { normalizeNumericSize, resolveControlScale } from '@/utils/controlScale'
 import { AVATAR_SCALE } from '@/utils/controlScales'
 
-export type AvatarSize = 'small' | 'medium' | 'large'
-
 export interface NeumorphismAvatarProps {
   src?: string
   alt?: string
   /**
-   * 尺寸——px 直径（数字，主几何量），或三档预设名。
+   * 尺寸——px 直径（数字，主几何量）。
    *
    * 数字即「直径」：字号按三锚点（32 / 44 / 64）分段线性插值，
-   * 所以 `:size="44"` 与 `size="medium"` 逐像素相同。
-   *
-   * @deprecated 字符串档位（`'small' | 'medium' | 'large'`）仅作兼容别名保留，
-   * 新代码请传数字。
+   * 所以 `:size="44"` 即设计稿 `md` 档的实测值。
    */
-  size?: number | AvatarSize
+  size?: number
   shape?: 'circle' | 'rounded'
   initials?: string
   icon?: string
@@ -29,30 +24,13 @@ const props = withDefaults(defineProps<NeumorphismAvatarProps>(), {})
 
 const { config, resolveProp } = useNeumorphismSetup()
 
-/** 数字尺寸的语义是「直径」，默认值取 medium 锚点 */
-const DEFAULT_SIZE_PX = 44
-
-/** 原始 size：显式 prop > 全局配置 > medium（两个通道共用同一条级联） */
-const rawSize = computed(() =>
-  resolveProp(props.size, config.value.avatar?.size, 'medium' as const)
-)
-
-/** 数字通道：`undefined` = 走档位 class，有值 = 走内联 CSS 变量 */
+/** 尺寸（px）：显式 prop > 全局配置 > 锚点 `md`（语义 = 直径）。 */
 const numericSize = computed(() =>
-  typeof rawSize.value === 'number'
-    ? normalizeNumericSize(rawSize.value, DEFAULT_SIZE_PX)
-    : undefined
+  normalizeNumericSize(props.size ?? config.value.avatar?.size, AVATAR_SCALE.primary.md)
 )
 
-/** 档位通道：字符串别名（数字路径下取 medium 占位，实际不挂档位类） */
-const resolvedSize = computed<AvatarSize>(() =>
-  typeof rawSize.value === 'string' ? rawSize.value : 'medium'
-)
-
-/** 数字尺寸下发的 CSS 变量（见 utils/controlScale） */
-const sizeStyle = computed(() =>
-  numericSize.value === undefined ? undefined : resolveControlScale(AVATAR_SCALE, numericSize.value)
-)
+/** 尺寸下发的 CSS 变量（见 utils/controlScale） */
+const sizeStyle = computed(() => resolveControlScale(AVATAR_SCALE, numericSize.value))
 
 const resolvedShape = computed(() => resolveProp(props.shape, config.value.avatar?.shape, 'circle'))
 
@@ -80,7 +58,7 @@ function onImageError() {
 const classList = computed(() => [
   'nm-avatar',
   // 数字与档位互斥：数字走 `--sized`（变量来自内联样式），字符串走档位类
-  numericSize.value === undefined ? `nm-avatar--${resolvedSize.value}` : 'nm-avatar--sized',
+  'nm-avatar--sized',
   `nm-avatar--${resolvedShape.value}`,
 ])
 

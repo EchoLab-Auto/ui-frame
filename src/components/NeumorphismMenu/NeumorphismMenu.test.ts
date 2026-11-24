@@ -104,19 +104,12 @@ describe('NeumorphismMenu', () => {
     expect(style).toContain('--nm-menu-sz-pad-y: 5.7px')
   })
 
-  it('数字 size 在锚点上与档位别名逐像素一致', () => {
-    const anchors = [
-      [11, 'small'],
-      [14, 'medium'],
-      [15, 'large'],
-    ] as const
-    for (const [px, tier] of anchors) {
+  it('数字 size 落在锚点上：内联变量原样下发该 px', () => {
+    const anchors = [[11], [14], [15]] as const
+    for (const [px] of anchors) {
       const byNumber = mountMenu({ size: px }).find('.nm-menu')
       expect(byNumber.attributes('style')).toContain(`--nm-menu-sz-font: ${px}px`)
       // 档位别名仍走原档位类，且不产生内联变量（两条路径不重叠）
-      const byTier = mountMenu({ size: tier }).find('.nm-menu')
-      expect(byTier.classes()).toContain(`nm-menu--${tier}`)
-      expect(byTier.attributes('style')).toBeUndefined()
     }
   })
 

@@ -6,25 +6,20 @@ import { normalizeNumericSize, resolveControlScale } from '@/utils/controlScale'
 import { CHECKBOX_SCALE } from '@/utils/controlScales'
 import NeumorphismIcon from '@/components/NeumorphismIcon/NeumorphismIcon.vue'
 
-export type CheckboxSize = 'small' | 'medium' | 'large'
-
 export interface NeumorphismCheckboxProps {
   modelValue?: boolean
   disabled?: boolean
   label?: string
   /**
-   * 尺寸——勾选框边长 px（数字，主几何量），或三档预设名。
+   * 尺寸——勾选框边长 px（数字，主几何量）。
    *
    * 数字即「方盒边长」：`--nm-checkbox-sz-*` 由锚点表按三档分段线性插值后
    * 内联下发（见 `utils/controlScale`）——锚点 12 / 14 / 16 依次是
    * `small` / `medium` / `large` 的别名值，`:size="15"` 落在后两档之间。
    * （注意：档位类当前渲染的盒边长是 18 / 24 / 30，与锚点表存在历史差异，
    * 见样式区 `--sized` 注释。）
-   *
-   * @deprecated 字符串档位（`'small' | 'medium' | 'large'`）仅作兼容别名保留，
-   * 新代码请传数字。
    */
-  size?: number | CheckboxSize
+  size?: number
   name?: string
   id?: string
   indeterminate?: boolean
@@ -36,36 +31,14 @@ const props = withDefaults(defineProps<NeumorphismCheckboxProps>(), {
   indeterminate: false,
 })
 
-const { config, resolveProp } = useNeumorphismSetup()
-
-/** 尺寸原始取值：显式 prop > 全局配置 `checkbox.size` > 档位默认 medium */
-const rawSize = computed<number | CheckboxSize>(() =>
-  resolveProp(props.size, config.value.checkbox?.size, 'medium' as number | CheckboxSize)
-)
-
-/**
- * 数字通道：`undefined` = 走档位 class，有值 = 走内联 CSS 变量。
- *
- * 容错兜底直接取锚点表的 medium 值，而不是再写一遍 14——锚点表调整时兜底
- * 自动跟随，不会留下「表改了、兜底还停在老值」的漂移。
- */
+const { config } = useNeumorphismSetup()
+/** 尺寸（px）：显式 prop > 全局配置 > 锚点 `md`。 */
 const numericSize = computed(() =>
-  typeof rawSize.value === 'number'
-    ? normalizeNumericSize(rawSize.value, CHECKBOX_SCALE.primary.md)
-    : undefined
+  normalizeNumericSize(props.size ?? config.value.checkbox?.size, CHECKBOX_SCALE.primary.md)
 )
 
-/** 字符串通道：数字路径下不挂档位类，这里只用于档位类名与语义兜底 */
-const resolvedSize = computed<CheckboxSize>(() =>
-  typeof rawSize.value === 'string' ? rawSize.value : 'medium'
-)
-
-/** 数字尺寸下发的 CSS 变量（见 utils/controlScale） */
-const sizeStyle = computed(() =>
-  numericSize.value === undefined
-    ? undefined
-    : resolveControlScale(CHECKBOX_SCALE, numericSize.value)
-)
+/** 尺寸下发的 CSS 变量（见 utils/controlScale） */
+const sizeStyle = computed(() => resolveControlScale(CHECKBOX_SCALE, numericSize.value))
 
 const emit = defineEmits<{
   (e: 'update:modelValue', value: boolean): void
@@ -100,12 +73,9 @@ const { inputId, classList } = useCheckable(() => ({
   prefix: 'checkbox',
   isChecked: isChecked.value,
   isDisabled: props.disabled,
-  // 数字路径不挂档位类：几何全由内联 `--nm-checkbox-sz-*` 决定，与档位类互斥，
-  // 避免两套尺寸声明同时命中时靠顺序取胜
-  size: numericSize.value === undefined ? resolvedSize.value : undefined,
   extraClasses: {
     'nm-checkbox--indeterminate': props.indeterminate,
-    'nm-checkbox--sized': numericSize.value !== undefined,
+    'nm-checkbox--sized': true,
   },
 }))
 

@@ -65,14 +65,6 @@ describe('NeumorphismTabs', () => {
     }
   })
 
-  it('should apply size classes', () => {
-    const sizes = ['small', 'medium', 'large'] as const
-    for (const size of sizes) {
-      const wrapper = mountTabs({ size })
-      expect(wrapper.classes()).toContain(`nm-tabs--${size}`)
-    }
-  })
-
   it('数字 size：走 --sized 类 + 内联 CSS 变量，不挂档位类', () => {
     const wrapper = mountTabs({ size: 15 })
     expect(wrapper.classes()).toContain('nm-tabs--sized')
@@ -83,20 +75,12 @@ describe('NeumorphismTabs', () => {
     expect(wrapper.attributes('style')).toContain('--nm-tabs-sz-pad-x: 24px')
   })
 
-  it('数字 size 在锚点上与档位别名等价（同一组 px）', () => {
+  it('数字 size 落在锚点上：内联变量原样下发该 px', () => {
     // 锚点：small 12 / medium 14 / large 16（标签字号）
-    const anchors = [
-      [12, 'small'],
-      [14, 'medium'],
-      [16, 'large'],
-    ] as const
-    for (const [px, tier] of anchors) {
+    const anchors = [[12], [14], [16]] as const
+    for (const [px] of anchors) {
       const byNumber = mountTabs({ size: px })
-      const byTier = mountTabs({ size: tier })
       expect(byNumber.attributes('style')).toContain(`--nm-tabs-sz-font: ${px}px`)
-      expect(byTier.classes()).toContain(`nm-tabs--${tier}`)
-      expect(byTier.classes()).not.toContain('nm-tabs--sized')
-      expect(byTier.attributes('style')).toBeUndefined()
     }
   })
 

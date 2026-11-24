@@ -10,8 +10,6 @@ import NeumorphismIcon from '@/components/NeumorphismIcon/NeumorphismIcon.vue'
 
 export type { UploadFile, UploadStatus }
 
-export type UploadSize = 'small' | 'medium' | 'large'
-
 export interface NeumorphismUploadProps {
   /** v-model bound file list */
   modelValue?: UploadFile[]
@@ -32,15 +30,12 @@ export interface NeumorphismUploadProps {
   /** Whether to show the file list */
   showUploadList?: boolean
   /**
-   * 尺寸——拖拽触发区的最小高度 px（数字，主几何量），或三档预设名。
+   * 尺寸——拖拽触发区的最小高度 px（数字，主几何量）。
    *
    * 数字即「触发区最小高度」：锚点表里 Upload 只有这一个指标（72 / 100 / 140），
    * 所以数字路径只影响拖拽区，非拖拽的按钮触发区仍按 medium 档的内距渲染。
-   *
-   * @deprecated 字符串档位（`'small' | 'medium' | 'large'`）仅作兼容别名保留，
-   * 新代码请传数字。
    */
-  size?: number | UploadSize
+  size?: number
   /** Whether to auto upload after file selection */
   autoUpload?: boolean
   /** Override trigger label text */
@@ -81,28 +76,13 @@ const emit = defineEmits<{
 
 const { config, resolveProp } = useNeumorphismSetup()
 const { t } = useLocale()
-
-/** 尺寸原始取值：显式 prop > 全局配置 `upload.size` > 档位默认 medium */
-const rawSize = computed<number | UploadSize>(() =>
-  resolveProp(props.size, config.value.upload?.size, 'medium' as number | UploadSize)
-)
-
-/** 数字通道：`undefined` = 走档位 class，有值 = 走内联 CSS 变量 */
+/** 尺寸（px）：显式 prop > 全局配置 > 锚点 `md`。 */
 const numericSize = computed(() =>
-  typeof rawSize.value === 'number'
-    ? normalizeNumericSize(rawSize.value, UPLOAD_SCALE.primary.md)
-    : undefined
+  normalizeNumericSize(props.size ?? config.value.upload?.size, UPLOAD_SCALE.primary.md)
 )
 
-/** 字符串通道：数字路径下不挂档位类，这里只用于档位类名与语义兜底 */
-const resolvedSize = computed<UploadSize>(() =>
-  typeof rawSize.value === 'string' ? rawSize.value : 'medium'
-)
-
-/** 数字尺寸下发的 CSS 变量（见 utils/controlScale） */
-const sizeStyle = computed(() =>
-  numericSize.value === undefined ? undefined : resolveControlScale(UPLOAD_SCALE, numericSize.value)
-)
+/** 尺寸下发的 CSS 变量（见 utils/controlScale） */
+const sizeStyle = computed(() => resolveControlScale(UPLOAD_SCALE, numericSize.value))
 
 const resolvedDrag = computed(() => resolveProp(props.drag, config.value.upload?.drag, true))
 const resolvedShowUploadList = computed(() =>
@@ -225,7 +205,7 @@ function onTriggerClick() {
 const classList = computed(() => [
   'nm-upload',
   // 数字与档位类互斥：几何全由内联 `--nm-upload-sz-*` 决定
-  numericSize.value === undefined ? `nm-upload--${resolvedSize.value}` : 'nm-upload--sized',
+  'nm-upload--sized',
   `nm-upload--list-${resolvedListType.value}`,
   {
     'nm-upload--disabled': props.disabled,

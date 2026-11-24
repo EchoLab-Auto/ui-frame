@@ -79,11 +79,13 @@ describe('NeumorphismInputNumber', () => {
       props: { modelValue: 1 },
       global: {
         provide: {
-          [ConfigKey]: { value: { inputNumber: { size: 'large' } } },
+          [ConfigKey]: { value: { inputNumber: { size: 60 } } },
         },
       },
     })
-    expect(wrapper.classes()).toContain('nm-input-number--large')
+    expect(wrapper.find('.nm-input-number').attributes('style')).toContain(
+      '--nm-field-sz-height: 60px'
+    )
   })
 
   it('should ignore global config input section for size', () => {
@@ -91,23 +93,28 @@ describe('NeumorphismInputNumber', () => {
       props: { modelValue: 1 },
       global: {
         provide: {
-          [ConfigKey]: { value: { input: { size: 'large' } } },
+          [ConfigKey]: { value: { input: { size: 60 } } },
         },
       },
     })
-    expect(wrapper.classes()).toContain('nm-input-number--medium')
+    // input 段不参与 inputNumber 的尺度：回落到 md 锚点 48
+    expect(wrapper.find('.nm-input-number').attributes('style')).toContain(
+      '--nm-field-sz-height: 48px'
+    )
   })
 
   it('should let explicit size prop override global config', () => {
     const wrapper = mount(NeumorphismInputNumber, {
-      props: { modelValue: 1, size: 'small' },
+      props: { modelValue: 1, size: 36 },
       global: {
         provide: {
-          [ConfigKey]: { value: { inputNumber: { size: 'large' } } },
+          [ConfigKey]: { value: { inputNumber: { size: 60 } } },
         },
       },
     })
-    expect(wrapper.classes()).toContain('nm-input-number--small')
+    expect(wrapper.find('.nm-input-number').attributes('style')).toContain(
+      '--nm-field-sz-height: 36px'
+    )
   })
 
   it('数字 size：走 --sized 类 + 内联 CSS 变量，不挂档位类', () => {
@@ -121,13 +128,13 @@ describe('NeumorphismInputNumber', () => {
     expect(wrapper.attributes('style')).toContain('--nm-field-sz-pad-x: 14px')
   })
 
-  it('数字 size 在锚点上与档位别名逐像素一致', () => {
+  it('数字 size 落在锚点上：内联变量原样下发该 px', () => {
     const anchors = [
-      [36, 'small', 13, 6, 12],
-      [48, 'medium', 14, 10, 16],
-      [60, 'large', 16, 14, 20],
+      [36, 13, 6, 12],
+      [48, 14, 10, 16],
+      [60, 16, 14, 20],
     ] as const
-    for (const [px, tier, font, padY, padX] of anchors) {
+    for (const [px, font, padY, padX] of anchors) {
       const style = mount(NeumorphismInputNumber, {
         props: { modelValue: 1, size: px },
       }).attributes('style')
@@ -135,9 +142,6 @@ describe('NeumorphismInputNumber', () => {
       expect(style).toContain(`--nm-field-sz-font: ${font}px`)
       expect(style).toContain(`--nm-field-sz-pad-y: ${padY}px`)
       expect(style).toContain(`--nm-field-sz-pad-x: ${padX}px`)
-      const byTier = mount(NeumorphismInputNumber, { props: { modelValue: 1, size: tier } })
-      expect(byTier.classes()).toContain(`nm-input-number--${tier}`)
-      expect(byTier.attributes('style')).toBeUndefined()
     }
   })
 

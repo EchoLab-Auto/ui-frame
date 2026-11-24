@@ -63,8 +63,8 @@ const snippet = computed(() => {
     footerMode.value === 'slot'
       ? `
   <template #footer>
-    <NeumorphismButton variant="pressed" size="small">稍后</NeumorphismButton>
-    <NeumorphismButton variant="primary" size="small">保存并关闭</NeumorphismButton>
+    <NeumorphismButton variant="pressed" :size="32">稍后</NeumorphismButton>
+    <NeumorphismButton variant="primary" :size="32">保存并关闭</NeumorphismButton>
   </template>`
       : ''
   return `<NeumorphismModal ${attrs.join(' ')} @confirm="onConfirm" @cancel="onCancel">
@@ -98,19 +98,19 @@ const snippet = computed(() => {
 
       <template #config>
         <DemoField label="标题 title" grow>
-          <NeumorphismInput v-model="title" size="small" placeholder="留空则不渲染标题" />
+          <NeumorphismInput v-model="title" :size="36" placeholder="留空则不渲染标题" />
         </DemoField>
 
         <DemoField label="宽度 size" :value="`${size}px`" grow>
-          <NeumorphismSlider v-model="size" :min="240" :max="900" :step="20" size="small" />
+          <NeumorphismSlider v-model="size" :min="240" :max="900" :step="20" :size="6" />
         </DemoField>
 
         <DemoField label="确认文案">
-          <NeumorphismInput v-model="confirmLabel" size="small" placeholder="确认" />
+          <NeumorphismInput v-model="confirmLabel" :size="36" placeholder="确认" />
         </DemoField>
 
         <DemoField label="取消文案">
-          <NeumorphismInput v-model="cancelLabel" size="small" placeholder="取消" />
+          <NeumorphismInput v-model="cancelLabel" :size="36" placeholder="取消" />
         </DemoField>
 
         <DemoField label="页脚 footer">
@@ -121,19 +121,19 @@ const snippet = computed(() => {
               { label: '#footer 插槽', value: 'slot' },
               { label: '关闭', value: 'none' },
             ]"
-            size="small"
+            :size="26"
           />
         </DemoField>
 
         <DemoField label="行为">
           <label class="demo-toggle">
-            <NeumorphismSwitch v-model="maskClosable" size="small" />
+            <NeumorphismSwitch v-model="maskClosable" :size="24" />
             <span>maskClosable（与 closable 是与关系）</span>
           </label>
         </DemoField>
 
         <DemoField label="操作">
-          <NeumorphismButton variant="raised" size="small" @click="reset()">
+          <NeumorphismButton variant="raised" :size="32" @click="reset()">
             恢复默认
           </NeumorphismButton>
         </DemoField>
@@ -161,10 +161,10 @@ const snippet = computed(() => {
         <NeumorphismInput v-model="modalText" placeholder="在模态框中输入内容..." />
       </div>
       <template v-if="footerMode === 'slot'" #footer>
-        <NeumorphismButton variant="pressed" size="small" @click="note('cancel')">
+        <NeumorphismButton variant="pressed" :size="32" @click="note('cancel')">
           稍后
         </NeumorphismButton>
-        <NeumorphismButton variant="primary" size="small" @click="note('confirm')">
+        <NeumorphismButton variant="primary" :size="32" @click="note('confirm')">
           保存并关闭
         </NeumorphismButton>
       </template>

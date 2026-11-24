@@ -109,13 +109,7 @@ ${note.join('\n')}`.trimEnd()
 
       <template #config>
         <DemoField label="行数 rows" :value="`${rows} 行`" grow>
-          <NeumorphismSlider
-            v-model="rows"
-            :min="ROWS_MIN"
-            :max="ROWS_MAX"
-            :step="1"
-            size="small"
-          />
+          <NeumorphismSlider v-model="rows" :min="ROWS_MIN" :max="ROWS_MAX" :step="1" :size="6" />
         </DemoField>
 
         <DemoField label="上限 maxlength" :value="countReadout" grow>
@@ -124,44 +118,44 @@ ${note.join('\n')}`.trimEnd()
             :min="COUNT_MIN"
             :max="COUNT_MAX"
             :step="10"
-            size="small"
+            :size="6"
           />
         </DemoField>
 
         <DemoField label="字数统计">
           <NeumorphismSwitch
             :model-value="showCount"
-            size="small"
+            :size="24"
             @update:model-value="setShowCount"
           />
         </DemoField>
 
         <DemoField label="自适应 autoResize">
-          <NeumorphismSwitch v-model="autoResize" size="small" />
+          <NeumorphismSwitch v-model="autoResize" :size="24" />
         </DemoField>
 
         <DemoField label="标签 label" grow>
-          <NeumorphismInput v-model="label" size="small" placeholder="留空则不渲染标签" />
+          <NeumorphismInput v-model="label" :size="36" placeholder="留空则不渲染标签" />
         </DemoField>
 
         <DemoField label="占位文案" grow>
-          <NeumorphismInput v-model="placeholder" size="small" placeholder="placeholder" />
+          <NeumorphismInput v-model="placeholder" :size="36" placeholder="placeholder" />
         </DemoField>
 
         <DemoField label="禁用 disabled">
-          <NeumorphismSwitch v-model="disabled" size="small" />
+          <NeumorphismSwitch v-model="disabled" :size="24" />
         </DemoField>
 
         <DemoField label="只读 readonly">
-          <NeumorphismSwitch v-model="readonly" size="small" />
+          <NeumorphismSwitch v-model="readonly" :size="24" />
         </DemoField>
 
         <DemoField label="错误文案 error" grow>
-          <NeumorphismInput v-model="errorMsg" size="small" placeholder="留空则不报错" />
+          <NeumorphismInput v-model="errorMsg" :size="36" placeholder="留空则不报错" />
         </DemoField>
 
         <DemoField label="操作">
-          <NeumorphismButton variant="raised" size="small" @click="reset()"
+          <NeumorphismButton variant="raised" :size="32" @click="reset()"
             >恢复默认</NeumorphismButton
           >
         </DemoField>

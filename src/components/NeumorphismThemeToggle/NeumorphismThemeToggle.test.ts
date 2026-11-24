@@ -8,14 +8,14 @@ describe('NeumorphismThemeToggle', () => {
   it('should render three theme options with labels by default', () => {
     const wrapper = mount(NeumorphismThemeToggle)
     expect(wrapper.classes()).toContain('nm-theme-toggle')
-    expect(wrapper.classes()).toContain('nm-theme-toggle--medium')
+    expect(wrapper.classes()).toContain('nm-theme-toggle--sized')
     expect(wrapper.findAll('.nm-theme-toggle__btn')).toHaveLength(3)
     expect(wrapper.findAll('.nm-theme-toggle__label')).toHaveLength(3)
   })
 
-  it('should hide labels when size prop is small', () => {
-    const wrapper = mount(NeumorphismThemeToggle, { props: { size: 'small' } })
-    expect(wrapper.classes()).toContain('nm-theme-toggle--small')
+  it('should hide labels when size is below the md anchor', () => {
+    const wrapper = mount(NeumorphismThemeToggle, { props: { size: 5 } })
+    expect(wrapper.classes()).toContain('nm-theme-toggle--sized')
     expect(wrapper.findAll('.nm-theme-toggle__label')).toHaveLength(0)
   })
 
@@ -37,24 +37,24 @@ describe('NeumorphismThemeToggle', () => {
     const wrapper = mount(NeumorphismThemeToggle, {
       global: {
         provide: {
-          [ConfigKey]: { value: { themeToggle: { size: 'small' } } },
+          [ConfigKey]: { value: { themeToggle: { size: 5 } } },
         },
       },
     })
-    expect(wrapper.classes()).toContain('nm-theme-toggle--small')
+    expect(wrapper.classes()).toContain('nm-theme-toggle--sized')
     expect(wrapper.findAll('.nm-theme-toggle__label')).toHaveLength(0)
   })
 
   it('should let explicit size prop override global config', () => {
     const wrapper = mount(NeumorphismThemeToggle, {
-      props: { size: 'large' },
+      props: { size: 8 },
       global: {
         provide: {
-          [ConfigKey]: { value: { themeToggle: { size: 'small' } } },
+          [ConfigKey]: { value: { themeToggle: { size: 5 } } },
         },
       },
     })
-    expect(wrapper.classes()).toContain('nm-theme-toggle--large')
+    // 显式 8px 压过全局 5px：8 ≥ md 锚点 6 → 展开标签
     expect(wrapper.findAll('.nm-theme-toggle__label')).toHaveLength(3)
   })
 
@@ -73,24 +73,17 @@ describe('NeumorphismThemeToggle', () => {
       expect(style).toContain('--nm-theme-toggle-sz-pad: 3.5px')
     })
 
-    it('数字 size 在锚点上与档位别名一致（5 / 6 / 8）', () => {
+    it('数字 size 落在锚点上：内联变量原样下发该 px', () => {
       const padY =
         THEME_TOGGLE_SCALE.primary /* --nm-theme-toggle-sz-btn-pad-y 是主几何量，已提到 primaryVar */
       // 锚点值只从引擎取一次，测试里不再抄第二份数字
       expect([padY.sm, padY.md, padY.lg]).toEqual([5, 6, 8])
-      const anchors = [
-        [padY.sm, 'small'],
-        [padY.md, 'medium'],
-        [padY.lg, 'large'],
-      ] as const
-      for (const [px, tier] of anchors) {
+      const anchors = [[padY.sm], [padY.md], [padY.lg]] as const
+      for (const [px] of anchors) {
         const byNumber = mount(NeumorphismThemeToggle, { props: { size: px } })
         expect(byNumber.attributes('style')).toContain(`--nm-theme-toggle-sz-btn-pad-y: ${px}px`)
 
-        const byTier = mount(NeumorphismThemeToggle, { props: { size: tier } })
-        expect(byTier.classes()).toContain(`nm-theme-toggle--${tier}`)
         // 档位路径不写内联变量：两条通道互不干扰
-        expect(byTier.attributes('style')).toBeUndefined()
       }
     })
 

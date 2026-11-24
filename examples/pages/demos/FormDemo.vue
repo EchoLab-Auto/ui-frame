@@ -184,27 +184,27 @@ const snippet = computed(() => {
 
       <template #config>
         <DemoField label="标签宽 labelWidth" :value="`${labelWidth}px`" label-width="128px" grow>
-          <NeumorphismSlider v-model="labelWidth" :min="60" :max="160" :step="4" size="small" />
+          <NeumorphismSlider v-model="labelWidth" :min="60" :max="160" :step="4" :size="6" />
         </DemoField>
 
         <DemoField label="必填 required" label-width="128px">
-          <NeumorphismSwitch v-model="ruleRequired" size="small" />
+          <NeumorphismSwitch v-model="ruleRequired" :size="24" />
         </DemoField>
 
         <DemoField label="最小长度 minLength" label-width="128px">
-          <NeumorphismSwitch v-model="ruleMinLength" size="small" />
+          <NeumorphismSwitch v-model="ruleMinLength" :size="24" />
         </DemoField>
 
         <DemoField label="邮箱正则 pattern" label-width="128px">
-          <NeumorphismSwitch v-model="rulePattern" size="small" />
+          <NeumorphismSwitch v-model="rulePattern" :size="24" />
         </DemoField>
 
         <DemoField label="操作" label-width="128px">
           <div class="demo-row" style="gap: 8px">
-            <NeumorphismButton variant="raised" size="small" @click="resetForm()"
+            <NeumorphismButton variant="raised" :size="32" @click="resetForm()"
               >重置表单</NeumorphismButton
             >
-            <NeumorphismButton variant="pressed" size="small" @click="clearErrors()"
+            <NeumorphismButton variant="pressed" :size="32" @click="clearErrors()"
               >清除错误</NeumorphismButton
             >
           </div>

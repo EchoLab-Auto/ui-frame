@@ -147,28 +147,28 @@ const snippet = computed(() => {
       <template #config>
         <DemoField label="搜索 showSearch" :value="String(showSearch)">
           <label class="demo-toggle">
-            <NeumorphismSwitch v-model="showSearch" size="small" />
+            <NeumorphismSwitch v-model="showSearch" :size="24" />
             <span>显示搜索框</span>
           </label>
         </DemoField>
 
         <DemoField label="多选 multiple" :value="String(multiple)">
           <label class="demo-toggle">
-            <NeumorphismSwitch v-model="multiple" size="small" />
+            <NeumorphismSwitch v-model="multiple" :size="24" />
             <span>可多选</span>
           </label>
         </DemoField>
 
         <DemoField label="占位文案">
-          <NeumorphismInput v-model="searchPlaceholder" size="small" placeholder="搜索节点..." />
+          <NeumorphismInput v-model="searchPlaceholder" :size="36" placeholder="搜索节点..." />
         </DemoField>
 
         <DemoField label="数据深度 data">
-          <NeumorphismSegmented v-model="treeDepth" :options="depthOptions" size="small" />
+          <NeumorphismSegmented v-model="treeDepth" :options="depthOptions" :size="26" />
         </DemoField>
 
         <DemoField label="操作">
-          <NeumorphismButton variant="raised" size="small" @click="reset()"
+          <NeumorphismButton variant="raised" :size="32" @click="reset()"
             >恢复默认</NeumorphismButton
           >
         </DemoField>

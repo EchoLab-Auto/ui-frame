@@ -151,12 +151,12 @@ function handleCancel() {
     <!-- 会话窗口：整张页面唯一的强凸起主体 -->
     <section class="chat-window" aria-label="聊天组件演示">
       <header class="chat-window__header">
-        <NeumorphismStatusDot status="online" size="small" />
+        <NeumorphismStatusDot status="online" :size="8" />
         <div class="chat-window__title-group">
           <h1 class="chat-window__title">Echo 助手</h1>
           <span class="chat-window__subtitle">local:tui::local_user</span>
         </div>
-        <NeumorphismTag size="small" rounded>deepseek-v4-flash</NeumorphismTag>
+        <NeumorphismTag :size="11" rounded>deepseek-v4-flash</NeumorphismTag>
       </header>
 
       <div class="chat-window__tray">
@@ -186,7 +186,7 @@ function handleCancel() {
           v-if="showJumpButton"
           class="chat-window__jump"
           shape="pill"
-          size="small"
+          :size="32"
           aria-label="回到底部"
           title="回到底部"
           @click="scrollToBottom()"
@@ -204,7 +204,7 @@ function handleCancel() {
       <div class="custom-demo__stage">
         <div class="chat-row chat-row--agent">
           <div class="chat-row__head">
-            <NeumorphismStatusDot status="busy" size="small" />
+            <NeumorphismStatusDot status="busy" :size="8" />
             <span class="chat-row__role">自定义头部：状态点 + 任意内容</span>
             <span class="chat-row__spacer" />
             <ChatCopyButton text="这段内容可以被复制" />

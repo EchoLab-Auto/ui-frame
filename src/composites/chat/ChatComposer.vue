@@ -144,7 +144,7 @@ const { handleKeydown, submit, canSubmit } = useChatInput({
       <NeumorphismButton
         v-if="cancelable"
         class="nm-chat-composer__cancel"
-        size="small"
+        :size="32"
         :disabled="disabled"
         @click="emit('cancel')"
       >

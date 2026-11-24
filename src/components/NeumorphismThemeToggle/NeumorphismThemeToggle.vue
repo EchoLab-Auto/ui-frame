@@ -8,21 +8,16 @@ import { THEME_TOGGLE_SCALE } from '@/utils/controlScales'
 import type { Theme } from '@/composables/useTheme'
 import NeumorphismIcon from '@/components/NeumorphismIcon/NeumorphismIcon.vue'
 
-export type ThemeToggleSize = 'small' | 'medium' | 'large'
-
 export interface NeumorphismThemeToggleProps {
   /** v-model binding: 'light' | 'dark' | 'auto' */
   modelValue?: Theme
   /**
-   * 尺寸——内层按钮的上下内距 px（数字，主几何量），或三档预设名。
+   * 尺寸——内层按钮的上下内距 px（数字，主几何量）。
    *
    * 数字即「按钮上下内距」：图标、左右内距、外层内距按锚点表（5 / 6 / 8）
    * 分段线性插值，尺寸施加在内部 `.nm-theme-toggle__btn` / `__icon` 上。
-   *
-   * @deprecated 字符串档位（`'small' | 'medium' | 'large'`）仅作兼容别名保留，
-   * 新代码请传数字。
    */
-  size?: number | ThemeToggleSize
+  size?: number
   /** Whether to disable auto mode option */
   disableAuto?: boolean
   /** Whether the toggle is disabled */
@@ -36,30 +31,13 @@ const props = withDefaults(defineProps<NeumorphismThemeToggleProps>(), {
 })
 
 const { config, resolveProp } = useNeumorphismSetup()
-
-/** 尺寸原始取值：显式 prop > 全局配置 `themeToggle.size` > 档位默认 medium */
-const rawSize = computed<number | ThemeToggleSize>(() =>
-  resolveProp(props.size, config.value.themeToggle?.size, 'medium' as number | ThemeToggleSize)
-)
-
-/** 数字通道：`undefined` = 走档位 class，有值 = 走内联 CSS 变量 */
+/** 尺寸（px）：显式 prop > 全局配置 > 锚点 `md`。 */
 const numericSize = computed(() =>
-  typeof rawSize.value === 'number'
-    ? normalizeNumericSize(rawSize.value, THEME_TOGGLE_SCALE.primary.md)
-    : undefined
+  normalizeNumericSize(props.size ?? config.value.themeToggle?.size, THEME_TOGGLE_SCALE.primary.md)
 )
 
-/** 字符串通道：数字路径下不挂档位类，这里只用于档位类名与语义兜底 */
-const resolvedSize = computed<ThemeToggleSize>(() =>
-  typeof rawSize.value === 'string' ? rawSize.value : 'medium'
-)
-
-/** 数字尺寸下发的 CSS 变量（见 utils/controlScale） */
-const sizeStyle = computed(() =>
-  numericSize.value === undefined
-    ? undefined
-    : resolveControlScale(THEME_TOGGLE_SCALE, numericSize.value)
-)
+/** 尺寸下发的 CSS 变量（见 utils/controlScale） */
+const sizeStyle = computed(() => resolveControlScale(THEME_TOGGLE_SCALE, numericSize.value))
 
 /**
  * 是否显示文字标签——**结构性差异，不能只靠 CSS 抹平**。
@@ -73,11 +51,7 @@ const sizeStyle = computed(() =>
  * 落在小档与中档之间的尺寸也会展开标签——这与插值后的内距同向（内距越接近 6，
  * 越放得下文字），比「数字路径一律显示标签」更贴合几何。
  */
-const showLabel = computed(() =>
-  numericSize.value === undefined
-    ? resolvedSize.value !== 'small'
-    : numericSize.value >= THEME_TOGGLE_SCALE.primary.md
-)
+const showLabel = computed(() => numericSize.value >= THEME_TOGGLE_SCALE.primary.md)
 const resolvedDisableAuto = computed(() =>
   resolveProp(props.disableAuto, config.value.themeToggle?.disableAuto, false)
 )
@@ -117,9 +91,7 @@ watch(
 const classList = computed(() => [
   'nm-theme-toggle',
   // 数字与档位类互斥：几何全由内联 `--nm-theme-toggle-sz-*` 决定
-  numericSize.value === undefined
-    ? `nm-theme-toggle--${resolvedSize.value}`
-    : 'nm-theme-toggle--sized',
+  'nm-theme-toggle--sized',
   {
     'nm-theme-toggle--disabled': props.disabled,
   },
@@ -141,7 +113,9 @@ function selectTheme(value: Theme) {
  * `--nm-theme-toggle-sz-icon` 覆盖（CSS 属性优先于 svg 的 width/height 属性），
  * 而线宽 2px 在 14~18px 区间内本就不变，所以不需要再算一份图标档。
  */
-const iconSize = computed<'sm' | 'lg'>(() => (resolvedSize.value === 'small' ? 'sm' : 'lg'))
+const iconSize = computed<'sm' | 'lg'>(() =>
+  numericSize.value >= THEME_TOGGLE_SCALE.primary.md ? 'lg' : 'sm'
+)
 
 /** 主题选项 → 语义图标（三态统一线框，2026-10）。 */
 const THEME_ICON: Record<string, 'sun' | 'monitor' | 'moon'> = {

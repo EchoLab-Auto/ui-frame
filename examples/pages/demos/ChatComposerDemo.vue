@@ -120,7 +120,7 @@ const snippet = computed(() => {
           <NeumorphismSegmented
             v-model="composerGlass"
             :options="composerGlassOptions"
-            size="small"
+            :size="26"
           />
         </DemoField>
 
@@ -128,22 +128,22 @@ const snippet = computed(() => {
           <NeumorphismSegmented
             v-model="composerFocusEffect"
             :options="composerFocusOptions"
-            size="small"
+            :size="26"
           />
         </DemoField>
 
         <DemoField label="取消按钮">
           <label class="demo-toggle">
-            <NeumorphismSwitch v-model="composerCancelable" size="small" />
+            <NeumorphismSwitch v-model="composerCancelable" :size="24" />
             <span>cancelable</span>
           </label>
         </DemoField>
 
         <DemoField label="操作">
-          <NeumorphismButton variant="raised" size="small" @click="reset()"
+          <NeumorphismButton variant="raised" :size="32" @click="reset()"
             >恢复默认</NeumorphismButton
           >
-          <NeumorphismButton variant="pressed" size="small" @click="composerStage = 'gradient'">
+          <NeumorphismButton variant="pressed" :size="32" @click="composerStage = 'gradient'">
             切彩色台面
           </NeumorphismButton>
         </DemoField>

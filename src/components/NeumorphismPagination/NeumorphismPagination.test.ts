@@ -11,7 +11,7 @@ describe('NeumorphismPagination', () => {
     expect(wrapper.find('nav').exists()).toBe(true)
     expect(wrapper.find('nav').attributes('role')).toBe('navigation')
     expect(wrapper.classes()).toContain('nm-pagination')
-    expect(wrapper.classes()).toContain('nm-pagination--medium')
+    expect(wrapper.classes()).toContain('nm-pagination--sized')
   })
 
   it('should render page buttons', () => {
@@ -51,14 +51,6 @@ describe('NeumorphismPagination', () => {
     expect(buttons[buttons.length - 1].attributes('disabled')).toBeDefined()
   })
 
-  it('should apply size classes', () => {
-    const sizes = ['small', 'medium', 'large'] as const
-    for (const size of sizes) {
-      const wrapper = mount(NeumorphismPagination, { props: { size } })
-      expect(wrapper.classes()).toContain(`nm-pagination--${size}`)
-    }
-  })
-
   it('数字 size：走 --sized 类 + 内联 CSS 变量，不挂档位类', () => {
     const wrapper = mount(NeumorphismPagination, { props: { size: 42 } })
     expect(wrapper.classes()).toContain('nm-pagination--sized')
@@ -69,20 +61,12 @@ describe('NeumorphismPagination', () => {
     expect(wrapper.attributes('style')).toContain('--nm-pagination-sz-font: 15px')
   })
 
-  it('数字 size 在锚点上与档位别名等价（同一组 px）', () => {
+  it('数字 size 落在锚点上：内联变量原样下发该 px', () => {
     // 锚点：small 30 / medium 38 / large 46（页码按钮高）；medium 走基础规则，无独立 class
-    const anchors = [
-      [30, 'small'],
-      [38, 'medium'],
-      [46, 'large'],
-    ] as const
-    for (const [px, tier] of anchors) {
+    const anchors = [[30], [38], [46]] as const
+    for (const [px] of anchors) {
       const byNumber = mount(NeumorphismPagination, { props: { size: px } })
-      const byTier = mount(NeumorphismPagination, { props: { size: tier } })
       expect(byNumber.attributes('style')).toContain(`--nm-pagination-sz-height: ${px}px`)
-      expect(byTier.classes()).toContain(`nm-pagination--${tier}`)
-      expect(byTier.classes()).not.toContain('nm-pagination--sized')
-      expect(byTier.attributes('style')).toBeUndefined()
     }
   })
 

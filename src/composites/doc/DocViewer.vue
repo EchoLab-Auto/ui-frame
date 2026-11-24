@@ -103,7 +103,7 @@ function onCanvasNavigate(path: string) {
         <!-- 视图切换：文档正文 / 流程画布 -->
         <div class="neumorphism-view-switch" role="tablist" aria-label="视图切换">
           <NeumorphismButton
-            size="small"
+            :size="32"
             :variant="viewMode === 'doc' ? 'pressed' : 'raised'"
             role="tab"
             :aria-selected="viewMode === 'doc'"
@@ -113,7 +113,7 @@ function onCanvasNavigate(path: string) {
             文档
           </NeumorphismButton>
           <NeumorphismButton
-            size="small"
+            :size="32"
             :variant="viewMode === 'canvas' ? 'pressed' : 'raised'"
             role="tab"
             :aria-selected="viewMode === 'canvas'"
@@ -128,7 +128,7 @@ function onCanvasNavigate(path: string) {
         <div class="neumorphism-header-search">
           <NeumorphismInput
             v-model="searchQuery"
-            size="small"
+            :size="36"
             placeholder="搜索文档..."
             class="neumorphism-search-input"
           />
@@ -147,7 +147,7 @@ function onCanvasNavigate(path: string) {
             </ul>
           </div>
         </div>
-        <NeumorphismThemeToggle v-model="themeModel" size="small" />
+        <NeumorphismThemeToggle v-model="themeModel" :size="5" />
       </template>
 
       <!-- Sider -->
@@ -180,13 +180,13 @@ function onCanvasNavigate(path: string) {
               <div class="neumorphism-doc-header">
                 <h1 class="neumorphism-doc-title">{{ displayNode.title }}</h1>
                 <div class="neumorphism-doc-meta">
-                  <NeumorphismTag v-if="displayNode.path" variant="primary" size="small" rounded>
+                  <NeumorphismTag v-if="displayNode.path" variant="primary" :size="11" rounded>
                     {{ displayNode.path }}
                   </NeumorphismTag>
                   <NeumorphismTag
                     v-if="displayNode.children.length > 0"
                     variant="info"
-                    size="small"
+                    :size="11"
                     rounded
                   >
                     <NeumorphismIcon name="folder" size="sm" class="neumorphism-doc-icon-inline" />
@@ -231,7 +231,7 @@ function onCanvasNavigate(path: string) {
                 <p>请从左侧选择一篇文档</p>
                 <NeumorphismButton
                   variant="raised"
-                  size="small"
+                  :size="32"
                   @click="selectedPath = treeData[0]?.key ?? ''"
                 >
                   打开第一篇

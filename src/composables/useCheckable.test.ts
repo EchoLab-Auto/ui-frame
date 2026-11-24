@@ -22,15 +22,17 @@ describe('useCheckable', () => {
     expect(inputId).toMatch(/^nm-radio-[a-z0-9]+$/)
   })
 
-  it('should include prefix and size in classList', () => {
+  it('should include prefix and extra classes in classList', () => {
     const { classList } = useCheckable(() => ({
       prefix: 'radio',
       isChecked: false,
       isDisabled: false,
-      size: 'large',
+      extraClasses: { 'nm-radio--sized': true },
     }))
     expect(classList.value).toContain('nm-radio')
-    expect(classList.value).toContain('nm-radio--large')
+    // 尺寸不再是本 composable 的职责：几何由组件内联变量驱动，这里只透传类名
+    // （extraClasses 是独立对象元素，故检查它而不是顶层字符串）
+    expect(classList.value[1]).toMatchObject({ 'nm-radio--sized': true })
   })
 
   it('should include checked state object in classList', () => {

@@ -7,21 +7,16 @@ import { TAG_SCALE } from '@/utils/controlScales'
 import NeumorphismIcon from '@/components/NeumorphismIcon/NeumorphismIcon.vue'
 
 export type TagVariant = 'default' | 'primary' | 'success' | 'warning' | 'error' | 'info'
-export type TagSize = 'small' | 'medium' | 'large'
-
 export interface NeumorphismTagProps {
   closable?: boolean
   variant?: TagVariant
   /**
-   * 尺寸——px 字号（数字，主几何量），或三档预设名。
+   * 尺寸——px 字号（数字，主几何量）。
    *
-   * 数字即「字号」：内距与整体高度按三锚点（11 / 12 / 14）分段线性插值，
-   * 所以 `:size="12"` 与 `size="medium"` 逐像素相同，`:size="13"` 落在两者之间。
-   *
-   * @deprecated 字符串档位（`'small' | 'medium' | 'large'`）仅作兼容别名保留，
-   * 新代码请传数字。
+   * 数字即「字号」：内距与整体高度按三锚点（11 / 12 / 14）分段线性插值；
+   * `md` 锚点即 `:size="12"`，`:size="13"` 落在两者之间。
    */
-  size?: number | TagSize
+  size?: number
   disabled?: boolean
   rounded?: boolean
   /** Accessible label for the close button */
@@ -41,34 +36,18 @@ const resolvedVariant = computed(() =>
   resolveProp(props.variant, config.value.tag?.variant, 'default')
 )
 /**
- * 数字尺寸的语义是「字号」，默认值取 medium 锚点。
+ * 尺寸（px）：显式 prop > 全局配置 > 锚点 `md`（语义 = 字号）。
  *
  * 0 / 负数 / NaN 一律回落到这里：字号 0 会让标签塌成一条线，负内距则会写出
  * 无效声明——这类「配置算错」应该在组件内兜住，而不是变成玄学布局。
  */
-const DEFAULT_SIZE_PX = 12
-
-/** 数字通道：`undefined` = 走档位 class，有值 = 走内联 CSS 变量 */
-const numericSize = computed(() => {
-  const raw = props.size ?? config.value.tag?.size
-  return typeof raw === 'number' ? normalizeNumericSize(raw, DEFAULT_SIZE_PX) : undefined
-})
-
-/**
- * 字符串通道：只认档位别名。
- *
- * 显式传数字时 `resolvedSize` 仍是 `medium`，但渲染不会用到它（classList 走
- * `--sized`）——保留一个确定的档位名只是为了让类型与默认值语义单一。
- */
-const resolvedSize = computed<TagSize>(() => {
-  const raw = props.size ?? config.value.tag?.size
-  return typeof raw === 'string' ? raw : 'medium'
-})
-
-/** 数字尺寸下发的 CSS 变量（见 utils/controlScale） */
-const sizeStyle = computed(() =>
-  numericSize.value === undefined ? undefined : resolveControlScale(TAG_SCALE, numericSize.value)
+/** 尺寸（px）：显式 prop > 全局配置 > 锚点 `md`。 */
+const numericSize = computed(() =>
+  normalizeNumericSize(props.size ?? config.value.tag?.size, TAG_SCALE.primary.md)
 )
+
+/** 尺寸下发的 CSS 变量（见 utils/controlScale） */
+const sizeStyle = computed(() => resolveControlScale(TAG_SCALE, numericSize.value))
 
 const resolvedRounded = computed(() => resolveProp(props.rounded, config.value.tag?.rounded, false))
 
@@ -94,7 +73,7 @@ function handleClick(event: MouseEvent | KeyboardEvent) {
 const classList = computed(() => [
   'nm-tag',
   `nm-tag--${resolvedVariant.value}`,
-  numericSize.value === undefined ? `nm-tag--${resolvedSize.value}` : 'nm-tag--sized',
+  'nm-tag--sized',
   {
     'nm-tag--rounded': resolvedRounded.value,
     'nm-tag--disabled': props.disabled,
@@ -313,7 +292,7 @@ const rootStyle = computed(() => {
 // 数字尺寸（`:size="13"`）：几何量全部来自内联 CSS 变量，见 utils/controlScale。
 // 与三档 class 互斥——数字路径不会同时挂档位类，所以不存在覆盖之争。
 // 这里刻意与上面三档类保持**同一组声明**（含硬编码过的 height 也改走变量），
-// 否则锚点处 `:size="12"` 与 `size="medium"` 就会差出一个高度。
+// 否则锚点处 `:size="12"`（设计稿 md 档）就会差出一个高度。
 .nm-tag--sized {
   padding: var(--nm-tag-sz-pad-y) var(--nm-tag-sz-pad-x);
   font-size: var(--nm-tag-sz-font);

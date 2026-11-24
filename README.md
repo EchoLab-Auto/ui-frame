@@ -54,7 +54,7 @@ import { NeumorphismButton } from '@echolab-auto/ui-frame'
 </script>
 
 <template>
-  <NeumorphismButton variant="raised" size="medium">点击我</NeumorphismButton>
+  <NeumorphismButton variant="raised" :size="44">点击我</NeumorphismButton>
 </template>
 ```
 

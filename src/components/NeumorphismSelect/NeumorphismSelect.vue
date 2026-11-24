@@ -16,23 +16,18 @@ import NeumorphismIcon from '@/components/NeumorphismIcon/NeumorphismIcon.vue'
 
 export type { SelectOption as NeumorphismSelectOption }
 
-export type SelectSize = 'small' | 'medium' | 'large'
-
 export interface NeumorphismSelectProps {
   modelValue?: string | number | (string | number)[]
   options?: SelectOption[]
   placeholder?: string
   disabled?: boolean
   /**
-   * 尺寸——px 最小高度（数字，主几何量），或三档预设名。
+   * 尺寸——px 最小高度（数字，主几何量）。
    *
-   * 数字即「最小高度」：字号与内距按三锚点（36 / 48 / 60）分段线性插值，
-   * 所以 `:size="36"` 与 `size="small"` 逐像素相同，`:size="42"` 落在两者之间。
-   *
-   * @deprecated 字符串档位（`'small' | 'medium' | 'large'`）仅作兼容别名保留，
-   * 新代码请传数字。
+   * 数字即「最小高度」：字号与内距按三锚点（36 / 48 / 60）分段线性插值；
+   * `md` 锚点即 `:size="36"`，`:size="42"` 落在两者之间。
    */
-  size?: number | SelectSize
+  size?: number
   label?: string
   required?: boolean
   error?: string | boolean
@@ -74,24 +69,13 @@ const props = withDefaults(defineProps<NeumorphismSelectProps>(), {
 
 const config = useConfig()
 const { t } = useLocale()
-/** 数字尺寸的语义是「最小高度」，默认值取 medium 锚点 */
-const DEFAULT_SIZE_PX = 48
-
-/** 数字通道：`undefined` = 走档位 class，有值 = 走内联 CSS 变量 */
-const numericSize = computed(() => {
-  const raw = props.size ?? config.value.select?.size
-  return typeof raw === 'number' ? normalizeNumericSize(raw, DEFAULT_SIZE_PX) : undefined
-})
-
-const resolvedSize = computed<SelectSize>(() => {
-  const raw = props.size ?? config.value.select?.size
-  return typeof raw === 'string' ? raw : 'medium'
-})
-
-/** 数字尺寸下发的 CSS 变量（见 utils/controlScale） */
-const sizeStyle = computed(() =>
-  numericSize.value === undefined ? undefined : resolveControlScale(FIELD_SCALE, numericSize.value)
+/** 尺寸（px）：显式 prop > 全局配置 > 锚点 `md`（语义 = 最小高度）。 */
+const numericSize = computed(() =>
+  normalizeNumericSize(props.size ?? config.value.select?.size, FIELD_SCALE.primary.md)
 )
+
+/** 尺寸下发的 CSS 变量（见 utils/controlScale） */
+const sizeStyle = computed(() => resolveControlScale(FIELD_SCALE, numericSize.value))
 const resolvedPlaceholder = computed(() => props.placeholder || t('selectPlaceholder'))
 const resolvedEmptyText = computed(() => props.emptyText || t('selectEmpty'))
 const resolvedClearLabel = computed(() => props.clearLabel || t('selectClear'))
@@ -153,8 +137,8 @@ const {
 const { fieldId, errorMessage, hasError, baseClassList, handleFocus, handleBlur } = useFormField(
   () => ({
     id: props.id,
-    // 数字直接交给 useFormField 判 `--sized` 档；它只决定 class，几何量在内联变量里
-    size: numericSize.value ?? resolvedSize.value,
+    // size 只用于判 `--sized` 类，几何量全在内联变量里
+    size: numericSize.value,
     disabled: props.disabled,
     error: props.error,
     prefix: 'select',
@@ -509,13 +493,13 @@ function onContainerBlur(e: FocusEvent) {
           <NeumorphismTag
             v-for="tag in visibleTags"
             :key="tag.value"
-            size="small"
+            :size="11"
             :closable="!disabled"
             @close="onRemoveTag(tag.value)"
           >
             {{ tag.label }}
           </NeumorphismTag>
-          <NeumorphismTag v-if="collapsedCount > 0" size="small" class="nm-select__tag-collapse">
+          <NeumorphismTag v-if="collapsedCount > 0" :size="11" class="nm-select__tag-collapse">
             +{{ collapsedCount }}
           </NeumorphismTag>
         </span>

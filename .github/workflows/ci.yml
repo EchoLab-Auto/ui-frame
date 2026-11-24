@@ -80,6 +80,15 @@ jobs:
       - name: Check component registry
         run: npm run check:registry
 
+      - name: Check icons
+        run: npm run check:icons
+
+      - name: Check sizes (px numbers only)
+        run: npm run check:sizes
+
+      - name: Check styles
+        run: npm run check:styles
+
       - name: Type check
         run: npm run typecheck
 

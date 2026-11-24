@@ -5,12 +5,12 @@ import type { AutoCompleteOption } from '@/composables/useAutoComplete'
 import { useFloatingPosition } from '@/composables/useFloatingPosition'
 import { useNeumorphismSetup } from '@/extensions/createComponent'
 import { useZIndex } from '@/composables/useZIndex'
+import { normalizeNumericSize } from '@/utils/controlScale'
+import { FIELD_SCALE } from '@/utils/controlScales'
 import NeumorphismInput from '@/components/NeumorphismInput/NeumorphismInput.vue'
 import NeumorphismIcon from '@/components/NeumorphismIcon/NeumorphismIcon.vue'
 
 export type { AutoCompleteOption as NeumorphismAutoCompleteOption }
-
-export type AutoCompleteSize = 'small' | 'medium' | 'large'
 
 export interface NeumorphismAutoCompleteProps {
   /** v-model value (the selected option's value) */
@@ -22,15 +22,12 @@ export interface NeumorphismAutoCompleteProps {
   /** Whether the autocomplete is disabled */
   disabled?: boolean
   /**
-   * 尺寸——px 最小高度（数字，主几何量），或三档预设名。
+   * 尺寸——px 最小高度（数字，主几何量）。
    *
-   * 几何量由内嵌的 `NeumorphismInput` 按三锚点（36 / 48 / 60）分段线性插值，
-   * 所以 `:size="36"` 与 `size="small"` 逐像素相同，`:size="42"` 落在两者之间。
-   *
-   * @deprecated 字符串档位（`'small' | 'medium' | 'large'`）仅作兼容别名保留，
-   * 新代码请传数字。
+   * 几何量由内嵌的 `NeumorphismInput` 按三锚点（36 / 48 / 60）分段线性插值；
+   * `md` 锚点即 `:size="36"`，`:size="42"` 落在两者之间。
    */
-  size?: number | AutoCompleteSize
+  size?: number
   /** Show a clear button when there is a value */
   clearable?: boolean
   /** External loading state (for async search) */
@@ -72,10 +69,9 @@ const { config, resolveProp } = useNeumorphismSetup()
  * AutoComplete 自身不画几何量——高度、内距、字号全在内嵌 Input 上，
  * 所以这里不做插值，只负责把同一个值透传下去。
  */
-const resolvedSize = computed<number | AutoCompleteSize>(() => {
-  const raw = props.size ?? config.value.autoComplete?.size
-  return typeof raw === 'number' ? raw : (raw ?? 'medium')
-})
+const resolvedSize = computed(() =>
+  normalizeNumericSize(props.size ?? config.value.autoComplete?.size, FIELD_SCALE.primary.md)
+)
 const resolvedClearable = computed(() =>
   resolveProp(props.clearable, config.value.autoComplete?.clearable, true)
 )
@@ -249,9 +245,7 @@ function onSearch(value: string) {
 // ---- Class list ----
 const wrapperClass = computed(() => [
   'nm-autocomplete',
-  typeof resolvedSize.value === 'number'
-    ? 'nm-autocomplete--sized'
-    : `nm-autocomplete--${resolvedSize.value}`,
+  'nm-autocomplete--sized',
   {
     'nm-autocomplete--disabled': props.disabled,
     'nm-autocomplete--open': isOpen.value,

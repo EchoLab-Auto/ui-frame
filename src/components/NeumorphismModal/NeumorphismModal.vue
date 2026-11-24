@@ -4,21 +4,16 @@ import { useModal } from '@/composables/useModal'
 import { useConfig } from '@/composables/useConfig'
 import { useLocale } from '@/composables/useLocale'
 import { generateId } from '@/utils'
+import { normalizeNumericSize } from '@/utils/controlScale'
 import NeumorphismIcon from '@/components/NeumorphismIcon/NeumorphismIcon.vue'
-
-/** @deprecated 旧宽度档位（字符串）——保留仅为兼容映射，新代码请传数字（px） */
-export type ModalSize = 'small' | 'medium' | 'large'
 
 export interface NeumorphismModalProps {
   modelValue?: boolean
   title?: string
   /**
    * 对话框宽度（px，直接就是像素值）。默认 560。
-   *
-   * @deprecated 字符串档位（`'small' | 'medium' | 'large'`）已弃用，仅按
-   * small=400 / medium=560 / large=720（px）兼容映射；新代码请传数字。
    */
-  size?: number | ModalSize
+  size?: number
   closable?: boolean
   maskClosable?: boolean
   showClose?: boolean
@@ -42,8 +37,7 @@ const props = withDefaults(defineProps<NeumorphismModalProps>(), {
 const { t } = useLocale()
 
 const config = useConfig()
-/** 旧字符串档位 → px 宽度（与 `--nm-modal-max-width-*` 的值一致；已弃用） */
-const LEGACY_MAX_WIDTH: Record<ModalSize, number> = { small: 400, medium: 560, large: 720 }
+/** 默认最大宽度（px）= 原 `medium` 档 */
 const DEFAULT_MAX_WIDTH = 560
 
 /**
@@ -51,12 +45,9 @@ const DEFAULT_MAX_WIDTH = 560
  *
  * 容错：非有限数退回默认；下限 240px（再窄标题栏会挤）。
  */
-const resolvedMaxWidth = computed(() => {
-  const raw = props.size ?? config.value.modal?.size ?? DEFAULT_MAX_WIDTH
-  const px = typeof raw === 'number' ? raw : LEGACY_MAX_WIDTH[raw as ModalSize]
-  if (!Number.isFinite(px)) return DEFAULT_MAX_WIDTH
-  return Math.max(240, px)
-})
+const resolvedMaxWidth = computed(() =>
+  Math.max(240, normalizeNumericSize(props.size ?? config.value.modal?.size, DEFAULT_MAX_WIDTH))
+)
 
 /** 宽度直接写成内联 max-width：档位时代是三个 class，多个数字就退化成「一次测量」 */
 const dialogStyle = computed(() => ({ maxWidth: `${resolvedMaxWidth.value}px` }))

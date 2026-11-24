@@ -2,7 +2,6 @@
 import { computed, toRef } from 'vue'
 import { useLocale } from '@/composables/useLocale'
 import { useProgress } from '@/composables/useProgress'
-import type { ProgressSize } from '@/composables/useProgress'
 import { useNeumorphismSetup } from '@/extensions/createComponent'
 import { normalizeNumericSize, resolveControlScale } from '@/utils/controlScale'
 import { PROGRESS_SCALE } from '@/utils/controlScales'
@@ -15,16 +14,13 @@ export interface NeumorphismProgressProps {
   max?: number
   variant?: ProgressVariant
   /**
-   * 尺寸——px 线形条厚度（数字，主几何量），或三档预设名。
+   * 尺寸——px 线形条厚度（数字，主几何量）。
    *
    * 数字即「线形条厚度」：环形直径与描边按三锚点（厚度 4 / 8 / 12）分段线性插值
-   * （直径 64 / 120 / 160、描边 4 / 7 / 10），所以 `:size="8"` 与 `size="medium"`
-   * 的线性条与环形都逐像素相同。
-   *
-   * @deprecated 字符串档位（`'small' | 'medium' | 'large'`）仅作兼容别名保留，
-   * 新代码请传数字。
+   * （直径 64 / 120 / 160、描边 4 / 7 / 10）；`:size="8"` 就是设计稿 `md` 档的厚度，
+   * 线性条与环形一起按这个位置推导。
    */
-  size?: number | ProgressSize
+  size?: number
   /** Progress shape: linear bar (default) or circular SVG ring */
   type?: 'line' | 'circle'
   showLabel?: boolean
@@ -41,35 +37,16 @@ const props = withDefaults(defineProps<NeumorphismProgressProps>(), {
 
 const { config, resolveProp } = useNeumorphismSetup()
 
-/** 数字尺寸的语义是「线形条厚度」，默认值取 medium 锚点 */
-const DEFAULT_SIZE_PX = 8
-
-/** 原始 size：显式 prop > 全局配置 > medium（两个通道共用同一条级联） */
-const rawSize = computed(() =>
-  resolveProp(props.size, config.value.progress?.size, 'medium' as const)
-)
-
-/** 数字通道：`undefined` = 走档位 class，有值 = 走内联 CSS 变量 */
+/** 尺寸（px）：显式 prop > 全局配置 > 锚点 `md`（语义 = 线形条厚度）。 */
 const numericSize = computed(() =>
-  typeof rawSize.value === 'number'
-    ? normalizeNumericSize(rawSize.value, DEFAULT_SIZE_PX)
-    : undefined
+  normalizeNumericSize(props.size ?? config.value.progress?.size, PROGRESS_SCALE.primary.md)
 )
 
-/** 档位通道：字符串别名（数字路径下取 medium 占位，实际不挂档位类） */
-const resolvedSize = computed<ProgressSize>(() =>
-  typeof rawSize.value === 'string' ? rawSize.value : 'medium'
-)
-
-/** 数字尺寸下发的 CSS 变量（线性条厚度；环形几何见 useProgress） */
-const sizeStyle = computed(() =>
-  numericSize.value === undefined
-    ? undefined
-    : resolveControlScale(PROGRESS_SCALE, numericSize.value)
-)
+/** 尺寸下发的 CSS 变量（见 utils/controlScale） */
+const sizeStyle = computed(() => resolveControlScale(PROGRESS_SCALE, numericSize.value))
 
 /** 传给 headless 层的尺寸：数字优先，字符串回落到档位别名 */
-const progressSize = computed<ProgressSize | number>(() => numericSize.value ?? resolvedSize.value)
+const progressSize = computed(() => numericSize.value)
 
 const resolvedVariant = computed(() =>
   resolveProp(props.variant, config.value.progress?.variant, 'primary')
@@ -103,7 +80,7 @@ const {
 const classList = computed(() => [
   'nm-progress',
   // 数字与档位互斥：数字走 `--sized`（变量来自内联样式），字符串走档位类
-  numericSize.value === undefined ? `nm-progress--${resolvedSize.value}` : 'nm-progress--sized',
+  'nm-progress--sized',
   `nm-progress--${resolvedVariant.value}`,
   `nm-progress--effect-${resolvedEffect.value}`,
   {

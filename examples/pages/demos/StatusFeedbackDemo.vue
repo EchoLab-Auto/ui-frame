@@ -122,23 +122,23 @@ const snippet = computed(() => {
 
       <template #config>
         <DemoField label="状态 status">
-          <NeumorphismSegmented v-model="dotStatus" :options="dotStatusOptions" size="small" />
+          <NeumorphismSegmented v-model="dotStatus" :options="dotStatusOptions" :size="26" />
         </DemoField>
 
         <DemoField label="直径 size" :value="`${spinnerDiameter}px`" grow>
-          <NeumorphismSlider v-model="spinnerDiameter" :min="12" :max="48" :step="2" size="small" />
+          <NeumorphismSlider v-model="spinnerDiameter" :min="12" :max="48" :step="2" :size="6" />
         </DemoField>
 
         <DemoField label="选项集">
           <NeumorphismSegmented
             v-model="segmentedOptionCount"
             :options="segmentedCountOptions"
-            size="small"
+            :size="26"
           />
         </DemoField>
 
         <DemoField label="操作">
-          <NeumorphismButton variant="raised" size="small" @click="reset()"
+          <NeumorphismButton variant="raised" :size="32" @click="reset()"
             >恢复默认</NeumorphismButton
           >
         </DemoField>

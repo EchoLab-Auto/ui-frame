@@ -123,39 +123,39 @@ const snippet = computed(() => {
 
       <template #config>
         <DemoField label="head 文案">
-          <NeumorphismInput v-model="foldHeadText" size="small" placeholder="工具详情" />
+          <NeumorphismInput v-model="foldHeadText" :size="36" placeholder="工具详情" />
         </DemoField>
 
         <DemoField label="井面 sunk">
-          <NeumorphismSegmented v-model="foldTone" :options="foldToneOptions" size="small" />
+          <NeumorphismSegmented v-model="foldTone" :options="foldToneOptions" :size="26" />
         </DemoField>
 
         <DemoField label="初始展开">
           <label class="demo-toggle">
-            <NeumorphismSwitch v-model="foldDefaultOpen" size="small" />
+            <NeumorphismSwitch v-model="foldDefaultOpen" :size="24" />
             <span>defaultOpen</span>
           </label>
         </DemoField>
 
         <DemoField label="可折叠 expandable" :value="String(foldExpandable)">
-          <NeumorphismSwitch v-model="foldExpandable" size="small" />
+          <NeumorphismSwitch v-model="foldExpandable" :size="24" />
         </DemoField>
 
         <DemoField label="插槽">
           <div class="demo-row" style="gap: 16px">
             <label class="demo-toggle">
-              <NeumorphismSwitch v-model="foldShowSubhead" size="small" />
+              <NeumorphismSwitch v-model="foldShowSubhead" :size="24" />
               <span>subhead</span>
             </label>
             <label class="demo-toggle">
-              <NeumorphismSwitch v-model="foldShowActions" size="small" />
+              <NeumorphismSwitch v-model="foldShowActions" :size="24" />
               <span>actions</span>
             </label>
           </div>
         </DemoField>
 
         <DemoField label="操作">
-          <NeumorphismButton variant="raised" size="small" @click="reset()"
+          <NeumorphismButton variant="raised" :size="32" @click="reset()"
             >恢复默认</NeumorphismButton
           >
         </DemoField>

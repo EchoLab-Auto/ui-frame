@@ -13,20 +13,20 @@ export interface NeumorphismGlobalConfig {
      * 这里一并放开，否则「全站默认玻璃」无从配置。
      */
     variant?: 'raised' | 'pressed' | 'primary' | 'glow' | 'glass' | 'glass-raised' | 'glass-pressed'
-    size?: number | 'small' | 'medium' | 'large'
+    size?: number
     shape?: 'rounded' | 'pill' | 'circle'
   }
   /** Default input props applied to all NeumorphismInput instances */
   input?: {
-    size?: number | 'small' | 'medium' | 'large'
+    size?: number
   }
   /** Default input number props applied to all NeumorphismInputNumber instances */
   inputNumber?: {
-    size?: number | 'small' | 'medium' | 'large'
+    size?: number
   }
   /** Default date picker props */
   datePicker?: {
-    size?: number | 'small' | 'medium' | 'large'
+    size?: number
     format?: string
     clearable?: boolean
     firstDayOfWeek?: number
@@ -34,7 +34,7 @@ export interface NeumorphismGlobalConfig {
   }
   /** Default select props */
   select?: {
-    size?: number | 'small' | 'medium' | 'large'
+    size?: number
     clearable?: boolean
     emptyText?: string
     placeholder?: string
@@ -47,7 +47,7 @@ export interface NeumorphismGlobalConfig {
   /** Default modal props */
   modal?: {
     /** 对话框宽度（px）；旧字符串档位仍接受（已弃用） */
-    size?: number | 'small' | 'medium' | 'large'
+    size?: number
     maskClosable?: boolean
     closable?: boolean
     showClose?: boolean
@@ -69,11 +69,11 @@ export interface NeumorphismGlobalConfig {
   /** Default tabs props */
   tabs?: {
     position?: 'top' | 'left' | 'right'
-    size?: number | 'small' | 'medium' | 'large'
+    size?: number
   }
   /** Default pagination props */
   pagination?: {
-    size?: number | 'small' | 'medium' | 'large'
+    size?: number
     showTotal?: boolean
     showJumper?: boolean
     maxVisiblePages?: number
@@ -81,31 +81,31 @@ export interface NeumorphismGlobalConfig {
   }
   /** Default collapse props */
   collapse?: {
-    size?: number | 'small' | 'medium' | 'large'
+    size?: number
     accordion?: boolean
   }
   /** Default form props */
   form?: {
-    size?: number | 'small' | 'medium' | 'large'
+    size?: number
     labelWidth?: string
     direction?: 'horizontal' | 'vertical'
   }
   /** Default tag props */
   tag?: {
     variant?: 'default' | 'primary' | 'success' | 'warning' | 'error' | 'info'
-    size?: number | 'small' | 'medium' | 'large'
+    size?: number
     rounded?: boolean
   }
   /** Default progress props */
   progress?: {
     variant?: 'primary' | 'success' | 'warning' | 'error'
-    size?: number | 'small' | 'medium' | 'large'
+    size?: number
     showLabel?: boolean
     effect?: 'default' | 'pulse' | 'flow' | 'wave' | 'stripes' | 'sparkle'
   }
   /** Default avatar props */
   avatar?: {
-    size?: number | 'small' | 'medium' | 'large'
+    size?: number
     shape?: 'circle' | 'rounded'
   }
   /** Default tree props */
@@ -122,13 +122,13 @@ export interface NeumorphismGlobalConfig {
      * @deprecated 字符串档位（`'small' | 'medium' | 'large'`）已弃用，仅为兼容
      * 旧配置保留：按 small=24 / medium=30 / large=36（px 高度）映射；请改用数字。
      */
-    size?: number | 'small' | 'medium' | 'large'
+    size?: number
     /** 视觉变体：default（凹陷轨道 + 弹簧滑块）/ power（电力开关） */
     variant?: 'default' | 'power'
   }
   /** Default table props */
   table?: {
-    size?: number | 'small' | 'medium' | 'large'
+    size?: number
     striped?: boolean
     hoverable?: boolean
   }
@@ -148,25 +148,25 @@ export interface NeumorphismGlobalConfig {
   }
   /** Default breadcrumb props */
   breadcrumb?: {
-    size?: number | 'small' | 'medium' | 'large'
+    size?: number
     separator?: string
   }
   /** Default checkbox props */
   checkbox?: {
-    size?: number | 'small' | 'medium' | 'large'
+    size?: number
   }
   /** Default radio props */
   radio?: {
-    size?: number | 'small' | 'medium' | 'large'
+    size?: number
   }
   /** Default radio group props */
   radioGroup?: {
-    size?: number | 'small' | 'medium' | 'large'
+    size?: number
     direction?: 'horizontal' | 'vertical'
   }
   /** Default textarea props */
   textarea?: {
-    size?: number | 'small' | 'medium' | 'large'
+    size?: number
     rows?: number
     autoResize?: boolean
     showCount?: boolean
@@ -194,7 +194,7 @@ export interface NeumorphismGlobalConfig {
   }
   /** Default theme toggle props */
   themeToggle?: {
-    size?: number | 'small' | 'medium' | 'large'
+    size?: number
     disableAuto?: boolean
   }
   /** Default canvas props */
@@ -224,19 +224,19 @@ export interface NeumorphismGlobalConfig {
   }
   /** Default slider props */
   slider?: {
-    size?: number | 'small' | 'medium' | 'large'
+    size?: number
     showTooltip?: boolean
     showStops?: boolean
   }
   /** Default steps props */
   steps?: {
     direction?: 'horizontal' | 'vertical'
-    size?: number | 'small' | 'medium' | 'large'
+    size?: number
     center?: boolean
   }
   /** Default upload props */
   upload?: {
-    size?: number | 'small' | 'medium' | 'large'
+    size?: number
     drag?: boolean
     showUploadList?: boolean
     listType?: 'text' | 'picture' | 'picture-card'
@@ -246,14 +246,14 @@ export interface NeumorphismGlobalConfig {
   list?: {
     bordered?: boolean
     split?: boolean
-    size?: number | 'small' | 'medium' | 'large'
+    size?: number
     hoverable?: boolean
   }
   /** Default logo animation props */
   logo?: {
     mode?: 'pulse' | 'liquid' | 'wave' | 'pointer'
     /** Logo 宽度（px）；旧字符串档位仍接受（已弃用） */
-    size?: number | 'small' | 'medium' | 'large'
+    size?: number
     goo?: boolean
     autoplay?: boolean
     floating?: boolean
@@ -280,18 +280,18 @@ export interface NeumorphismGlobalConfig {
     duration?: number
     icon?: boolean
     bordered?: boolean
-    size?: number | 'small' | 'medium' | 'large'
+    size?: number
   }
   /** Default menu props */
   menu?: {
     mode?: 'vertical' | 'horizontal'
-    size?: number | 'small' | 'medium' | 'large'
+    size?: number
     selectable?: boolean
   }
   /** Default nav menu props */
   navMenu?: {
     mode?: 'horizontal' | 'vertical'
-    size?: number | 'small' | 'medium' | 'large'
+    size?: number
     showIndicator?: boolean
   }
   /** Default popover props */
@@ -310,27 +310,27 @@ export interface NeumorphismGlobalConfig {
   }
   /** Default empty props */
   empty?: {
-    size?: number | 'small' | 'medium' | 'large'
+    size?: number
   }
   /** Default autocomplete props */
   autoComplete?: {
-    size?: number | 'small' | 'medium' | 'large'
+    size?: number
     clearable?: boolean
   }
   /** Default status dot props */
   statusDot?: {
     status?: 'online' | 'offline' | 'busy' | 'connecting'
     /** 圆点直径（px）；旧字符串档位仍接受（已弃用） */
-    size?: number | 'small' | 'medium' | 'large'
+    size?: number
     pulse?: boolean
   }
   /** Default spinner props */
   spinner?: {
-    size?: number | 'small' | 'medium' | 'large' | number
+    size?: number
   }
   /** Default segmented props */
   segmented?: {
-    size?: number | 'small' | 'medium' | 'large'
+    size?: number
     disabled?: boolean
   }
 

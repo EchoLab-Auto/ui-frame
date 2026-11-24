@@ -95,32 +95,32 @@ const snippet = computed(() => {
 
       <template #config>
         <DemoField label="标签文本">
-          <NeumorphismInput v-model="labelText" size="small" placeholder="留空则不渲染标签" />
+          <NeumorphismInput v-model="labelText" :size="36" placeholder="留空则不渲染标签" />
         </DemoField>
 
         <DemoField label="关联 for-id" label-width="98px">
-          <NeumorphismInput v-model="forId" size="small" placeholder="留空则取消关联" />
+          <NeumorphismInput v-model="forId" :size="36" placeholder="留空则取消关联" />
         </DemoField>
 
         <DemoField label="错误文案">
-          <NeumorphismInput v-model="errorMessage" size="small" placeholder="留空则不渲染错误" />
+          <NeumorphismInput v-model="errorMessage" :size="36" placeholder="留空则不渲染错误" />
         </DemoField>
 
         <DemoField label="状态">
           <div class="demo-row" style="gap: 16px">
             <label class="demo-toggle">
-              <NeumorphismSwitch v-model="required" size="small" />
+              <NeumorphismSwitch v-model="required" :size="24" />
               <span>required</span>
             </label>
             <label class="demo-toggle">
-              <NeumorphismSwitch v-model="inputError" size="small" />
+              <NeumorphismSwitch v-model="inputError" :size="24" />
               <span>输入框 error</span>
             </label>
           </div>
         </DemoField>
 
         <DemoField label="操作">
-          <NeumorphismButton variant="raised" size="small" @click="reset()"
+          <NeumorphismButton variant="raised" :size="32" @click="reset()"
             >恢复默认</NeumorphismButton
           >
         </DemoField>

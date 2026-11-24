@@ -115,39 +115,39 @@ const snippet = computed(() => {
 
       <template #config>
         <DemoField label="内容文本">
-          <NeumorphismInput v-model="text" size="small" placeholder="按钮" />
+          <NeumorphismInput v-model="text" :size="36" placeholder="按钮" />
         </DemoField>
 
         <DemoField label="变体 variant">
-          <NeumorphismSegmented v-model="variant" :options="variantOptions" size="small" />
+          <NeumorphismSegmented v-model="variant" :options="variantOptions" :size="26" />
         </DemoField>
 
         <DemoField label="尺寸 size" :value="`${sizePx}px`" grow>
-          <NeumorphismSlider v-model="sizePx" :min="28" :max="64" :step="2" size="small" />
+          <NeumorphismSlider v-model="sizePx" :min="28" :max="64" :step="2" :size="6" />
         </DemoField>
 
         <DemoField label="形状 shape">
-          <NeumorphismSegmented v-model="shape" :options="shapeOptions" size="small" />
+          <NeumorphismSegmented v-model="shape" :options="shapeOptions" :size="26" />
         </DemoField>
 
         <DemoField label="状态">
           <div class="demo-row" style="gap: 16px">
             <label class="demo-toggle">
-              <NeumorphismSwitch v-model="loading" size="small" />
+              <NeumorphismSwitch v-model="loading" :size="24" />
               <span>loading</span>
             </label>
             <label class="demo-toggle">
-              <NeumorphismSwitch v-model="disabled" size="small" />
+              <NeumorphismSwitch v-model="disabled" :size="24" />
               <span>disabled</span>
             </label>
           </div>
         </DemoField>
 
         <DemoField label="操作">
-          <NeumorphismButton variant="raised" size="small" @click="reset()"
+          <NeumorphismButton variant="raised" :size="32" @click="reset()"
             >恢复默认</NeumorphismButton
           >
-          <NeumorphismButton variant="pressed" size="small" @click="variant = 'glass'">
+          <NeumorphismButton variant="pressed" :size="32" @click="variant = 'glass'">
             套用玻璃
           </NeumorphismButton>
         </DemoField>

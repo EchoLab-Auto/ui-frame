@@ -26,7 +26,7 @@ export interface ComponentPreset {
  * const registry = new ComponentRegistry()
  * registry
  *   .registerPreset('compact', {
- *     config: { button: { size: 'small' }, input: { size: 'small' } },
+ *     config: { button: { size: 32 }, input: { size: 36 } },
  *   })
  *   .registerPreset('material', {
  *     components: { NeumorphismButton: MaterialButton },

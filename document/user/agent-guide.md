@@ -50,9 +50,9 @@ import '@echolab-auto/ui-frame/dist/style.css'
 每个组件通过 `variant`/`size`/`shape` 等 props 切换视觉变体：
 
 ```vue
-<NeumorphismButton variant="raised" size="large" shape="pill" disabled loading />
+<NeumorphismButton variant="raised" :size="56" shape="pill" disabled loading />
 <NeumorphismCard :elevation="2" hoverable :radius="24" />
-<NeumorphismInput size="small" placeholder="输入内容" error="格式错误" />
+<NeumorphismInput :size="36" placeholder="输入内容" error="格式错误" />
 ```
 
 **三级优先级**（所有组件通用）：`显式 prop > 全局配置 > 默认值`
@@ -238,7 +238,7 @@ const { theme, isDark, toggleTheme } = provideTheme()
 
 ```vue
 <NeumorphismCard :elevation="1" no-padding>
-  <NeumorphismTable :columns="columns" :data="list" striped hoverable size="medium" />
+  <NeumorphismTable :columns="columns" :data="list" striped hoverable :size="12" />
   <template #footer>
     <NeumorphismPagination v-model:current="page" :total="total" :page-size="10" />
   </template>
@@ -248,7 +248,7 @@ const { theme, isDark, toggleTheme } = provideTheme()
 ### 弹窗确认
 
 ```vue
-<NeumorphismModal v-model="visible" title="确认删除" size="small" @confirm="handleDelete">
+<NeumorphismModal v-model="visible" title="确认删除" :size="400" @confirm="handleDelete">
   确定要删除此项吗？此操作不可撤销。
   <template #footer>
     <NeumorphismButton @click="visible = false">取消</NeumorphismButton>
@@ -295,8 +295,8 @@ import {
 
 ```ts
 app.use(NeumorphismUI, {
-  button: { size: 'medium', variant: 'raised' },
-  input: { size: 'medium' },
+  button: { size: 44, variant: 'raised' },
+  input: { size: 48 },
   modal: { maskClosable: true },
   toast: { position: 'top-right', maxCount: 5 },
   pagination: { showTotal: true },
@@ -342,13 +342,13 @@ app.use(NeumorphismUI, {
 
 ```ts
 app.use(NeumorphismUI, {
-  button: { size: 'medium', variant: 'raised' },
-  input: { size: 'medium' },
-  select: { size: 'medium', clearable: true },
+  button: { size: 44, variant: 'raised' },
+  input: { size: 48 },
+  select: { size: 48, clearable: true },
   modal: { maskClosable: true },
   toast: { position: 'top-right', maxCount: 5 },
-  pagination: { size: 'medium', showTotal: true },
-  table: { size: 'medium', striped: true, hoverable: true },
+  pagination: { size: 38, showTotal: true },
+  table: { size: 12, striped: true, hoverable: true },
   tag: { rounded: true },
 })
 ```
@@ -390,7 +390,7 @@ function showMsg() {
 ### 弹窗/抽屉
 
 ```vue
-<NeumorphismModal v-model="visible" title="编辑" size="large" @close="onClose">
+<NeumorphismModal v-model="visible" title="编辑" :size="720" @close="onClose">
   <NeumorphismForm :model="form">...</NeumorphismForm>
 </NeumorphismModal>
 
@@ -409,7 +409,7 @@ function showMsg() {
   ]"
   @select="onSelect"
 >
-  <NeumorphismButton size="small">操作 ▾</NeumorphismButton>
+  <NeumorphismButton :size="32">操作 ▾</NeumorphismButton>
 </NeumorphismDropdown>
 ```
 

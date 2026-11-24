@@ -94,25 +94,25 @@ const snippet = computed(() => {
 
       <template #config>
         <DemoField label="语言 lang">
-          <NeumorphismSegmented v-model="codeLang" :options="langOptions" size="small" />
+          <NeumorphismSegmented v-model="codeLang" :options="langOptions" :size="26" />
         </DemoField>
 
         <DemoField label="行号">
           <label class="demo-toggle">
-            <NeumorphismSwitch v-model="codeShowLineNumbers" size="small" />
+            <NeumorphismSwitch v-model="codeShowLineNumbers" :size="24" />
             <span>showLineNumbers</span>
           </label>
         </DemoField>
 
         <DemoField label="代码 code" label-width="78px">
-          <NeumorphismTextarea v-model="codeContent" :rows="5" size="small" style="width: 100%" />
+          <NeumorphismTextarea v-model="codeContent" :rows="5" :size="36" style="width: 100%" />
         </DemoField>
 
         <DemoField label="操作">
-          <NeumorphismButton variant="raised" size="small" @click="reset()"
+          <NeumorphismButton variant="raised" :size="32" @click="reset()"
             >恢复默认</NeumorphismButton
           >
-          <NeumorphismButton variant="pressed" size="small" @click="codeShowLineNumbers = false">
+          <NeumorphismButton variant="pressed" :size="32" @click="codeShowLineNumbers = false">
             关掉行号
           </NeumorphismButton>
         </DemoField>

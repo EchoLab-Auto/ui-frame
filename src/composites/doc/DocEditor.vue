@@ -113,15 +113,15 @@ function handleKeyDown(e: KeyboardEvent) {
       </template>
 
       <template #header-center>
-        <NeumorphismThemeToggle v-model="themeModel" size="small" />
+        <NeumorphismThemeToggle v-model="themeModel" :size="5" />
       </template>
 
       <template #header-right>
         <div class="neumorphism-editor-actions">
-          <NeumorphismTag v-if="hasChanges" variant="warning" size="small"> 未保存 </NeumorphismTag>
+          <NeumorphismTag v-if="hasChanges" variant="warning" :size="11"> 未保存 </NeumorphismTag>
           <NeumorphismButton
             variant="raised"
-            size="small"
+            :size="32"
             :disabled="!hasChanges"
             @click="handleSave"
           >
@@ -161,17 +161,17 @@ function handleKeyDown(e: KeyboardEvent) {
                 <div>
                   <h1 class="neumorphism-editor-title">{{ displayNode.title }}</h1>
                   <div class="neumorphism-editor-meta">
-                    <NeumorphismTag v-if="displayNode.path" variant="primary" size="small" rounded>
+                    <NeumorphismTag v-if="displayNode.path" variant="primary" :size="11" rounded>
                       {{ displayNode.path }}
                     </NeumorphismTag>
-                    <NeumorphismTag v-if="hasChanges" variant="warning" size="small">
+                    <NeumorphismTag v-if="hasChanges" variant="warning" :size="11">
                       已修改
                     </NeumorphismTag>
                   </div>
                 </div>
                 <NeumorphismButton
                   variant="raised"
-                  size="small"
+                  :size="32"
                   :disabled="!hasChanges"
                   @click="handleSave"
                 >
@@ -204,7 +204,7 @@ function handleKeyDown(e: KeyboardEvent) {
               <p>请从左侧选择一篇文档进行编辑</p>
               <NeumorphismButton
                 variant="raised"
-                size="small"
+                :size="32"
                 @click="selectedPath = treeData[0]?.key ?? ''"
               >
                 打开第一篇
