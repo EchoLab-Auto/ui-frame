@@ -65,7 +65,34 @@ describe('NeumorphismIcon', () => {
     expect(decorative.attributes('aria-hidden')).toBe('true')
     expect(decorative.attributes('aria-label')).toBeUndefined()
   })
+  it('a11y：ariaLabel 与 label 等价，且 ariaLabel 优先', () => {
+    const alias = mount(NeumorphismIcon, { props: { name: 'warning', ariaLabel: '高风险' } })
+    expect(alias.attributes('role')).toBe('img')
+    expect(alias.attributes('aria-label')).toBe('高风险')
 
+    const both = mount(NeumorphismIcon, {
+      props: { name: 'warning', ariaLabel: '优先', label: '兜底' },
+    })
+    expect(both.attributes('aria-label')).toBe('优先')
+  })
+
+  it('tone：默认 inherit 不加 tone 类，各档落到对应修饰类', () => {
+    expect(mount(NeumorphismIcon, { props: { name: 'gear' } }).classes()).not.toContain(
+      'nm-icon--tone-inherit'
+    )
+
+    const tones = ['accent', 'muted', 'success', 'warning', 'error', 'info'] as const
+    for (const tone of tones) {
+      const wrapper = mount(NeumorphismIcon, { props: { name: 'gear', tone } })
+      expect(wrapper.classes(), tone).toContain(`nm-icon--tone-${tone}`)
+    }
+  })
+
+  it('tone 类名带 tone- 前缀（不与 warning / info 这类型语义名撞钩子）', () => {
+    const wrapper = mount(NeumorphismIcon, { props: { name: 'warning', tone: 'warning' } })
+    expect(wrapper.classes()).toContain('nm-icon--warning')
+    expect(wrapper.classes()).toContain('nm-icon--tone-warning')
+  })
   it('spin / pulse 修饰类', () => {
     expect(mount(NeumorphismIcon, { props: { name: 'refresh', spin: true } }).classes()).toContain(
       'nm-icon--spin'

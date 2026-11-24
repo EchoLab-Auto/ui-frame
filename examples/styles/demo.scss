@@ -643,3 +643,119 @@
     font-size: 12px;
   }
 }
+
+// ---- Icon：预览台 / 工具栏 / 图标墙 / 档位横排 ----
+// 79 个语义铺成网格，格子只放「图标 + 名字」，名字是唯一可点的语义
+// （点图标本身容易被误当成按钮，所以整格是 button、hover 只提亮底色）。
+.icon-preview {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 112px;
+  min-height: 112px;
+  padding: var(--nm-spacing-md);
+  border-radius: var(--nm-border-radius-md);
+  background: var(--nm-bg-color);
+  @include nm-inset-strong(4px, 10px);
+}
+
+.icon-toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--nm-spacing-sm);
+  flex-wrap: wrap;
+  margin-bottom: var(--nm-spacing-sm);
+
+  // 输入框在工具栏里固定一个宽度，避免搜索框随文字伸缩
+  // （class 由 Vue 合并到组件根元素 `.nm-input__wrapper`，不用猜内部结构）
+  .icon-search {
+    width: 240px;
+    max-width: 100%;
+  }
+
+  .demo-hint {
+    margin: 0;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+.icon-wall {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(76px, 1fr));
+  gap: 6px;
+}
+
+.icon-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 4px 8px;
+  border: 0;
+  border-radius: var(--nm-border-radius-sm);
+  background: transparent;
+  color: var(--nm-text-primary);
+  cursor: pointer;
+  transition:
+    background var(--nm-transition-fast),
+    color var(--nm-transition-fast);
+
+  &:hover {
+    background: color-mix(in srgb, var(--nm-primary-color) 14%, transparent);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--nm-accent-text);
+    outline-offset: 1px;
+  }
+
+  &--active {
+    background: color-mix(in srgb, var(--nm-primary-color) 24%, transparent);
+    color: var(--nm-accent-text);
+  }
+
+  &__name {
+    font-size: 10px;
+    line-height: 1.2;
+    color: var(--nm-text-secondary);
+    word-break: break-all;
+    text-align: center;
+  }
+
+  &--active &__name {
+    color: inherit;
+    font-weight: 600;
+  }
+}
+
+.icon-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--nm-spacing-sm);
+}
+
+.icon-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-width: 84px;
+  padding: 12px 8px 10px;
+  border-radius: var(--nm-border-radius-sm);
+  background: var(--nm-surface-color);
+  @include nm-inset-strong(3px, 8px);
+
+  &__label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--nm-text-primary);
+  }
+
+  &__token {
+    font-size: 10px;
+    font-family: var(--nm-font-mono);
+    color: var(--nm-text-placeholder);
+    text-align: center;
+    word-break: break-all;
+  }
+}

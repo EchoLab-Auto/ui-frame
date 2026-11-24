@@ -46,6 +46,7 @@ import ArtDemo from './ArtDemo.vue'
 import AsciiArtDemo from './AsciiArtDemo.vue'
 import PixelFontDemo from './PixelFontDemo.vue'
 import GraphDemo from './GraphDemo.vue'
+import IconDemo from './IconDemo.vue'
 
 /**
  * 演示条目元数据。
@@ -141,6 +142,21 @@ export const demoCategories: DemoCategory[] = [
     ],
   },
   {
+    title: '图标',
+    desc: '79 个语义图标取自图标注册表，尺寸七档、线宽六档、语义色调七档，可叠加 spin / pulse 动效。',
+    items: [
+      {
+        id: 'icon',
+        nav: '图标 Icon',
+        title: 'NeumorphismIcon 图标',
+        badge: '79 语义 · 七档尺寸 · 六档线宽 · 语义色调 · spin/pulse',
+        full: true,
+        component: IconDemo,
+      },
+    ],
+  },
+  {
+    title: '表单',
     title: '表单',
     desc: '表单容器与表单项，内置验证规则引擎，支持必填、正则、长度限制和自定义校验器。',
     items: [

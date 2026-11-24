@@ -12,7 +12,8 @@
  * <NeumorphismIcon name="chevron-down" size="xs" />
  * <NeumorphismIcon name="check" :stroke-width="3" />     <!-- 勾选语义强调 -->
  * <NeumorphismIcon name="refresh" spin />
- * <NeumorphismIcon name="warning" label="高风险" />
+ * <NeumorphismIcon name="warning" tone="warning" label="高风险" />
+ * <NeumorphismIcon name="check-circle" tone="success" />
  * ```
  */
 import { computed } from 'vue'
@@ -26,6 +27,20 @@ import {
   type IconSize,
 } from '@/icons/registry'
 
+/**
+ * 语义色调（图标取色，不再是单一 `currentColor`）。
+ *
+ * 值全部来自主题令牌，深色主题自动跟随：
+ * - `accent` → `--nm-accent-text`（**可读**强调色，不是亮 lime 填充色）
+ * - `muted` → `--nm-text-secondary`
+ * - `success` / `warning` / `error` / `info` → `--nm-color-*`
+ *
+ * 产品专属语义（如「推理中」「子代理」）不进库，调用方用 `style="color: …"`
+ * 传自己的令牌——`inherit` 档就是纯 `currentColor`。
+ */
+export type NeumorphismIconTone =
+  'inherit' | 'accent' | 'muted' | 'success' | 'warning' | 'error' | 'info'
+
 export interface NeumorphismIconProps {
   /** 语义图标名（见 `ICON_NAMES`） */
   name: IconName
@@ -33,23 +48,37 @@ export interface NeumorphismIconProps {
   size?: IconSize | number
   /** 覆盖线宽（缺省按尺寸档自动；合法值 0.5/1/1.5/2/2.5/3） */
   strokeWidth?: number
+  /** 语义色调（缺省 `inherit` = 跟随 `currentColor`） */
+  tone?: NeumorphismIconTone
   /** 匀速旋转（加载中） */
   spin?: boolean
   /** 呼吸脉冲（等待/连接中） */
   pulse?: boolean
   /** 无障碍标签；留空 = 装饰性图标（`aria-hidden`） */
   label?: string
+  /**
+   * 无障碍标签的别名（与 `label` 等价，`ariaLabel` 优先）。
+   *
+   * 产品侧历史写法是 `ariaLabel`，保留它让 `<PanelIcon>` 一类薄封装可以
+   * 原地替换成这个组件而不改调用点。
+   */
+  ariaLabel?: string
 }
 
 const props = withDefaults(defineProps<NeumorphismIconProps>(), {
   size: undefined,
   strokeWidth: undefined,
+  tone: 'inherit',
   spin: false,
   pulse: false,
   label: '',
+  ariaLabel: '',
 })
 
 const { resolveProp } = useNeumorphismSetup()
+
+/** 无障碍名：`ariaLabel` 优先（产品侧命名），否则 `label` */
+const a11yLabel = computed(() => props.ariaLabel || props.label)
 
 const resolvedSize = computed<IconSize | number>(() =>
   resolveProp(props.size, undefined, 'sm' as IconSize | number)
@@ -73,6 +102,9 @@ const classes = computed(() => [
   'nm-icon',
   `nm-icon--${props.name}`,
   {
+    // tone 前缀是必需的：语义名里本来就有 `warning` / `info`，
+    // 裸 `nm-icon--warning` 会与「warning 图标」的钩子撞在一起
+    [`nm-icon--tone-${props.tone}`]: props.tone !== 'inherit',
     'nm-icon--spin': props.spin,
     'nm-icon--pulse': props.pulse,
     'nm-icon--filled': definition.value.filled === true,
@@ -91,9 +123,9 @@ const classes = computed(() => [
     :stroke-width="strokeWidth"
     stroke-linecap="round"
     stroke-linejoin="round"
-    :aria-hidden="label ? undefined : 'true'"
-    :role="label ? 'img' : undefined"
-    :aria-label="label || undefined"
+    :aria-hidden="a11yLabel ? undefined : 'true'"
+    :role="a11yLabel ? 'img' : undefined"
+    :aria-label="a11yLabel || undefined"
     focusable="false"
   >
     <path v-for="(d, i) in definition.paths" :key="i" :d="d" />
@@ -109,6 +141,25 @@ const classes = computed(() => [
   color: inherit;
 }
 
+// 语义色调——只改 color，几何与线宽不变（令牌随主题切换）
+.nm-icon--tone-accent {
+  color: var(--nm-accent-text);
+}
+.nm-icon--tone-muted {
+  color: var(--nm-text-secondary);
+}
+.nm-icon--tone-success {
+  color: var(--nm-color-success);
+}
+.nm-icon--tone-warning {
+  color: var(--nm-color-warning);
+}
+.nm-icon--tone-error {
+  color: var(--nm-color-error);
+}
+.nm-icon--tone-info {
+  color: var(--nm-color-info);
+}
 // 实心图标（dot / grip / more 等）：几何自带 fill，描边关闭
 .nm-icon--filled {
   fill: currentColor;

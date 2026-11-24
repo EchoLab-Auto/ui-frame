@@ -161,9 +161,12 @@ group: 开发
 <NeumorphismIcon name="check" :stroke-width="3" />
 <!-- 勾选语义强调 -->
 <NeumorphismIcon name="refresh" spin />
+<!-- 语义色调：warning -->
+<NeumorphismIcon name="warning" tone="warning" label="高风险" />
 ```
 
 - 尺寸取 `size`（七档或数字，数字须落在枚举值上）；线宽按档自动（≤12 → 2.5、≥24 → 1.5、其余 2），可用 `strokeWidth` 显式覆盖
+- 语义色调取 `tone`（`inherit` / `accent` / `muted` / `success` / `warning` / `error` / `info`），值全部来自主题令牌；`accent` 用 `--nm-accent-text`（可读强调色）而不是亮 lime 填充色。产品专属语义（如「推理中」「子代理」）留在产品侧：`inherit` 档 + `style="color: …"` 传自己的令牌
 - 动效只提供 `spin` / `pulse` 两个布尔开关（产品级专属动画留在产品侧，不进库）
 - 图标只承载一个概念；不承载唯一信息（可点击图标必配 `aria-label` / `label`）
 - emoji 与字符不得充当控件图标（内容表达除外）

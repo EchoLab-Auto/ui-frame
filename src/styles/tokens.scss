@@ -28,6 +28,9 @@
   --nm-primary-light: #d9fb75;
   --nm-primary-dark: #b8e836;
   --nm-text-on-primary: #000000;
+  // 可读强调色：primary 是「填充色」（亮 lime 压不住浅底文字），
+  // 需要把强调色用作前景（图标/文字）时取这个，浅色主题压暗到约 6:1 对比。
+  --nm-accent-text: #546200;
 
   --nm-shadow-dark: rgba(0, 0, 0, 0.15);
   --nm-shadow-light: rgba(255, 255, 255, 0.8);
@@ -587,6 +590,8 @@
   --nm-primary-light: #d9fb75;
   --nm-primary-dark: #b8e836;
   --nm-text-on-primary: #000000;
+  // 可读强调色：深色主题下 primary 本身在 #1c1c1c 上已有足够对比，直接用
+  --nm-accent-text: var(--nm-primary-color);
 
   --nm-shadow-dark: rgba(0, 0, 0, 0.5);
   --nm-shadow-light: rgba(255, 255, 255, 0.14);

@@ -44,16 +44,34 @@ import { ICON_NAMES, ICON_REGISTRY } from '@echolab-auto/ui-frame/icons'
 
 ## API
 
-| Prop          | 类型                                                                 | 默认    | 说明                                                                             |
-| ------------- | -------------------------------------------------------------------- | ------- | -------------------------------------------------------------------------------- |
-| `name`        | `IconName`（79 个语义名）                                            | —       | 必填。未知名回退 `close`（不空白、不报错）                                       |
-| `size`        | `'xs' \| 'sm' \| 'md' \| 'lg' \| 'xl' \| '2xl' \| '3xl'` 或 `number` | `'sm'`  | 档位对应 12/14/16/18/20/24/32；数字直传，须落在这 7 个值上（`check:icons` 校验） |
-| `strokeWidth` | `number`                                                             | —       | 覆盖按档自动值；合法 0.5/1/1.5/2/2.5/3                                           |
-| `spin`        | `boolean`                                                            | `false` | 匀速旋转（`1s linear`，`transform-box: view-box` 锁定中心）                      |
-| `pulse`       | `boolean`                                                            | `false` | 呼吸脉冲（只动透明度，不位移/缩放——列表里不"跳动"）                              |
-| `label`       | `string`                                                             | `''`    | 有值 → `role="img"` + `aria-label`；留空 → `aria-hidden="true"`（装饰性）        |
+| Prop          | 类型                                                                              | 默认        | 说明                                                                             |
+| ------------- | --------------------------------------------------------------------------------- | ----------- | -------------------------------------------------------------------------------- |
+| `name`        | `IconName`（79 个语义名）                                                         | —           | 必填。未知名回退 `close`（不空白、不报错）                                       |
+| `size`        | `'xs' \| 'sm' \| 'md' \| 'lg' \| 'xl' \| '2xl' \| '3xl'` 或 `number`              | `'sm'`      | 档位对应 12/14/16/18/20/24/32；数字直传，须落在这 7 个值上（`check:icons` 校验） |
+| `strokeWidth` | `number`                                                                          | —           | 覆盖按档自动值；合法 0.5/1/1.5/2/2.5/3                                           |
+| `tone`        | `'inherit' \| 'accent' \| 'muted' \| 'success' \| 'warning' \| 'error' \| 'info'` | `'inherit'` | 语义色调，取主题令牌（见下节）。产品专属语义不进库                               |
+| `spin`        | `boolean`                                                                         | `false`     | 匀速旋转（`1s linear`，`transform-box: view-box` 锁定中心）                      |
+| `pulse`       | `boolean`                                                                         | `false`     | 呼吸脉冲（只动透明度，不位移/缩放——列表里不"跳动"）                              |
+| `label`       | `string`                                                                          | `''`        | 有值 → `role="img"` + `aria-label`；留空 → `aria-hidden="true"`（装饰性）        |
+| `ariaLabel`   | `string`                                                                          | `''`        | `label` 的别名（`ariaLabel` 优先）。产品侧旧写法不用改调用点即可迁移             |
 
 `spin` / `pulse` 在 `prefers-reduced-motion: reduce` 下自动停用。
+
+## 语义色调（tone）
+
+图标默认跟随 `currentColor`；需要表达状态时用 `tone`，值全部来自主题令牌，深色主题自动跟随：
+
+| `tone`            | 令牌                  | 用途                                                           |
+| ----------------- | --------------------- | -------------------------------------------------------------- |
+| `inherit`（默认） | `currentColor`        | 跟随父元素（按钮内、行内文字旁）                               |
+| `accent`          | `--nm-accent-text`    | 可读强调色（亮 lime 是填充色，压不住浅底文字，所以另有压暗档） |
+| `muted`           | `--nm-text-secondary` | 次要信息                                                       |
+| `success`         | `--nm-color-success`  | 通过、完成、在线                                               |
+| `warning`         | `--nm-color-warning`  | 需要注意、待确认                                               |
+| `error`           | `--nm-color-error`    | 失败、危险                                                     |
+| `info`            | `--nm-color-info`     | 中性提示                                                       |
+
+产品专属语义（例如「推理中」「子代理」这类 Panel 才认识的概念）**不进库**：用 `inherit` + `style="color: var(--your-token)"` 传自己的令牌即可。色调类名带 `tone-` 前缀（`nm-icon--tone-warning`），不会与 `warning` / `info` 这类型语义名的钩子相撞。
 
 ## 尺寸与线宽
 

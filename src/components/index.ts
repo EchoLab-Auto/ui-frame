@@ -226,7 +226,7 @@ export type {
 } from './NeumorphismStatusDot'
 
 export { default as NeumorphismIcon } from './NeumorphismIcon'
-export type { NeumorphismIconProps } from './NeumorphismIcon'
+export type { NeumorphismIconProps, NeumorphismIconTone } from './NeumorphismIcon'
 
 export { default as NeumorphismSegmented } from './NeumorphismSegmented'
 export type {
