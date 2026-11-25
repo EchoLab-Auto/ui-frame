@@ -20,7 +20,7 @@ describe('NeumorphismButton', () => {
 
   it('should apply variant classes', () => {
     // 玻璃三档同样是变体：基础档一律落 `raised`，玻璃类另行叠加
-    const plain = ['raised', 'pressed', 'primary', 'glow'] as const
+    const plain = ['raised', 'pressed', 'ghost', 'primary', 'glow'] as const
     for (const variant of plain) {
       const wrapper = mount(NeumorphismButton, { props: { variant } })
       expect(wrapper.find('button').classes()).toContain(`nm-button--${variant}`)
@@ -154,11 +154,50 @@ describe('NeumorphismButton', () => {
   })
 
   it('should apply shape classes', () => {
-    const shapes = ['rounded', 'pill', 'circle'] as const
+    const shapes = ['rounded', 'pill', 'circle', 'square'] as const
     for (const shape of shapes) {
       const wrapper = mount(NeumorphismButton, { props: { shape } })
       expect(wrapper.find('button').classes()).toContain(`nm-button--${shape}`)
     }
+  })
+
+  // `variant="ghost"` + `shape="square"`（2026-11）：卡头图标钮的官方组合。
+  // 它替代了此前各处「局部 CSS 覆盖 NeumorphismButton」的做法——覆盖一旦散落
+  // 在多个仓/多个文件，每个位置都要自己重写一遍透明底与三态深度。
+  describe('ghost 图标钮（ghost + square）', () => {
+    it('ghost 不落玻璃类、不落 raised 基础档', () => {
+      const classes = mount(NeumorphismButton, { props: { variant: 'ghost' } })
+        .find('button')
+        .classes()
+      expect(classes).toContain('nm-button--ghost')
+      expect(classes).not.toContain('nm-button--glass')
+      expect(classes.some(c => c.startsWith('nm-button--glass-'))).toBe(false)
+      // 玻璃三档才被改写成 raised；ghost 是自己的档
+      expect(classes).not.toContain('nm-button--raised')
+    })
+
+    it('square 仍然拿到 size 轴上的 min-height（图标钮的边长来源）', () => {
+      const style = mount(NeumorphismButton, {
+        props: { variant: 'ghost', shape: 'square', size: 26 },
+      })
+        .find('button')
+        .attributes('style')
+      // 宽高在样式侧读这个变量（.nm-button--square），size 必须真的下发它
+      expect(style).toContain('--nm-button-sz-height: 26px')
+    })
+
+    it('全局配置可把 variant 设为 ghost', () => {
+      const wrapper = mount(NeumorphismButton, {
+        global: {
+          provide: {
+            [ConfigKey as symbol]: computed(() => ({
+              button: { variant: 'ghost' as const },
+            })),
+          },
+        },
+      })
+      expect(wrapper.find('button').classes()).toContain('nm-button--ghost')
+    })
   })
 
   it('should emit click event', () => {

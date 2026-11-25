@@ -19,7 +19,7 @@ import { BUTTON_SCALE } from '@/utils/controlScales'
  * 因此玻璃只作为 `variant` 的一个取值存在，不再有 `glass` prop。
  */
 export type ButtonVariant =
-  'raised' | 'pressed' | 'primary' | 'glow' | 'glass' | 'glass-raised' | 'glass-pressed'
+  'raised' | 'pressed' | 'ghost' | 'primary' | 'glow' | 'glass' | 'glass-raised' | 'glass-pressed'
 
 /** 玻璃变体 → 共用档位名（`@/utils/glass` 的 `GlassVariant`） */
 const GLASS_TIER_OF_VARIANT: Partial<Record<ButtonVariant, GlassVariant>> = {
@@ -28,10 +28,21 @@ const GLASS_TIER_OF_VARIANT: Partial<Record<ButtonVariant, GlassVariant>> = {
   'glass-pressed': 'pressed',
 }
 
-export type ButtonShape = 'rounded' | 'pill' | 'circle'
+/**
+ * 钮形：`rounded` / `pill` / `circle` / `square`。
+ *
+ * `square`（2026-11）：宽 = 高 = `size`，圆角取 `--nm-border-radius-sm`——
+ * 图标钮要的形状。与 `circle` 的区别只有圆角与读取的尺寸变量（见样式段注释）。
+ */
+export type ButtonShape = 'rounded' | 'pill' | 'circle' | 'square'
 
 export interface NeumorphismButtonProps {
-  /** 视觉预设：`raised` / `pressed` / `primary` / `glow` / 玻璃三档 */
+  /**
+   * 视觉预设：`raised` / `pressed` / `ghost` / `primary` / `glow` / 玻璃三档
+   *
+   * `ghost`（2026-11）：透明底图标钮——材质取自父级卡面，三态只表达深度。
+   * 卡头 / 工具条里只有图标的小操作（刷新、折叠…）用它，配 `shape="square"`。
+   */
   variant?: ButtonVariant
   /**
    * 尺寸——px 最小高度（数字，主几何量）。
@@ -243,6 +254,24 @@ function handleClick(event: MouseEvent): void {
   @include nm-touch-min;
 }
 
+// 方形钮（2026-11）：图标钮要的是「宽 = 高 = size」，与 circle 的区别只有圆角。
+//
+// 为什么读 `--nm-button-sz-height` 而不是 `--nm-button-min-height`：circle 读的是
+// 三档 token（44px 恒定），数字 `size` 路径下那是另一个变量——`:size="26"` 只写
+// `--nm-button-sz-height`，圆钮会拿到未定义的 `--nm-button-min-height`，退化成
+// 默认几何量。fallback 链让方形钮同时兼容档位路径（class 触发的三档仍在样式表里）。
+//
+// `padding: 0` 也必须压：数字路径的 `pad-x` 按锚点插值（26px → 16px），图标钮会
+// 被撑成胶囊，宽度不再等于高度。
+.nm-button--square {
+  border-radius: var(--nm-border-radius-sm);
+  padding: 0;
+  width: var(--nm-button-sz-height, var(--nm-button-min-height-md));
+  height: var(--nm-button-sz-height, var(--nm-button-min-height-md));
+  // 触屏：与 circle 同一套兜底（图标钮不能因为 26px 而点不中）
+  @include nm-touch-min;
+}
+
 // ---------- Style variants ----------
 
 // Raised (default) — convex shadow, lifts toward finger on hover
@@ -296,6 +325,52 @@ function handleClick(event: MouseEvent): void {
       inset 5px 5px 10px var(--nm-shadow-dark-deep),
       inset -5px -5px 10px var(--nm-shadow-light-deep);
     transition: box-shadow 0.1s ease;
+  }
+}
+
+// Ghost — 无底色图标钮（2026-11）：卡头 / 工具条里只有图标的小操作。
+//
+// **材质由父级提供**：`background-color` 覆成透明，按钮不画自己的底，显示的就是
+// 所在卡片/条带的底色——在数学上必然与父级相等。反过来「复制父级配方」（surface
+// 实色 / 玻璃混合比例）是错的：父级换一次材质，抄来的值就漂一次。
+//
+// 于是三态只表达**深度**，不表达材质：
+// - 静止 0：无底、无投影，只剩图标
+// - 悬停 +：凸起双阴影 + `translateY(-1px)`
+// - 按下 −：反向 inset，陷进卡片表面
+//
+// 深度整体比 `.nm-button--raised` 矮一档（2px/5px vs 4px/8px）：图标钮通常只有
+// 20–30px，照搬 44px 档的深度看起来像个凸出来的方块。
+//
+// 基类的 `:focus-visible` 用 `box-shadow` 画环，会被这里的 `box-shadow: none`
+// 一起抹掉（同为 0,2,0 特异性，本规则在后）——所以焦点环改用 `outline` 补回来：
+// 它不占布局，也不与深度模型抢同一个属性。
+.nm-button--ghost {
+  background-color: transparent;
+  box-shadow: none;
+  transition:
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+
+  @media (hover: hover) {
+    &:not(.nm-button--disabled):hover {
+      transform: translateY(-1px);
+      box-shadow:
+        2px 2px 5px var(--nm-shadow-dark),
+        -2px -2px 5px var(--nm-shadow-light);
+    }
+  }
+
+  &:not(.nm-button--disabled):active {
+    transform: translateY(0);
+    box-shadow:
+      inset 2px 2px 4px var(--nm-shadow-dark-deep),
+      inset -2px -2px 4px var(--nm-shadow-light-deep);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--nm-primary-color);
+    outline-offset: 2px;
   }
 }
 
