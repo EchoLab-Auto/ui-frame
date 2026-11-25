@@ -1,4 +1,5 @@
 ---
+prodoc: true
 id: comp-pagination
 title: 'NeumorphismPagination（分页器）'
 x: 2885

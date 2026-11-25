@@ -1,4 +1,5 @@
 ---
+prodoc: true
 id: design-patterns
 title: '设计模式'
 x: 660

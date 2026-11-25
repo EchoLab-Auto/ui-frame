@@ -1,4 +1,5 @@
 ---
+prodoc: true
 id: comp-tooltip
 title: 'NeumorphismTooltip（文字提示）'
 x: 3277

@@ -1,4 +1,5 @@
 ---
+prodoc: true
 id: comp-art
 title: 'NeumorphismArt（动态效果画布）'
 x: 1709

@@ -1,4 +1,5 @@
 ---
+prodoc: true
 id: comp-chart-pie
 title: 'NeumorphismChartPie（饼图）'
 x: 3277

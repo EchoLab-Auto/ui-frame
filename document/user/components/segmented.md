@@ -1,4 +1,5 @@
 ---
+prodoc: true
 id: comp-segmented
 title: 'NeumorphismSegmented（分段选择器）'
 x: 2101

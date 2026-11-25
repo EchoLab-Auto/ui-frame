@@ -1,4 +1,5 @@
 ---
+prodoc: true
 id: develop-pipeline
 title: '开发验证 Pipeline'
 x: 660

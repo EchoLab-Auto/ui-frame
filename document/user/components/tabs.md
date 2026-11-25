@@ -1,4 +1,5 @@
 ---
+prodoc: true
 id: comp-tabs
 title: 'NeumorphismTabs（标签页）'
 x: 2885

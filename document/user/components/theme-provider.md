@@ -1,4 +1,5 @@
 ---
+prodoc: true
 id: comp-theme-provider
 title: 'ThemeProvider（主题提供者）'
 x: 3277

@@ -1,4 +1,5 @@
 ---
+prodoc: true
 id: design-philosophy
 title: '设计理念'
 x: 660

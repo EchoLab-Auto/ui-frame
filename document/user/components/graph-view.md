@@ -1,4 +1,5 @@
 ---
+prodoc: true
 id: comp-graph-view
 title: 'NeumorphismGraphView（节点图，实验性）'
 x: 1709

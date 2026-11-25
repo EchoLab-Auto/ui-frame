@@ -1,4 +1,5 @@
 ---
+prodoc: true
 id: comp-nav-menu
 title: 'NeumorphismNavMenu（顶部导航菜单）'
 x: 2885

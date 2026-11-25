@@ -1,4 +1,5 @@
 ---
+prodoc: true
 id: comp-chart-candlestick
 title: 'NeumorphismChartCandlestick（K 线图）'
 x: 3277

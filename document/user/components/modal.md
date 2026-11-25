@@ -1,4 +1,5 @@
 ---
+prodoc: true
 id: comp-modal
 title: 'NeumorphismModal（模态对话框）'
 x: 2885

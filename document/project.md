@@ -1,4 +1,5 @@
 ---
+prodoc: true
 id: project
 title: '@echolab-auto/ui-frame'
 x: 673

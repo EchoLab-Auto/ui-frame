@@ -1,4 +1,5 @@
 ---
+prodoc: true
 id: comp-doc
 title: 'Doc 文档组件'
 x: 1709

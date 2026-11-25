@@ -1,4 +1,5 @@
 ---
+prodoc: true
 id: ci-pipeline
 title: 'CI 流程'
 x: 40

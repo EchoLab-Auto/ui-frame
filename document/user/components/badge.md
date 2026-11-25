@@ -1,4 +1,5 @@
 ---
+prodoc: true
 id: comp-badge
 title: 'NeumorphismBadge（角标）'
 x: 2493

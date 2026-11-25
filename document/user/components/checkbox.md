@@ -1,4 +1,5 @@
 ---
+prodoc: true
 id: comp-checkbox
 title: 'NeumorphismCheckbox（复选框）'
 x: 1709

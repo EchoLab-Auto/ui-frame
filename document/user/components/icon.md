@@ -1,4 +1,5 @@
 ---
+prodoc: true
 id: comp-icon
 title: 'NeumorphismIcon 图标'
 x: 300

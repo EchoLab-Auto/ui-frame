@@ -1,4 +1,5 @@
 ---
+prodoc: true
 id: comp-switch
 title: 'NeumorphismSwitch（开关）'
 x: 1709

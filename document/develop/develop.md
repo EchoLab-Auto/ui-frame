@@ -1,4 +1,5 @@
 ---
+prodoc: true
 id: develop
 title: '开发指南'
 x: 40

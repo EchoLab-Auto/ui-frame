@@ -1,4 +1,5 @@
 ---
+prodoc: true
 id: comp-upload
 title: 'NeumorphismUpload（文件上传）'
 x: 2101

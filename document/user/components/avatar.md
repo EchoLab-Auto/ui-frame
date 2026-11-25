@@ -1,4 +1,5 @@
 ---
+prodoc: true
 id: comp-avatar
 title: 'NeumorphismAvatar（头像）'
 x: 2493

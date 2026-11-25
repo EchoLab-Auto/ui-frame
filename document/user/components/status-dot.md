@@ -1,4 +1,5 @@
 ---
+prodoc: true
 id: comp-status-dot
 title: 'NeumorphismStatusDot（状态点）'
 x: 2493

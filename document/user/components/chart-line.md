@@ -1,4 +1,5 @@
 ---
+prodoc: true
 id: comp-chart-line
 title: 'NeumorphismChartLine（折线图）'
 x: 3277

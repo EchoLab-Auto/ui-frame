@@ -1,4 +1,5 @@
 ---
+prodoc: true
 id: comp-chart-bar
 title: 'NeumorphismChartBar（柱状图）'
 x: 3277

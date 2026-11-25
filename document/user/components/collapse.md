@@ -1,4 +1,5 @@
 ---
+prodoc: true
 id: comp-collapse
 title: 'NeumorphismCollapse（折叠面板）'
 x: 2885

@@ -1,4 +1,5 @@
 ---
+prodoc: true
 id: comp-spinner
 title: 'NeumorphismSpinner（加载指示器）'
 x: 2493

@@ -1,4 +1,5 @@
 ---
+prodoc: true
 id: comp-canvas
 title: 'NeumorphismCanvas（画布）'
 x: 3277

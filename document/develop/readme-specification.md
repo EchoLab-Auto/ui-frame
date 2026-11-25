@@ -1,4 +1,5 @@
 ---
+prodoc: true
 id: readme-specification
 title: 'README 规范'
 x: 660

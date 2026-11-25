@@ -1,4 +1,5 @@
 ---
+prodoc: true
 id: comp-alert
 title: 'NeumorphismAlert（警告横幅）'
 x: 2885

@@ -1,4 +1,5 @@
 ---
+prodoc: true
 id: comp-logo
 title: 'NeumorphismLogo（动态像素 Logo）'
 x: 2101

@@ -1,4 +1,5 @@
 ---
+prodoc: true
 id: comp-progress
 title: 'NeumorphismProgress（进度条）'
 x: 2493

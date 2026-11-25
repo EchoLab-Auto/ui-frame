@@ -1,4 +1,5 @@
 ---
+prodoc: true
 id: comp-table
 title: 'NeumorphismTable（数据表格）'
 x: 2101

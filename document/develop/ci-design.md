@@ -1,4 +1,5 @@
 ---
+prodoc: true
 id: ci-design
 title: 'CI/CD 设计'
 x: 40

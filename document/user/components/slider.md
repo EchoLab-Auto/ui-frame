@@ -1,4 +1,5 @@
 ---
+prodoc: true
 id: comp-slider
 title: 'NeumorphismSlider（滑块）'
 x: 2101

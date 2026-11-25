@@ -1,4 +1,5 @@
 ---
+prodoc: true
 id: comp-skeleton
 title: 'NeumorphismSkeleton（骨架屏）'
 x: 2493

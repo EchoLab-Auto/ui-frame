@@ -1,4 +1,5 @@
 ---
+prodoc: true
 id: components
 title: '组件总览'
 x: 1317

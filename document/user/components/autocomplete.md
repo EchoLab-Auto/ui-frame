@@ -1,4 +1,5 @@
 ---
+prodoc: true
 id: comp-autocomplete
 title: 'NeumorphismAutoComplete（输入联想）'
 x: 2101

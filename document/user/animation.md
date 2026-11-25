@@ -1,4 +1,5 @@
 ---
+prodoc: true
 id: animation
 title: '动画效果'
 x: 1709

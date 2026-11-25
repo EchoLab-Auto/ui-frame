@@ -1,4 +1,5 @@
 ---
+prodoc: true
 id: comp-ascii-art
 title: 'NeumorphismAsciiArt（图片蒙版）'
 x: 1709

@@ -1,4 +1,5 @@
 ---
+prodoc: true
 id: comp-drawer
 title: 'NeumorphismDrawer（抽屉）'
 x: 2885

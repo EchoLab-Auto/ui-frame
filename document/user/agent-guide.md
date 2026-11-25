@@ -1,4 +1,5 @@
 ---
+prodoc: true
 id: agent-guide
 title: 'Agent 构建指南'
 x: 1317

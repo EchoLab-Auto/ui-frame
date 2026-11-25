@@ -1,4 +1,5 @@
 ---
+prodoc: true
 id: comp-field
 title: 'NeumorphismFieldLabel / FieldError（字段标签与错误）'
 x: 2101

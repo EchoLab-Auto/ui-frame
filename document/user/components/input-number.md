@@ -1,4 +1,5 @@
 ---
+prodoc: true
 id: comp-input-number
 title: 'NeumorphismInputNumber（数字输入）'
 x: 2101

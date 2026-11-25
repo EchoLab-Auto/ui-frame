@@ -1,4 +1,5 @@
 ---
+prodoc: true
 id: comp-date-picker
 title: 'NeumorphismDatePicker（日期选择器）'
 x: 2101

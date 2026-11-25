@@ -1,4 +1,5 @@
 ---
+prodoc: true
 id: comp-scrollbar
 title: 'NeumorphismScrollbar（滚动条）'
 x: 3277

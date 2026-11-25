@@ -1,4 +1,5 @@
 ---
+prodoc: true
 id: meta-design-specification
 title: '元 UI 设计规范'
 x: 660

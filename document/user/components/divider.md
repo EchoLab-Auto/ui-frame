@@ -1,4 +1,5 @@
 ---
+prodoc: true
 id: comp-divider
 title: 'NeumorphismDivider（分割线）'
 x: 2493

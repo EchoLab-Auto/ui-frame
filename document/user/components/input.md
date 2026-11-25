@@ -1,4 +1,5 @@
 ---
+prodoc: true
 id: comp-input
 title: 'NeumorphismInput（输入框）'
 x: 1709

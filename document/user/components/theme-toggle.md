@@ -1,4 +1,5 @@
 ---
+prodoc: true
 id: comp-theme-toggle
 title: 'NeumorphismThemeToggle（主题切换）'
 x: 2101

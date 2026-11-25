@@ -1,4 +1,5 @@
 ---
+prodoc: true
 id: user
 title: '使用指南'
 x: 1029

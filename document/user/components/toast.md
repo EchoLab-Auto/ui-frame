@@ -1,4 +1,5 @@
 ---
+prodoc: true
 id: comp-toast
 title: 'NeumorphismToastProvider（消息提示）'
 x: 2885

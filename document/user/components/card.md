@@ -1,4 +1,5 @@
 ---
+prodoc: true
 id: comp-card
 title: 'NeumorphismCard（卡片）'
 x: 2101

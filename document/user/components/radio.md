@@ -1,4 +1,5 @@
 ---
+prodoc: true
 id: comp-radio
 title: 'NeumorphismRadio（单选按钮）'
 x: 1709

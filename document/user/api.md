@@ -1,4 +1,5 @@
 ---
+prodoc: true
 id: api
 title: 'API 参考'
 x: 1317
